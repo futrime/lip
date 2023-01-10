@@ -1,11 +1,11 @@
-# Registry Documentation
+# Registry
 
 index.json
 
 ```json
 {
     "format_version": 0,
-    "identifier": "main",
+    "identifier": "default",
     "local": [
         {
             "identifier": "bds-hash-table",
