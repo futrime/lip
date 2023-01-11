@@ -1,6 +1,6 @@
 # tooth.json File Reference
 
-Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other modules and other information.
+Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other teeth and other information.
 
 These properties include:
 
@@ -12,16 +12,10 @@ These properties include:
 
 - The current tooth's **information**, including the name, the author, the description and so on.
 
-You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file, setting the tooth's tooth path to example.com/mytooth:
+You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
 
 ```shell
-lip tooth init example.com/mytooth
-```
-
-If you are not sure whether there is any mistake in your tooth.json or not, please run the command below to check:
-
-```shell
-lip tooth check
+lip tooth init
 ```
 
 ## Example
@@ -82,7 +76,7 @@ Declares the tooth's tooth path, which is the tooth's unique identifier (when co
 
 ### Notes
 
-The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the module path can be just some name you control that will ensure uniqueness.
+The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
 ## version
 
@@ -92,7 +86,7 @@ We adopted [Semantic Versioning 2.0.0](https://semver.org) and simplified its ru
 
 - A normal version number MUST take the form X.Y.Z where X, Y, and Z are non-negative integers, and MUST NOT contain leading zeroes, e.g. 1.01.02 is forbidden. X is the major version, Y is the minor version, and Z is the patch version. Each element MUST increase numerically. For instance: 1.9.0 -> 1.10.0 -> 1.11.0.
 
-- Once a versioned package has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version.
+- Once a versioned tooth has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version.
 
 - Major version zero (0.y.z) is for initial development. Anything MAY change at any time. The public API SHOULD NOT be considered stable. When under early development, please set the major version to zero.
 
