@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-lip tooth [options] <command>
+lip tooth <command> [options]
 ```
 
 ## Description
