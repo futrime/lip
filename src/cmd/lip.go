@@ -9,26 +9,27 @@ import (
 	"github.com/liteldev/lip/context"
 )
 
-const helpMessage = `
+func CmdLip() {
+	const helpMessage = `
 Usage:
-  lip <command> [options]
+  lip [options]
+  lip <command> [subcommand options]
 
 Commands:
   cache                       Inspect and manage Lip's cache. (TO-DO)
   config                      Manage local and global configuration. (TO-DO)
-  install                     Install teeth. (TO-DO)
+  install                     Install a tooth. (TO-DO)
   list                        List installed teeth. (TO-DO)
   show                        Show information about installed teeth. (TO-DO)
   tooth                       Maintain a tooth. (TO-DO)
-  uninstall                   Uninstall teeth. (TO-DO)
+  uninstall                   Uninstall a tooth. (TO-DO)
 
-General Options:
+Options:
   -h, --help                  Show help.
   -V, --version               Show version and exit.`
 
-const versionMessage = "Lip %s from %s"
+	const versionMessage = "Lip %s from %s"
 
-func CmdLip() {
 	flag.Usage = func() {
 		fmt.Println(helpMessage)
 	}

@@ -9,10 +9,10 @@ lip install [options] <tooth url/path>
 
 ## Description
 
-Install tooth from:
+Install a tooth from:
 
-- Tooth repository.
-- Local or remote standalone tooth file (with suffix `.tt`).
+- A tooth repository.
+- A local or remote standalone tooth file (with suffix `.tt`).
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run Lip without `--upgrade` or `--force-reinstall` flag, Lip will not install the specific version.
 
@@ -53,7 +53,7 @@ You can install any pre-release versions by specifying the version. And teeth ca
 
 - `--dry-run`
 
-  Don’t actually install anything, just print what would be.
+  Don't actually install anything, just print what would be.
 
 - `--upgrade`
 
