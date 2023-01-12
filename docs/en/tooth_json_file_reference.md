@@ -42,7 +42,13 @@ A tooth.json includes directives as shown in the following example. These are de
         "author": "LiteLDev",
         "license": "Modified LGPL-3.0",
         "homepage": "www.litebds.com"
-    }
+    },
+    "placement": [
+        {
+            "source": "",
+            "destination": ""
+        }
+    ]
 }
 ```
 
@@ -77,6 +83,8 @@ Declares the tooth's tooth path, which is the tooth's unique identifier (when co
 ### Notes
 
 The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
+
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://").
 
 ## version
 
@@ -222,3 +230,47 @@ Some fields are customary and might be shown on the search pages of some registr
 - author: your name
 - license: the license of the tooth, left empty if private
 - homepage: the homepage of the tooth
+
+## placement
+
+Indicates how should Lip handle file placement.
+
+### Syntax
+
+Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path relative to the root of BDS specified by destination.
+
+### Examples
+
+Extract from specific folders and place to specific folders:
+
+```json
+{
+    "placement": [
+        {
+            "source": "build",
+            "destination": "plugins"
+        },
+        {
+            "source": "assets",
+            "destination": "plugins/myplugin"
+        }
+    ]
+}
+```
+
+Extract from tooth root and place to BDS root:
+
+```json
+{
+    "placement": [
+        {
+            "source": "",
+            "destination": ""
+        }
+    ]
+}
+```
+
+### Notes
+
+Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
