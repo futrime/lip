@@ -3,20 +3,21 @@ package main
 import (
 	"os"
 
-	"github.com/liteldev/lip/cmd"
+	cmd "github.com/liteldev/lip/cmd"
+	cmdinstall "github.com/liteldev/lip/cmd/install"
 )
 
 func main() {
 	// If no subcommand...
 	if len(os.Args) < 2 {
-		cmd.CmdLip()
+		cmd.Run()
 		return
 	}
 
 	switch os.Args[1] {
 	case "install":
-		cmd.CmdInstall()
+		cmdinstall.Run()
 	default:
-		cmd.CmdLip()
+		cmd.Run()
 	}
 }

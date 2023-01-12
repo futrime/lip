@@ -6,10 +6,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/liteldev/lip/context"
+	context "github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/utils/logger"
 )
 
-func CmdLip() {
+type FlagDict struct {
+	helpFlag    bool
+	versionFlag bool
+}
+
+func Run() {
 	const helpMessage = `
 Usage:
   lip [options]
@@ -30,26 +36,34 @@ Options:
 
 	const versionMessage = "Lip %s from %s"
 
+	// Rewrite the default usage message.
 	flag.Usage = func() {
-		fmt.Println(helpMessage)
+		logger.Info(helpMessage)
 	}
 
-	var helpFlag bool
-	flag.BoolVar(&helpFlag, "help", false, "")
-	flag.BoolVar(&helpFlag, "h", false, "")
+	var flagDict FlagDict
 
-	var versionFlag bool
-	flag.BoolVar(&versionFlag, "version", false, "")
-	flag.BoolVar(&versionFlag, "V", false, "")
+	flag.BoolVar(&flagDict.helpFlag, "help", false, "")
+	flag.BoolVar(&flagDict.helpFlag, "h", false, "")
+
+	flag.BoolVar(&flagDict.versionFlag, "version", false, "")
+	flag.BoolVar(&flagDict.versionFlag, "V", false, "")
 
 	flag.Parse()
 
-	if helpFlag {
-		fmt.Println(helpMessage)
-	} else if versionFlag {
-		exPath, _ := filepath.Abs(os.Args[0])
-		fmt.Printf(versionMessage, context.Version, exPath)
-	} else {
-		fmt.Println(helpMessage)
+	// Help flag has the highest priority.
+	if flagDict.helpFlag {
+		logger.Info(helpMessage)
+		return
 	}
+
+	if flagDict.versionFlag {
+		exPath, _ := filepath.Abs(os.Args[0])
+		logger.Info(versionMessage, context.Version, exPath)
+		return
+	}
+
+	// Default to help message.
+	logger.Error("No command specified.")
+	fmt.Println(helpMessage)
 }
