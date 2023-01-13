@@ -22,6 +22,12 @@
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
 
-- [Registry](registry.md)
+- Development
+
+  - Global Data Directory
+
+  - Local Data Directory
+  
+  - [Registry](registry.md)
 
 - [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

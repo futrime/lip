@@ -24,8 +24,14 @@ Commands:
 Options:
   -h, --help                  Show help.`
 
-// Run is the entry point of the install command.
+// Run is the entry point.
 func Run() {
+	// If there is no argument, print help message and exit.
+	if len(os.Args) == 2 {
+		logger.Info(helpMessage)
+		return
+	}
+
 	// If there is a subcommand, run it and exit.
 	if len(os.Args) >= 3 {
 		switch os.Args[2] {
@@ -55,6 +61,6 @@ func Run() {
 		return
 	}
 
-	// Default to help message.
-	logger.Info(helpMessage)
+	// Default to unknown error.
+	logger.Error("unknown error")
 }

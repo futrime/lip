@@ -42,8 +42,14 @@ Description:
 Options:
   -h, --help                  Show help.`
 
-// Run is the entry point of the install command.
+// Run is the entry point.
 func Run() {
+	// If there is no argument, initialize a new tooth.
+	if len(os.Args) == 3 {
+		initTooth()
+		return
+	}
+
 	flagSet := flag.NewFlagSet("init", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -64,10 +70,11 @@ func Run() {
 		return
 	}
 
-	// Default to initializing a new tooth.
-	initTooth()
+	// Default to unknown error.
+	logger.Error("unknown error")
 }
 
+// initTooth initializes a new tooth.
 func initTooth() {
 	// Check if tooth.json already exists.
 	if _, err := os.Stat("tooth.json"); err == nil {
