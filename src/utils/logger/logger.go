@@ -1,3 +1,4 @@
+// Package logger deals with the output of Lip.
 package logger
 
 import (
@@ -9,6 +10,8 @@ import (
 // Info prints a message to the console.
 func Info(format string, a ...interface{}) {
 	fmt.Printf(format, a...)
+	// Print a new line.
+	fmt.Println()
 }
 
 // Warning prints a warning message to the console.

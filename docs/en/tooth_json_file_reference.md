@@ -72,6 +72,12 @@ Now only 1 is a legal value.
 
 Declares the tooth's tooth path, which is the tooth's unique identifier (when combined with the tooth version number).
 
+### Syntax
+
+Generally, tooth path should be in the form of a lowercased URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
+
+Only lowercase letters, numbers, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed.
+
 ### Examples
 
 ```json
@@ -84,7 +90,7 @@ Declares the tooth's tooth path, which is the tooth's unique identifier (when co
 
 The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
-Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://").
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tt", which will be regarded as a standalone tooth archive file.
 
 ## version
 
@@ -274,3 +280,5 @@ Extract from tooth root and place to BDS root:
 ### Notes
 
 Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
+
+The tooth.json under the root of the tooth will not be placed.

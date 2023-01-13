@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-lip <command> [options]
+lip [options]
 ```
 
 ## Options
@@ -11,3 +11,7 @@ lip <command> [options]
 - `-h, --help`
 
   Show help.
+
+- `-V, --version`
+
+  Show version and exit.

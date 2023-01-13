@@ -1,4 +1,5 @@
-package cmd
+// Package cmdlip is the entry point of the lip command.
+package cmdlip
 
 import (
 	"flag"
@@ -6,50 +7,80 @@ import (
 	"os"
 	"path/filepath"
 
+	cmdinstall "github.com/liteldev/lip/cmd/install"
+	cmdtooth "github.com/liteldev/lip/cmd/tooth"
 	context "github.com/liteldev/lip/context"
-	"github.com/liteldev/lip/utils/logger"
+	logger "github.com/liteldev/lip/utils/logger"
 )
 
+// FlagDict is a dictionary of flags.
 type FlagDict struct {
 	helpFlag    bool
 	versionFlag bool
 }
 
-func Run() {
-	const helpMessage = `
+const helpMessage = `
 Usage:
   lip [options]
-  lip <command> [subcommand options]
+  lip <command> [subcommand options] ...
 
 Commands:
   cache                       Inspect and manage Lip's cache. (TO-DO)
   config                      Manage local and global configuration. (TO-DO)
-  install                     Install a tooth. (TO-DO)
+  install                     Install a tooth.
   list                        List installed teeth. (TO-DO)
   show                        Show information about installed teeth. (TO-DO)
-  tooth                       Maintain a tooth. (TO-DO)
+  tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth. (TO-DO)
 
 Options:
   -h, --help                  Show help.
   -V, --version               Show version and exit.`
 
-	const versionMessage = "Lip %s from %s"
+const versionMessage = "Lip %s from %s"
+
+// Run is the entry point of the lip command.
+func Run() {
+	// If there is a subcommand, run it and exit.
+	if len(os.Args) >= 2 {
+		switch os.Args[1] {
+		case "cache":
+			// TO-DO
+		case "config":
+			// TO-DO
+		case "install":
+			cmdinstall.Run()
+			return
+		case "list":
+			// TO-DO
+		case "show":
+			// TO-DO
+		case "tooth":
+			cmdtooth.Run()
+			return
+		case "uninstall":
+			// TO-DO
+		}
+	}
+
+	flagSet := flag.NewFlagSet("lip", flag.ExitOnError)
 
 	// Rewrite the default usage message.
-	flag.Usage = func() {
+	flagSet.Usage = func() {
 		logger.Info(helpMessage)
 	}
 
+	// Parse flags.
+
 	var flagDict FlagDict
 
-	flag.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flag.BoolVar(&flagDict.helpFlag, "h", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flag.BoolVar(&flagDict.versionFlag, "version", false, "")
-	flag.BoolVar(&flagDict.versionFlag, "V", false, "")
+	flagSet.BoolVar(&flagDict.versionFlag, "version", false, "")
+	flagSet.BoolVar(&flagDict.versionFlag, "V", false, "")
 
-	flag.Parse()
+	flagSet.Parse(os.Args[1:])
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
@@ -64,6 +95,5 @@ Options:
 	}
 
 	// Default to help message.
-	logger.Error("No command specified.")
 	fmt.Println(helpMessage)
 }

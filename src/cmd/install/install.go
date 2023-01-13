@@ -1,12 +1,13 @@
-package cmdinstall
+package cmdlipinstall
 
 import (
 	"flag"
 	"os"
 
-	"github.com/liteldev/lip/utils/logger"
+	logger "github.com/liteldev/lip/utils/logger"
 )
 
+// FlagDict is a dictionary of flags.
 type FlagDict struct {
 	helpFlag           bool
 	dryRunFlag         bool
@@ -14,8 +15,7 @@ type FlagDict struct {
 	forceReinstallFlag bool
 }
 
-func Run() {
-	const helpMessage = `
+const helpMessage = `
 Usage:
   lip install [options] <requirement specifier>
   lip install [options] <tooth url/path>
@@ -32,6 +32,8 @@ Options:
   --upgrade                   Upgrade the specified tooth to the newest available version.
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
 
+// Run is the entry point of the install command.
+func Run() {
 	flagSet := flag.NewFlagSet("install", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -60,7 +62,7 @@ Options:
 
 	// Print help message if argument number is not 1.
 	if flagSet.NArg() != 1 {
-		logger.Error("Invalid number of arguments.")
+		logger.Error("invalid number of arguments")
 		logger.Info(helpMessage)
 		return
 	}

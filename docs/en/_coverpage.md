@@ -1,6 +1,6 @@
 ![logo](../assets/logo.webp)
 
-# Lip <small>0.0.x</small>
+# Lip <small>0.1.x</small>
 
 > A LiteLoaderBDS package installer
 
