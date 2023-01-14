@@ -8,9 +8,9 @@ import (
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 
+// MatchType is an enum that represents the type of a version match.
 type MatchType int
 
-// The match types.
 const (
 	EqualMatchType MatchType = iota
 	InequalMatchType

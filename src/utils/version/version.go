@@ -76,14 +76,20 @@ func New(
 // NewFromString creates a new version from a version string.
 func NewFromString(versionString string) (Version, error) {
 	if !IsValidVersionString(versionString) {
-		return Version{}, errors.New("invalid version string")
+		return Version{}, errors.New("invalid version string: " + versionString)
 	}
 
 	var major, minor, patch int
 	preReleaseName := ""
 	preReleaseNumber := -1
 
-	versionStringParts := strings.Split(versionString, "-.")
+	// Split versionString into parts using the "-" and "." character.
+	versionStringParts := strings.FieldsFunc(versionString, func(r rune) bool {
+		return r == '-' || r == '.'
+	})
+
+	// Print versionStringParts
+	fmt.Println("versionStringParts: ", versionStringParts)
 
 	// Parse major, minor, and patch versions.
 	fmt.Sscanf(versionStringParts[0], "%d", &major)

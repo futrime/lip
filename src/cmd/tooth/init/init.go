@@ -79,9 +79,6 @@ func Run() {
 		logger.Info(helpMessage)
 		return
 	}
-
-	// Default to unknown error.
-	logger.Error("unknown error")
 }
 
 // initTooth initializes a new tooth.

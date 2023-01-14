@@ -104,7 +104,4 @@ func Run() {
 		logger.Info(versionMessage, context.Version, exPath)
 		return
 	}
-
-	// Default to unknown error.
-	logger.Error("unknown error")
 }
