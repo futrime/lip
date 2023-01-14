@@ -88,9 +88,6 @@ func NewFromString(versionString string) (Version, error) {
 		return r == '-' || r == '.'
 	})
 
-	// Print versionStringParts
-	fmt.Println("versionStringParts: ", versionStringParts)
-
 	// Parse major, minor, and patch versions.
 	fmt.Sscanf(versionStringParts[0], "%d", &major)
 	fmt.Sscanf(versionStringParts[1], "%d", &minor)

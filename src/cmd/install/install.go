@@ -5,7 +5,6 @@ import (
 	"flag"
 	"os"
 
-	context "github.com/liteldev/lip/context"
 	logger "github.com/liteldev/lip/utils/logger"
 )
 
@@ -36,12 +35,6 @@ Options:
 
 // Run is the entry point.
 func Run() {
-	// Validate the context.
-	if err := context.Validate(); err != nil {
-		logger.Error(err.Error())
-		return
-	}
-
 	// If there is no argument, print help message and exit.
 	if len(os.Args) == 2 {
 		logger.Info(helpMessage)
