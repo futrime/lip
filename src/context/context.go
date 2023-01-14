@@ -1,6 +1,8 @@
 // Package context includes the context of Lip.
 package context
 
+import "errors"
+
 //------------------------------------------------------------------------------
 // Constants
 
@@ -14,3 +16,15 @@ const DefaultGoproxy = "https://goproxy.io"
 
 // Goproxy is the goproxy address.
 var Goproxy string
+
+//------------------------------------------------------------------------------
+// Functions
+
+// Validate validates the context.
+func Validate() error {
+	if Goproxy == "" {
+		return errors.New("context.Goproxy is empty")
+	}
+
+	return nil
+}

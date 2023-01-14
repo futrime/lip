@@ -1,6 +1,7 @@
 package cmdliptoothinit
 
 import (
+	"errors"
 	"flag"
 	"os"
 
@@ -46,7 +47,16 @@ Options:
 func Run() {
 	// If there is no argument, initialize a new tooth.
 	if len(os.Args) == 3 {
-		initTooth()
+		err := initTooth()
+
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+
+		logger.Info("tooth.json created successfully")
+		logger.Info("please edit tooth.json and modify the values with \"<>\"")
+
 		return
 	}
 
@@ -75,27 +85,23 @@ func Run() {
 }
 
 // initTooth initializes a new tooth.
-func initTooth() {
+func initTooth() error {
 	// Check if tooth.json already exists.
 	if _, err := os.Stat("tooth.json"); err == nil {
-		logger.Error("tooth.json already exists in the current directory")
-		return
+		return errors.New("tooth.json already exists in the current directory")
 	}
 
 	// Create tooth.json.
 	file, err := os.Create("tooth.json")
 	if err != nil {
-		logger.Error("failed to create tooth.json")
-		return
+		return errors.New("failed to create tooth.json")
 	}
 
 	// Write default tooth.json content.
 	_, err = file.WriteString(defaultToothJsonContent)
 	if err != nil {
-		logger.Error("failed to write tooth.json")
-		return
+		return errors.New("failed to write tooth.json")
 	}
 
-	logger.Info("tooth.json created successfully")
-	logger.Info("please edit tooth.json and modify the values with \"<>\"")
+	return nil
 }

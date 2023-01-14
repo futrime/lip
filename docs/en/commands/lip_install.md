@@ -4,19 +4,21 @@
 
 ```shell
 lip install [options] <requirement specifiers>
-lip install [options] <tooth url/paths>
+lip install [options] <tooth url/files>
 ```
 
 ## Description
 
 Install a tooth from:
 
-- tooth repositories.
+- tooth repositories via Goproxy.
 - local or remote standalone tooth files (with suffix `.tt`).
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run Lip without `--upgrade` or `--force-reinstall` flag, Lip will not install the specific version.
 
 Only lowercase letters, numbers, dashes, underlines, dots, slashes [a-z0-9-_./] and one @ are allowed in requirement specifiers.
+
+If you have set environment variable GOPROXY, Lip will access tooth repositories via it. Otherwise, Lip will choose the default Goproxy <https://goproxy.io>.
 
 ### Overview
 

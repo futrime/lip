@@ -40,6 +40,12 @@ const versionMessage = "Lip %s from %s"
 
 // Run is the entry point of the lip command.
 func Run() {
+	// Validate the context.
+	if err := context.Validate(); err != nil {
+		logger.Error(err.Error())
+		return
+	}
+
 	// If there is no argument, print help message and exit.
 	if len(os.Args) == 1 {
 		logger.Info(helpMessage)
