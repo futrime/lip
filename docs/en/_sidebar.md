@@ -26,8 +26,8 @@
 
   - Global Data Directory
 
-  - Local Data Directory
+  - [Local Data Directory](development/local_data_directory.md)
   
-  - [Registry](registry.md)
+  - [Registry](development/registry.md)
 
 - [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

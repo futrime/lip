@@ -80,6 +80,15 @@ func IsCachedToothFileExist(fullSpecifier string) (bool, error) {
 	return true, nil
 }
 
+func RecordDir() (string, error) {
+	workspaceLipDir, err := WorkspaceLipDir()
+	if err != nil {
+		return "", err
+	}
+	recordDir := workspaceLipDir + "/records"
+	return recordDir, nil
+}
+
 // WorkspaceLipDir returns the path to the ./.lip directory.
 func WorkspaceLipDir() (string, error) {
 	// Set context.WorkspaceLipDir.

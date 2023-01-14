@@ -100,12 +100,12 @@ func Run() {
 		return
 	}
 
-	logger.Info("Validating requirement specifiers and tooth url/files...")
-
 	// 1. Validate the requirement specifier or tooth url/path.
 	//    This process will check if the tooth file exists or the tooth url can be accessed
 	//    and if the requirement specifier syntax is valid. For requirement specifier, it
 	//    will also check if the tooth repository can be accessed via GOPROXY.
+
+	logger.Info("Validating requirement specifiers and tooth url/files...")
 
 	isAllSpecifiersValid := true
 	for _, specifier := range specifiers {
@@ -126,6 +126,8 @@ func Run() {
 	//    specifier in the array, if it is downloaded, it will be removed from the array.
 	//    If it is not downloaded, it will be parsed to get its dependencies and add them
 	//    to the array. This process will continue until the array is empty.
+
+	logger.Info("Parsing dependencies and downloading tooth files...")
 
 	// If the specifier is a requirement specifier but missing version, fetch the
 	// latest version and add it to the specifier.
@@ -162,6 +164,8 @@ func Run() {
 			continue
 		}
 
+		logger.Info("Fetching " + specifier + "...")
+
 		// Download the tooth file.
 		downloadedToothFilePath, err := downloadToothFile(specifier)
 		if err != nil {
@@ -176,9 +180,6 @@ func Run() {
 	}
 
 	// TODO: Install the downloaded tooth files in the correct order.
-
-	// Default to unknown error.
-	logger.Error("unknown error")
 }
 
 // downloadToothFile downloads a tooth file from a tooth repository, a tooth url,

@@ -4,6 +4,7 @@ package version
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Version is a version number. The version number is split into three parts: the
@@ -35,13 +36,19 @@ type Version struct {
 // New creates a new version.
 // If the version is stable, the pre-release name should be empty and the
 // pre-release number should -1.
-func (v Version) New(
+func New(
 	major int, minor int, patch int,
 	preReleaseName string, preReleaseNumber int) (Version, error) {
 	// The major, minor, and patch versions must be greater than or equal to 0.
 	if major < 0 || minor < 0 || patch < 0 {
 		return Version{},
 			errors.New("major, minor, and patch versions must be greater than or equal to 0")
+	}
+
+	// The patch version must be 0 if the pre-release name is not empty.
+	if patch != 0 && preReleaseName != "" {
+		return Version{},
+			errors.New("patch version must be 0 if the pre-release name is not empty")
 	}
 
 	// The pre-release name must not be empty if the pre-release number is not
@@ -64,6 +71,35 @@ func (v Version) New(
 		preReleaseName:   preReleaseName,
 		preReleaseNumber: preReleaseNumber,
 	}, nil
+}
+
+// NewFromString creates a new version from a version string.
+func NewFromString(versionString string) (Version, error) {
+	if !IsValidVersionString(versionString) {
+		return Version{}, errors.New("invalid version string")
+	}
+
+	var major, minor, patch int
+	preReleaseName := ""
+	preReleaseNumber := -1
+
+	versionStringParts := strings.Split(versionString, "-.")
+
+	// Parse major, minor, and patch versions.
+	fmt.Sscanf(versionStringParts[0], "%d", &major)
+	fmt.Sscanf(versionStringParts[1], "%d", &minor)
+	fmt.Sscanf(versionStringParts[2], "%d", &patch)
+
+	// Parse pre-release name and pre-release number.
+	if len(versionStringParts) > 3 {
+		preReleaseName = versionStringParts[3]
+	}
+
+	if len(versionStringParts) > 4 {
+		fmt.Sscanf(versionStringParts[4], "%d", &preReleaseNumber)
+	}
+
+	return New(major, minor, patch, preReleaseName, preReleaseNumber)
 }
 
 // Major returns the major version.
