@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liteldev/lip/utils/version"
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 
@@ -83,7 +82,7 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 }
 
 // Match matches the version to the version match.
-func (vm VersionMatch) Match(version version.Version) bool {
+func (vm VersionMatch) Match(version versionutils.Version) bool {
 	switch vm.matchType {
 	case EqualMatchType:
 		return versionutils.Equal(version, vm.version)
