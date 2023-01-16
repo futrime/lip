@@ -7,9 +7,11 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	localfile "github.com/liteldev/lip/localfile"
 	metadata "github.com/liteldev/lip/metadata"
+	recordutils "github.com/liteldev/lip/record"
 )
 
 // ToothFile is the struct that contains the metadata of a .tt file.
@@ -88,14 +90,17 @@ func (t ToothFile) Install() error {
 
 	// 2. Install the record file.
 
-	// Encode the metadata into a JSON byte array.
-	metadataJSON, err := t.metadata.JSON()
+	// Create a record object from the metadata.
+	record := recordutils.NewFromMetadata(t.metadata)
+
+	// Encode the record object to JSON.
+	recordJSON, err := record.JSON()
 	if err != nil {
 		return err
 	}
 
 	// Write the metadata bytes to the record file.
-	err = os.WriteFile(recordFilePath, metadataJSON, 0755)
+	err = os.WriteFile(recordFilePath, recordJSON, 0755)
 	if err != nil {
 		return errors.New("failed to write record file " + recordFilePath + " " + err.Error())
 	}
@@ -124,6 +129,11 @@ func (t ToothFile) Install() error {
 		// Iterate through the files in the archive,
 		// and find the source file.
 		for _, f := range r.File {
+			// Do not copy directories.
+			if strings.HasSuffix(f.Name, "/") {
+				continue
+			}
+
 			if f.Name == source {
 				// Open the source file.
 				rc, err := f.Open()

@@ -10,7 +10,7 @@ import (
 	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
 )
 
-// infoStruct is the struct that contains the information of a tooth.
+// InfoStruct is the struct that contains the information of a tooth.
 type InfoStruct struct {
 	Name        string
 	Description string
@@ -19,7 +19,7 @@ type InfoStruct struct {
 	Homepage    string
 }
 
-// placementStruct is the struct that contains the source and destination of a placement.
+// PlacementStruct is the struct that contains the source and destination of a placement.
 type PlacementStruct struct {
 	Source      string
 	Destination string
