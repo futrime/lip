@@ -5,7 +5,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 
+	localfile "github.com/liteldev/lip/localfile"
 	metadatautils "github.com/liteldev/lip/metadata"
 	versionutils "github.com/liteldev/lip/utils/version"
 	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
@@ -34,6 +39,22 @@ type Record struct {
 	Information         InfoStruct
 	Placement           []PlacementStruct
 	IsManuallyInstalled bool
+}
+
+// New creates a new Record struct from a record file.
+func New(recordFilePath string) (Record, error) {
+	content, err := os.ReadFile(recordFilePath)
+	if err != nil {
+		return Record{}, errors.New("cannot read the record file " + recordFilePath + ": " + err.Error())
+	}
+
+	// Parse the record file.
+	currentRecord, err := NewFromJSON(content)
+	if err != nil {
+		return Record{}, errors.New(err.Error())
+	}
+
+	return currentRecord, nil
 }
 
 // NewFromJSON decodes a JSON byte array into a Record struct.
@@ -170,4 +191,39 @@ func (record Record) JSON() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// ListAll lists all installed tooth records.
+func ListAll() ([]Record, error) {
+	recordList := make([]Record, 0)
+
+	// Get all record paths
+	recordDir, err := localfile.RecordDir()
+	if err != nil {
+		return nil, errors.New("failed to get record directory: " + err.Error())
+	}
+
+	files, err := os.ReadDir(recordDir)
+	if err != nil {
+		return nil, errors.New("failed to read record directory: " + err.Error())
+	}
+
+	for _, file := range files {
+		recordFilePath := filepath.Join(recordDir, file.Name())
+
+		// Read record
+		record, err := New(recordFilePath)
+		if err != nil {
+			return nil, errors.New("failed to read record file" + file.Name() + ": " + err.Error())
+		}
+
+		recordList = append(recordList, record)
+	}
+
+	// Sort record list by tooth path in a case-insensitive order.
+	sort.Slice(recordList, func(i, j int) bool {
+		return strings.ToLower(recordList[i].ToothPath) < strings.ToLower(recordList[j].ToothPath)
+	})
+
+	return recordList, nil
 }

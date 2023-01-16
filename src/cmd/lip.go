@@ -8,6 +8,7 @@ import (
 
 	cmdcache "github.com/liteldev/lip/cmd/cache"
 	cmdinstall "github.com/liteldev/lip/cmd/install"
+	cmdlist "github.com/liteldev/lip/cmd/list"
 	cmdtooth "github.com/liteldev/lip/cmd/tooth"
 	cmduninstall "github.com/liteldev/lip/cmd/uninstall"
 	context "github.com/liteldev/lip/context"
@@ -29,7 +30,7 @@ Commands:
   cache                       Inspect and manage Lip's cache.
   config                      Manage local and global configuration. (TO-DO)
   install                     Install a tooth.
-  list                        List installed teeth. (TO-DO)
+  list                        List installed teeth.
   show                        Show information about installed teeth. (TO-DO)
   tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth.
@@ -54,7 +55,8 @@ func Run() {
 			cmdinstall.Run()
 			return
 		case "list":
-			// TO-DO
+			cmdlist.Run()
+			return
 		case "show":
 			// TO-DO
 		case "tooth":
