@@ -49,12 +49,12 @@ func Run() {
 
 	var flagDict FlagDict
 
-	flag.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flag.BoolVar(&flagDict.helpFlag, "h", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flag.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
+	flagSet.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
 
-	flag.BoolVar(&flagDict.forceReinstallFlag, "force-reinstall", false, "")
+	flagSet.BoolVar(&flagDict.forceReinstallFlag, "force-reinstall", false, "")
 
 	flagSet.Parse(os.Args[2:])
 

@@ -44,8 +44,8 @@ func Run() {
 
 	var flagDict FlagDict
 
-	flag.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flag.BoolVar(&flagDict.helpFlag, "h", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
+	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
 	flagSet.Parse(os.Args[2:])
 

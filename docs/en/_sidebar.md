@@ -12,9 +12,9 @@
 
   - [lip install](commands/lip_install.md)
 
-  - lip list
+  - [lip list](commands/lip_list.md)
 
-  - lip show
+  - [lip show](commands/lip_show.md)
 
   - [lip tooth](commands/lip_tooth.md)
 

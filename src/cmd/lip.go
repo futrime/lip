@@ -9,6 +9,7 @@ import (
 	cmdcache "github.com/liteldev/lip/cmd/cache"
 	cmdinstall "github.com/liteldev/lip/cmd/install"
 	cmdlist "github.com/liteldev/lip/cmd/list"
+	cmdshow "github.com/liteldev/lip/cmd/show"
 	cmdtooth "github.com/liteldev/lip/cmd/tooth"
 	cmduninstall "github.com/liteldev/lip/cmd/uninstall"
 	context "github.com/liteldev/lip/context"
@@ -31,7 +32,7 @@ Commands:
   config                      Manage local and global configuration. (TO-DO)
   install                     Install a tooth.
   list                        List installed teeth.
-  show                        Show information about installed teeth. (TO-DO)
+  show                        Show information about installed teeth.
   tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth.
 
@@ -58,7 +59,8 @@ func Run() {
 			cmdlist.Run()
 			return
 		case "show":
-			// TO-DO
+			cmdshow.Run()
+			return
 		case "tooth":
 			cmdtooth.Run()
 			return
