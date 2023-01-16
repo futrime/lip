@@ -18,11 +18,11 @@
 
     - [lip tooth init](commands/lip_tooth_init.md)
 
-  - lip uninstall
+  - [lip uninstall](commands/lip_uninstall.md)
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
 
-- Development
+- Lip Development
 
   - Global Data Directory
 

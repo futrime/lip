@@ -8,6 +8,7 @@ import (
 
 	cmdinstall "github.com/liteldev/lip/cmd/install"
 	cmdtooth "github.com/liteldev/lip/cmd/tooth"
+	cmduninstall "github.com/liteldev/lip/cmd/uninstall"
 	context "github.com/liteldev/lip/context"
 	logger "github.com/liteldev/lip/utils/logger"
 )
@@ -30,7 +31,7 @@ Commands:
   list                        List installed teeth. (TO-DO)
   show                        Show information about installed teeth. (TO-DO)
   tooth                       Maintain a tooth.
-  uninstall                   Uninstall a tooth. (TO-DO)
+  uninstall                   Uninstall a tooth.
 
 Options:
   -h, --help                  Show help.
@@ -58,7 +59,8 @@ func Run() {
 			cmdtooth.Run()
 			return
 		case "uninstall":
-			// TO-DO
+			cmduninstall.Run()
+			return
 		}
 	}
 

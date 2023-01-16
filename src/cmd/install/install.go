@@ -5,7 +5,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/liteldev/lip/toothfile"
+	toothfile "github.com/liteldev/lip/toothfile"
 	logger "github.com/liteldev/lip/utils/logger"
 )
 
@@ -23,7 +23,7 @@ Usage:
   lip install [options] <tooth url/files>
 
 Description:
-  Install a tooth from:
+  Install teeth from:
 
   - tooth repositories.
   - local or remote standalone tooth files (with suffix .tt).
