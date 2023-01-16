@@ -28,13 +28,15 @@ A tooth.json includes directives as shown in the following example. These are de
     "tooth": "github.com/liteldev/liteloaderbds",
     "version": "2.9.0",
     "dependencies": {
-        "libopenssl": ["1.1.0", "1.1.1"],
-        "libopenssl3": [
-            [">=3.0.5", "<=3.0.7"],
-            "3.0.9"
-        ],
-        "libsqlite3": ["3.0.x"],
-        "preloader": ["2.9.0"]
+        "test.test/test/depend": [
+            [
+                ">=1.0.0",
+                "<=1.1.0"
+            ],
+            [
+                "2.0.x"
+            ]
+        ]
     },
     "information": {
         "name": "LiteLoaderBDS",
@@ -193,13 +195,15 @@ Multi-level nesting is not allowed.
 ```json
 {
     "dependencies": {
-        "libopenssl": ["1.1.0", "1.1.1"],
-        "libopenssl3": [
-            [">=3.0.5", "<=3.0.7"],
-            "3.0.9"
-        ],
-        "libsqlite3": ["3.0.x"],
-        "preloader": ["2.9.0"]
+        "test.test/test/depend": [
+            [
+                ">=1.0.0",
+                "<=1.1.0"
+            ],
+            [
+                "2.0.x"
+            ]
+        ]
     }
 }
 ```

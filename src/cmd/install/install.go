@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/liteldev/lip/toothfile"
 	logger "github.com/liteldev/lip/utils/logger"
 )
 
@@ -137,5 +138,29 @@ func Run() {
 		// TODO: Parse the tooth file to get its dependencies and add them to the queue.
 	}
 
-	// TODO: Install the downloaded tooth files in the correct order.
+	// 3. Install tooth files.
+	//    This process will install all downloaded tooth files. If the tooth file is
+	//    already installed, it will be skipped. If the tooth file is not installed, it
+	//    will be installed. If the tooth file is installed but the version is different,
+	//    it will be upgraded or reinstalled according to the flags.
+
+	logger.Info("Installing tooth files...")
+
+	for _, downloadedToothFilePath := range downloadedToothFiles {
+		logger.Info("Installing " + downloadedToothFilePath + "...")
+
+		// Open the tooth file.
+		toothFile, err := toothfile.New(downloadedToothFilePath)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+
+		// Install the tooth file.
+		err = toothFile.Install()
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+	}
 }

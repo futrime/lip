@@ -50,6 +50,14 @@ func GetCachedToothFileName(fullSpecifier string) string {
 	return fullSpecifier + ".tt"
 }
 
+// GetRecordFileName returns the file name of the record file.
+func GetRecordFileName(toothPath string) string {
+	// Encode the tooth path with Base64.
+	toothPath = base64.StdEncoding.EncodeToString([]byte(toothPath))
+
+	return toothPath + ".json"
+}
+
 // HomeLipDir returns the path to the ~/.lip directory.
 func HomeLipDir() (string, error) {
 	// Set context.HomeLipDir.
@@ -62,6 +70,7 @@ func HomeLipDir() (string, error) {
 	return homeLipDir, nil
 }
 
+// IsCachedToothFileExist returns true if the cached tooth file exists.
 func IsCachedToothFileExist(fullSpecifier string) (bool, error) {
 	// Get the path to the cached tooth file.
 	cachedToothFileName := GetCachedToothFileName(fullSpecifier)
@@ -80,6 +89,7 @@ func IsCachedToothFileExist(fullSpecifier string) (bool, error) {
 	return true, nil
 }
 
+// RecordDir returns the path to the ./.lip/records directory.
 func RecordDir() (string, error) {
 	workspaceLipDir, err := WorkspaceLipDir()
 	if err != nil {
@@ -89,14 +99,23 @@ func RecordDir() (string, error) {
 	return recordDir, nil
 }
 
-// WorkspaceLipDir returns the path to the ./.lip directory.
-func WorkspaceLipDir() (string, error) {
-	// Set context.WorkspaceLipDir.
+// WorkSpaceDir returns the path to the current working directory.
+func WorkSpaceDir() (string, error) {
 	dirname, err := os.Getwd()
 	if err != nil {
 		err = errors.New("failed to get current directory")
 		return "", err
 	}
+	return dirname, nil
+}
+
+// WorkspaceLipDir returns the path to the ./.lip directory.
+func WorkspaceLipDir() (string, error) {
+	dirname, err := WorkSpaceDir()
+	if err != nil {
+		return "", err
+	}
+
 	workspaceLipDir := dirname + "/.lip"
 	return workspaceLipDir, nil
 }

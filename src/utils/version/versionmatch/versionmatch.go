@@ -67,7 +67,7 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 		versionMatchString = versionMatchString[1:]
 	} else if strings.HasSuffix(versionMatchString, "x") {
 		matchType = CompatibleMatchType
-		versionMatchString = versionMatchString[:len(versionMatchString)-2] + "0"
+		versionMatchString = versionMatchString[:len(versionMatchString)-1] + "0"
 	} else {
 		matchType = EqualMatchType
 	}
@@ -102,4 +102,27 @@ func (vm VersionMatch) Match(version versionutils.Version) bool {
 
 	// This should never happen.
 	return false
+}
+
+// String returns the string representation of the version match.
+func (vm VersionMatch) String() string {
+	switch vm.matchType {
+	case EqualMatchType:
+		return vm.version.String()
+	case InequalMatchType:
+		return "!" + vm.version.String()
+	case GreaterThanMatchType:
+		return ">" + vm.version.String()
+	case GreaterThanOrEqualMatchType:
+		return ">=" + vm.version.String()
+	case LessThanMatchType:
+		return "<" + vm.version.String()
+	case LessThanOrEqualMatchType:
+		return "<=" + vm.version.String()
+	case CompatibleMatchType:
+		return strings.TrimSuffix(vm.version.String(), "0") + "x"
+	}
+
+	// This should never happen.
+	return ""
 }
