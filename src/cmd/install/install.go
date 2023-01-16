@@ -5,8 +5,8 @@ import (
 	"flag"
 	"os"
 
-	toothfile "github.com/liteldev/lip/toothfile"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/tooth/toothfile"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

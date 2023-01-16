@@ -1,5 +1,5 @@
 // Package record provides functions to manage the record files.
-package record
+package toothrecord
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	localfile "github.com/liteldev/lip/localfile"
-	metadatautils "github.com/liteldev/lip/metadata"
+	metadatautils "github.com/liteldev/lip/tooth/toothmetadata"
 	versionutils "github.com/liteldev/lip/utils/version"
 	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
 )

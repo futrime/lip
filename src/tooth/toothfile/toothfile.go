@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	localfile "github.com/liteldev/lip/localfile"
-	metadata "github.com/liteldev/lip/metadata"
-	recordutils "github.com/liteldev/lip/record"
+	metadata "github.com/liteldev/lip/tooth/toothmetadata"
+	recordutils "github.com/liteldev/lip/tooth/toothrecord"
 )
 
 // ToothFile is the struct that contains the metadata of a .tt file.

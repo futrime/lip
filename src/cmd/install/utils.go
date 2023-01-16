@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	context "github.com/liteldev/lip/context"
-	localfile "github.com/liteldev/lip/localfile"
-	download "github.com/liteldev/lip/utils/download"
+	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/utils/download"
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 

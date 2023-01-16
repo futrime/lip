@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	version "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/version"
 )
 
 // SpecifierType is an enum that represents the type of a specifier.

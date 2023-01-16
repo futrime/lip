@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	record "github.com/liteldev/lip/record"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.
@@ -53,7 +53,7 @@ func Run() {
 // listInstalledTeeth lists installed teeth.
 func listInstalledTeeth() {
 	// Get the sorted list of records.
-	recordList, err := record.ListAll()
+	recordList, err := toothrecord.ListAll()
 	if err != nil {
 		logger.Error(err.Error())
 		return

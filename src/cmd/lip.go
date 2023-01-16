@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	cmdcache "github.com/liteldev/lip/cmd/cache"
-	cmdinstall "github.com/liteldev/lip/cmd/install"
-	cmdlist "github.com/liteldev/lip/cmd/list"
-	cmdshow "github.com/liteldev/lip/cmd/show"
-	cmdtooth "github.com/liteldev/lip/cmd/tooth"
-	cmduninstall "github.com/liteldev/lip/cmd/uninstall"
+	cmdlipcache "github.com/liteldev/lip/cmd/cache"
+	cmdlipinstall "github.com/liteldev/lip/cmd/install"
+	cmdliplist "github.com/liteldev/lip/cmd/list"
+	cmdlipshow "github.com/liteldev/lip/cmd/show"
+	cmdliptooth "github.com/liteldev/lip/cmd/tooth"
+	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
 	context "github.com/liteldev/lip/context"
 	logger "github.com/liteldev/lip/utils/logger"
 )
@@ -29,7 +29,6 @@ Usage:
 
 Commands:
   cache                       Inspect and manage Lip's cache.
-  config                      Manage local and global configuration. (TO-DO)
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
@@ -48,24 +47,24 @@ func Run() {
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
 		case "cache":
-			cmdcache.Run()
+			cmdlipcache.Run()
 			return
 		case "config":
 			// TO-DO
 		case "install":
-			cmdinstall.Run()
+			cmdlipinstall.Run()
 			return
 		case "list":
-			cmdlist.Run()
+			cmdliplist.Run()
 			return
 		case "show":
-			cmdshow.Run()
+			cmdlipshow.Run()
 			return
 		case "tooth":
-			cmdtooth.Run()
+			cmdliptooth.Run()
 			return
 		case "uninstall":
-			cmduninstall.Run()
+			cmdlipuninstall.Run()
 			return
 		}
 	}

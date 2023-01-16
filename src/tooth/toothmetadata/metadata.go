@@ -1,5 +1,5 @@
 // Package metadata contains the metadata of a tooth.
-package metadata
+package toothmetadata
 
 import (
 	"bytes"

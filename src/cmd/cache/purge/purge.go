@@ -5,8 +5,8 @@ import (
 	"flag"
 	"os"
 
-	localfile "github.com/liteldev/lip/localfile"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

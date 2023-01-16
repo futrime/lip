@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	cmdtoothinit "github.com/liteldev/lip/cmd/tooth/init"
-	logger "github.com/liteldev/lip/utils/logger"
+	cmdliptoothinit "github.com/liteldev/lip/cmd/tooth/init"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.
@@ -30,7 +30,7 @@ func Run() {
 	if len(os.Args) >= 3 {
 		switch os.Args[2] {
 		case "init":
-			cmdtoothinit.Run()
+			cmdliptoothinit.Run()
 			return
 		}
 	}

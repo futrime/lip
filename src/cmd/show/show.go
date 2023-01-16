@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	localfile "github.com/liteldev/lip/localfile"
-	record "github.com/liteldev/lip/record"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.
@@ -79,7 +79,7 @@ func Run() {
 	}
 
 	// Get the record file content.
-	recordObject, err := record.New(recordFilePath)
+	recordObject, err := toothrecord.New(recordFilePath)
 	if err != nil {
 		logger.Error(err.Error())
 		return

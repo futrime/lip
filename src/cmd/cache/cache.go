@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	cmdcachepurge "github.com/liteldev/lip/cmd/cache/purge"
-	logger "github.com/liteldev/lip/utils/logger"
+	cmdlipcachepurge "github.com/liteldev/lip/cmd/cache/purge"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.
@@ -30,7 +30,7 @@ func Run() {
 	if len(os.Args) >= 3 {
 		switch os.Args[2] {
 		case "purge":
-			cmdcachepurge.Run()
+			cmdlipcachepurge.Run()
 			return
 		}
 	}

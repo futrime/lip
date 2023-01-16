@@ -1,4 +1,4 @@
-package metadata
+package toothmetadata
 
 import (
 	"testing"
