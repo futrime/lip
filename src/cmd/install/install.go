@@ -12,7 +12,6 @@ import (
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
 	helpFlag           bool
-	dryRunFlag         bool
 	upgradeFlag        bool
 	forceReinstallFlag bool
 }
@@ -30,7 +29,6 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  --dry-run                   Don't actually install anything, just print what would be.
   --upgrade                   Upgrade the specified tooth to the newest available version.
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
 
@@ -53,8 +51,6 @@ func Run() {
 
 	flag.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flag.BoolVar(&flagDict.helpFlag, "h", false, "")
-
-	flag.BoolVar(&flagDict.dryRunFlag, "dry-run", false, "")
 
 	flag.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
 

@@ -8,7 +8,7 @@ lip tooth [options]
 
 ## Description
 
-`lip tooth` provides access to operations on teeth.
+Manage teeth.
 
 ## Options
 

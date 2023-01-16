@@ -53,9 +53,9 @@ You can install any pre-release versions by specifying the version. And teeth ca
 
 ## Options
 
-- `--dry-run`
+- `-h, --help`
 
-  Don't actually install anything, just print what would be.
+  Show help.
 
 - `--upgrade`
 

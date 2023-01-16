@@ -4,7 +4,9 @@
 
   - [lip](commands/lip.md)
 
-  - lip cache
+  - [lip cache](commands/lip_cache.md)
+
+    - [lip cache purge](commands/lip_cache_purge.md)
 
   - lip config
 

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	cmdcache "github.com/liteldev/lip/cmd/cache"
 	cmdinstall "github.com/liteldev/lip/cmd/install"
 	cmdtooth "github.com/liteldev/lip/cmd/tooth"
 	cmduninstall "github.com/liteldev/lip/cmd/uninstall"
@@ -25,7 +26,7 @@ Usage:
   lip <command> [subcommand options] ...
 
 Commands:
-  cache                       Inspect and manage Lip's cache. (TO-DO)
+  cache                       Inspect and manage Lip's cache.
   config                      Manage local and global configuration. (TO-DO)
   install                     Install a tooth.
   list                        List installed teeth. (TO-DO)
@@ -45,7 +46,8 @@ func Run() {
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
 		case "cache":
-			// TO-DO
+			cmdcache.Run()
+			return
 		case "config":
 			// TO-DO
 		case "install":

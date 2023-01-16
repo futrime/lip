@@ -1,14 +1,14 @@
-# lip uninstall
+# lip cache
 
 ## Usage
 
 ```shell
-lip uninstall [options] <tooth paths>
+lip cache [options]
 ```
 
 ## Description
 
-Uninstall teeth.
+Inspect and manage Lip’s tooth cache.
 
 ## Options
 

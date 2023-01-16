@@ -1,14 +1,14 @@
-# lip uninstall
+# lip cache purge
 
 ## Usage
 
 ```shell
-lip uninstall [options] <tooth paths>
+lip cache purge [options]
 ```
 
 ## Description
 
-Uninstall teeth.
+Remove all items from the cache.
 
 ## Options
 
