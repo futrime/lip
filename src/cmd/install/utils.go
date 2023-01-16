@@ -1,11 +1,13 @@
 package cmdlipinstall
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/liteldev/lip/context"
@@ -106,8 +108,45 @@ func downloadTooth(specifier Specifier) (string, error) {
 	return "", errors.New("unknown error")
 }
 
+// fetchVersionList fetches the version list of a tooth repository.
+func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
+	if !isValidRepoPath(repoPath) {
+		return nil, errors.New("invalid repository path: " + repoPath)
+	}
+
+	url := context.Goproxy + "/" + repoPath + "/@v/list"
+
+	// Get the version list.
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, errors.New("cannot access GOPROXY: " + repoPath)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New("cannot access tooth repository: " + repoPath)
+	}
+
+	// Each line is a version.
+	var versionList []versionutils.Version
+	scanner := bufio.NewScanner(resp.Body)
+	for scanner.Scan() {
+		version, err := versionutils.NewFromString(strings.TrimPrefix(scanner.Text(), "v"))
+		if err != nil {
+			continue
+		}
+		versionList = append(versionList, version)
+	}
+
+	// Sort the version list in descending order.
+	sort.Slice(versionList, func(i, j int) bool {
+		return versionutils.GreaterThan(versionList[i], versionList[j])
+	})
+
+	return versionList, nil
+}
+
 // fetchLatestVersion fetches the latest version of the tooth repository.
-// The repoPath should be in the format of repoPath without @version.
 func fetchLatestVersion(repoPath string) (versionutils.Version, error) {
 	if !isValidRepoPath(repoPath) {
 		return versionutils.Version{}, errors.New("invalid repository path: " + repoPath)

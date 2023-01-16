@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/liteldev/lip/tooth"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/utils/logger"
 )
@@ -29,8 +30,8 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  --upgrade                   Upgrade the specified tooth to the newest available version.
-  --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
+  --upgrade                   Upgrade the specified tooth to the newest available version. (TODO)
+  --force-reinstall           Reinstall the tooth even if they are already up-to-date. (TODO)`
 
 // Run is the entry point.
 func Run() {
@@ -114,12 +115,12 @@ func Run() {
 		specifier := specifiersToFetch.Front().Value.(Specifier)
 		specifiersToFetch.Remove(specifiersToFetch.Front())
 
-		// If the specifier is already downloaded, skip.
+		// If the tooth file of the specifier is already downloaded, skip.
 		if _, ok := downloadedToothFiles[specifier.String()]; ok {
 			continue
 		}
 
-		logger.Info("Fetching " + specifier.String() + "...")
+		logger.Info("  Fetching " + specifier.String() + "...")
 
 		// Download the tooth file.
 		downloadedToothFilePath, err := downloadTooth(specifier)
@@ -131,7 +132,44 @@ func Run() {
 		// Add the downloaded path to the downloaded tooth files.
 		downloadedToothFiles[specifier.String()] = downloadedToothFilePath
 
-		// TODO: Parse the tooth file to get its dependencies and add them to the queue.
+		// Parse the tooth file to get its dependencies
+		toothFile, err := toothfile.New(downloadedToothFilePath)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+		dependencies := toothFile.Metadata().Dependencies
+
+		// Get proper version of each dependency and add them to the queue.
+		for toothPath, versionRange := range dependencies {
+			versionList, err := fetchVersionList(toothPath)
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+
+		selectVersion:
+			for _, version := range versionList {
+				for _, innerVersionRange := range versionRange {
+					for _, versionMatch := range innerVersionRange {
+						if versionMatch.Match(version) {
+							// Add the specifier to the queue.
+							specifier, err := NewSpecifier(toothPath + "@" + version.String())
+							if err != nil {
+								logger.Error(err.Error())
+								return
+							}
+							specifiersToFetch.PushBack(specifier)
+							break selectVersion
+						}
+					}
+				}
+			}
+
+			// If no version is selected, error.
+			logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
+			return
+		}
 	}
 
 	// 3. Install tooth files.
@@ -143,7 +181,6 @@ func Run() {
 	logger.Info("Installing tooth files...")
 
 	for _, downloadedToothFilePath := range downloadedToothFiles {
-		logger.Info("Installing " + downloadedToothFilePath + "...")
 
 		// Open the tooth file.
 		toothFile, err := toothfile.New(downloadedToothFilePath)
@@ -152,7 +189,21 @@ func Run() {
 			return
 		}
 
+		// If the tooth file is already installed, skip.
+		isInstalled, err := tooth.IsInstalled(toothFile.Metadata().ToothPath)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+		if isInstalled {
+			logger.Info("  " + toothFile.Metadata().ToothPath + " (" + downloadedToothFilePath + ") is already installed.")
+			continue
+		}
+
 		// Install the tooth file.
+		logger.Info("  Installing " + toothFile.Metadata().ToothPath + "@" +
+			toothFile.Metadata().Version.String() + "...")
+
 		err = toothFile.Install()
 		if err != nil {
 			logger.Error(err.Error())
