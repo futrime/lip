@@ -23,11 +23,17 @@ func Init() error {
 	os.MkdirAll(homeLipDir, 0755)
 	os.MkdirAll(cacheDir, 0755)
 
+	// Initialize the ./.lip directory.
 	workspaceLipDir, err := WorkspaceLipDir()
 	if err != nil {
 		return err
 	}
 	os.MkdirAll(workspaceLipDir, 0755)
+	recordDir, err := RecordDir()
+	if err != nil {
+		return err
+	}
+	os.MkdirAll(recordDir, 0755)
 
 	return nil
 }

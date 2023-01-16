@@ -40,12 +40,6 @@ const versionMessage = "Lip %s from %s"
 
 // Run is the entry point of the lip command.
 func Run() {
-	// If there is no argument, print help message and exit.
-	if len(os.Args) == 1 {
-		logger.Info(helpMessage)
-		return
-	}
-
 	// If there is a subcommand, run it and exit.
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
@@ -98,4 +92,7 @@ func Run() {
 		logger.Info(versionMessage, context.Version.String(), exPath)
 		return
 	}
+
+	// If there is no flag, print help message and exit.
+	logger.Info(helpMessage)
 }

@@ -26,12 +26,6 @@ Options:
 
 // Run is the entry point.
 func Run() {
-	// If there is no argument, print help message and exit.
-	if len(os.Args) == 2 {
-		logger.Info(helpMessage)
-		return
-	}
-
 	// If there is a subcommand, run it and exit.
 	if len(os.Args) >= 3 {
 		switch os.Args[2] {
@@ -60,4 +54,7 @@ func Run() {
 		logger.Info(helpMessage)
 		return
 	}
+
+	// If there is no subcommand, print help message and exit.
+	logger.Info(helpMessage)
 }

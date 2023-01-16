@@ -95,7 +95,10 @@ func (t ToothFile) Install() error {
 	}
 
 	// Write the metadata bytes to the record file.
-	os.WriteFile(recordFilePath, metadataJSON, 0755)
+	err = os.WriteFile(recordFilePath, metadataJSON, 0755)
+	if err != nil {
+		return errors.New("failed to write record file " + recordFilePath + " " + err.Error())
+	}
 
 	// 3. Place the files to the right place in the workspace.
 
