@@ -253,6 +253,8 @@ Indicates how should Lip handle file placement.
 
 Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path relative to the root of BDS specified by destination.
 
+If both the source and the destination ends with "*", the placement will be regarded as a wildcard. Lip will recursively place all files under the source directory to the destination directory.
+
 ### Examples
 
 Extract from specific folders and place to specific folders:
@@ -288,5 +290,3 @@ Extract from tooth root and place to BDS root:
 ### Notes
 
 Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
-
-The tooth.json under the root of the tooth will not be placed.
