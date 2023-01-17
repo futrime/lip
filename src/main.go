@@ -2,20 +2,22 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	cmdlip "github.com/liteldev/lip/cmd"
-	context "github.com/liteldev/lip/context"
-	localfile "github.com/liteldev/lip/localfile"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/utils/logger"
 	"github.com/liteldev/lip/utils/version"
 )
 
 func main() {
 	// Set Version.
 	var err error
+	context.VersionString = strings.TrimPrefix(context.VersionString, "v")
 	context.Version, err = version.NewFromString(context.VersionString)
 	if err != nil {
-		logger.Error(err.Error())
+		context.Version, _ = version.NewFromString("0.0.0")
 	}
 
 	// Set Goproxy if environment variable GOPROXY is set.
