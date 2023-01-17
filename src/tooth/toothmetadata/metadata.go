@@ -5,10 +5,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"regexp"
 	"strings"
 
+	"github.com/liteldev/lip/tooth"
 	versionutils "github.com/liteldev/lip/utils/version"
-	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/liteldev/lip/utils/version/versionmatch"
 )
 
 // InfoStruct is the struct that contains the information of a tooth.
@@ -30,7 +32,7 @@ type PlacementStruct struct {
 type Metadata struct {
 	ToothPath    string
 	Version      versionutils.Version
-	Dependencies map[string]([][]versionmatchutils.VersionMatch)
+	Dependencies map[string]([][]versionmatch.VersionMatch)
 	Information  InfoStruct
 	Placement    []PlacementStruct
 }
@@ -49,6 +51,9 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 	// Tooth path should be lower case.
 	metadata.ToothPath = strings.ToLower(metadataMap["tooth"].(string))
+	if !tooth.IsValidToothPath(metadata.ToothPath) {
+		return Metadata{}, errors.New("failed to decode JSON into metadata: invalid tooth path: " + metadata.ToothPath)
+	}
 
 	version, err := versionutils.NewFromString(metadataMap["version"].(string))
 
@@ -57,13 +62,13 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	}
 	metadata.Version = version
 
-	metadata.Dependencies = make(map[string]([][]versionmatchutils.VersionMatch))
+	metadata.Dependencies = make(map[string]([][]versionmatch.VersionMatch))
 	for toothPath, versionMatchOuterList := range metadataMap["dependencies"].(map[string]interface{}) {
-		metadata.Dependencies[toothPath] = make([][]versionmatchutils.VersionMatch, len(versionMatchOuterList.([]interface{})))
+		metadata.Dependencies[toothPath] = make([][]versionmatch.VersionMatch, len(versionMatchOuterList.([]interface{})))
 		for i, versionMatchInnerList := range versionMatchOuterList.([]interface{}) {
-			metadata.Dependencies[toothPath][i] = make([]versionmatchutils.VersionMatch, len(versionMatchInnerList.([]interface{})))
+			metadata.Dependencies[toothPath][i] = make([]versionmatch.VersionMatch, len(versionMatchInnerList.([]interface{})))
 			for j, versionMatch := range versionMatchInnerList.([]interface{}) {
-				versionMatch, err := versionmatchutils.NewFromString(versionMatch.(string))
+				versionMatch, err := versionmatch.NewFromString(versionMatch.(string))
 				if err != nil {
 					return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
 				}
@@ -81,8 +86,21 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 	metadata.Placement = make([]PlacementStruct, len(metadataMap["placement"].([]interface{})))
 	for i, placement := range metadataMap["placement"].([]interface{}) {
-		metadata.Placement[i].Source = placement.(map[string]interface{})["source"].(string)
-		metadata.Placement[i].Destination = placement.(map[string]interface{})["destination"].(string)
+		source := placement.(map[string]interface{})["source"].(string)
+		destination := placement.(map[string]interface{})["destination"].(string)
+
+		// Source and destination should starts with a letter or a digit and should only contains
+		reg := regexp.MustCompile(`^[a-zA-Z0-9]\S*$`)
+		// The matched string should be the same as the original string.
+		if reg.FindString(source) != source {
+			return Metadata{}, errors.New("failed to decode JSON into metadata: invalid source: " + source)
+		}
+		if reg.FindString(destination) != destination {
+			return Metadata{}, errors.New("failed to decode JSON into metadata: invalid destination: " + destination)
+		}
+
+		metadata.Placement[i].Source = source
+		metadata.Placement[i].Destination = destination
 	}
 
 	return metadata, nil

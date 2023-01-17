@@ -5,8 +5,8 @@ import (
 	"flag"
 	"os"
 
-	"github.com/liteldev/lip/tooth"
 	"github.com/liteldev/lip/tooth/toothfile"
+	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
 )
 
@@ -190,7 +190,7 @@ func Run() {
 		}
 
 		// If the tooth file is already installed, skip.
-		isInstalled, err := tooth.IsInstalled(toothFile.Metadata().ToothPath)
+		isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 		if err != nil {
 			logger.Error(err.Error())
 			return

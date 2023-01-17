@@ -1,21 +1,12 @@
 package tooth
 
-import "github.com/liteldev/lip/tooth/toothrecord"
+import (
+	"regexp"
+)
 
-// IsInstalled returns true if the tooth is installed.
-func IsInstalled(toothPath string) (bool, error) {
-	// Get the tooth record list.
-	recordList, err := toothrecord.ListAll()
-	if err != nil {
-		return false, err
-	}
+// IsValidToothPath returns true if the tooth path is valid.
+func IsValidToothPath(toothPath string) bool {
+	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
 
-	// Check if the tooth is installed.
-	for _, record := range recordList {
-		if record.ToothPath == toothPath {
-			return true, nil
-		}
-	}
-
-	return false, nil
+	return reg.FindString(toothPath) == toothPath
 }

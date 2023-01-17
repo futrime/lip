@@ -37,6 +37,8 @@ When looking at the items to be installed, Lip checks what type of item each is,
 1. Tooth repository, which can be accessed via Goproxy.
 2. Local tooth file with suffix `.tt`.
 
+In the first case, all letters will be converted to lowercase before processing.
+
 ### Satisfying Requirements
 
 Once Lip has the set of requirements to satisfy, it chooses which version of each requirement to install using the simple rule that the latest stable version that satisfies the given constraints will be installed.
