@@ -55,7 +55,7 @@ func New(filePath string) (ToothFile, error) {
 			}
 
 			// Parse the wildcard placements.
-			metadata = parseMetadataPlacement(metadata, r)
+			metadata = parseMetadataPlacement(metadata, r, filePrefix)
 
 			return ToothFile{filePath, metadata}, nil
 		}

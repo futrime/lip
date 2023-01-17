@@ -2,7 +2,6 @@ package cmdlipinstall
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"path/filepath"
@@ -86,7 +85,7 @@ func downloadTooth(specifier Specifier) (string, error) {
 		}
 
 		// Get the tooth file url.
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + ".zip"
+		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + "+incompatible.zip"
 
 		// Download the tooth file to the cache.
 		cacheDir, err := localfile.CacheDir()
@@ -149,54 +148,6 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	return versionList, nil
 }
 
-// fetchLatestVersion fetches the latest version of the tooth repository.
-func fetchLatestVersion(repoPath string) (versionutils.Version, error) {
-	if !isValidRepoPath(repoPath) {
-		return versionutils.Version{}, errors.New("invalid repository path: " + repoPath)
-	}
-
-	url := context.Goproxy + "/" + repoPath + "/@latest"
-
-	// Get the latest version.
-	resp, err := http.Get(url)
-	if err != nil {
-		return versionutils.Version{}, errors.New("cannot access GOPROXY: " + repoPath)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return versionutils.Version{}, errors.New("cannot access tooth repository: " + repoPath)
-	}
-
-	// Parse as JSON.
-	var data interface{}
-	err = json.NewDecoder(resp.Body).Decode(&data)
-
-	// If the response is not JSON, it is an invalid requirement specifier.
-	if err != nil {
-		return versionutils.Version{}, errors.New("invalid JSON response: " + repoPath)
-	}
-
-	// If the response is JSON, the latest version is the value of the key "Version".
-	versionString := data.(map[string]interface{})["Version"].(string)
-
-	// The version should not start with v0.0.0.
-	if strings.HasPrefix(versionString, "v0.0.0-") {
-		return versionutils.Version{}, errors.New("cannot find a stable latest version: " + repoPath)
-	}
-
-	versionString = strings.TrimPrefix(versionString, "v")
-	versionString = strings.TrimSuffix(versionString, "+incompatible")
-
-	// Parse the version.
-	version, err := versionutils.NewFromString(versionString)
-	if err != nil {
-		return versionutils.Version{}, err
-	}
-
-	return version, nil
-}
-
 // isValidRepoPath checks if the repoPath is valid.
 func isValidRepoPath(repoPath string) bool {
 	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
@@ -213,7 +164,7 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 	}
 
 	// Check if the version is valid.
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + ".info"
+	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + "+incompatible.info"
 
 	// Get the version information.
 	resp, err := http.Get(url)
