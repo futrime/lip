@@ -61,6 +61,9 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 		}, nil
 
 	case RequirementSpecifierType:
+		// Specifier string should be lower case.
+		specifierString = strings.ToLower(specifierString)
+
 		reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*(@\d+\.\d+\.\d+(-[a-z]+(\.\d+)?)?)?$`)
 
 		// If not matched or the matched string is not the same as the specifier, it is an

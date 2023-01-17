@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"strings"
 
 	versionutils "github.com/liteldev/lip/utils/version"
 	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
@@ -46,7 +47,8 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	// Parse to metadata.
 	var metadata Metadata
 
-	metadata.ToothPath = metadataMap["tooth"].(string)
+	// Tooth path should be lower case.
+	metadata.ToothPath = strings.ToLower(metadataMap["tooth"].(string))
 
 	version, err := versionutils.NewFromString(metadataMap["version"].(string))
 
