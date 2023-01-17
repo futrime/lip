@@ -8,7 +8,7 @@
 
 ## Checklist before merging
 
-Thank you for your contribution to the repo. 
+Thank you for your contribution to the repository. 
 Before submitting this PR, please make sure:
 
 - [ ] Your code builds clean without any errors or warnings
