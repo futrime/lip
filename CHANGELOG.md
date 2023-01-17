@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unrelease]
 
+## [0.2.1] - 2023-01-11
+
+## Added
+
+- go.mod creation when running `lip tooth init`.
+
 ## [0.2.0] - 2023-01-11
 
 ### Added
