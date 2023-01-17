@@ -27,6 +27,10 @@ Then you can fill in the information in tooth.json to make your work recognized 
 
 Currently we have not provided commands to pack a tooth. You can just zip everything (make sure tooth.json is under the root of the zip file) and change its extension name from ".zip" to ".tth".
 
+## GOPROXY related notice
+
+Since we are using GOPROXY as the proxy to fetch tooth files, please DO NOT place a go.mod file under the root of your repository.
+
 ## Next Steps
 
 You can read [tooth.json File Reference](tooth_json_file_reference.md) for more information.
