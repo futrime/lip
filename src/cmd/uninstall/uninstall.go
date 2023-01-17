@@ -123,6 +123,8 @@ func Run() {
 			return
 		}
 	}
+
+	logger.Info("Successfully uninstalled all teeth.")
 }
 
 // uninstall uninstalls a tooth.

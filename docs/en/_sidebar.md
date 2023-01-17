@@ -1,5 +1,11 @@
 - [Home](README.md)
 
+- [Getting Started](getting_started.md)
+
+- [Installation](installation.md)
+
+- [Developer's Guide](developer_s_guide.md)
+
 - Commands
 
   - [lip](commands/lip.md)
@@ -7,8 +13,6 @@
   - [lip cache](commands/lip_cache.md)
 
     - [lip cache purge](commands/lip_cache_purge.md)
-
-  - lip config
 
   - [lip install](commands/lip_install.md)
 
@@ -24,12 +28,16 @@
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
 
-- Lip Development
+- Development
+
+  - [Getting Started](development/getting_started.md)
+
+- Maintenance
 
   - Global Data Directory
 
-  - [Local Data Directory](development/local_data_directory.md)
+  - [Local Data Directory](maintenance/local_data_directory.md)
   
-  - [Registry](development/registry.md)
+  - [Registry](maintenance/registry.md)
 
 - [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

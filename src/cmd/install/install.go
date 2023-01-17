@@ -210,4 +210,6 @@ func Run() {
 			return
 		}
 	}
+
+	logger.Info("Successfully installed all tooth files.")
 }
