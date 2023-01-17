@@ -1,0 +1,292 @@
+# tooth.json File Reference
+
+Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other teeth and other information.
+
+These properties include:
+
+- The current tooth's **tooth path**. This should be a location where the tooth can be downloaded by Lip, such as the tooth code's Git repository location. This serves as a unique identifier, when combined with the tooth’s version number.
+
+- The current tooth's **version**.
+
+- **Dependencies** along with there versions required by the current tooth.
+
+- The current tooth's **information**, including the name, the author, the description and so on.
+
+You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
+
+```shell
+lip tooth init
+```
+
+## Example
+
+A tooth.json includes directives as shown in the following example. These are described elsewhere in this topic.
+
+```json
+{
+    "format_version": 1,
+    "tooth": "github.com/liteldev/liteloaderbds",
+    "version": "2.9.0",
+    "dependencies": {
+        "test.test/test/depend": [
+            [
+                ">=1.0.0",
+                "<=1.1.0"
+            ],
+            [
+                "2.0.x"
+            ]
+        ]
+    },
+    "information": {
+        "name": "LiteLoaderBDS",
+        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+        "author": "LiteLDev",
+        "license": "Modified LGPL-3.0",
+        "homepage": "www.litebds.com"
+    },
+    "placement": [
+        {
+            "source": "",
+            "destination": ""
+        }
+    ]
+}
+```
+
+## format_version
+
+Indicates the format of the tooth.json file. Lip will parse tooth.json according to this field.
+
+### Examples
+
+```json
+{
+    "format_version": 1
+}
+```
+
+### Notes
+
+Now only 1 is a legal value.
+
+## tooth
+
+Declares the tooth's tooth path, which is the tooth's unique identifier (when combined with the tooth version number).
+
+### Syntax
+
+Generally, tooth path should be in the form of a lowercased URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
+
+Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+
+### Examples
+
+```json
+{
+    "tooth": "example.com/mytooth"
+}
+```
+
+### Notes
+
+The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
+
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tt", which will be regarded as a standalone tooth archive file.
+
+If you would like to publish your tooth, please make the tooth path a real URL. For example, the first character should be a letter or a digit.
+
+## version
+
+### Syntax
+
+We adopted [Semantic Versioning 2.0.0](https://semver.org) and simplified its rules.
+
+- A normal version number MUST take the form X.Y.Z where X, Y, and Z are non-negative integers, and MUST NOT contain leading zeroes, e.g. 1.01.02 is forbidden. X is the major version, Y is the minor version, and Z is the patch version. Each element MUST increase numerically. For instance: 1.9.0 -> 1.10.0 -> 1.11.0.
+
+- Once a versioned tooth has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version.
+
+- Major version zero (0.y.z) is for initial development. Anything MAY change at any time. The public API SHOULD NOT be considered stable. When under early development, please set the major version to zero.
+
+- Patch version Z (x.y.Z | x > 0) MUST be incremented if only backwards compatible bug fixes are introduced. A bug fix is defined as an internal change that fixes incorrect behavior.
+
+- Minor version Y (x.Y.z | x > 0) MUST be incremented if new, backwards compatible functionality is introduced to the public API. It MUST be incremented if any public API functionality is marked as deprecated. It MAY be incremented if substantial new functionality or improvements are introduced within the private code. It MAY include patch level changes. Patch version MUST be reset to 0 when minor version is incremented.
+
+- Major version X (X.y.z | X > 0) MUST be incremented if any backwards incompatible changes are introduced to the public API. It MAY also include minor and patch level changes. Patch and minor versions MUST be reset to 0 when major version is incremented.
+
+- A pre-release version MAY be denoted by appending a hyphen and up to two dot separated identifiers immediately following the patch version. The first identifier MUST comprise only lowercase letters [a-z] and the second identifier (if used) MUST comprise only numbers. Identifiers MUST NOT be empty. Numeric identifiers MUST NOT include leading zeroes. Pre-release versions have a lower precedence than the associated normal version and their patch versions MUST be zero. A pre-release version indicates that the version is unstable and might not satisfy the intended compatibility requirements as denoted by its associated normal version. Examples: 1.0.0-alpha, 1.0.0-alpha.1, 1.2.0-beta. Note that 1.0.1-alpha is not allowed.
+
+- Precedence refers to how versions are compared to each other when ordered. It is calculated according to the following rules:
+
+  1. Precedence MUST be calculated by separating the version into major, minor, patch and pre-release identifiers in that order.
+
+  2. Precedence is determined by the first difference when comparing each of these identifiers from left to right as follows: Major, minor, and patch versions are always compared numerically.
+
+     Example: 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.
+
+  3. When major, minor, and patch are equal, a pre-release version has lower precedence than a normal version.
+
+     Example: 1.0.0-alpha < 1.0.0.
+
+  4. Precedence for two pre-release versions with the same major, minor, and patch version MUST be determined by comparing each dot separated identifier from left to right until a difference is found as follows:
+
+     1. Identifiers consisting of only digits are compared numerically.
+
+     2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
+
+     Example: 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+
+### Examples
+
+Example of a production release:
+
+```json
+{
+    "version": "1.2.3"
+}
+```
+
+Example of a pre-release:
+
+```json
+{
+    "version": "1.2.0-beta.3"
+}
+```
+
+Example of a early development release:
+
+```json
+{
+    "version": "0.1.2"
+}
+```
+
+### Notes
+
+When releasing your tooth, you should set the Git tag with prefix "v", e.g. v1.2.3. Otherwise, Lip will not correctly parse the tags.
+
+Since GOPROXY regards versions with prefix "v0.0.0" as psuedo-versions, you should not set the version beginning with "0.0.0" if you would like to publish your tooth.
+
+## dependencies
+
+### Syntax
+
+Lip provides some version matching rules:
+
+- **1.2.0** Must match 1.2.0 exactly
+- **>1.2.0** Must be greater than 1.2.0 but keeping the major version, e.g. 1.3.0, 1.4.0, etc., but not 2.0.0
+- **>=1.2.0** etc.
+- **<1.2.0**
+- **<=1.2.0**
+- **!1.2.0** Must not be 1.2.0
+- **1.2.x** 1.2.0, 1.2.1, etc., but not 1.3.0
+
+All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, libopenssl3 can match version 3.0.5, 3.0.6, 3.0.7 and 3.0.9 but not 3.0.8 and you can regard its rule as:
+
+```
+(>=3.0.5 AND <=3.0.7) OR 3.0.9
+```
+
+Multi-level nesting is not allowed.
+
+### Examples
+
+```json
+{
+    "dependencies": {
+        "test.test/test/depend": [
+            [
+                ">=1.0.0",
+                "<=1.1.0"
+            ],
+            [
+                "2.0.x"
+            ]
+        ]
+    }
+}
+```
+
+### Notes
+
+Minor version wildcard is not allowed, e.g. you cannot use 1.x.x.
+
+## information
+
+Declares necessary information of your tooth, and add any information as you like.
+
+### Syntax
+
+This field has no syntax restriction. You can write anything following JSON rules.
+
+### Examples
+
+```json
+{
+    "information": {
+        "name": "LiteLoaderBDS",
+        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+        "author": "LiteLDev",
+        "license": "Modified LGPL-3.0",
+        "homepage": "www.litebds.com",
+        "thanks": "All contributors!"
+    }
+}
+```
+
+### Notes
+
+Some fields are customary and might be shown on the search pages of some registries. These fields are listed below:
+
+- name: the name of the tooth
+- description: a line of brief description of the tooth
+- author: your name
+- license: the license of the tooth, left empty if private
+- homepage: the homepage of the tooth
+
+## placement
+
+Indicates how should Lip handle file placement.
+
+### Syntax
+
+Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path relative to the root of BDS specified by destination.
+
+If both the source and the destination ends with "*", the placement will be regarded as a wildcard. Lip will recursively place all files under the source directory to the destination directory.
+
+### Examples
+
+Extract from specific folders and place to specific folders:
+
+```json
+{
+    "placement": [
+        {
+            "source": "build",
+            "destination": "plugins"
+        },
+        {
+            "source": "assets",
+            "destination": "plugins/myplugin"
+        }
+    ]
+}
+```
+
+Extract from tooth root and place to BDS root:
+
+```json
+{
+    "placement": [
+        {
+            "source": "",
+            "destination": ""
+        }
+    ]
+}
+```
+
+### Notes
+
+Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.

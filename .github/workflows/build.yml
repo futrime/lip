@@ -1,0 +1,31 @@
+name: Build Lip
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Lip
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+         go-version-file: 'src/go.mod'
+
+      - name: Set up Go workspace
+        run: go work init ./src
+
+      - name: Build
+        run: go build -o ./build/lip.exe github.com/liteldev/lip
+
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: lip-nightly-${{ github.sha }}
+          path: build
