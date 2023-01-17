@@ -29,3 +29,40 @@ jobs:
         with:
           name: lip-nightly-${{ github.sha }}
           path: build
+
+  pack:
+    name: Pack installer
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Download Lip
+        uses: actions/download-artifact@v3
+        with:
+          name: lip-nightly-${{ github.sha }}
+
+      - name: Set up NSIS workspace
+        run:  |
+          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07.zip -O nsis.zip
+          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07-strlen_8192.zip -O nsis-strlen.zip
+          unzip -q -o nsis.zip
+          mv nsis-3.07 nsis-protable
+          unzip -q -o nsis-strlen.zip -d nsis-strlen
+          bash -c 'cp -rf ./nsis-strlen/* ./nsis-protable/'
+          rm -r ./nsis-strlen
+          $env:PATH = "$env:PATH;${{ github.workspace }}/nsis-protable"
+          [Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Machine)
+
+      - name: Build Setup Program
+        run: |
+          mv ./lip.exe ./nsis/
+          mv LICENSE ./nsis/LICENSE.txt
+          makensis.exe ./nsis/make_installer.nsi
+
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: lip-setup-nightly-${{ github.sha }}
+          path: ./nsis/LipSetup.exe
