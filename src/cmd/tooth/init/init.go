@@ -13,6 +13,8 @@ type FlagDict struct {
 	helpFlag bool
 }
 
+const defaultGoModContent = `module tooth`
+
 const defaultToothJsonContent = `{
     "format_version": 1,
     "tooth": "<tooth path>",
@@ -86,6 +88,21 @@ func Run() {
 
 // initTooth initializes a new tooth.
 func initTooth() error {
+	// Only create go.mod if it doesn't exist.
+	if _, err := os.Stat("go.mod"); err != nil {
+		// Create go.mod.
+		file, err := os.Create("go.mod")
+		if err != nil {
+			return errors.New("failed to create go.mod")
+		}
+
+		// Write default go.mod content.
+		_, err = file.WriteString(defaultGoModContent)
+		if err != nil {
+			return errors.New("failed to write go.mod")
+		}
+	}
+
 	// Check if tooth.json already exists.
 	if _, err := os.Stat("tooth.json"); err == nil {
 		return errors.New("tooth.json already exists in the current directory")
