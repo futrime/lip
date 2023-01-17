@@ -1,6 +1,6 @@
-# Developer's Guide
+# Creator's Guide
 
-We're pleased that you are interested in developing your stuff on Lip.
+We're pleased that you are interested in creating with Lip.
 
 ## Ensure you have a working Lip
 

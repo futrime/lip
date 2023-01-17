@@ -50,6 +50,9 @@ A tooth.json includes directives as shown in the following example. These are de
             "source": "",
             "destination": ""
         }
+    ],
+    "possession": [
+        "plugins/LiteLoader/"
     ]
 }
 ```
@@ -290,3 +293,25 @@ Extract from tooth root and place to BDS root:
 ### Notes
 
 Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
+
+## possession
+
+Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed.
+
+### Syntax
+
+Each item of the list should be a valid directory path relative to the root of BDS ending with "/".
+
+### Examples
+
+```json
+{
+    "possession": [
+        "plugins/LiteLoader/"
+    ]
+}
+```
+
+### Notes
+
+Do not take the possession of any directory that might be used by other tooth, e.g. public directories like worlds/.

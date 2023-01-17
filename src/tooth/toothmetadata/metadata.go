@@ -35,6 +35,7 @@ type Metadata struct {
 	Dependencies map[string]([][]versionmatch.VersionMatch)
 	Information  InfoStruct
 	Placement    []PlacementStruct
+	Possession   []string
 }
 
 // NewFromJSON decodes a JSON byte array into a Metadata struct.
@@ -103,6 +104,11 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		metadata.Placement[i].Destination = destination
 	}
 
+	metadata.Possession = make([]string, len(metadataMap["possession"].([]interface{})))
+	for i, possession := range metadataMap["possession"].([]interface{}) {
+		metadata.Possession[i] = possession.(string)
+	}
+
 	return metadata, nil
 }
 
@@ -139,6 +145,11 @@ func (metadata Metadata) JSON() ([]byte, error) {
 		metadataMap["placement"].([]interface{})[i] = make(map[string]interface{})
 		metadataMap["placement"].([]interface{})[i].(map[string]interface{})["source"] = placement.Source
 		metadataMap["placement"].([]interface{})[i].(map[string]interface{})["destination"] = placement.Destination
+	}
+
+	metadataMap["possession"] = make([]interface{}, len(metadata.Possession))
+	for i, possession := range metadata.Possession {
+		metadataMap["possession"].([]interface{})[i] = possession
 	}
 
 	// Encode metadataMap into JSON

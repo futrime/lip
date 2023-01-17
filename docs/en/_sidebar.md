@@ -4,7 +4,7 @@
 
 - [Installation](installation.md)
 
-- [Developer's Guide](developer_s_guide.md)
+- [Creator's Guide](creator_s_guide.md)
 
 - Commands
 
@@ -27,10 +27,6 @@
   - [lip uninstall](commands/lip_uninstall.md)
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
-
-- Development
-
-  - [Getting Started](development/getting_started.md)
 
 - Maintenance
 

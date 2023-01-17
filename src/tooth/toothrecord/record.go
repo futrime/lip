@@ -38,6 +38,7 @@ type Record struct {
 	Dependencies        map[string]([][]versionmatchutils.VersionMatch)
 	Information         InfoStruct
 	Placement           []PlacementStruct
+	Possession          []string
 	IsManuallyInstalled bool
 }
 
@@ -106,6 +107,11 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 		record.Placement[i].Destination = placement.(map[string]interface{})["destination"].(string)
 	}
 
+	record.Possession = make([]string, len(recordMap["possession"].([]interface{})))
+	for i, possession := range recordMap["possession"].([]interface{}) {
+		record.Possession[i] = possession.(string)
+	}
+
 	record.IsManuallyInstalled = recordMap["is_manually_installed"].(bool)
 
 	return record, nil
@@ -132,6 +138,9 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 		record.Placement[i].Source = placement.Source
 		record.Placement[i].Destination = placement.Destination
 	}
+
+	record.Possession = make([]string, len(metadata.Possession))
+	copy(record.Possession, metadata.Possession)
 
 	record.IsManuallyInstalled = false
 
@@ -171,6 +180,11 @@ func (record Record) JSON() ([]byte, error) {
 		recordMap["placement"].([]interface{})[i] = make(map[string]interface{})
 		recordMap["placement"].([]interface{})[i].(map[string]interface{})["source"] = placement.Source
 		recordMap["placement"].([]interface{})[i].(map[string]interface{})["destination"] = placement.Destination
+	}
+
+	recordMap["possession"] = make([]interface{}, len(record.Possession))
+	for i, possession := range record.Possession {
+		recordMap["possession"].([]interface{})[i] = possession
 	}
 
 	recordMap["is_manually_installed"] = record.IsManuallyInstalled

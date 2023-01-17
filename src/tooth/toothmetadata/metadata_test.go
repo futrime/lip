@@ -35,6 +35,9 @@ func TestNewFromJSON(t *testing.T) {
       "source": "test/test.test"
     }
   ],
+  "possession": [
+    "plugins/LiteLoader/"
+  ],
   "tooth": "test.test/test/test",
   "version": "1.0.0"
 }
@@ -114,6 +117,14 @@ func TestNewFromJSON(t *testing.T) {
 	if metadata.Placement[0].Destination != "test/testdirectory" {
 		t.Errorf("metadata.Placement is not correct")
 	}
+
+	if len(metadata.Possession) != 1 {
+		t.Errorf("metadata.Possession is not correct")
+	}
+
+	if metadata.Possession[0] != "plugins/LiteLoader/" {
+		t.Errorf("metadata.Possession is not correct")
+	}
 }
 
 func TestJSON(t *testing.T) {
@@ -145,6 +156,9 @@ func TestJSON(t *testing.T) {
 				Source:      "test/test.test",
 				Destination: "test/testdirectory",
 			},
+		},
+		Possession: []string{
+			"plugins/LiteLoader/",
 		},
 	}
 
