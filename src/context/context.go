@@ -7,7 +7,7 @@ import "github.com/liteldev/lip/utils/version"
 // Constants
 
 // Version is the version of Lip.
-const VersionString = "0.1.0"
+const VersionString = "0.2.1"
 
 const DefaultGoproxy = "https://goproxy.io"
 
