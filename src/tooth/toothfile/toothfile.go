@@ -28,10 +28,13 @@ func New(filePath string) (ToothFile, error) {
 	}
 	defer r.Close()
 
+	// Get the file prefix.
+	filePrefix := getFilePrefix(r)
+
 	// Iterate through the files in the archive,
 	// and find tooth.json.
 	for _, f := range r.File {
-		if f.Name == "tooth.json" {
+		if f.Name == filePrefix+"tooth.json" {
 			// Open tooth.json.
 			rc, err := f.Open()
 			if err != nil {
@@ -122,6 +125,9 @@ func (t ToothFile) Install() error {
 	}
 	defer r.Close()
 
+	// Get the file prefix.
+	filePrefix := getFilePrefix(r)
+
 	for _, placement := range t.metadata.Placement {
 		source := placement.Source
 		destination := workSpaceDir + "/" + placement.Destination
@@ -137,7 +143,7 @@ func (t ToothFile) Install() error {
 				continue
 			}
 
-			if f.Name == source {
+			if f.Name == filePrefix+source {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {

@@ -131,7 +131,10 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	var versionList []versionutils.Version
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
-		version, err := versionutils.NewFromString(strings.TrimPrefix(scanner.Text(), "v"))
+		versionString := scanner.Text()
+		versionString = strings.TrimPrefix(versionString, "v")
+		versionString = strings.TrimSuffix(versionString, "+incompatible")
+		version, err := versionutils.NewFromString(versionString)
 		if err != nil {
 			continue
 		}
@@ -182,8 +185,8 @@ func fetchLatestVersion(repoPath string) (versionutils.Version, error) {
 		return versionutils.Version{}, errors.New("cannot find a stable latest version: " + repoPath)
 	}
 
-	// Remove the prefix v.
 	versionString = strings.TrimPrefix(versionString, "v")
+	versionString = strings.TrimSuffix(versionString, "+incompatible")
 
 	// Parse the version.
 	version, err := versionutils.NewFromString(versionString)
