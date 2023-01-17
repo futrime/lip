@@ -26,22 +26,22 @@ By default, Lip will fetch teeth via GOPROXY, a proxy of Git repos.
 ### Install a tooth from URL
 
 ```shell
-> lip install https://example.com/exampletooth.tt
+> lip install https://example.com/exampletooth.tth
 [...]
 Successfully installed all tooth files.
 ```
 
-Lip only supports URLs started with "http://" or "https://". All URLs should ends with ".tt".
+Lip only supports URLs started with "http://" or "https://". All URLs should ends with ".tth".
 
 ### Install a tooth from a tooth file
 
 ```shell
-> lip install exampletooth.tt
+> lip install exampletooth.tth
 [...]
 Successfully installed all tooth files.
 ```
 
-The tooth file should have ".tt" extension name.
+The tooth file should have ".tth" extension name.
 
 ### Install multiple teeth
 

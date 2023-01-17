@@ -92,7 +92,7 @@ Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./
 
 The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
-Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tt", which will be regarded as a standalone tooth archive file.
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
 
 If you would like to publish your tooth, please make the tooth path a real URL. For example, the first character should be a letter or a digit.
 

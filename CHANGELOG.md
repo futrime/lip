@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unrelease]
 
-## [0.1.1] - 2023-01-11
+## [0.2.0] - 2023-01-11
 
 ### Fixed
 
 - Fix failing to fetch tooth when the repository does not contain go.mod file.
 - Fix failing to parse tooth file when the tooth is downloaded via GOPROXY.
+- Fix failing to parse tooth when tooth.json is the only file in the tooth.
+
+### Changed
+
+- Change extension name of tooth files to .tth
 
 ## [0.1.0] - 2023-01-17
 

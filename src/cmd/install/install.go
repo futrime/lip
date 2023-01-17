@@ -26,7 +26,7 @@ Description:
   Install teeth from:
 
   - tooth repositories.
-  - local or remote standalone tooth files (with suffix .tt).
+  - local or remote standalone tooth files (with suffix .tth).
 
 Options:
   -h, --help                  Show help.

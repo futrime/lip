@@ -25,7 +25,7 @@ Then you can fill in the information in tooth.json to make your work recognized 
 
 ### Pack the tooth
 
-Currently we have not provided commands to pack a tooth. You can just zip everything (make sure tooth.json is under the root of the zip file) and change its extension name from ".zip" to ".tt".
+Currently we have not provided commands to pack a tooth. You can just zip everything (make sure tooth.json is under the root of the zip file) and change its extension name from ".zip" to ".tth".
 
 ## Next Steps
 

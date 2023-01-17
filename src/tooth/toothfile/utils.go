@@ -41,13 +41,13 @@ func parseMetadataPlacement(metadata toothmetadata.Metadata, r *zip.ReadCloser) 
 // getFilePrefix returns the prefix of all files in a zip file.
 func getFilePrefix(r *zip.ReadCloser) string {
 	prefix := ""
-	for _, file := range r.File {
+	for i, file := range r.File {
 		if strings.HasSuffix(file.Name, "/") { // Skip directories.
 			continue
 		}
 
 		// If the prefix is empty, set it to the first file.
-		if prefix == "" {
+		if i == 0 {
 			prefix = file.Name
 			continue
 		}
@@ -59,6 +59,11 @@ func getFilePrefix(r *zip.ReadCloser) string {
 				break
 			}
 		}
+	}
+
+	// If tooth.json is the only file, set the prefix to empty.
+	if prefix == "tooth.json" {
+		prefix = ""
 	}
 
 	return prefix
