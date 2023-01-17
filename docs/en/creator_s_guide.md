@@ -1,6 +1,6 @@
-# Developer's Guide
+# Creator's Guide
 
-We're pleased that you are interested in developing your stuff on Lip.
+We're pleased that you are interested in creating with Lip.
 
 ## Ensure you have a working Lip
 
@@ -25,7 +25,7 @@ Then you can fill in the information in tooth.json to make your work recognized 
 
 ### Pack the tooth
 
-Currently we have not provided commands to pack a tooth. You can just zip everything (make sure tooth.json is under the root of the zip file) and change its extension name from ".zip" to ".tt".
+Currently we have not provided commands to pack a tooth. You can just zip everything (make sure tooth.json is under the root of the zip file) and change its extension name from ".zip" to ".tth".
 
 ## Next Steps
 

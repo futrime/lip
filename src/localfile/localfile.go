@@ -53,7 +53,7 @@ func GetCachedToothFileName(fullSpecifier string) string {
 	// Encode the full specifier with Base64.
 	fullSpecifier = base64.StdEncoding.EncodeToString([]byte(fullSpecifier))
 
-	return fullSpecifier + ".tt"
+	return fullSpecifier + ".tth"
 }
 
 // GetRecordFileName returns the file name of the record file.

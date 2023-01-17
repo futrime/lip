@@ -182,6 +182,21 @@ func uninstall(recordFileName string) error {
 		}
 	}
 
+	// Iterate over the possessions and delete the folders as well as
+	// the files in the folders.
+	for _, possession := range currentRecord.Possession {
+		workspaceDir, err := localfile.WorkSpaceDir()
+		if err != nil {
+			return err
+		}
+
+		// Remove the folder.
+		err = os.RemoveAll(workspaceDir + "/" + possession)
+		if err != nil {
+			return errors.New("cannot delete the folder " + workspaceDir + "/" + possession + ": " + err.Error())
+		}
+	}
+
 	// Delete the record file.
 	err = os.Remove(recordDir + "/" + recordFileName)
 	if err != nil {

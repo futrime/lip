@@ -50,6 +50,9 @@ A tooth.json includes directives as shown in the following example. These are de
             "source": "",
             "destination": ""
         }
+    ],
+    "possession": [
+        "plugins/LiteLoader/"
     ]
 }
 ```
@@ -92,7 +95,7 @@ Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./
 
 The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
-Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tt", which will be regarded as a standalone tooth archive file.
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
 
 If you would like to publish your tooth, please make the tooth path a real URL. For example, the first character should be a letter or a digit.
 
@@ -290,3 +293,25 @@ Extract from tooth root and place to BDS root:
 ### Notes
 
 Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
+
+## possession
+
+Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed.
+
+### Syntax
+
+Each item of the list should be a valid directory path relative to the root of BDS ending with "/".
+
+### Examples
+
+```json
+{
+    "possession": [
+        "plugins/LiteLoader/"
+    ]
+}
+```
+
+### Notes
+
+Do not take the possession of any directory that might be used by other tooth, e.g. public directories like worlds/.

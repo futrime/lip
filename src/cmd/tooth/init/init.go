@@ -30,7 +30,10 @@ const defaultToothJsonContent = `{
             "source": "<placement source>",
             "destination": "<placement destination>"
         }
-    ]
+    ],
+	"possession": [
+		"<private directory of your tooth ends with '/'>"
+	]
 }`
 
 const helpMessage = `

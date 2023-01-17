@@ -150,7 +150,7 @@ func (s Specifier) ToothVersion() version.Version {
 
 // getSpecifierType gets the type of the requirement specifier.
 func getSpecifierType(specifier string) SpecifierType {
-	if strings.HasSuffix(specifier, ".tt") {
+	if strings.HasSuffix(specifier, ".tth") {
 		if strings.HasPrefix(specifier, "http://") || strings.HasPrefix(specifier, "https://") {
 			return ToothURLSpecifierType
 		} else {

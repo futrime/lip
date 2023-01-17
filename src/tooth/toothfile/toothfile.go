@@ -1,4 +1,4 @@
-// Package toothfile includes functions for .tt files.
+// Package toothfile includes functions for .tth files.
 package toothfile
 
 import (
@@ -14,13 +14,13 @@ import (
 	recordutils "github.com/liteldev/lip/tooth/toothrecord"
 )
 
-// ToothFile is the struct that contains the metadata of a .tt file.
+// ToothFile is the struct that contains the metadata of a .tth file.
 type ToothFile struct {
 	filePath string
 	metadata metadata.Metadata
 }
 
-// New creates a new ToothFile struct from a file path of a .tt file.
+// New creates a new ToothFile struct from a file path of a .tth file.
 func New(filePath string) (ToothFile, error) {
 	r, err := zip.OpenReader(filePath)
 	if err != nil {
@@ -28,10 +28,13 @@ func New(filePath string) (ToothFile, error) {
 	}
 	defer r.Close()
 
+	// Get the file prefix.
+	filePrefix := getFilePrefix(r)
+
 	// Iterate through the files in the archive,
 	// and find tooth.json.
 	for _, f := range r.File {
-		if f.Name == "tooth.json" {
+		if f.Name == filePrefix+"tooth.json" {
 			// Open tooth.json.
 			rc, err := f.Open()
 			if err != nil {
@@ -62,17 +65,17 @@ func New(filePath string) (ToothFile, error) {
 	return ToothFile{}, errors.New("tooth.json not found in " + filePath)
 }
 
-// FilePath returns the file path of the .tt file.
+// FilePath returns the file path of the .tth file.
 func (t ToothFile) FilePath() string {
 	return t.filePath
 }
 
-// Metadata returns the metadata of the .tt file.
+// Metadata returns the metadata of the .tth file.
 func (t ToothFile) Metadata() metadata.Metadata {
 	return t.metadata
 }
 
-// Install installs the .tt file.
+// Install installs the .tth file.
 // TODO#1: Check if the tooth is already installed.
 // TODO#2: Directory placement.
 func (t ToothFile) Install() error {
@@ -115,12 +118,15 @@ func (t ToothFile) Install() error {
 		return err
 	}
 
-	// Open the .tt file.
+	// Open the .tth file.
 	r, err := zip.OpenReader(t.filePath)
 	if err != nil {
 		return errors.New("failed to open tooth file " + t.filePath)
 	}
 	defer r.Close()
+
+	// Get the file prefix.
+	filePrefix := getFilePrefix(r)
 
 	for _, placement := range t.metadata.Placement {
 		source := placement.Source
@@ -137,7 +143,7 @@ func (t ToothFile) Install() error {
 				continue
 			}
 
-			if f.Name == source {
+			if f.Name == filePrefix+source {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {

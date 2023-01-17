@@ -12,7 +12,7 @@ lip install [options] <tooth url/files>
 Install a tooth from:
 
 - tooth repositories via Goproxy.
-- local or remote standalone tooth files (with suffix `.tt`).
+- local or remote standalone tooth files (with suffix `.tth`).
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run Lip without `--upgrade` or `--force-reinstall` flag, Lip will not install the specific version.
 
@@ -35,7 +35,7 @@ Note that `lip install` prefers to leave the installed version as-is unless `--u
 When looking at the items to be installed, Lip checks what type of item each is, in the following order:
 
 1. Tooth repository, which can be accessed via Goproxy.
-2. Local tooth file with suffix `.tt`.
+2. Local tooth file with suffix `.tth`.
 
 In the first case, all letters will be converted to lowercase before processing.
 
@@ -98,12 +98,12 @@ lip install --force-reinstall example.com/some_user/some_tooth
 Install from URL of a tooth:
 
 ```shell
-lip install https://example.com/example.tt
+lip install https://example.com/example.tth
 ```
 
 Install from a local tooth:
 
 ```shell
-lip install example.tt
-lip install ./example/example.tt
+lip install example.tth
+lip install ./example/example.tth
 ```
