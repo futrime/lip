@@ -1,14 +1,14 @@
 - [主页](README.md)
 
-- [更新日志](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)
-
-- [主页](README.md)
+- [安装](installation.md)
 
 - [快速开始](getting_started.md)
 
-- [安装](installation.md)
-
 - [创作者指南](creator_s_guide.md)
+
+- 教程
+
+  - [创建一个Tooth包](tutorials/create_a_lip_tooth.md)
 
 - 命令
 
@@ -32,12 +32,12 @@
 
 - [tooth.json 文件参考](tooth_json_file_reference.md)
 
-- 维护
+- Lip开发
 
   - 全局数据目录
 
   - [本地数据目录](maintenance/local_data_directory.md)
   
-  - [Registry](maintenance/registry.md)
+  - [在线索引](maintenance/registry.md)
 
 - [更新日志](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)
