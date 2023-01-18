@@ -185,10 +185,10 @@ Lip provides some version matching rules:
 - **!1.2.0** Must not be 1.2.0
 - **1.2.x** 1.2.0, 1.2.1, etc., but not 1.3.0
 
-All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, libopenssl3 can match version 3.0.5, 3.0.6, 3.0.7 and 3.0.9 but not 3.0.8 and you can regard its rule as:
+All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, test.test/test/depend can match version 1.0.0, 1.0.6, 1.1.0 and 2.0.9 but not 1.2.0 and you can regard its rule as:
 
 ```
-(>=3.0.5 AND <=3.0.7) OR 3.0.9
+(>=1.0.0 AND <=1.1.0) OR 2.0.x
 ```
 
 Multi-level nesting is not allowed.
