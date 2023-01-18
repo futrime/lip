@@ -22,7 +22,7 @@ jobs:
         run: go work init ./src
 
       - name: Build
-        run: go build -o ./build/lip.exe github.com/liteldev/lip
+        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/lip.exe github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3

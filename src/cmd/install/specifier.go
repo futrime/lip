@@ -92,10 +92,16 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 			}
 		} else {
 			// Fetch the latest version of the tooth repo.
-			toothVersion, err = fetchLatestVersion(toothRepo)
+			toothVersionList, err := fetchVersionList(toothRepo)
 			if err != nil {
 				return Specifier{}, err
 			}
+
+			if len(toothVersionList) == 0 {
+				return Specifier{}, errors.New("no tooth version found for repo: " + toothRepo)
+			}
+
+			toothVersion = toothVersionList[len(toothVersionList)-1]
 		}
 
 		return Specifier{

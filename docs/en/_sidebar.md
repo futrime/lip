@@ -6,6 +6,10 @@
 
 - [Creator's Guide](creator_s_guide.md)
 
+- Tutorials
+
+  - [Create a Lip Tooth](tutorials/create_a_lip_tooth.md)
+
 - Commands
 
   - [lip](commands/lip.md)
