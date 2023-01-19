@@ -10,7 +10,7 @@
 
 - **一个用于编辑tooth.json文件的工具** 任何你想用的文本编辑器都可以成为选择，最受欢迎的是VSCode和Vim。
 
-- **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同意可以使用如 Windows Terminal 一类的终端程序。
+- **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同样可以使用如 Windows Terminal 一类的终端程序。
 
 - **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](installation.md)
 
