@@ -1,28 +1,28 @@
-# Tutorial: Create a Lip Tooth
+# 教程: 创建一个Tooth包
 
-This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](getting_started.md) and [Creator's Guide](creator_s_guide.md), which introduces the basic commands of Lip.
+这是教程的第一部分，介绍了Lip的一些基本功能。如果你刚开始使用Lip，一定要看看[入门](getting_started.md)和[创造者指南](creator_s_guide.md)，其中介绍了Lip的基本命令。
 
-In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
+在本教程中，你将创建一个包含LiteLoaderBDS插件的tooth包。
 
-## Prerequisites
+## 先决条件
 
-- **Some project management experience.** You ought to learn the basic usage of Git, and the basic syntax of JSON in advance.
+- **有一定的项目管理经验** 你应该提前学习Git的基本用法，以及JSON的基本语法。
 
-- **A tool to edit tooth.json** Any text editor you have will work fine. The most popular are VSCode and Vim.
+- **一个用于编辑tooth.json文件的工具** 任何你想用的文本编辑器都可以成为选择，最受欢迎的是VSCode和Vim。
 
-- **A command terminal** Lip works well with both PowerShell and cmd in Windows.
+- **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同意可以使用如 Windows Terminal 一类的终端程序。
 
-- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](installation.md)
+- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](installation.md)
 
-## Prepare plugin distributions
+## 准备要分发的插件
 
-Lip fetches all content of a version of a Git repository for installing. Therefore, you should get all files to be installed ready under the management of Git.
+Lip 会获取 Git 仓库的一个版本的所有内容进行安装。因此，你应该在Git的管理下准备好所有要安装的文件。
 
-If you just work with text (e.g. script plugins, addons), you could just use the repository for development to create a tooth.
+如果你只使用文本文件 (如脚本插件 Addons)，你可以使用你用于开发的仓库来创建Tooth。
 
-However, if you are working with binaries (e.g. native plugins, worlds), you might have to create another repository to store the content. Otherwise, the binaries may make your repository too large to manage.
+然而，当你需要分发二进制文件时 （如 原生插件，世界）， 你最好创建一个专门的存储库来存放他们。 否则，二进制文件可能会使你的存储库太大，无法管理。
 
-In this example, we assume the repository structure as listed below:
+在这个例子中，我们假设存储库的结构如下所示。
 
 ```
 exampleplugin.dll
@@ -32,17 +32,17 @@ exampleplugin/
   data/
 ```
 
-## Initialize the tooth
+## 初始化tooth
 
-1. Open a command prompt and cd to the repository root. If you are using Windows, you can just press *shift* and right click in the file explorer, then click "Open PowerShell window here".
+1. 打开一个命令提示符，cd到存储库根目录。I如果你使用的是Windows，你可以直接按 *shift* 并在文件资源管理器中点击右键，然后点击 "在这里打开PowerShell窗口"。
 
-2. Run the command below to initialize the tooth. The command will create a tooth.json under the root of the repository.
+2. 运行下面的命令来初始化 tooth。该命令将在版本库的根目录下创建一个 tooth.json。
 
    ```shell
    lip tooth init
    ```
 
-3. Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">"). 
+3. 编辑 tooth.json 。填写尖括号内的内容。 
 
    ```json
    {
@@ -79,21 +79,21 @@ exampleplugin/
    }
    ```
 
-   The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
+   `tooth`字段表示该tooth包的路径。如果你想发布这一tooth包，它必须是不含协议前缀（如https:// 或 http://）的小写的存储库URL。同时，该字段也是您的包的唯一标识。
 
-   The placement filed indicates how will Lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
+   `placement` 字段向Lip提供如何将tooth包中的文件复制到BDS目录的信息。`source` 属性所表示的源路径是基于tooth包（或 tooth所在存储库）的根目录的相对路径，`destination` 属性则是基于BDS根目录（即 bedrock_server.exe 所在目录）的相对路径。
    
-   The possession field indicates the private directory of this tooth. It will be removed when uninstalling the tooth but will be kept when reinstalling or upgrading the tooth. Note that the path indicated in the possession field bases on the root of BDS. And every item should ends with "/".
+   `possession` 字段用于表示这一tooth包的私有路径。当使用`lip uninstall`卸载tooth包时，这些路径将会被一同删除。在使用升级和重新安装tooth包时，这些文件夹会被保留。请注意，在 `possession` 字段中的路径应为以BDS的根目录为基础的相对路径。每个路径都应该以"/"结束。
 
-## Publish your tooth
+## 发布你的tooth包
 
-1. Stash and commit the changes, and then push them to the public Git service.
+1. 储存并提交修改，然后推送到公共Git服务。
 
-2. Add a tag and publish a release with the version name. The tag name should be the version name added with prefix "v", e.g. "v1.0.0".
+2. 添加一个标签并以版本名发布一个版本。标签名称应该是添加了前缀 "v "的版本名称，例如："v1.0.0"。
 
-## Another example: make a Minecraft world a tooth
+## 另一个例子：让一个Minecraft的世界成为一个tooth包
 
-Generally, a Minecraft world has the following file structure:
+一般来说，一个Minecraft世界有以下文件结构。
 
 ```
 Bedrock level/
@@ -103,7 +103,7 @@ Bedrock level/
   db/
 ```
 
-You can create a tooth.json like this:
+你可以像下面这样创建一个 tooth.json：
 
 ```json
 {
@@ -130,6 +130,6 @@ You can create a tooth.json like this:
 }
 ```
 
-## Next Steps
+## 下一步
 
-You can read [tooth.json File Reference](../tooth_json_file_reference.md) for further reference.
+你可以阅读 [tooth.json 文件参考](../tooth_json_file_reference.md) 供进一步参考。
