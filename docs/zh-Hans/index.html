@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
-
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
 
     <link rel="icon" href="../assets/logo.webp">
     <link rel="stylesheet" href="https://unpkg.com/docsify/lib/themes/vue.css" class="theme-css">
+
     <link rel="stylesheet" href="https://unpkg.com/docsify-sidebar-collapse/dist/sidebar.min.css" />
     <link rel="stylesheet" href="../assets/style.css" />
 
-    <title>Lip文档</title>
+    <title>Lip 文档</title>
 </head>
 
 <body>
@@ -18,23 +18,16 @@
 
     <script>
         window.$docsify = {
-            repo: 'LiteLDev/LiteLoaderBDS',
+            repo: 'LiteLDev/Lip',
             loadNavbar: true,
             loadSidebar: true,
             subMaxLevel: 2,
             auto2top: true,
             coverpage: true,
-            name: 'Lip文档',
+            name: 'Lip 文档',
             mergeNavbar: true,
             onlyCover: true,
-
-            search: {
-                namespace: 'zh-Hans'
-            },
-            pagination: {
-                crossChapter: true,
-                crossChapterText: true,
-            },
+            
             plugins: [
                 // dark mode
                 function (hook) {
@@ -42,37 +35,23 @@
                         window.updateCustomCSS();
                     });
                 }
-            ]
+            ],
+
+            search: {
+                namespace: 'zh-Hans'
+            }
         }
     </script>
 
     <script src="https://unpkg.com/docsify/lib/docsify.min.js"></script>
-    <script src="https://unpkg.com/docsify/lib/plugins/search.min.js"></script>
-    <script src="https://unpkg.com/docsify/lib/plugins/emoji.min.js"></script>
-    <script src="https://unpkg.com/docsify/lib/plugins/zoom-image.min.js"></script>
-    <script src="https://unpkg.com/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-    <script src="https://unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
-    <script src="https://unpkg.com/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
-    <script src="https://unpkg.com/docsify-plugin-flexible-alerts/dist/docsify-plugin-flexible-alerts.min.js"></script>
 
-    <script src="https://unpkg.com/prismjs/components/prism-c.min.js"></script>
-    <script src="https://unpkg.com/prismjs/components/prism-cpp.min.js"></script>
-    <script src="https://unpkg.com/prismjs/components/prism-go.min.js"></script>
-    <script src="https://unpkg.com/prismjs/components/prism-lua.min.js"></script>
-    <script src="https://unpkg.com/prismjs/components/prism-python.min.js"></script>
+    <script src="https://unpkg.com/prismjs/components/prism-bash.min.js"></script>
+    <script src="https://unpkg.com/prismjs/components/prism-json.min.js"></script>
+
+    <script src="https://unpkg.com/docsify/lib/plugins/search.min.js"></script>
+    <script src="https://unpkg.com/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+    <script src="https://unpkg.com/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
 
     <script src="../assets/script.js"> </script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YY6JMB9HW0"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-YY6JMB9HW0');
-    </script>
-
 </body>
-
 </html>
