@@ -204,7 +204,7 @@ func Run() {
 		logger.Info("  Installing " + toothFile.Metadata().ToothPath + "@" +
 			toothFile.Metadata().Version.String() + "...")
 
-		err = toothFile.Install()
+		err = install(toothFile)
 		if err != nil {
 			logger.Error(err.Error())
 			return
