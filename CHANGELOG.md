@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2023-01-20
 
-## Added
+### Added
 
 - Possession keeping support when force-reinstalling or upgrading.
 - `--force-reinstall` flag and `--upgrade` flag support.
