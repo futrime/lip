@@ -5,9 +5,12 @@ import (
 	"flag"
 	"os"
 
+	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
+	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
+	versionutils "github.com/liteldev/lip/utils/version"
 )
 
 // FlagDict is a dictionary of flags.
@@ -172,7 +175,73 @@ func Run() {
 		}
 	}
 
-	// 3. Install tooth files.
+	// 3. Deal with force reinstall flag and upgrade flag.
+	//    This process will check if the force reinstall flag is set. If it is set, all
+	//    installed tooth specified by the specifiers will be reinstalled. If it is not
+	//    set, it will check if the upgrade flag is set. If it is set, all installed tooth
+	//    specified by the specifiers will be upgraded. If it is not set, all installed
+	//    tooth specified by the specifiers will be skipped.
+
+	if flagDict.forceReinstallFlag || flagDict.upgradeFlag {
+		if flagDict.forceReinstallFlag {
+			logger.Info("force-reinstall flag is set, reinstalling all installed tooth specified by the specifiers...")
+		} else {
+			logger.Info("upgrade flag is set, upgrading all installed tooth specified by the specifiers...")
+		}
+
+		for _, specifier := range specifiers {
+			// If the specifier is not a requirement specifier, skip.
+			if specifier.Type() != RequirementSpecifierType {
+				continue
+			}
+
+			toothFile, err := toothfile.New(downloadedToothFiles[specifier.String()])
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+
+			// If the tooth file of the specifier is not installed, skip.
+			isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+			if !isInstalled {
+				continue
+			}
+
+			// Get the tooth record.
+			toothRecordFilePath := localfile.GetRecordFileName(toothFile.Metadata().ToothPath)
+			toothRecord, err := toothrecord.New(toothRecordFilePath)
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+
+			// Compare the version of the tooth file and the version of the tooth record.
+			// If the version of the tooth file is not greater than the version of the tooth
+			// record, skip.
+			if !versionutils.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
+				continue
+			}
+
+			// If the tooth file of the specifier is installed, uninstall it.
+			logger.Info("  Uninstalling " + toothFile.Metadata().ToothPath + "...")
+
+			possessionList := toothFile.Metadata().Possession
+			recordFileName := localfile.GetRecordFileName(toothFile.Metadata().ToothPath)
+
+			err = cmdlipuninstall.Uninstall(recordFileName, possessionList)
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+		}
+
+	}
+
+	// 4. Install tooth files.
 	//    This process will install all downloaded tooth files. If the tooth file is
 	//    already installed, it will be skipped. If the tooth file is not installed, it
 	//    will be installed. If the tooth file is installed but the version is different,

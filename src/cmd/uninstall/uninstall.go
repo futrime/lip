@@ -115,7 +115,7 @@ func Run() {
 	for toothPath, recordFileName := range toothPathMap {
 		logger.Info("Uninstalling " + toothPath + "...")
 
-		err = uninstall(recordFileName, make([]string, 0))
+		err = Uninstall(recordFileName, make([]string, 0))
 		if err != nil {
 			logger.Error(err.Error())
 			return

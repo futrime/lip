@@ -9,12 +9,12 @@ import (
 	"github.com/liteldev/lip/tooth/toothrecord"
 )
 
-// uninstall uninstalls a tooth.
+// Uninstall uninstalls a tooth.
 // It deletes the files and folders specified in the record file.
 // It also deletes the record file.
 // However, when files are in both the possession of the record file
 // and one in the possession list, the file is not deleted.
-func uninstall(recordFileName string, possessionList []string) error {
+func Uninstall(recordFileName string, possessionList []string) error {
 	// Read the record file.
 	recordDir, err := localfile.RecordDir()
 	if err != nil {

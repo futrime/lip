@@ -24,7 +24,7 @@ import (
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
 func downloadTooth(specifier Specifier) (string, error) {
-	switch specifier.SpecifierType() {
+	switch specifier.Type() {
 	case ToothFileSpecifierType:
 		// For local tooth file, just return the path.
 
@@ -272,7 +272,7 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 
 	// If the status code is 200, the version is valid.
 	if resp.StatusCode != 200 {
-		return errors.New("cannot access tooth repository: " + repoPath)
+		return errors.New("cannot access tooth: " + repoPath + "@" + version.String())
 	}
 
 	return nil
