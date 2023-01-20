@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"flag"
 	"os"
+	"path/filepath"
 
 	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
 	"github.com/liteldev/lip/localfile"
@@ -212,7 +213,13 @@ func Run() {
 			}
 
 			// Get the tooth record.
-			toothRecordFilePath := localfile.GetRecordFileName(toothFile.Metadata().ToothPath)
+			recordDir, err := localfile.RecordDir()
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+
+			toothRecordFilePath := filepath.Join(recordDir, localfile.GetRecordFileName(toothFile.Metadata().ToothPath))
 			toothRecord, err := toothrecord.New(toothRecordFilePath)
 			if err != nil {
 				logger.Error(err.Error())
@@ -222,7 +229,7 @@ func Run() {
 			// Compare the version of the tooth file and the version of the tooth record.
 			// If the version of the tooth file is not greater than the version of the tooth
 			// record, skip.
-			if !versionutils.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
+			if !flagDict.forceReinstallFlag && !versionutils.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
 				continue
 			}
 
