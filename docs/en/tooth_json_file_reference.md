@@ -185,10 +185,10 @@ Lip provides some version matching rules:
 - **!1.2.0** Must not be 1.2.0
 - **1.2.x** 1.2.0, 1.2.1, etc., but not 1.3.0
 
-All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, libopenssl3 can match version 3.0.5, 3.0.6, 3.0.7 and 3.0.9 but not 3.0.8 and you can regard its rule as:
+All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, test.test/test/depend can match version 1.0.0, 1.0.6, 1.1.0 and 2.0.9 but not 1.2.0 and you can regard its rule as:
 
 ```
-(>=3.0.5 AND <=3.0.7) OR 3.0.9
+(>=1.0.0 AND <=1.1.0) OR 2.0.x
 ```
 
 Multi-level nesting is not allowed.
@@ -250,7 +250,7 @@ Some fields are customary and might be shown on the search pages of some registr
 
 ## placement
 
-Indicates how should Lip handle file placement.
+Indicates how should Lip handle file placement. When installing, files from "source" will be placed to "destination". When uninstalling, files at "destination" will be removed.
 
 ### Syntax
 
@@ -296,7 +296,7 @@ Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to in
 
 ## possession
 
-Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed.
+Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
 
 ### Syntax
 

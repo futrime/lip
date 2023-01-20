@@ -77,12 +77,6 @@ lip install example.com/some_user/some_tooth@1.0.0   # Specific version
 lip install github.com/LiteLDev/LiteLoaderBDS@2.11.0 # LiteLoderBDS 2.11.0
 ```
 
-Examine what will be installed but do not install actually:
-
-```shell
-lip install --dry-run example.com/some_user/some_tooth
-```
-
 Upgrade an already installed tooth:
 
 ```shell
