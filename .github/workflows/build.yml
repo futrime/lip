@@ -23,8 +23,21 @@ jobs:
       - name: Set up Go workspace
         run: go work init ./src
 
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: C:/Users/runneradmin/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Build
         run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/lip.exe github.com/liteldev/lip
+
+      - name: Save Go modules
+        run: |
+          cd ${{ github.workspace }}/src
+          go mod tidy
 
       - name: Upload build
         uses: actions/upload-artifact@v3
