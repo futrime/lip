@@ -1,10 +1,15 @@
 - [Home](README.md)
 
-- [Getting Started](getting_started.md)
-
 - [Installation](installation.md)
 
+- [Getting Started](getting_started.md)
+
+
 - [Creator's Guide](creator_s_guide.md)
+
+- Tutorials
+
+  - [Create a Lip Tooth](tutorials/create_a_lip_tooth.md)
 
 - Commands
 
@@ -28,7 +33,7 @@
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
 
-- Maintenance
+- Development
 
   - Global Data Directory
 
