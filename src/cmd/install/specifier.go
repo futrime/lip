@@ -115,8 +115,8 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 	return Specifier{}, errors.New("invalid specifier type" + fmt.Sprintf("%d", specifierType))
 }
 
-// SpecifierType returns the type of the specifier.
-func (s Specifier) SpecifierType() SpecifierType {
+// Type returns the type of the specifier.
+func (s Specifier) Type() SpecifierType {
 	return s.specifierType
 }
 

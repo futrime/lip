@@ -12,8 +12,8 @@ import (
 	cmdlipshow "github.com/liteldev/lip/cmd/show"
 	cmdliptooth "github.com/liteldev/lip/cmd/tooth"
 	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
-	context "github.com/liteldev/lip/context"
-	logger "github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.
