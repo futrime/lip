@@ -250,7 +250,7 @@ Some fields are customary and might be shown on the search pages of some registr
 
 ## placement
 
-Indicates how should Lip handle file placement.
+Indicates how should Lip handle file placement. When installing, files from "source" will be placed to "destination". When uninstalling, files at "destination" will be removed.
 
 ### Syntax
 
@@ -296,7 +296,7 @@ Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to in
 
 ## possession
 
-Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed.
+Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
 
 ### Syntax
 
