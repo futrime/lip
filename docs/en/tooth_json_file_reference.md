@@ -258,6 +258,8 @@ Each placement rule should contain a source field and a destination field. Lip w
 
 If both the source and the destination ends with "*", the placement will be regarded as a wildcard. Lip will recursively place all files under the source directory to the destination directory.
 
+Here we make a strict rule that the source and destination can only contain letters, digits, hyphens, underscores, dots, slashes and asterisks (for the last letter treated as wildcard) [a-zA-Z0-9-_\.\/\*]. If you want to place files to the root of BDS, you should specify every file in the source field. The first letter should not be a slash or a dot. The last letter should not be a slash.
+
 ### Examples
 
 Extract from specific folders and place to specific folders:
@@ -315,3 +317,88 @@ Each item of the list should be a valid directory path relative to the root of B
 ### Notes
 
 Do not take the possession of any directory that might be used by other tooth, e.g. public directories like worlds/.
+
+## Syntax
+
+This is a JSON schema of tooth.json, describing the syntax of tooth.json.
+
+```json
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "format_version",
+        "tooth",
+        "version",
+        "dependencies",
+        "information",
+        "placement",
+        "possession"
+    ],
+    "properties": {
+        "format_version": {
+            "enum": [1]
+        },
+        "tooth": {
+            "type": "string",
+            "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+        },
+        "dependencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[a-zA-Z\\d-_\\.\\/]*$": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "additionalItems": false,
+                    "items": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "additionalItems": false,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
+                        }
+                    }
+                }
+            }
+        },
+        "information": {
+            "type": "object"
+        },
+        "placement": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+                    }
+                }
+            }
+        },
+        "possession": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+            }
+        }
+    }
+}
+```

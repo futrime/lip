@@ -316,3 +316,88 @@ Lip提供了一些版本匹配规则：
 ### 注意
 
 不要占有任何可能被其他tooth包使用的目录，例如像`worlds/`这样的公共目录。
+
+## 语法
+
+下列JSON Schema展示了一个完整的tooth包的JSON文件的语法。
+
+```json
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "format_version",
+        "tooth",
+        "version",
+        "dependencies",
+        "information",
+        "placement",
+        "possession"
+    ],
+    "properties": {
+        "format_version": {
+            "enum": [1]
+        },
+        "tooth": {
+            "type": "string",
+            "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+        },
+        "dependencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[a-zA-Z\\d-_\\.\\/]*$": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "additionalItems": false,
+                    "items": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "additionalItems": false,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
+                        }
+                    }
+                }
+            }
+        },
+        "information": {
+            "type": "object"
+        },
+        "placement": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+                    }
+                }
+            }
+        },
+        "possession": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+            }
+        }
+    }
+}
+```
