@@ -78,4 +78,5 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
+          name: lip-0.0.0-windows-amd64-setup.exe
           path: nsis/lip-0.0.0-windows-amd64-setup.exe
