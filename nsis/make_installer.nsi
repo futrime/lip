@@ -1,7 +1,7 @@
 ﻿Unicode True
 
 !define PRODUCT_NAME "Lip"
-!define PRODUCT_VERSION "0.2.1"
+!define PRODUCT_VERSION "$%LIP_VERSION%"
 !define PRODUCT_PUBLISHER "LiteLDev"
 !define PRODUCT_WEB_SITE "https://github.com/LiteLDev/Lip"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\lip.exe"
@@ -49,7 +49,7 @@ SetCompressorDictSize 32
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME}"
 OutFile "lip-0.0.0-windows-amd64-setup.exe"
 InstallDir "$PROGRAMFILES64\Lip"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -76,9 +76,6 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
-
-
-
 
 Function un.onInit
   ReadRegStr $0 "${PRODUCT_UNINST_ROOT_KEY}" "${PRODUCT_UNINST_KEY}" "NSIS:Language"

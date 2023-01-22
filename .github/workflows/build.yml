@@ -36,7 +36,7 @@ jobs:
         run: go work init ./src
 
       - name: Build Lip
-        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/${{ matrix.output }} github.com/liteldev/lip
+        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3
@@ -71,10 +71,11 @@ jobs:
         run: |
           mv ./lip.exe ./nsis/
           mv ./LICENSE ./nsis/
+          export LIP_VERSION=${{ github.ref_name }}
           makensis ./nsis/make_installer.nsi
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-windows-amd64-setup.exe
+          name: lip-0.0.0-windows-amd64-setup
           path: nsis/lip-0.0.0-windows-amd64-setup.exe
