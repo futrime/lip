@@ -71,7 +71,7 @@ jobs:
         run: |
           mv ./lip.exe ./nsis/
           mv ./LICENSE ./nsis/
-          export LIP_VERSION=${{ github.ref_name }}
+          set LIP_VERSION=${{ github.ref_name }}
           makensis ./nsis/make_installer.nsi
 
       - name: Upload build
