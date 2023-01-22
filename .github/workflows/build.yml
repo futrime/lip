@@ -1,4 +1,4 @@
-name: Build Lip
+name: Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build Lip
+    name: Build
     runs-on: windows-latest
     steps:
       - name: Checkout the repository
@@ -16,31 +16,20 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-         go-version-file: 'src/go.mod'
+         go-version-file: src/go.mod
+         cache: true
+         cache-dependency-path: src/go.sum
 
       - name: Set up Go workspace
         run: go work init ./src
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: C:/Users/runneradmin/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Build
+      - name: Build Lip
         run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/lip.exe github.com/liteldev/lip
-
-      - name: Save Go modules
-        run: |
-          cd ${{ github.workspace }}/src
-          go mod tidy
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-nightly-${{ github.sha }}
+          name: lip-0.0.0-windows-amd64
           path: build
 
   pack:
@@ -51,10 +40,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Download Lip
+      - name: Download build
         uses: actions/download-artifact@v3
         with:
-          name: lip-nightly-${{ github.sha }}
+          name: lip-0.0.0-windows-amd64
 
       - name: Set up NSIS workspace
         run:  |
@@ -71,11 +60,11 @@ jobs:
       - name: Build Setup Program
         run: |
           mv ./lip.exe ./nsis/
-          mv LICENSE ./nsis/LICENSE.txt
+          mv LICENSE ./nsis/LICENSE
           makensis.exe ./nsis/make_installer.nsi
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-setup-nightly-${{ github.sha }}
-          path: ./nsis/LipSetup.exe
+          name: lip-0.0.0-windows-amd64-setup
+          path: ./nsis/lip-0.0.0-windows-amd64-setup.exe
