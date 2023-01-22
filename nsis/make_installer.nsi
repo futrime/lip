@@ -1,7 +1,6 @@
 ﻿Unicode True
 
 !define PRODUCT_NAME "Lip"
-!define PRODUCT_VERSION "0.0.0"
 !define PRODUCT_PUBLISHER "LiteLDev"
 !define PRODUCT_WEB_SITE "https://github.com/LiteLDev/Lip"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\lip.exe"
@@ -11,6 +10,8 @@
 
 !ifdef LIP_VERSION
   !define PRODUCT_VERSION "${LIP_VERSION}"
+!else
+  !define PRODUCT_VERSION "0.0.0"
 !endif
 
 SetCompressor /SOLID lzma
