@@ -10,7 +10,16 @@ jobs:
     name: Build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            alias: windows
+            output: lip.exe
+          - os: ubuntu-latest
+            alias: linux
+            output: lip
+          - os: macos-latest
+            alias: darwin
+            output: lip
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
@@ -27,12 +36,12 @@ jobs:
         run: go work init ./src
 
       - name: Build Lip
-        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/lip.exe github.com/liteldev/lip
+        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}'" -o ./build/${{ matrix.output }} github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-${{ matrix.os }}-amd64
+          name: lip-0.0.0-${{ matrix.alias }}-amd64
           path: build
 
   pack:
