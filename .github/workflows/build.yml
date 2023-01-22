@@ -71,8 +71,7 @@ jobs:
         run: |
           mv ./lip.exe ./nsis/
           mv ./LICENSE ./nsis/
-          set LIP_VERSION=${{ github.ref_name }}
-          makensis ./nsis/make_installer.nsi
+          makensis /DLIP_VERSION=${{ github.ref_name }} ./nsis/make_installer.nsi
 
       - name: Upload build
         uses: actions/upload-artifact@v3
