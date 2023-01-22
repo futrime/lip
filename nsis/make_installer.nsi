@@ -1,13 +1,18 @@
 ﻿Unicode True
 
 !define PRODUCT_NAME "Lip"
-!define PRODUCT_VERSION "0.2.1"
 !define PRODUCT_PUBLISHER "LiteLDev"
 !define PRODUCT_WEB_SITE "https://github.com/LiteLDev/Lip"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\lip.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define LIP_PATH "CHANGEME"
+
+!ifdef LIP_VERSION
+  !define PRODUCT_VERSION "${LIP_VERSION}"
+!else
+  !define PRODUCT_VERSION "0.0.0"
+!endif
 
 SetCompressor /SOLID lzma
 SetCompressorDictSize 32
@@ -29,7 +34,7 @@ SetCompressorDictSize 32
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !define MUI_LICENSEPAGE_CHECKBOX
-!insertmacro MUI_PAGE_LICENSE "LICENSE.txt"
+!insertmacro MUI_PAGE_LICENSE "LICENSE"
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -49,8 +54,8 @@ SetCompressorDictSize 32
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "LipSetup.exe"
+Name "${PRODUCT_NAME}"
+OutFile "lip-0.0.0-windows-amd64-setup.exe"
 InstallDir "$PROGRAMFILES64\Lip"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -76,9 +81,6 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
-
-
-
 
 Function un.onInit
   ReadRegStr $0 "${PRODUCT_UNINST_ROOT_KEY}" "${PRODUCT_UNINST_KEY}" "NSIS:Language"

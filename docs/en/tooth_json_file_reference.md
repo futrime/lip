@@ -4,6 +4,8 @@ Each Lip tooth is defined by a tooth.json file that describes the tooth's proper
 
 These properties include:
 
+- The **format version** of the tooth.json file.
+
 - The current tooth's **tooth path**. This should be a location where the tooth can be downloaded by Lip, such as the tooth code's Git repository location. This serves as a unique identifier, when combined with the tooth’s version number.
 
 - The current tooth's **version**.
@@ -11,6 +13,12 @@ These properties include:
 - **Dependencies** along with there versions required by the current tooth.
 
 - The current tooth's **information**, including the name, the author, the description and so on.
+
+- The current tooth's **placement**. This is a list of files that should be placed in the tooth's installation directory.
+
+- The current tooth's **possession**. This is a list of files that should be placed in the tooth's possession directory.
+
+The **format_version**, **tooth path** and **version** are required. The other properties are optional.
 
 You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
 
@@ -330,11 +338,7 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
     "required": [
         "format_version",
         "tooth",
-        "version",
-        "dependencies",
-        "information",
-        "placement",
-        "possession"
+        "version"
     ],
     "properties": {
         "format_version": {
