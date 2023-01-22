@@ -4,6 +4,8 @@
 
 这些属性包括：
 
+- The **format version** of the tooth.json file.
+
 - 这一tooth包的 **路径**。这一属性应向Lip提供一个Lip可以下载到这个tooth包的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
 
 - 这一tooth包的 **版本号**
@@ -11,6 +13,12 @@
 - **依赖** 这一tooth包所依赖的tooth包以及他们的版本。
 
 - 这一tooth包的 **信息** ，包括名称，作者，描述等。
+
+- The current tooth's **placement**. This is a list of files that should be placed in the tooth's installation directory.
+
+- The current tooth's **possession**. This is a list of files that should be placed in the tooth's possession directory.
+
+The **format_version**, **tooth path** and **version** are required. The other properties are optional.
 
 你可以通过运行 lip tooth init 命令来生成和初始化一个tooth.json。下面的例子创建了一个 tooth.json 文件。
 
@@ -329,11 +337,7 @@ Lip提供了一些版本匹配规则：
     "required": [
         "format_version",
         "tooth",
-        "version",
-        "dependencies",
-        "information",
-        "placement",
-        "possession"
+        "version"
     ],
     "properties": {
         "format_version": {
