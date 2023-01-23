@@ -37,7 +37,10 @@ jobs:
         run: go work init ./src
 
       - name: Build Lip
-        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
+        run: |
+          export GOOS=${{ matrix.GOOS }}
+          export GOARCH=${{ matrix.GOARCH }}
+          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3
