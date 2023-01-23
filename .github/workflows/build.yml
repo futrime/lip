@@ -57,21 +57,21 @@ jobs:
         with:
           name: lip-0.0.0-windows-amd64
 
-      - name: Set up NSIS workspace
+      - name: Set up NSIS
         run:  |
           C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07.zip -O nsis.zip
           C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07-strlen_8192.zip -O nsis-strlen.zip
+          C:\msys64\usr\bin\wget.exe -q https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip -O EnVar_plugin.zip
           unzip -q -o nsis.zip
           mv nsis-3.07 nsis-portable
           unzip -q -o nsis-strlen.zip -d nsis-portable
-          $env:PATH = "$env:PATH;${{ github.workspace }}/nsis-portable"
-          [Environment]::SetEnvironmentVariable("PATH", $env:PATH, [System.EnvironmentVariableTarget]::Machine)
+          unzip -q -o EnVar_plugin.zip -d nsis-portable
 
       - name: Build setup program
         run: |
           mv ./lip.exe ./nsis/
           mv ./LICENSE ./nsis/
-          makensis /DLIP_VERSION=${{ github.ref_name }} ./nsis/make_installer.nsi
+          .\nsis-portable\makensis /DLIP_VERSION=${{ github.ref_name }} ./nsis/make_installer.nsi
 
       - name: Upload build
         uses: actions/upload-artifact@v3
