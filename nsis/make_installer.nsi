@@ -6,7 +6,6 @@
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\lip.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
-!define LIP_PATH "CHANGEME"
 
 !ifdef LIP_VERSION
   !define PRODUCT_VERSION "${LIP_VERSION}"
@@ -35,6 +34,8 @@ SetCompressorDictSize 32
 ; License page
 !define MUI_LICENSEPAGE_CHECKBOX
 !insertmacro MUI_PAGE_LICENSE "LICENSE"
+; Components page
+!insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -65,10 +66,22 @@ Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
 FunctionEnd
 
-Section "Lip" SEC01
+Section "Lip (required)" SEC01
+  SectionIn RO
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "lip.exe"
+SectionEnd
+
+Section "Add to PATH" SEC02
+  ; Check for write access
+  EnVar::Check "NULL" "NULL"
+ 
+  ; Set to HKLM
+  EnVar::SetHKLM
+ 
+  ; Append a value
+  EnVar::AddValue "PATH" "$INSTDIR"
 SectionEnd
 
 Section -Post
@@ -81,6 +94,14 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
+
+; Section descriptions
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} ""
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} ""
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
 
 Function un.onInit
   ReadRegStr $0 "${PRODUCT_UNINST_ROOT_KEY}" "${PRODUCT_UNINST_KEY}" "NSIS:Language"
@@ -106,9 +127,16 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\lip.exe"
 
+  RMDir /r "$INSTDIR\.lip"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+  ; Check for write access
+  EnVar::Check "NULL" "NULL"
+  ; Set to HKLM
+  EnVar::SetHKLM
+  ; Delete a value from a variable
+  EnVar::DeleteValue "PATH" "D:\Program Files\Lip"
   SetAutoClose true
 SectionEnd
