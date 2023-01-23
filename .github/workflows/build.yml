@@ -10,12 +10,14 @@ jobs:
     name: Build
     strategy:
       matrix:
-        GOOS: [darwin, linux, windows]
+        GOOS: [darwin, linux, openbsd, windows]
         GOARCH: [amd64, arm64]
         include:
           - GOOS: darwin
             output: lip
           - GOOS: linux
+            output: lip
+          - GOOS: openbsd
             output: lip
           - GOOS: windows
             output: lip.exe
@@ -43,7 +45,7 @@ jobs:
           name: lip-0.0.0-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
 
-  pack:
+  make-windows-setup-program:
     name: Make Windows setup program
     needs: build
     runs-on: windows-latest
