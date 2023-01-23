@@ -1,9 +1,14 @@
 name: Build
 
 on:
-  push:
   pull_request:
+  release:
+    types: 
+      - released
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -23,6 +28,14 @@ jobs:
             output: lip.exe
     runs-on: ubuntu-latest
     steps:
+      - name: Get version if release
+        if: github.event_name == 'release'
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $GITHUB_ENV
+
+      - name: Set default version if not release
+        if: github.event_name != 'release'
+        run: echo "VERSION=0.0.0" >> $GITHUB_ENV
+
       - name: Checkout the repository
         uses: actions/checkout@v3
 
@@ -33,19 +46,19 @@ jobs:
          cache: true
          cache-dependency-path: src/go.sum
 
-      - name: Set up Go workspace
+      - name: Set up workspace
         run: go work init ./src
 
       - name: Build Lip
         run: |
           export GOOS=${{ matrix.GOOS }}
           export GOARCH=${{ matrix.GOARCH }}
-          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
+          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ env.VERSION }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          name: lip-${{ env.VERSION }}-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
 
   make-windows-setup-program:
@@ -53,13 +66,21 @@ jobs:
     needs: build
     runs-on: windows-latest
     steps:
+      - name: Get version if release
+        if: github.event_name == 'release'
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
+
+      - name: Set default version if not release
+        if: github.event_name != 'release'
+        run: echo "VERSION=0.0.0" >> $env:GITHUB_ENV
+
       - name: Checkout the repository
         uses: actions/checkout@v3
 
       - name: Download build
         uses: actions/download-artifact@v3
         with:
-          name: lip-0.0.0-windows-amd64
+          name: lip-${{ env.VERSION }}-windows-amd64
 
       - name: Set up NSIS
         run:  |
@@ -75,10 +96,50 @@ jobs:
         run: |
           mv ./lip.exe ./nsis/
           mv ./LICENSE ./nsis/
-          .\nsis-portable\makensis /DLIP_VERSION=${{ github.ref_name }} ./nsis/make_installer.nsi
+          .\nsis-portable\makensis /DLIP_VERSION=${{ env.VERSION }} ./nsis/make_installer.nsi
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-windows-amd64-setup
-          path: nsis/lip-0.0.0-windows-amd64-setup.exe
+          name: lip-${{ env.VERSION }}-windows-amd64-setup
+          path: nsis/lip-${{ env.VERSION }}-windows-amd64-setup.exe
+
+  upload-to-release:
+    name: Upload to release
+    needs: 
+      - build
+      - make-windows-setup-program
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Get version
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $GITHUB_ENV
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Pack artifacts
+        run: |
+          zip -9r lip-${{ env.VERSION }}-windows-amd64.zip lip-${{ env.VERSION }}-windows-amd64
+          zip -9r lip-${{ env.VERSION }}-windows-arm64.zip lip-${{ env.VERSION }}-windows-arm64
+          cp lip-${{ env.VERSION }}-windows-amd64-setup/lip-${{ env.VERSION }}-windows-amd64-setup.exe ./
+          tar -czf lip-${{ env.VERSION }}-linux-amd64.tar.gz lip-${{ env.VERSION }}-linux-amd64
+          tar -czf lip-${{ env.VERSION }}-linux-arm64.tar.gz lip-${{ env.VERSION }}-linux-arm64
+          tar -czf lip-${{ env.VERSION }}-darwin-amd64.tar.gz lip-${{ env.VERSION }}-darwin-amd64
+          tar -czf lip-${{ env.VERSION }}-darwin-arm64.tar.gz lip-${{ env.VERSION }}-darwin-arm64
+          tar -czf lip-${{ env.VERSION }}-openbsd-amd64.tar.gz lip-${{ env.VERSION }}-openbsd-amd64
+          tar -czf lip-${{ env.VERSION }}-openbsd-arm64.tar.gz lip-${{ env.VERSION }}-openbsd-arm64
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            lip-${{ env.VERSION }}-windows-amd64.zip
+            lip-${{ env.VERSION }}-windows-arm64.zip
+            lip-${{ env.VERSION }}-windows-amd64-setup.exe
+            lip-${{ env.VERSION }}-linux-amd64.tar.gz
+            lip-${{ env.VERSION }}-linux-arm64.tar.gz
+            lip-${{ env.VERSION }}-darwin-amd64.tar.gz
+            lip-${{ env.VERSION }}-darwin-arm64.tar.gz
+            lip-${{ env.VERSION }}-openbsd-amd64.tar.gz
+            lip-${{ env.VERSION }}-openbsd-arm64.tar.gz
