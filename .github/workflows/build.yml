@@ -10,17 +10,16 @@ jobs:
     name: Build
     strategy:
       matrix:
+        GOOS: [darwin, linux, windows]
+        GOARCH: [amd64, arm64]
         include:
-          - os: windows-latest
-            alias: windows
+          - GOOS: darwin
+            output: lip
+          - GOOS: linux
+            output: lip
+          - GOOS: windows
             output: lip.exe
-          - os: ubuntu-latest
-            alias: linux
-            output: lip
-          - os: macos-latest
-            alias: darwin
-            output: lip
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -41,7 +40,7 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-${{ matrix.alias }}-amd64
+          name: lip-0.0.0-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
 
   pack:
