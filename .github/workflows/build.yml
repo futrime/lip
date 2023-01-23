@@ -10,17 +10,18 @@ jobs:
     name: Build
     strategy:
       matrix:
+        GOOS: [darwin, linux, openbsd, windows]
+        GOARCH: [amd64, arm64]
         include:
-          - os: windows-latest
-            alias: windows
+          - GOOS: darwin
+            output: lip
+          - GOOS: linux
+            output: lip
+          - GOOS: openbsd
+            output: lip
+          - GOOS: windows
             output: lip.exe
-          - os: ubuntu-latest
-            alias: linux
-            output: lip
-          - os: macos-latest
-            alias: darwin
-            output: lip
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -36,15 +37,18 @@ jobs:
         run: go work init ./src
 
       - name: Build Lip
-        run: go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
+        run: |
+          export GOOS=${{ matrix.GOOS }}
+          export GOARCH=${{ matrix.GOARCH }}
+          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ github.ref_name }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
 
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
-          name: lip-0.0.0-${{ matrix.alias }}-amd64
+          name: lip-0.0.0-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
 
-  pack:
+  make-windows-setup-program:
     name: Make Windows setup program
     needs: build
     runs-on: windows-latest
