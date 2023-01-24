@@ -101,7 +101,8 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 				return Specifier{}, errors.New("no tooth version found for repo: " + toothRepo)
 			}
 
-			toothVersion = toothVersionList[len(toothVersionList)-1]
+			// toothVersionList is sorted in descending order.
+			toothVersion = toothVersionList[0]
 		}
 
 		return Specifier{
