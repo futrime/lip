@@ -11,6 +11,7 @@ import (
 	"github.com/liteldev/lip/tooth"
 	versionutils "github.com/liteldev/lip/utils/version"
 	"github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // InfoStruct is the struct that contains the information of a tooth.
@@ -38,11 +39,105 @@ type Metadata struct {
 	Possession   []string
 }
 
+const jsonSchema string = `
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "tooth",
+    "version"
+  ],
+  "properties": {
+    "format_version": {
+      "enum": [1]
+    },
+    "tooth": {
+      "type": "string",
+      "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z\\d-_\\.\\/]*$": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "additionalItems": false,
+          "items": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "additionalItems": false,
+            "items": {
+              "type": "string",
+              "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
+            }
+          }
+        }
+      }
+    },
+    "information": {
+      "type": "object"
+    },
+    "placement": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "destination": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          }
+        }
+      }
+    },
+    "possession": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+      }
+    }
+  }
+}
+`
+
 // NewFromJSON decodes a JSON byte array into a Metadata struct.
 func NewFromJSON(jsonData []byte) (Metadata, error) {
+	// Validate JSON schema.
+	schemaLoader := gojsonschema.NewStringLoader(jsonSchema)
+	documentLoader := gojsonschema.NewBytesLoader(jsonData)
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return Metadata{}, errors.New("JSON schema validation failed: " + err.Error())
+	}
+
+	if !result.Valid() {
+		var errorString string
+		for _, desc := range result.Errors() {
+			errorString += desc.String() + " "
+		}
+		return Metadata{}, errors.New("JSON schema validation failed: " + errorString)
+	}
+
 	// Read to a map.
 	var metadataMap map[string]interface{}
-	err := json.Unmarshal(jsonData, &metadataMap)
+	err = json.Unmarshal(jsonData, &metadataMap)
 	if err != nil {
 		return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
 	}
