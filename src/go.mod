@@ -3,7 +3,7 @@ module github.com/liteldev/lip
 go 1.19
 
 require (
-	github.com/fatih/color v1.14.0
+	github.com/fatih/color v1.14.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 )
 
