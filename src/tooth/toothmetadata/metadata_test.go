@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	versionutils "github.com/liteldev/lip/utils/version"
-	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/liteldev/lip/utils/version/versionmatch"
 )
 
 func TestNewFromJSON(t *testing.T) {
@@ -131,14 +131,14 @@ func TestJSON(t *testing.T) {
 	// Create test data
 	version, _ := versionutils.NewFromString(`1.0.0`)
 
-	versionMatch0, _ := versionmatchutils.NewFromString(`>=1.0.0`)
-	versionMatch1, _ := versionmatchutils.NewFromString(`<=1.1.0`)
-	versionMatch2, _ := versionmatchutils.NewFromString(`2.0.x`)
+	versionMatch0, _ := versionmatch.NewFromString(`>=1.0.0`)
+	versionMatch1, _ := versionmatch.NewFromString(`<=1.1.0`)
+	versionMatch2, _ := versionmatch.NewFromString(`2.0.x`)
 
 	metadata := Metadata{
 		ToothPath: "test.test/test/test",
 		Version:   version,
-		Dependencies: map[string]([][]versionmatchutils.VersionMatch){
+		Dependencies: map[string]([][]versionmatch.VersionMatch){
 			"test.test/test/depend": {
 				{versionMatch0, versionMatch1},
 				{versionMatch2},
