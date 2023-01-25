@@ -90,7 +90,11 @@ func downloadTooth(specifier Specifier) (string, error) {
 		}
 
 		// Get the tooth file url.
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + "+incompatible.zip"
+		urlSuffix := "+incompatible.zip"
+		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
+			urlSuffix = ".zip"
+		}
+		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
 		// Download the tooth file to the cache.
 		cacheDir, err := localfile.CacheDir()
@@ -261,7 +265,11 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 	}
 
 	// Check if the version is valid.
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + "+incompatible.info"
+	urlSuffix := "+incompatible.info"
+	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
+		urlSuffix = ".info"
+	}
+	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
 
 	// Get the version information.
 	resp, err := http.Get(url)
