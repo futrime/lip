@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2023-01-25
+
+### Changed
+
+- Bumped github.com/fatih/color from 1.14.0 to 1.14.1.
+
+### Fixed
+
+- Misleading error hints.
+- Failing to fetch tooth with major version v0 or v1.
+- Failing to match dependencies.
+- Failing to fetch tooth when uppercase letters exist in tooth path.
+
 ## [0.3.3] - 2023-01-24
 
 ### Fixed
@@ -64,7 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.3.3...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.0...v0.3.1
