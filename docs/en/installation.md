@@ -1,6 +1,6 @@
 # Installation
 
-We (will) provide multiple methods to install Lip.
+We provide multiple methods to install Lip.
 
 ## Supported Methods
 
