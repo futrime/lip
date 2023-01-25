@@ -152,6 +152,7 @@ func Run() {
 				return
 			}
 
+			isMatched := false
 		selectVersion:
 			for _, version := range versionList {
 				for _, innerVersionRange := range versionRange {
@@ -164,15 +165,18 @@ func Run() {
 								return
 							}
 							specifiersToFetch.PushBack(specifier)
+							isMatched = true
 							break selectVersion
 						}
 					}
 				}
 			}
 
-			// If no version is selected, error.
-			logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
-			return
+			if !isMatched {
+				// If no version is selected, error.
+				logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
+				return
+			}
 		}
 	}
 

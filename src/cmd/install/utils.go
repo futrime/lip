@@ -124,6 +124,9 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 
 	url := context.Goproxy + "/" + repoPath + "/@v/list"
 
+	// To lowercases.
+	url = strings.ToLower(url)
+
 	// Get the version list.
 	resp, err := http.Get(url)
 	if err != nil {
@@ -251,7 +254,7 @@ func install(t toothfile.ToothFile) error {
 
 // isValidRepoPath checks if the repoPath is valid.
 func isValidRepoPath(repoPath string) bool {
-	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
+	reg := regexp.MustCompile(`^[a-zA-Z\d-_\.\/]*$`)
 
 	// If not matched or the matched string is not the same as the specifier, it is an
 	// invalid requirement specifier.
@@ -270,6 +273,9 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 		urlSuffix = ".info"
 	}
 	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
+
+	// To lower case.
+	url = strings.ToLower(url)
 
 	// Get the version information.
 	resp, err := http.Get(url)
