@@ -90,7 +90,11 @@ func downloadTooth(specifier Specifier) (string, error) {
 		}
 
 		// Get the tooth file url.
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + "+incompatible.zip"
+		urlSuffix := "+incompatible.zip"
+		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
+			urlSuffix = ".zip"
+		}
+		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
 		// Download the tooth file to the cache.
 		cacheDir, err := localfile.CacheDir()
@@ -120,10 +124,13 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 
 	url := context.Goproxy + "/" + repoPath + "/@v/list"
 
+	// To lowercases.
+	url = strings.ToLower(url)
+
 	// Get the version list.
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, errors.New("cannot access GOPROXY: " + repoPath)
+		return nil, errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 
@@ -247,7 +254,7 @@ func install(t toothfile.ToothFile) error {
 
 // isValidRepoPath checks if the repoPath is valid.
 func isValidRepoPath(repoPath string) bool {
-	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
+	reg := regexp.MustCompile(`^[a-zA-Z\d-_\.\/]*$`)
 
 	// If not matched or the matched string is not the same as the specifier, it is an
 	// invalid requirement specifier.
@@ -261,12 +268,19 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 	}
 
 	// Check if the version is valid.
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + "+incompatible.info"
+	urlSuffix := "+incompatible.info"
+	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
+		urlSuffix = ".info"
+	}
+	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
+
+	// To lower case.
+	url = strings.ToLower(url)
 
 	// Get the version information.
 	resp, err := http.Get(url)
 	if err != nil {
-		return errors.New("cannot access GOPROXY: " + repoPath)
+		return errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 
