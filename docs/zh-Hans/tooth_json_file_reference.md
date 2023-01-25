@@ -55,8 +55,8 @@ lip tooth init
     },
     "placement": [
         {
-            "source": "",
-            "destination": ""
+            "source": "LiteLoader.dll",
+            "destination": "LiteLoader.dll"
         }
     ],
     "possession": [
@@ -267,6 +267,8 @@ Lip提供了一些版本匹配规则：
 
 如果源目录和目标目录都以 "*"结尾，则该位置将被视为通配符。Lip将递归地把源目录下的所有文件放置到目标目录。
 
+Here we make a strict rule that the source and destination can only contain letters, digits, hyphens, underscores, dots, slashes and asterisks (for the last letter treated as wildcard) [a-zA-Z0-9-_\.\/\*]. If you want to place files to the root of BDS, you should specify every file in the source field. The first letter should not be a slash or a dot. The last letter should not be a slash.
+
 ### 样例
 
 从特定的文件夹中提取并放置到特定的文件夹中：
@@ -286,22 +288,9 @@ Lip提供了一些版本匹配规则：
 }
 ```
 
-从tooth根本取出，放到BDS根目录
-
-```json
-{
-    "placement": [
-        {
-            "source": "",
-            "destination": ""
-        }
-    ]
-}
-```
-
 ### 注意
 
-不要添加任何前缀，如 "/", "./" 或 "../".否则，Lip将拒绝安装这一tooth包。如果源路径指向tooth包的根目录，则可以将该值留空。同样的，如果目标目录的BDS根目录，则可以将该值留空。
+不要添加任何前缀，如 "/", "./" 或 "../".否则，Lip将拒绝安装这一tooth包。
 
 ## `possession`
 
