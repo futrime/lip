@@ -123,7 +123,7 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	// Get the version list.
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, errors.New("cannot access GOPROXY: " + repoPath)
+		return nil, errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 
@@ -266,7 +266,7 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 	// Get the version information.
 	resp, err := http.Get(url)
 	if err != nil {
-		return errors.New("cannot access GOPROXY: " + repoPath)
+		return errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 
