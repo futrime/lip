@@ -55,8 +55,8 @@ A tooth.json includes directives as shown in the following example. These are de
     },
     "placement": [
         {
-            "source": "",
-            "destination": ""
+            "source": "LiteLoader.dll",
+            "destination": "LiteLoader.dll"
         }
     ],
     "possession": [
@@ -287,22 +287,9 @@ Extract from specific folders and place to specific folders:
 }
 ```
 
-Extract from tooth root and place to BDS root:
-
-```json
-{
-    "placement": [
-        {
-            "source": "",
-            "destination": ""
-        }
-    ]
-}
-```
-
 ### Notes
 
-Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
+Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth.
 
 ## possession
 
