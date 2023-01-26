@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Post-install script support.
+- Tooth path validation.
+- Flexible tooth.json parsing.
+
 ## [0.3.4] - 2023-01-25
 
 ### Changed
