@@ -5,6 +5,6 @@
 > LiteLoaderBDS的包管理器
 
 [GitHub](https://github.com/LiteLDev/Lip)
-[Read Docs](/README.md)
+[阅读文档](/README.md)
 
 ![](../assets/banner.webp)
