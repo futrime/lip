@@ -1,5 +1,5 @@
 /*
-    LiteLoaderBDS, an epoch-making & cross-language plugin loader for Bedrock Dedicated Server for Minecraft.
+    Lip. A package installer not only for LiteLoaderBDS.
     Copyright (C) 2022  LiteLDev
 
     This program is free software: you can redistribute it and/or modify

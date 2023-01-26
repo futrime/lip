@@ -1,6 +1,6 @@
-# Lip - a LiteLoaderBDS package installer
+# Lip - a package installer, not only for LiteLoader BDS
 
-Lip is a package installer for LiteLoaderBDS. You can use Lip to install packages from any LiteLoaderBDS registries, or directly from any Git repository.
+Lip is a package installer not only for LiteLoaderBDS. You can use Lip to install packages from any Git repository.
 
 Please take a look at our documentation for how to install and use Lip:
 
