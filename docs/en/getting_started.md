@@ -53,7 +53,7 @@ Lip suppports installing multiple files at a time.
 Successfully installed all tooth files.
 ```
 
-### Upgrade a tooth (TODO)
+### Upgrade a tooth
 
 ```shell
 > lip install --upgrade github.com/liteldev/exampletooth

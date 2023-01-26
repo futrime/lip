@@ -2,7 +2,7 @@
 
 # Lip <small>0.x</small>
 
-> A LiteLoaderBDS package installer
+> A package installer not only for LiteLoaderBDS
 
 [GitHub](https://github.com/LiteLDev/Lip)
 [Read Docs](/README.md)

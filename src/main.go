@@ -33,5 +33,15 @@ func main() {
 		logger.Error(err.Error())
 	}
 
+	// Change the working directory to the project root.
+	workspaceDir, err := localfile.WorkSpaceDir()
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	err = os.Chdir(workspaceDir)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
 	cmdlip.Run()
 }
