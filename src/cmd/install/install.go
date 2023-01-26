@@ -136,12 +136,20 @@ func Run() {
 		// Add the downloaded path to the downloaded tooth files.
 		downloadedToothFiles[specifier.String()] = downloadedToothFilePath
 
-		// Parse the tooth file to get its dependencies
+		// Parse the tooth file
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
+		// Validate the tooth file.
+		toothPath := toothFile.Metadata().ToothPath
+		if specifier.specifierType == RequirementSpecifierType &&
+			toothPath != specifier.ToothPath() {
+			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
+			return
+		}
+
 		dependencies := toothFile.Metadata().Dependencies
 
 		// Get proper version of each dependency and add them to the queue.
