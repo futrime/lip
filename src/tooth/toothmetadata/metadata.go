@@ -159,49 +159,71 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	metadata.Version = version
 
 	metadata.Dependencies = make(map[string]([][]versionmatch.VersionMatch))
-	for toothPath, versionMatchOuterList := range metadataMap["dependencies"].(map[string]interface{}) {
-		metadata.Dependencies[toothPath] = make([][]versionmatch.VersionMatch, len(versionMatchOuterList.([]interface{})))
-		for i, versionMatchInnerList := range versionMatchOuterList.([]interface{}) {
-			metadata.Dependencies[toothPath][i] = make([]versionmatch.VersionMatch, len(versionMatchInnerList.([]interface{})))
-			for j, versionMatch := range versionMatchInnerList.([]interface{}) {
-				versionMatch, err := versionmatch.NewFromString(versionMatch.(string))
-				if err != nil {
-					return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
-				}
+	if _, ok := metadataMap["dependencies"]; ok {
+		for toothPath, versionMatchOuterList := range metadataMap["dependencies"].(map[string]interface{}) {
+			metadata.Dependencies[toothPath] = make([][]versionmatch.VersionMatch, len(versionMatchOuterList.([]interface{})))
+			for i, versionMatchInnerList := range versionMatchOuterList.([]interface{}) {
+				metadata.Dependencies[toothPath][i] = make([]versionmatch.VersionMatch, len(versionMatchInnerList.([]interface{})))
+				for j, versionMatch := range versionMatchInnerList.([]interface{}) {
+					versionMatch, err := versionmatch.NewFromString(versionMatch.(string))
+					if err != nil {
+						return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
+					}
 
-				metadata.Dependencies[toothPath][i][j] = versionMatch
+					metadata.Dependencies[toothPath][i][j] = versionMatch
+				}
 			}
 		}
 	}
 
-	metadata.Information.Name = metadataMap["information"].(map[string]interface{})["name"].(string)
-	metadata.Information.Description = metadataMap["information"].(map[string]interface{})["description"].(string)
-	metadata.Information.Author = metadataMap["information"].(map[string]interface{})["author"].(string)
-	metadata.Information.License = metadataMap["information"].(map[string]interface{})["license"].(string)
-	metadata.Information.Homepage = metadataMap["information"].(map[string]interface{})["homepage"].(string)
-
-	metadata.Placement = make([]PlacementStruct, len(metadataMap["placement"].([]interface{})))
-	for i, placement := range metadataMap["placement"].([]interface{}) {
-		source := placement.(map[string]interface{})["source"].(string)
-		destination := placement.(map[string]interface{})["destination"].(string)
-
-		// Source and destination should starts with a letter or a digit and should only contains
-		reg := regexp.MustCompile(`^[a-zA-Z0-9]\S*$`)
-		// The matched string should be the same as the original string.
-		if reg.FindString(source) != source {
-			return Metadata{}, errors.New("failed to decode JSON into metadata: invalid source: " + source)
+	if _, ok := metadataMap["information"]; ok {
+		if _, ok := metadataMap["information"].(map[string]interface{})["name"]; ok {
+			metadata.Information.Name = metadataMap["information"].(map[string]interface{})["name"].(string)
 		}
-		if reg.FindString(destination) != destination {
-			return Metadata{}, errors.New("failed to decode JSON into metadata: invalid destination: " + destination)
+		if _, ok := metadataMap["information"].(map[string]interface{})["description"]; ok {
+			metadata.Information.Description = metadataMap["information"].(map[string]interface{})["description"].(string)
 		}
-
-		metadata.Placement[i].Source = source
-		metadata.Placement[i].Destination = destination
+		if _, ok := metadataMap["information"].(map[string]interface{})["author"]; ok {
+			metadata.Information.Author = metadataMap["information"].(map[string]interface{})["author"].(string)
+		}
+		if _, ok := metadataMap["information"].(map[string]interface{})["license"]; ok {
+			metadata.Information.License = metadataMap["information"].(map[string]interface{})["license"].(string)
+		}
+		if _, ok := metadataMap["information"].(map[string]interface{})["homepage"]; ok {
+			metadata.Information.Homepage = metadataMap["information"].(map[string]interface{})["homepage"].(string)
+		}
 	}
 
-	metadata.Possession = make([]string, len(metadataMap["possession"].([]interface{})))
-	for i, possession := range metadataMap["possession"].([]interface{}) {
-		metadata.Possession[i] = possession.(string)
+	if _, ok := metadataMap["placement"]; ok {
+		metadata.Placement = make([]PlacementStruct, len(metadataMap["placement"].([]interface{})))
+		for i, placement := range metadataMap["placement"].([]interface{}) {
+			source := placement.(map[string]interface{})["source"].(string)
+			destination := placement.(map[string]interface{})["destination"].(string)
+
+			// Source and destination should starts with a letter or a digit and should only contains
+			reg := regexp.MustCompile(`^[a-zA-Z0-9]\S*$`)
+			// The matched string should be the same as the original string.
+			if reg.FindString(source) != source {
+				return Metadata{}, errors.New("failed to decode JSON into metadata: invalid source: " + source)
+			}
+			if reg.FindString(destination) != destination {
+				return Metadata{}, errors.New("failed to decode JSON into metadata: invalid destination: " + destination)
+			}
+
+			metadata.Placement[i].Source = source
+			metadata.Placement[i].Destination = destination
+		}
+	} else {
+		metadata.Placement = make([]PlacementStruct, 0)
+	}
+
+	if _, ok := metadataMap["possession"]; ok {
+		metadata.Possession = make([]string, len(metadataMap["possession"].([]interface{})))
+		for i, possession := range metadataMap["possession"].([]interface{}) {
+			metadata.Possession[i] = possession.(string)
+		}
+	} else {
+		metadata.Possession = make([]string, 0)
 	}
 
 	return metadata, nil
