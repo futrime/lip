@@ -6,13 +6,13 @@ import (
 	"errors"
 	"io"
 
-	metadata "github.com/liteldev/lip/tooth/toothmetadata"
+	"github.com/liteldev/lip/tooth/toothmetadata"
 )
 
 // ToothFile is the struct that contains the metadata of a .tth file.
 type ToothFile struct {
 	filePath string
-	metadata metadata.Metadata
+	metadata toothmetadata.Metadata
 }
 
 // New creates a new ToothFile struct from a file path of a .tth file.
@@ -44,7 +44,7 @@ func New(filePath string) (ToothFile, error) {
 			}
 
 			// Decode tooth.json.
-			metadata, err := metadata.NewFromJSON(data)
+			metadata, err := toothmetadata.NewFromJSON(data)
 			if err != nil {
 				return ToothFile{}, err
 			}
@@ -66,6 +66,6 @@ func (t ToothFile) FilePath() string {
 }
 
 // Metadata returns the metadata of the .tth file.
-func (t ToothFile) Metadata() metadata.Metadata {
+func (t ToothFile) Metadata() toothmetadata.Metadata {
 	return t.metadata
 }

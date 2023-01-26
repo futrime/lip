@@ -7,8 +7,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 
@@ -29,9 +31,9 @@ func downloadTooth(specifier Specifier) (string, error) {
 		// For local tooth file, just return the path.
 
 		// Get full path of the tooth file.
-		toothFilePath, err := filepath.Abs(specifier.ToothPath())
+		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
-			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothPath())
+			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
 		}
 
 		return toothFilePath, nil
@@ -42,7 +44,7 @@ func downloadTooth(specifier Specifier) (string, error) {
 		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
 
 		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(cacheFileName)
+		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
 		if err != nil {
 			return "", err
 		}
@@ -76,7 +78,7 @@ func downloadTooth(specifier Specifier) (string, error) {
 		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
 
 		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(cacheFileName)
+		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
 		if err != nil {
 			return "", err
 		}
@@ -90,7 +92,11 @@ func downloadTooth(specifier Specifier) (string, error) {
 		}
 
 		// Get the tooth file url.
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + "+incompatible.zip"
+		urlSuffix := "+incompatible.zip"
+		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
+			urlSuffix = ".zip"
+		}
+		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
 		// Download the tooth file to the cache.
 		cacheDir, err := localfile.CacheDir()
@@ -120,10 +126,13 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 
 	url := context.Goproxy + "/" + repoPath + "/@v/list"
 
+	// To lowercases.
+	url = strings.ToLower(url)
+
 	// Get the version list.
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, errors.New("cannot access GOPROXY: " + repoPath)
+		return nil, errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 
@@ -154,8 +163,6 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 }
 
 // Install installs the .tth file.
-// TODO#1: Check if the tooth is already installed.
-// TODO#2: Directory placement.
 func install(t toothfile.ToothFile) error {
 	// 1. Check if the tooth is already installed.
 
@@ -242,12 +249,46 @@ func install(t toothfile.ToothFile) error {
 		}
 	}
 
+	// 4. Run the post-install script.
+	for _, commandItem := range t.Metadata().Commands {
+		if commandItem.Type != "install" {
+			continue
+		}
+
+		// Validate GOOS
+		if commandItem.GOOS != runtime.GOOS {
+			continue
+		}
+
+		// Validate GOARCH. If GOARCH is empty, it is valid for all GOARCH.
+		if commandItem.GOARCH != "" && commandItem.GOARCH != runtime.GOARCH {
+			continue
+		}
+
+		// Run the command.
+		for _, command := range commandItem.Commands {
+			var cmd *exec.Cmd
+			switch runtime.GOOS {
+			case "windows":
+				cmd = exec.Command("cmd", "/C", command)
+			default:
+				cmd = exec.Command("sh", "-c", command)
+			}
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			err := cmd.Run()
+			if err != nil {
+				return errors.New("failed to run command: " + command + ": " + err.Error())
+			}
+		}
+	}
+
 	return nil
 }
 
 // isValidRepoPath checks if the repoPath is valid.
 func isValidRepoPath(repoPath string) bool {
-	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
+	reg := regexp.MustCompile(`^[a-zA-Z\d-_\.\/]*$`)
 
 	// If not matched or the matched string is not the same as the specifier, it is an
 	// invalid requirement specifier.
@@ -261,12 +302,19 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 	}
 
 	// Check if the version is valid.
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + "+incompatible.info"
+	urlSuffix := "+incompatible.info"
+	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
+		urlSuffix = ".info"
+	}
+	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
+
+	// To lower case.
+	url = strings.ToLower(url)
 
 	// Get the version information.
 	resp, err := http.Get(url)
 	if err != nil {
-		return errors.New("cannot access GOPROXY: " + repoPath)
+		return errors.New("cannot access GOPROXY: " + context.Goproxy)
 	}
 	defer resp.Body.Close()
 

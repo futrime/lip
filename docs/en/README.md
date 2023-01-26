@@ -4,7 +4,7 @@
 [![Latest Tag](https://img.shields.io/github/v/tag/LiteLDev/Lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/LiteLDev/Lip/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/LiteLDev/Lip/latest/total?style=for-the-badge)](https://github.com/LiteLDev/Lip/releases/latest)
 
-Lip is a package installer for LiteLoaderBDS. You can use Lip to install packages from any LiteLoaderBDS registries, or directly from any Git repository.
+Lip is a package installer not only for LiteLoaderBDS. You can use Lip to install packages from any Git repository.
 
 Please take a look at our documentation for how to install and use Lip:
 

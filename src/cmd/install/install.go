@@ -34,8 +34,8 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  --upgrade                   Upgrade the specified tooth to the newest available version. (TODO)
-  --force-reinstall           Reinstall the tooth even if they are already up-to-date. (TODO)`
+  --upgrade                   Upgrade the specified tooth to the newest available version.
+  --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
 
 // Run is the entry point.
 func Run() {
@@ -136,12 +136,20 @@ func Run() {
 		// Add the downloaded path to the downloaded tooth files.
 		downloadedToothFiles[specifier.String()] = downloadedToothFilePath
 
-		// Parse the tooth file to get its dependencies
+		// Parse the tooth file
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
+		// Validate the tooth file.
+		toothPath := toothFile.Metadata().ToothPath
+		if specifier.specifierType == RequirementSpecifierType &&
+			toothPath != specifier.ToothRepo() {
+			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
+			return
+		}
+
 		dependencies := toothFile.Metadata().Dependencies
 
 		// Get proper version of each dependency and add them to the queue.
@@ -152,6 +160,7 @@ func Run() {
 				return
 			}
 
+			isMatched := false
 		selectVersion:
 			for _, version := range versionList {
 				for _, innerVersionRange := range versionRange {
@@ -164,15 +173,18 @@ func Run() {
 								return
 							}
 							specifiersToFetch.PushBack(specifier)
+							isMatched = true
 							break selectVersion
 						}
 					}
 				}
 			}
 
-			// If no version is selected, error.
-			logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
-			return
+			if !isMatched {
+				// If no version is selected, error.
+				logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
+				return
+			}
 		}
 	}
 

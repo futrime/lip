@@ -4,6 +4,8 @@ Each Lip tooth is defined by a tooth.json file that describes the tooth's proper
 
 These properties include:
 
+- The **format version** of the tooth.json file.
+
 - The current tooth's **tooth path**. This should be a location where the tooth can be downloaded by Lip, such as the tooth code's Git repository location. This serves as a unique identifier, when combined with the tooth’s version number.
 
 - The current tooth's **version**.
@@ -11,6 +13,12 @@ These properties include:
 - **Dependencies** along with there versions required by the current tooth.
 
 - The current tooth's **information**, including the name, the author, the description and so on.
+
+- The current tooth's **placement**. This is a list of files that should be placed in the tooth's installation directory.
+
+- The current tooth's **possession**. This is a list of files that should be placed in the tooth's possession directory.
+
+The **format_version**, **tooth path** and **version** are required. The other properties are optional.
 
 You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
 
@@ -24,36 +32,45 @@ A tooth.json includes directives as shown in the following example. These are de
 
 ```json
 {
-    "format_version": 1,
-    "tooth": "github.com/liteldev/liteloaderbds",
-    "version": "2.9.0",
-    "dependencies": {
-        "test.test/test/depend": [
-            [
-                ">=1.0.0",
-                "<=1.1.0"
-            ],
-            [
-                "2.0.x"
-            ]
-        ]
-    },
-    "information": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
-        "license": "Modified LGPL-3.0",
-        "homepage": "www.litebds.com"
-    },
-    "placement": [
-        {
-            "source": "",
-            "destination": ""
-        }
-    ],
-    "possession": [
-        "plugins/LiteLoader/"
+  "format_version": 1,
+  "tooth": "github.com/liteldev/liteloaderbds",
+  "version": "2.9.0",
+  "dependencies": {
+    "test.test/test/depend": [
+      [
+        ">=1.0.0",
+        "<=1.1.0"
+      ],
+      [
+        "2.0.x"
+      ]
     ]
+  },
+  "information": {
+    "name": "LiteLoaderBDS",
+    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+    "author": "LiteLDev",
+    "license": "Modified LGPL-3.0",
+    "homepage": "www.litebds.com"
+  },
+  "placement": [
+    {
+      "source": "LiteLoader.dll",
+      "destination": "LiteLoader.dll"
+    }
+  ],
+  "possession": [
+    "plugins/LiteLoader/"
+  ],
+  "commands": [
+    {
+      "type": "install",
+      "commands": [
+        "start LLPeEditor.exe"
+      ],
+      "GOOS": "windows"
+    }
+  ]
 }
 ```
 
@@ -65,7 +82,7 @@ Indicates the format of the tooth.json file. Lip will parse tooth.json according
 
 ```json
 {
-    "format_version": 1
+  "format_version": 1
 }
 ```
 
@@ -87,7 +104,7 @@ Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./
 
 ```json
 {
-    "tooth": "example.com/mytooth"
+  "tooth": "example.com/mytooth"
 }
 ```
 
@@ -125,19 +142,19 @@ We adopted [Semantic Versioning 2.0.0](https://semver.org) and simplified its ru
 
   2. Precedence is determined by the first difference when comparing each of these identifiers from left to right as follows: Major, minor, and patch versions are always compared numerically.
 
-     Example: 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.
+   Example: 1.0.0 < 2.0.0 < 2.1.0 < 2.1.1.
 
   3. When major, minor, and patch are equal, a pre-release version has lower precedence than a normal version.
 
-     Example: 1.0.0-alpha < 1.0.0.
+   Example: 1.0.0-alpha < 1.0.0.
 
   4. Precedence for two pre-release versions with the same major, minor, and patch version MUST be determined by comparing each dot separated identifier from left to right until a difference is found as follows:
 
-     1. Identifiers consisting of only digits are compared numerically.
+   1. Identifiers consisting of only digits are compared numerically.
 
-     2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
+   2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
 
-     Example: 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+   Example: 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 
 ### Examples
 
@@ -145,7 +162,7 @@ Example of a production release:
 
 ```json
 {
-    "version": "1.2.3"
+  "version": "1.2.3"
 }
 ```
 
@@ -153,7 +170,7 @@ Example of a pre-release:
 
 ```json
 {
-    "version": "1.2.0-beta.3"
+  "version": "1.2.0-beta.3"
 }
 ```
 
@@ -161,7 +178,7 @@ Example of a early development release:
 
 ```json
 {
-    "version": "0.1.2"
+  "version": "0.1.2"
 }
 ```
 
@@ -197,17 +214,17 @@ Multi-level nesting is not allowed.
 
 ```json
 {
-    "dependencies": {
-        "test.test/test/depend": [
-            [
-                ">=1.0.0",
-                "<=1.1.0"
-            ],
-            [
-                "2.0.x"
-            ]
-        ]
-    }
+  "dependencies": {
+    "test.test/test/depend": [
+      [
+        ">=1.0.0",
+        "<=1.1.0"
+      ],
+      [
+        "2.0.x"
+      ]
+    ]
+  }
 }
 ```
 
@@ -227,14 +244,14 @@ This field has no syntax restriction. You can write anything following JSON rule
 
 ```json
 {
-    "information": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
-        "license": "Modified LGPL-3.0",
-        "homepage": "www.litebds.com",
-        "thanks": "All contributors!"
-    }
+  "information": {
+    "name": "LiteLoaderBDS",
+    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+    "author": "LiteLDev",
+    "license": "Modified LGPL-3.0",
+    "homepage": "www.litebds.com",
+    "thanks": "All contributors!"
+  }
 }
 ```
 
@@ -266,35 +283,22 @@ Extract from specific folders and place to specific folders:
 
 ```json
 {
-    "placement": [
-        {
-            "source": "build",
-            "destination": "plugins"
-        },
-        {
-            "source": "assets",
-            "destination": "plugins/myplugin"
-        }
-    ]
-}
-```
-
-Extract from tooth root and place to BDS root:
-
-```json
-{
-    "placement": [
-        {
-            "source": "",
-            "destination": ""
-        }
-    ]
+  "placement": [
+    {
+      "source": "build",
+      "destination": "plugins"
+    },
+    {
+      "source": "assets",
+      "destination": "plugins/myplugin"
+    }
+  ]
 }
 ```
 
 ### Notes
 
-Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth. If the source is right the root of the tooth, just leave the value a blank string. Similarly, if the destination is the root of BDS, leave the value a blank string.
+Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth.
 
 ## possession
 
@@ -308,9 +312,9 @@ Each item of the list should be a valid directory path relative to the root of B
 
 ```json
 {
-    "possession": [
-        "plugins/LiteLoader/"
-    ]
+  "possession": [
+    "plugins/LiteLoader/"
+  ]
 }
 ```
 
@@ -318,87 +322,157 @@ Each item of the list should be a valid directory path relative to the root of B
 
 Do not take the possession of any directory that might be used by other tooth, e.g. public directories like worlds/.
 
+## commands
+
+Declares the commands that will be executed when installing.
+
+### Syntax
+
+Each item of the list should be a valid command. Lip will execute the command in the root of BDS.
+
+type is the type of the command. It can be one of the following:
+
+- install: execute the command when installing
+- uninstall: execute the command when uninstalling
+
+GOOS is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go. If GOARCH is not specified, Lip will execute the command on all platforms.
+
+Available GOOS and GOARCH (in GOOS/GOARCH format):
+
+```
+darwin/amd64
+darwin/arm64
+linux/amd64
+linux/arm64
+openbsd/amd64
+openbsd/arm64
+windows/amd64
+windows/arm64
+```
+
+### Examples
+
+```json
+{
+  "commands": [
+    {
+      "type": "install",
+      "commands": [
+        "start LLPeEditor.exe"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
+  ]
+}
+```
+
 ## Syntax
 
 This is a JSON schema of tooth.json, describing the syntax of tooth.json.
 
 ```json
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "additionalProperties": false,
-    "required": [
-        "format_version",
-        "tooth",
-        "version",
-        "dependencies",
-        "information",
-        "placement",
-        "possession"
-    ],
-    "properties": {
-        "format_version": {
-            "enum": [1]
-        },
-        "tooth": {
-            "type": "string",
-            "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
-        },
-        "version": {
-            "type": "string",
-            "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
-        },
-        "dependencies": {
-            "type": "object",
-            "additionalProperties": false,
-            "patternProperties": {
-                "^[a-zA-Z\\d-_\\.\\/]*$": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "minItems": 1,
-                    "additionalItems": false,
-                    "items": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "additionalItems": false,
-                        "items": {
-                            "type": "string",
-                            "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
-                        }
-                    }
-                }
-            }
-        },
-        "information": {
-            "type": "object"
-        },
-        "placement": {
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "tooth",
+    "version"
+  ],
+  "properties": {
+    "format_version": {
+      "enum": [1]
+    },
+    "tooth": {
+      "type": "string",
+      "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z\\d-_\\.\\/]*$": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "additionalItems": false,
+          "items": {
             "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
             "additionalItems": false,
             "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "source": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
-                    },
-                    "destination": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
-                    }
-                }
+              "type": "string",
+              "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
             }
-        },
-        "possession": {
-            "type": "array",
-            "additionalItems": false,
-            "items": {
-                "type": "string",
-                "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
-            }
+          }
         }
+      }
+    },
+    "information": {
+      "type": "object"
+    },
+    "placement": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "destination": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          }
+        }
+      }
+    },
+    "possession": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "commands",
+          "GOOS"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
     }
+  }
 }
 ```
