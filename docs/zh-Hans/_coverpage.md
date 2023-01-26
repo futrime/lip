@@ -2,7 +2,7 @@
 
 # Lip <small>0.x</small>
 
-> LiteLoaderBDS的包管理器
+> 包管理器，但不仅仅是LiteLoaderBDS
 
 [GitHub](https://github.com/LiteLDev/Lip)
 [阅读文档](/README.md)

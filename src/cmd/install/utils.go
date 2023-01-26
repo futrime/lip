@@ -7,8 +7,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 
@@ -29,9 +31,9 @@ func downloadTooth(specifier Specifier) (string, error) {
 		// For local tooth file, just return the path.
 
 		// Get full path of the tooth file.
-		toothFilePath, err := filepath.Abs(specifier.ToothPath())
+		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
-			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothPath())
+			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
 		}
 
 		return toothFilePath, nil
@@ -42,7 +44,7 @@ func downloadTooth(specifier Specifier) (string, error) {
 		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
 
 		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(cacheFileName)
+		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
 		if err != nil {
 			return "", err
 		}
@@ -76,7 +78,7 @@ func downloadTooth(specifier Specifier) (string, error) {
 		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
 
 		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(cacheFileName)
+		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
 		if err != nil {
 			return "", err
 		}
@@ -161,8 +163,6 @@ func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
 }
 
 // Install installs the .tth file.
-// TODO#1: Check if the tooth is already installed.
-// TODO#2: Directory placement.
 func install(t toothfile.ToothFile) error {
 	// 1. Check if the tooth is already installed.
 
@@ -245,6 +245,40 @@ func install(t toothfile.ToothFile) error {
 
 				rc.Close()
 				fw.Close()
+			}
+		}
+	}
+
+	// 4. Run the post-install script.
+	for _, commandItem := range t.Metadata().Commands {
+		if commandItem.Type != "install" {
+			continue
+		}
+
+		// Validate GOOS
+		if commandItem.GOOS != runtime.GOOS {
+			continue
+		}
+
+		// Validate GOARCH. If GOARCH is empty, it is valid for all GOARCH.
+		if commandItem.GOARCH != "" && commandItem.GOARCH != runtime.GOARCH {
+			continue
+		}
+
+		// Run the command.
+		for _, command := range commandItem.Commands {
+			var cmd *exec.Cmd
+			switch runtime.GOOS {
+			case "windows":
+				cmd = exec.Command("cmd", "/C", command)
+			default:
+				cmd = exec.Command("sh", "-c", command)
+			}
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			err := cmd.Run()
+			if err != nil {
+				return errors.New("failed to run command: " + command + ": " + err.Error())
 			}
 		}
 	}
