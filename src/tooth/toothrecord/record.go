@@ -31,6 +31,14 @@ type PlacementStruct struct {
 	Destination string
 }
 
+// CommandStruct is the struct that contains the type, commands, GOOS and GOARCH of a command.
+type CommandStruct struct {
+	Type     string
+	Commands []string
+	GOOS     string
+	GOARCH   string
+}
+
 // Record is the struct that contains the record of a tooth installation.
 type Record struct {
 	ToothPath           string
@@ -39,6 +47,7 @@ type Record struct {
 	Information         InfoStruct
 	Placement           []PlacementStruct
 	Possession          []string
+	Commands            []CommandStruct
 	IsManuallyInstalled bool
 }
 
@@ -112,6 +121,29 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 		record.Possession[i] = possession.(string)
 	}
 
+	if _, ok := recordMap["commands"]; ok {
+		record.Commands = make([]CommandStruct, len(recordMap["commands"].([]interface{})))
+		for i, command := range recordMap["commands"].([]interface{}) {
+			commandType := command.(map[string]interface{})["type"].(string)
+			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
+			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
+				commandContent[j] = command.(string)
+			}
+			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
+			commandGOARCH := ""
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
+
+			record.Commands[i].Type = commandType
+			record.Commands[i].Commands = commandContent
+			record.Commands[i].GOOS = commandGOOS
+			record.Commands[i].GOARCH = commandGOARCH
+		}
+	} else {
+		record.Commands = make([]CommandStruct, 0)
+	}
+
 	record.IsManuallyInstalled = recordMap["is_manually_installed"].(bool)
 
 	return record, nil
@@ -141,6 +173,15 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 
 	record.Possession = make([]string, len(metadata.Possession))
 	copy(record.Possession, metadata.Possession)
+
+	record.Commands = make([]CommandStruct, len(metadata.Commands))
+	for i, command := range metadata.Commands {
+		record.Commands[i].Type = command.Type
+		record.Commands[i].Commands = make([]string, len(command.Commands))
+		copy(record.Commands[i].Commands, command.Commands)
+		record.Commands[i].GOOS = command.GOOS
+		record.Commands[i].GOARCH = command.GOARCH
+	}
 
 	record.IsManuallyInstalled = false
 
@@ -185,6 +226,20 @@ func (record Record) JSON() ([]byte, error) {
 	recordMap["possession"] = make([]interface{}, len(record.Possession))
 	for i, possession := range record.Possession {
 		recordMap["possession"].([]interface{})[i] = possession
+	}
+
+	recordMap["commands"] = make([]interface{}, len(record.Commands))
+	for i, command := range record.Commands {
+		recordMap["commands"].([]interface{})[i] = make(map[string]interface{})
+		recordMap["commands"].([]interface{})[i].(map[string]interface{})["type"] = command.Type
+		recordMap["commands"].([]interface{})[i].(map[string]interface{})["commands"] = make([]interface{}, len(command.Commands))
+		for j, commandContent := range command.Commands {
+			recordMap["commands"].([]interface{})[i].(map[string]interface{})["commands"].([]interface{})[j] = commandContent
+		}
+		recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
+		if command.GOARCH != "" {
+			recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
 	}
 
 	recordMap["is_manually_installed"] = record.IsManuallyInstalled

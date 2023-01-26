@@ -53,7 +53,7 @@ Lip 支持一次安装多个tooth包
 Successfully installed all tooth files.
 ```
 
-### 升级tooth包 (TODO)
+### 升级tooth包
 
 ```shell
 > lip install --upgrade github.com/liteldev/exampletooth

@@ -32,36 +32,45 @@ lip tooth init
 
 ```json
 {
-    "format_version": 1,
-    "tooth": "github.com/liteldev/liteloaderbds",
-    "version": "2.9.0",
-    "dependencies": {
-        "test.test/test/depend": [
-            [
-                ">=1.0.0",
-                "<=1.1.0"
-            ],
-            [
-                "2.0.x"
-            ]
-        ]
-    },
-    "information": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
-        "license": "Modified LGPL-3.0",
-        "homepage": "www.litebds.com"
-    },
-    "placement": [
-        {
-            "source": "LiteLoader.dll",
-            "destination": "LiteLoader.dll"
-        }
-    ],
-    "possession": [
-        "plugins/LiteLoader/"
+  "format_version": 1,
+  "tooth": "github.com/liteldev/liteloaderbds",
+  "version": "2.9.0",
+  "dependencies": {
+    "test.test/test/depend": [
+      [
+        ">=1.0.0",
+        "<=1.1.0"
+      ],
+      [
+        "2.0.x"
+      ]
     ]
+  },
+  "information": {
+    "name": "LiteLoaderBDS",
+    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+    "author": "LiteLDev",
+    "license": "Modified LGPL-3.0",
+    "homepage": "www.litebds.com"
+  },
+  "placement": [
+    {
+      "source": "LiteLoader.dll",
+      "destination": "LiteLoader.dll"
+    }
+  ],
+  "possession": [
+    "plugins/LiteLoader/"
+  ],
+  "commands": [
+    {
+      "type": "install",
+      "commands": [
+        "start LLPeEditor.exe"
+      ],
+      "GOOS": "windows"
+    }
+  ]
 }
 ```
 
@@ -73,7 +82,7 @@ lip tooth init
 
 ```json
 {
-    "format_version": 1
+  "format_version": 1
 }
 ```
 
@@ -95,7 +104,7 @@ tooth包的路径，是tooth包的唯一标示符 (当与版本号结合使用�
 
 ```json
 {
-    "tooth": "example.com/mytooth"
+  "tooth": "example.com/mytooth"
 }
 ```
 
@@ -133,19 +142,19 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
   2. 由左到右依序比较每个标识符，第一个差异值用来决定优先层级：主版本号、次版本号及修订号以数值比较。
 
-     例如：1.0.0 < 2.0.0 < 2.1.0 < 2.1.1。
+   例如：1.0.0 < 2.0.0 < 2.1.0 < 2.1.1。
 
   3. 当主版本号、次版本号及修订号都相同时，改以优先层级比较低的先行版本号决定。
 
-     例如：1.0.0-alpha < 1.0.0。
+   例如：1.0.0-alpha < 1.0.0。
 
   4. 有相同主版本号、次版本号及修订号的两个先行版本号，其优先层级必须（MUST）透过由左到右的每个被句点分隔的标识符来比较，直到找到一个差异值后决定：
 
-     1. 只有数字的标识符以数值高低比较。
+   1. 只有数字的标识符以数值高低比较。
 
-     2. 有字母或连接号时则逐字以 ASCII 的排序来比较。在比较时，当一个标识符已经结束而另一个标识符没有结束时，则未结束的标识符优先层级较低。
+   2. 有字母或连接号时则逐字以 ASCII 的排序来比较。在比较时，当一个标识符已经结束而另一个标识符没有结束时，则未结束的标识符优先层级较低。
    
-     例如： 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
+   例如： 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 
 ### 样例
 
@@ -153,7 +162,7 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
 ```json
 {
-    "version": "1.2.3"
+  "version": "1.2.3"
 }
 ```
 
@@ -161,7 +170,7 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
 ```json
 {
-    "version": "1.2.0-beta.3"
+  "version": "1.2.0-beta.3"
 }
 ```
 
@@ -169,7 +178,7 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
 ```json
 {
-    "version": "0.1.2"
+  "version": "0.1.2"
 }
 ```
 
@@ -205,17 +214,17 @@ Lip提供了一些版本匹配规则：
 
 ```json
 {
-    "dependencies": {
-        "test.test/test/depend": [
-            [
-                ">=1.0.0",
-                "<=1.1.0"
-            ],
-            [
-                "2.0.x"
-            ]
-        ]
-    }
+  "dependencies": {
+    "test.test/test/depend": [
+      [
+        ">=1.0.0",
+        "<=1.1.0"
+      ],
+      [
+        "2.0.x"
+      ]
+    ]
+  }
 }
 ```
 
@@ -235,14 +244,14 @@ Lip提供了一些版本匹配规则：
 
 ```json
 {
-    "information": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
-        "license": "Modified LGPL-3.0",
-        "homepage": "www.litebds.com",
-        "thanks": "All contributors!"
-    }
+  "information": {
+    "name": "LiteLoaderBDS",
+    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+    "author": "LiteLDev",
+    "license": "Modified LGPL-3.0",
+    "homepage": "www.litebds.com",
+    "thanks": "All contributors!"
+  }
 }
 ```
 
@@ -275,16 +284,16 @@ Here we make a strict rule that the source and destination can only contain lett
 
 ```json
 {
-    "placement": [
-        {
-            "source": "build",
-            "destination": "plugins"
-        },
-        {
-            "source": "assets",
-            "destination": "plugins/myplugin"
-        }
-    ]
+  "placement": [
+    {
+      "source": "build",
+      "destination": "plugins"
+    },
+    {
+      "source": "assets",
+      "destination": "plugins/myplugin"
+    }
+  ]
 }
 ```
 
@@ -304,9 +313,9 @@ Here we make a strict rule that the source and destination can only contain lett
 
 ```json
 {
-    "possession": [
-        "plugins/LiteLoader/"
-    ]
+  "possession": [
+    "plugins/LiteLoader/"
+  ]
 }
 ```
 
@@ -314,83 +323,157 @@ Here we make a strict rule that the source and destination can only contain lett
 
 不要占有任何可能被其他tooth包使用的目录，例如像`worlds/`这样的公共目录。
 
+## commands
+
+Declares the commands that will be executed when installing.
+
+### Syntax
+
+Each item of the list should be a valid command. Lip will execute the command in the root of BDS.
+
+type is the type of the command. It can be one of the following:
+
+- install: execute the command when installing
+- uninstall: execute the command when uninstalling
+
+GOOS is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go. If GOARCH is not specified, Lip will execute the command on all platforms.
+
+Available GOOS and GOARCH (in GOOS/GOARCH format):
+
+```
+darwin/amd64
+darwin/arm64
+linux/amd64
+linux/arm64
+openbsd/amd64
+openbsd/arm64
+windows/amd64
+windows/arm64
+```
+
+### Examples
+
+```json
+{
+  "commands": [
+    {
+      "type": "install",
+      "commands": [
+        "start LLPeEditor.exe"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
+  ]
+}
+```
+
 ## 语法
 
 下列JSON Schema展示了一个完整的tooth包的JSON文件的语法。
 
 ```json
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "additionalProperties": false,
-    "required": [
-        "format_version",
-        "tooth",
-        "version"
-    ],
-    "properties": {
-        "format_version": {
-            "enum": [1]
-        },
-        "tooth": {
-            "type": "string",
-            "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
-        },
-        "version": {
-            "type": "string",
-            "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
-        },
-        "dependencies": {
-            "type": "object",
-            "additionalProperties": false,
-            "patternProperties": {
-                "^[a-zA-Z\\d-_\\.\\/]*$": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "minItems": 1,
-                    "additionalItems": false,
-                    "items": {
-                        "type": "array",
-                        "uniqueItems": true,
-                        "minItems": 1,
-                        "additionalItems": false,
-                        "items": {
-                            "type": "string",
-                            "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
-                        }
-                    }
-                }
-            }
-        },
-        "information": {
-            "type": "object"
-        },
-        "placement": {
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "tooth",
+    "version"
+  ],
+  "properties": {
+    "format_version": {
+      "enum": [1]
+    },
+    "tooth": {
+      "type": "string",
+      "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z\\d-_\\.\\/]*$": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "additionalItems": false,
+          "items": {
             "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
             "additionalItems": false,
             "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "source": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
-                    },
-                    "destination": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
-                    }
-                }
+              "type": "string",
+              "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
             }
-        },
-        "possession": {
-            "type": "array",
-            "additionalItems": false,
-            "items": {
-                "type": "string",
-                "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
-            }
+          }
         }
+      }
+    },
+    "information": {
+      "type": "object"
+    },
+    "placement": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "destination": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          }
+        }
+      }
+    },
+    "possession": {
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "commands",
+          "GOOS"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
     }
+  }
 }
 ```
