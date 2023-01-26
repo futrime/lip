@@ -4,21 +4,21 @@
 
 这些属性包括：
 
-- The **format version** of the tooth.json file.
+- **format version** 这一tooth.json的格式版本。
 
-- 这一tooth包的 **路径**。这一属性应向Lip提供一个Lip可以下载到这个tooth包的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
+- **tooth** 这一tooth包的路径。这一属性应向Lip提供一个Lip可以下载到这个tooth包的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
 
-- 这一tooth包的 **版本号**
+- **version** 这一tooth包的版本号。
 
-- **依赖** 这一tooth包所依赖的tooth包以及他们的版本。
+- **dependencies** 这一tooth包所依赖的tooth包以及他们的版本。
 
-- 这一tooth包的 **信息** ，包括名称，作者，描述等。
+- **information** 这一tooth包的信息，包括名称，作者，描述等。
 
-- The current tooth's **placement**. This is a list of files that should be placed in the tooth's installation directory.
+- **placement** 这一tooth包的位置这是一个说明tooth包的文件应当被如何放置到安装目录的列表。
 
-- The current tooth's **possession**. This is a list of files that should be placed in the tooth's possession directory.
+- **possession** 这一tooth包占有的文件。这是一个声明tooth包所占用的文件夹的列表
 
-The **format_version**, **tooth path** and **version** are required. The other properties are optional.
+- **format_version**、**tooth path**和**version**是必须的。其他属性是可选。
 
 你可以通过运行 lip tooth init 命令来生成和初始化一个tooth.json。下面的例子创建了一个 tooth.json 文件。
 
@@ -276,7 +276,7 @@ Lip提供了一些版本匹配规则：
 
 如果源目录和目标目录都以 "*"结尾，则该位置将被视为通配符。Lip将递归地把源目录下的所有文件放置到目标目录。
 
-Here we make a strict rule that the source and destination can only contain letters, digits, hyphens, underscores, dots, slashes and asterisks (for the last letter treated as wildcard) [a-zA-Z0-9-_\.\/\*]. If you want to place files to the root of BDS, you should specify every file in the source field. The first letter should not be a slash or a dot. The last letter should not be a slash.
+在这里我们做了一个严格的规定，源和目的地只能包含字母、数字、连字符、下划线、点、斜线和星号（对于最后一个字母作为通配符处理）[a-zA-Z0-9-_\.\/\*]。如果你想把文件放到BDS的根部，你应该在`placement`字段中指定每个文件。第一个字母不应该是斜线或点。最后一个字母不应该是斜线。
 
 ### 样例
 
