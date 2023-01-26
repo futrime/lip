@@ -34,8 +34,8 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  --upgrade                   Upgrade the specified tooth to the newest available version. (TODO)
-  --force-reinstall           Reinstall the tooth even if they are already up-to-date. (TODO)`
+  --upgrade                   Upgrade the specified tooth to the newest available version.
+  --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
 
 // Run is the entry point.
 func Run() {

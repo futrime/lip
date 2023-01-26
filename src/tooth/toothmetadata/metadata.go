@@ -29,6 +29,14 @@ type PlacementStruct struct {
 	Destination string
 }
 
+// CommandStruct is the struct that contains the type, commands, GOOS and GOARCH of a command.
+type CommandStruct struct {
+	Type     string
+	Commands []string
+	GOOS     string
+	GOARCH   string
+}
+
 // Metadata is the struct that contains all the metadata of a tooth.
 type Metadata struct {
 	ToothPath    string
@@ -37,6 +45,7 @@ type Metadata struct {
 	Information  InfoStruct
 	Placement    []PlacementStruct
 	Possession   []string
+	Commands     []CommandStruct
 }
 
 const jsonSchema string = `
@@ -110,6 +119,35 @@ const jsonSchema string = `
       "items": {
         "type": "string",
         "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "commands",
+          "GOOS"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
       }
     }
   }
@@ -226,6 +264,29 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		metadata.Possession = make([]string, 0)
 	}
 
+	if _, ok := metadataMap["commands"]; ok {
+		metadata.Commands = make([]CommandStruct, len(metadataMap["commands"].([]interface{})))
+		for i, command := range metadataMap["commands"].([]interface{}) {
+			commandType := command.(map[string]interface{})["type"].(string)
+			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
+			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
+				commandContent[j] = command.(string)
+			}
+			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
+			commandGOARCH := ""
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
+
+			metadata.Commands[i].Type = commandType
+			metadata.Commands[i].Commands = commandContent
+			metadata.Commands[i].GOOS = commandGOOS
+			metadata.Commands[i].GOARCH = commandGOARCH
+		}
+	} else {
+		metadata.Commands = make([]CommandStruct, 0)
+	}
+
 	return metadata, nil
 }
 
@@ -267,6 +328,17 @@ func (metadata Metadata) JSON() ([]byte, error) {
 	metadataMap["possession"] = make([]interface{}, len(metadata.Possession))
 	for i, possession := range metadata.Possession {
 		metadataMap["possession"].([]interface{})[i] = possession
+	}
+
+	metadataMap["commands"] = make([]interface{}, len(metadata.Commands))
+	for i, command := range metadata.Commands {
+		metadataMap["commands"].([]interface{})[i] = make(map[string]interface{})
+		metadataMap["commands"].([]interface{})[i].(map[string]interface{})["type"] = command.Type
+		metadataMap["commands"].([]interface{})[i].(map[string]interface{})["commands"] = command.Commands
+		metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
+		if command.GOARCH != "" {
+			metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
 	}
 
 	// Encode metadataMap into JSON
