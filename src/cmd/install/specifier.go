@@ -23,7 +23,7 @@ const (
 // Specifier is a type that can be used to specify a tooth url/file or a requirement.
 type Specifier struct {
 	specifierType SpecifierType
-	toothPath     string
+	toothFilePath string
 	toothURL      string
 	toothRepo     string
 	toothVersion  version.Version
@@ -44,7 +44,7 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 
 		return Specifier{
 			specifierType: specifierType,
-			toothPath:     specifierString,
+			toothFilePath: specifierString,
 		}, nil
 
 	case ToothURLSpecifierType:
@@ -125,7 +125,7 @@ func (s Specifier) Type() SpecifierType {
 func (s Specifier) String() string {
 	switch s.specifierType {
 	case ToothFileSpecifierType:
-		return s.toothPath
+		return s.toothFilePath
 	case ToothURLSpecifierType:
 		return s.toothURL
 	case RequirementSpecifierType:
@@ -135,9 +135,9 @@ func (s Specifier) String() string {
 	return ""
 }
 
-// ToothPath returns the path of the tooth file.
-func (s Specifier) ToothPath() string {
-	return s.toothPath
+// ToothFilePath returns the path of the tooth file.
+func (s Specifier) ToothFilePath() string {
+	return s.toothFilePath
 }
 
 // ToothRepo returns the tooth repo of the specifier.

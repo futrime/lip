@@ -29,9 +29,9 @@ func downloadTooth(specifier Specifier) (string, error) {
 		// For local tooth file, just return the path.
 
 		// Get full path of the tooth file.
-		toothFilePath, err := filepath.Abs(specifier.ToothPath())
+		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
-			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothPath())
+			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
 		}
 
 		return toothFilePath, nil

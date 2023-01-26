@@ -145,7 +145,7 @@ func Run() {
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
 		if specifier.specifierType == RequirementSpecifierType &&
-			toothPath != specifier.ToothPath() {
+			toothPath != specifier.ToothRepo() {
 			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
 			return
 		}
