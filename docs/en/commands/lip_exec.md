@@ -10,7 +10,7 @@ lip exec [options] <tool> [args...]
 
 Execute a Lip tool. Tools should be installed with `lip install` first.
 
-In fact, this will execute ./lip/tools/<tool>/<tool> (or .\lip\tools\<tool>\<tool>.exe or .\lip\tools\<tool>\<tool>.cmd on Windows).
+In fact, this will execute ./lip/tools/\<tool>/\<tool> (or .\lip\tools\\\<tool>\\\<tool>.exe or .\lip\tools\\\<tool>\\\<tool>.cmd on Windows).
 
 ## Options
 
