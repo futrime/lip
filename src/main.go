@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 
 	cmdlip "github.com/liteldev/lip/cmd"
@@ -41,6 +43,29 @@ func main() {
 	err = os.Chdir(workspaceDir)
 	if err != nil {
 		logger.Error(err.Error())
+	}
+
+	// Attempt to execute .lip/tools/lip or .lip/tools/lip.exe if it exists.
+	if os.Getenv("LIP_REDIRECTED") == "" {
+		lipExeName := "lip"
+		if runtime.GOOS == "windows" {
+			lipExeName = "lip.exe"
+		}
+
+		if _, err := os.Stat(".lip/tools/lip/" + lipExeName); err == nil {
+			logger.Info("Redirecting to .lip/tools/lip/" + lipExeName)
+			cmd := exec.Command(".lip/tools/lip/"+lipExeName, os.Args[1:]...)
+			cmd.Env = append(os.Environ(), "LIP_REDIRECTED=1")
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Stdin = os.Stdin
+			err = cmd.Run()
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+			return
+		}
 	}
 
 	cmdlip.Run()
