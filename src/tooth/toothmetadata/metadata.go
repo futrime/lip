@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"regexp"
 	"strings"
 
 	"github.com/liteldev/lip/tooth"
@@ -108,7 +107,7 @@ const jsonSchema string = `
           },
           "destination": {
             "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "pattern": "^(.)?[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
           }
         }
       }
@@ -237,16 +236,6 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		for i, placement := range metadataMap["placement"].([]interface{}) {
 			source := placement.(map[string]interface{})["source"].(string)
 			destination := placement.(map[string]interface{})["destination"].(string)
-
-			// Source and destination should starts with a letter or a digit and should only contains
-			reg := regexp.MustCompile(`^[a-zA-Z0-9]\S*$`)
-			// The matched string should be the same as the original string.
-			if reg.FindString(source) != source {
-				return Metadata{}, errors.New("failed to decode JSON into metadata: invalid source: " + source)
-			}
-			if reg.FindString(destination) != destination {
-				return Metadata{}, errors.New("failed to decode JSON into metadata: invalid destination: " + destination)
-			}
 
 			metadata.Placement[i].Source = source
 			metadata.Placement[i].Destination = destination
