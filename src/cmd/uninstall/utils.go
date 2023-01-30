@@ -3,7 +3,9 @@ package cmdlipuninstall
 import (
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
@@ -32,8 +34,45 @@ func Uninstall(recordFileName string, possessionList []string) error {
 		return errors.New(err.Error())
 	}
 
-	// Interate over the placements and delete files specified
-	// in the destinations.
+	// 1. Run pre-uninstall commands.
+	//    Iterate over the commands and run the commands that are
+	//    for the current OS and architecture.
+	for _, commandItem := range currentRecord.Commands {
+		if commandItem.Type != "uninstall" {
+			continue
+		}
+
+		// Validate GOOS
+		if commandItem.GOOS != runtime.GOOS {
+			continue
+		}
+
+		// Validate GOARCH. If GOARCH is empty, it is valid for all GOARCH.
+		if commandItem.GOARCH != "" && commandItem.GOARCH != runtime.GOARCH {
+			continue
+		}
+
+		// Run the command.
+		for _, command := range commandItem.Commands {
+			var cmd *exec.Cmd
+			switch runtime.GOOS {
+			case "windows":
+				cmd = exec.Command("cmd", "/C", command)
+			default:
+				cmd = exec.Command("sh", "-c", command)
+			}
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			err := cmd.Run()
+			if err != nil {
+				return errors.New("failed to run command: " + command + ": " + err.Error())
+			}
+		}
+	}
+
+	// 2. Delete files and folders.
+	//    Interate over the placements and delete files specified
+	//    in the destinations.
 	for _, placement := range currentRecord.Placement {
 		workspaceDir, err := localfile.WorkSpaceDir()
 		if err != nil {
