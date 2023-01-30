@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2023-01-30
+
+### Fixed
+
+- Failing to install any tool.
+
 ## [0.5.0] - 2023-01-30
 
 ### Added
@@ -95,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/LiteLDev/Lip/releases/tag/v0.4.0...v0.5.1
 [0.5.0]: https://github.com/LiteLDev/Lip/releases/tag/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.3...v0.3.4
