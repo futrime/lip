@@ -46,10 +46,29 @@ func main() {
 	}
 
 	// Attempt to execute .lip/tools/lip or .lip/tools/lip.exe if it exists.
-	if os.Getenv("LIP_REDIRECTED") == "" {
+	if os.Getenv("LIP_REDIRECTED") == "" { // Prevent infinite redirection.
 		lipExeName := "lip"
 		if runtime.GOOS == "windows" {
 			lipExeName = "lip.exe"
+		}
+
+		// Move lip.update to {lipExeName} if it exists.
+		if _, err := os.Stat(".lip/tools/lip/lip.update"); err == nil {
+			logger.Info("Moving .lip/tools/lip/lip.update to .lip/tools/lip/" + lipExeName)
+
+			// Remove the old {lipExeName} if it exists.
+			if _, err := os.Stat(".lip/tools/lip/" + lipExeName); err == nil {
+				err = os.Remove(".lip/tools/lip/" + lipExeName)
+				if err != nil {
+					logger.Error("failed to remove old Lip version: " + err.Error())
+				}
+			}
+
+			// Move the new {lipExeName}.
+			err = os.Rename(".lip/tools/lip/lip.update", ".lip/tools/lip/"+lipExeName)
+			if err != nil {
+				logger.Error("failed to move new Lip version: " + err.Error())
+			}
 		}
 
 		if _, err := os.Stat(".lip/tools/lip/" + lipExeName); err == nil {
@@ -61,7 +80,8 @@ func main() {
 			cmd.Stdin = os.Stdin
 			err = cmd.Run()
 			if err != nil {
-				logger.Error(err.Error())
+				logger.Error("redirection failed, falling back: " + err.Error())
+				cmdlip.Run()
 				return
 			}
 			return
