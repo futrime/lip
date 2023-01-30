@@ -118,8 +118,8 @@ func downloadTooth(specifier Specifier) (string, error) {
 	return "", errors.New("unknown error")
 }
 
-// fetchVersionList fetches the version list of a tooth repository.
-func fetchVersionList(repoPath string) ([]versionutils.Version, error) {
+// FetchVersionList fetches the version list of a tooth repository.
+func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	if !isValidRepoPath(repoPath) {
 		return nil, errors.New("invalid repository path: " + repoPath)
 	}

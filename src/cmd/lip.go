@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	cmdlipcache "github.com/liteldev/lip/cmd/cache"
+	cmdlipexec "github.com/liteldev/lip/cmd/exec"
 	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	cmdliplist "github.com/liteldev/lip/cmd/list"
 	cmdlipshow "github.com/liteldev/lip/cmd/show"
@@ -29,6 +30,7 @@ Usage:
 
 Commands:
   cache                       Inspect and manage Lip's cache.
+  exec                        Execute a Lip tool.
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
@@ -49,8 +51,9 @@ func Run() {
 		case "cache":
 			cmdlipcache.Run()
 			return
-		case "config":
-			// TO-DO
+		case "exec":
+			cmdlipexec.Run()
+			return
 		case "install":
 			cmdlipinstall.Run()
 			return

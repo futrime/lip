@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
@@ -21,7 +22,7 @@ Usage:
   lip show [options] <tooth path>
 
 Description:
-  Show information about a installed tooth.
+  Show information about a installed tooth. If not installed, only version list is shown.
 
 Options:
   -h, --help                  Show help.
@@ -74,32 +75,53 @@ func Run() {
 
 	// Check if the record file exists.
 	if _, err := os.Stat(recordFilePath); os.IsNotExist(err) {
-		logger.Error("the tooth is not installed")
-		return
-	}
+		logger.Info("The tooth is not installed")
+		logger.Info("")
+	} else {
+		// Get the record file content.
+		recordObject, err := toothrecord.New(recordFilePath)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
 
-	// Get the record file content.
-	recordObject, err := toothrecord.New(recordFilePath)
-	if err != nil {
-		logger.Error(err.Error())
-		return
-	}
+		// Show information.
+		logger.Info("Tooth information:")
+		logger.Info("  Tooth-path: " + recordObject.ToothPath)
+		logger.Info("  Version: " + recordObject.Version.String())
+		logger.Info("  Name: " + recordObject.Information.Name)
+		logger.Info("  Description: " + recordObject.Information.Description)
+		logger.Info("  Author: " + recordObject.Information.Author)
+		logger.Info("  License: " + recordObject.Information.License)
+		logger.Info("  Homepage: " + recordObject.Information.Homepage)
+		logger.Info("")
 
-	// Show information.
-	logger.Info("Tooth-path: " + recordObject.ToothPath)
-	logger.Info("Version: " + recordObject.Version.String())
-	logger.Info("Name: " + recordObject.Information.Name)
-	logger.Info("Description: " + recordObject.Information.Description)
-	logger.Info("Author: " + recordObject.Information.Author)
-	logger.Info("License: " + recordObject.Information.License)
-	logger.Info("Homepage: " + recordObject.Information.Homepage)
+		// Show the full list of installed files if the files flag is set.
+		if flagDict.filesFlag {
+			logger.Info("Installed files:")
 
-	// Show the full list of installed files if the files flag is set.
-	if flagDict.filesFlag {
-		logger.Info("Files:")
+			for _, placement := range recordObject.Placement {
+				logger.Info("  " + placement.Destination)
+			}
 
-		for _, placement := range recordObject.Placement {
-			logger.Info("  " + placement.Destination)
+			logger.Info("")
 		}
 	}
+
+	logger.Info("Fetching available versions...")
+
+	// Show version information
+	versionList, err := cmdlipinstall.FetchVersionList(flagSet.Args()[0])
+	if err != nil {
+		logger.Error("failed to fetch available versions: " + err.Error())
+		return
+	}
+
+	logger.Info("Available versions:")
+	versionListString := ""
+	for _, version := range versionList {
+		versionListString += "  " + version.String()
+	}
+	logger.Info(versionListString)
+	logger.Info("")
 }

@@ -154,7 +154,7 @@ func Run() {
 
 		// Get proper version of each dependency and add them to the queue.
 		for toothPath, versionRange := range dependencies {
-			versionList, err := fetchVersionList(toothPath)
+			versionList, err := FetchVersionList(toothPath)
 			if err != nil {
 				logger.Error(err.Error())
 				return

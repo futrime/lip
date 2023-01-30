@@ -10,13 +10,17 @@
 
   - [创建一个Tooth包](tutorials/create_a_lip_tooth.md)
 
+  - [Create a Tool](tutorials/create_a_tool.md)
+
 - 命令
 
   - [lip](commands/lip.md)
 
   - [lip cache](commands/lip_cache.md)
 
-    - [lip cache purge](commands/lip_cache_purge.md)
+    - [lip cache purge](commands/lip_cache_purge.md)  
+    
+  - [lip exec](commands/lip_exec.md)
 
   - [lip install](commands/lip_install.md)
 
