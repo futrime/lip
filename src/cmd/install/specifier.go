@@ -92,7 +92,7 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 			}
 		} else {
 			// Fetch the latest version of the tooth repo.
-			toothVersionList, err := fetchVersionList(toothRepo)
+			toothVersionList, err := FetchVersionList(toothRepo)
 			if err != nil {
 				return Specifier{}, err
 			}

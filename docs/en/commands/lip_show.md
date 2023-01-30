@@ -8,7 +8,7 @@ lip show [options] <tooth path>
 
 ## Description
 
-Show information about a installed tooth.
+Show information about a tooth. If not installed, only version list is shown.
 
 The output is in RFC-compliant mail header format.
 

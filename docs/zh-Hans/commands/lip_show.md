@@ -8,7 +8,7 @@ lip show [options] <tooth path>
 
 ## 功能
 
-展示tooth包的信息
+展示tooth包的信息 If not installed, only version list is shown.
 
 输出是符合RFC标准的邮件头格式。
 
