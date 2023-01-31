@@ -74,6 +74,14 @@ func Uninstall(recordFileName string, possessionList []string) error {
 	//    Interate over the placements and delete files specified
 	//    in the destinations.
 	for _, placement := range currentRecord.Placement {
+		if placement.GOOS != "" && placement.GOOS != runtime.GOOS {
+			continue
+		}
+
+		if placement.GOARCH != "" && placement.GOARCH != runtime.GOARCH {
+			continue
+		}
+
 		workspaceDir, err := localfile.WorkSpaceDir()
 		if err != nil {
 			return err

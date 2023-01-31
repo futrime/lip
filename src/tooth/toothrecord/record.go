@@ -29,6 +29,8 @@ type InfoStruct struct {
 type PlacementStruct struct {
 	Source      string
 	Destination string
+	GOOS        string
+	GOARCH      string
 }
 
 // CommandStruct is the struct that contains the type, commands, GOOS and GOARCH of a command.
@@ -169,6 +171,8 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 	for i, placement := range metadata.Placement {
 		record.Placement[i].Source = placement.Source
 		record.Placement[i].Destination = placement.Destination
+		record.Placement[i].GOOS = placement.GOOS
+		record.Placement[i].GOARCH = placement.GOARCH
 	}
 
 	record.Possession = make([]string, len(metadata.Possession))

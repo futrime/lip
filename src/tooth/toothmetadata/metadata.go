@@ -26,6 +26,8 @@ type InfoStruct struct {
 type PlacementStruct struct {
 	Source      string
 	Destination string
+	GOOS        string
+	GOARCH      string
 }
 
 // CommandStruct is the struct that contains the type, commands, GOOS and GOARCH of a command.
@@ -100,6 +102,10 @@ const jsonSchema string = `
       "items": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "source",
+          "destination"
+        ],
         "properties": {
           "source": {
             "type": "string",
@@ -108,6 +114,12 @@ const jsonSchema string = `
           "destination": {
             "type": "string",
             "pattern": "^(.)?[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
           }
         }
       }
@@ -239,6 +251,15 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 			metadata.Placement[i].Source = source
 			metadata.Placement[i].Destination = destination
+
+			if _, ok := placement.(map[string]interface{})["GOOS"]; ok {
+				metadata.Placement[i].GOOS = placement.(map[string]interface{})["GOOS"].(string)
+
+				// If GOARCH is set, GOOS must be set.
+				if _, ok := placement.(map[string]interface{})["GOARCH"]; ok {
+					metadata.Placement[i].GOARCH = placement.(map[string]interface{})["GOARCH"].(string)
+				}
+			}
 		}
 	} else {
 		metadata.Placement = make([]PlacementStruct, 0)

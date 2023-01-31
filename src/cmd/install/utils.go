@@ -214,6 +214,14 @@ func install(t toothfile.ToothFile) error {
 	filePrefix := toothfile.GetFilePrefix(r)
 
 	for _, placement := range t.Metadata().Placement {
+		if placement.GOOS != "" && placement.GOOS != runtime.GOOS {
+			continue
+		}
+
+		if placement.GOARCH != "" && placement.GOARCH != runtime.GOARCH {
+			continue
+		}
+
 		source := placement.Source
 		destination := workSpaceDir + "/" + placement.Destination
 
