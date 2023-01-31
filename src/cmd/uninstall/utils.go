@@ -100,7 +100,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 		}
 
 		// Delete the parent directory if it is empty.
-		// TODO: recursively delete parent directories until the workspace directory.
+		// TODO: Recursively delete parent directories until the workspace directory.
 		parentDir := filepath.Dir(destination)
 		files, err := os.ReadDir(parentDir)
 		if err != nil {

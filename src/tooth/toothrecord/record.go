@@ -152,7 +152,7 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 }
 
 // NewFromMetadata creates a new record from a tooth metadata.
-func NewFromMetadata(metadata metadatautils.Metadata) Record {
+func NewFromMetadata(metadata metadatautils.Metadata, isManuallyInstalled bool) Record {
 	record := Record{}
 
 	record.ToothPath = metadata.ToothPath
@@ -187,7 +187,7 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 		record.Commands[i].GOARCH = command.GOARCH
 	}
 
-	record.IsManuallyInstalled = false
+	record.IsManuallyInstalled = isManuallyInstalled
 
 	return record
 }

@@ -163,7 +163,7 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 }
 
 // Install installs the .tth file.
-func install(t toothfile.ToothFile) error {
+func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
 	// 1. Check if the tooth is already installed.
 
 	recordDir, err := localfile.RecordDir()
@@ -182,7 +182,7 @@ func install(t toothfile.ToothFile) error {
 	// 2. Install the record file.
 
 	// Create a record object from the metadata.
-	record := toothrecord.NewFromMetadata(t.Metadata())
+	record := toothrecord.NewFromMetadata(t.Metadata(), isManuallyInstalled)
 
 	// Encode the record object to JSON.
 	recordJSON, err := record.JSON()
