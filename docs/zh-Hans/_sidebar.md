@@ -10,7 +10,7 @@
 
   - [创建一个Tooth包](tutorials/create_a_lip_tooth.md)
 
-  - [Create a Tool](tutorials/create_a_tool.md)
+  - [创建一个工具](tutorials/create_a_tool.md)
 
 - 命令
 

@@ -1,22 +1,22 @@
-# Tutorial: Create a Tool
+# 教程：创建一个工具
 
-Since 0.5.0, Lip supports tools. Tools are programs that can be executed by Lip. You can use tools to do some things that Lip cannot do, such as installing a BDS server, packing a world, or even install any other utilities by other package managers like npm.
+自从0.5.0，Lip开始支持工具。工具是可以由Lip执行的程序。你可以使用工具来做一些Lip不能做的事情，比如安装BDS服务器，打包一个世界，甚至是安装其他软件包管理器（如npm）的任何其他工具。
 
-## Prerequisites
+## 先决条件
 
-- **Some project management experience.** You ought to learn the basic usage of Git, and the basic syntax of JSON in advance.
+- **一些项目管理经验** 你应该提前学习Git的基本用法，以及JSON的基本语法。
 
-- **A tool to edit tooth.json** Any text editor you have will work fine. The most popular are VSCode and Vim.
+- **一个用于编辑tooth.json文件的工具** 任何你想用的文本编辑器都可以成为选择，最受欢迎的是VSCode和Vim。
+- 
+- **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同样可以使用如 Windows Terminal 一类的终端程序。
 
-- **A command terminal** Lip works well with both PowerShell and cmd in Windows.
+- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](installation.md)
 
-- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](installation.md)
+## 准备工具分发
 
-## Prepare tool distributions
+一个工具是一个可执行文件。在Windows中，也支持.cmd文件。可执行文件的名称应该是工具的名称。在Windows上，可执行文件应该是tool_name.exe或tool_name.cmd。如果没有找到.exe文件，Lip将尝试找到.cmd文件。然而，在其他平台上，只有与tool_name完全匹配的文件才被支持。
 
-A tool is a executable file. On Windows, .cmd file is also supported. The name of the executable file should be the name of the tool. On Windows, the executable file should be tool_name.exe or tool_name.cmd. If a .exe file is not found, Lip will try to find a .cmd file. However, on other platforms, only files exactly matching the tool_name are supported.
-
-Here we will pack npm (on Windows) as a Lip tool. The file structure of npm is:
+这里我们将把npm（在Windows上）作为一个Lip工具来打包。npm的文件结构是。
 
 ```
 node_modules/
@@ -24,11 +24,11 @@ node_modules/
 npm.cmd
 ```
 
-## Write tooth.json
+## 书写 tooth.json
 
-Lip will regard executable files with tool name as its name (on Windows, ends with .exe or .cmd) under .lip/tools/tool_name/ as Lip tools. Therefore, you should put the executable file under .lip/tools/tool_name/ and name it as the tool name.
+Lip将把在.lip/tools/tool_name/下的、以工具名作为其名称的可执行文件（在Windows下，以.exe或.cmd结尾）视为Lip工具。因此，你应该把可执行文件放在.lip/tools/tool_name/下，并把它命名为工具名称。
 
-You can create a tooth.json like this:
+你可以参考下面的样例来创建 tooth.json
 
 ```json
 {

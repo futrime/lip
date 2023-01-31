@@ -232,7 +232,7 @@ Lip提供了一些版本匹配规则：
 
 不允许使用小版本通配符，如不能使用1.x.x。
 
-## `information`
+## `information` - 信息
 
 声明你的tooth的必要信息，并添加任何你喜欢的信息。
 
@@ -266,7 +266,7 @@ Lip提供了一些版本匹配规则：
 - license: tooth包的协议，私有包请留空
 - homepage: tooth包的主页
 
-## `placement`
+## `placement` - 安装位置
 
 向Lip提供关于如何放置包内文件的信息。安装时，“source”的内容会被放置到“destination”；卸载时，“destination”的内容会被移除。
 
@@ -323,22 +323,22 @@ Lip提供了一些版本匹配规则：
 
 不要占有任何可能被其他tooth包使用的目录，例如像`worlds/`这样的公共目录。
 
-## commands
+## `commands` - 命令
 
-Declares the commands that will be executed when installing.
+声明安装时将执行的命令。
 
-### Syntax
+### 语法
 
-Each item of the list should be a valid command. Lip will execute the command in the root of BDS.
+列表中的每一项都应该是一个有效的命令。Lip将在BDS的根目录执行该命令。
 
-type is the type of the command. It can be one of the following:
+`type`是命令的类型。它可以是以下之一：
 
-- install: execute the command when installing
-- uninstall: execute the command when uninstalling
+- `install`: 安装时执行命令
+- `uninstall`: 卸载时执行命令
 
-GOOS is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go. If GOARCH is not specified, Lip will execute the command on all platforms.
+`GOOS`是操作系统选择器，它应该与Go中可能的GOOS变量相匹配。`GOARCH`（可选）是平台选择器，应与Go中可能的GOARCH变量相匹配。如果没有指定GOARCH，Lip将在所有平台上执行该命令。
 
-Available GOOS and GOARCH (in GOOS/GOARCH format):
+可用的GOOS和GOARCH（以GOOS/GOARCH格式）。
 
 ```
 darwin/amd64
@@ -351,7 +351,7 @@ windows/amd64
 windows/arm64
 ```
 
-### Examples
+### 样例
 
 ```json
 {
