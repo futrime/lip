@@ -278,6 +278,8 @@ Lip提供了一些版本匹配规则：
 
 在这里我们做了一个严格的规定，源和目的地只能包含字母、数字、连字符、下划线、点、斜线和星号（对于最后一个字母作为通配符处理）[a-zA-Z0-9-_\.\/\*]。如果你想把文件放到BDS的根部，你应该在`placement`字段中指定每个文件。第一个字母不应该是斜线或点。最后一个字母不应该是斜线。
 
+You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
+
 ### 样例
 
 从特定的文件夹中提取并放置到特定的文件夹中：
@@ -291,7 +293,14 @@ Lip提供了一些版本匹配规则：
     },
     {
       "source": "assets",
-      "destination": "plugins/myplugin"
+      "destination": "plugins/myplugin",
+      "GOOS": "windows"
+    },
+    {
+      "source": "config",
+      "destination": "plugins/myplugin/config",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
     }
   ]
 }
@@ -425,6 +434,10 @@ windows/arm64
       "items": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "source",
+          "destination"
+        ],
         "properties": {
           "source": {
             "type": "string",
@@ -433,6 +446,12 @@ windows/arm64
           "destination": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
           }
         }
       }

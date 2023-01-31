@@ -142,11 +142,18 @@ func Run() {
 			logger.Error(err.Error())
 			return
 		}
+
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
 		if specifier.specifierType == RequirementSpecifierType &&
 			toothPath != specifier.ToothRepo() {
 			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
+
+			// Remove the downloaded tooth file.
+			err = os.Remove(downloadedToothFilePath)
+			if err != nil {
+				logger.Error("failed to remove the downloaded tooth file: " + err.Error())
+			}
 			return
 		}
 
@@ -292,7 +299,10 @@ func Run() {
 		logger.Info("  Installing " + toothFile.Metadata().ToothPath + "@" +
 			toothFile.Metadata().Version.String() + "...")
 
-		err = install(toothFile)
+		// TODO: Check if the tooth file is manually installed.
+		isManuallyInstalled := false
+
+		err = install(toothFile, isManuallyInstalled)
 		if err != nil {
 			logger.Error(err.Error())
 			return

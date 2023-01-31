@@ -277,6 +277,8 @@ If both the source and the destination ends with "*", the placement will be rega
 
 Here we make a strict rule that the source and destination can only contain letters, digits, hyphens, underscores, dots, slashes and asterisks (for the last letter treated as wildcard) [a-zA-Z0-9-_\.\/\*]. If you want to place files to the root of BDS, you should specify every file in the source field. The first letter should not be a slash or a dot. The last letter should not be a slash.
 
+You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
+
 ### Examples
 
 Extract from specific folders and place to specific folders:
@@ -290,7 +292,14 @@ Extract from specific folders and place to specific folders:
     },
     {
       "source": "assets",
-      "destination": "plugins/myplugin"
+      "destination": "plugins/myplugin",
+      "GOOS": "windows"
+    },
+    {
+      "source": "config",
+      "destination": "plugins/myplugin/config",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
     }
   ]
 }
@@ -424,6 +433,10 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
       "items": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "source",
+          "destination"
+        ],
         "properties": {
           "source": {
             "type": "string",
@@ -432,6 +445,12 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
           "destination": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
           }
         }
       }

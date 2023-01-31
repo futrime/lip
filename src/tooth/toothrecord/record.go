@@ -29,6 +29,8 @@ type InfoStruct struct {
 type PlacementStruct struct {
 	Source      string
 	Destination string
+	GOOS        string
+	GOARCH      string
 }
 
 // CommandStruct is the struct that contains the type, commands, GOOS and GOARCH of a command.
@@ -150,7 +152,7 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 }
 
 // NewFromMetadata creates a new record from a tooth metadata.
-func NewFromMetadata(metadata metadatautils.Metadata) Record {
+func NewFromMetadata(metadata metadatautils.Metadata, isManuallyInstalled bool) Record {
 	record := Record{}
 
 	record.ToothPath = metadata.ToothPath
@@ -169,6 +171,8 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 	for i, placement := range metadata.Placement {
 		record.Placement[i].Source = placement.Source
 		record.Placement[i].Destination = placement.Destination
+		record.Placement[i].GOOS = placement.GOOS
+		record.Placement[i].GOARCH = placement.GOARCH
 	}
 
 	record.Possession = make([]string, len(metadata.Possession))
@@ -183,7 +187,7 @@ func NewFromMetadata(metadata metadatautils.Metadata) Record {
 		record.Commands[i].GOARCH = command.GOARCH
 	}
 
-	record.IsManuallyInstalled = false
+	record.IsManuallyInstalled = isManuallyInstalled
 
 	return record
 }
