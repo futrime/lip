@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2023-01-31
+
+### Added
+
+- Support for on-demand installation depending on OS and platform.
+- Removal for downloaded tooth files that do not pass the validation.
+
 ## [0.5.1] - 2023-01-30
 
 ### Fixed
@@ -101,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.5.1...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/LiteLDev/Lip/releases/tag/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/LiteLDev/Lip/releases/tag/v0.4.0...v0.5.1
 [0.5.0]: https://github.com/LiteLDev/Lip/releases/tag/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/LiteLDev/Lip/releases/tag/v0.3.4...v0.4.0
