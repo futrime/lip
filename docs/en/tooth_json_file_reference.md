@@ -439,12 +439,10 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
         ],
         "properties": {
           "source": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "destination": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
@@ -459,8 +457,7 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
       "type": "array",
       "additionalItems": false,
       "items": {
-        "type": "string",
-        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+        "type": "string"
       }
     },
     "commands": {

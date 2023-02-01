@@ -440,12 +440,10 @@ windows/arm64
         ],
         "properties": {
           "source": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "destination": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
@@ -460,8 +458,7 @@ windows/arm64
       "type": "array",
       "additionalItems": false,
       "items": {
-        "type": "string",
-        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+        "type": "string"
       }
     },
     "commands": {

@@ -67,6 +67,10 @@ You can install any pre-release versions by specifying the version. And teeth ca
 
   Reinstall the tooth even if they are already up-to-date. When reinstalling, Lip will first uninstall the tooth and then install it. If version specified, Lip will install the version, otherwise the newest version.
 
+- `-y, --yes`
+
+  Assume yes to all prompts and run non-interactively.
+
 ## Examples
 
 Install from tooth repositories:

@@ -9,6 +9,7 @@ import (
 
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/utils/logger"
 )
 
 // Uninstall uninstalls a tooth.
@@ -82,12 +83,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 			continue
 		}
 
-		workspaceDir, err := localfile.WorkSpaceDir()
-		if err != nil {
-			return err
-		}
-
-		destination := workspaceDir + "/" + placement.Destination
+		destination := placement.Destination
 
 		// Continue if the destination does not exist.
 		if _, err := os.Stat(destination); os.IsNotExist(err) {
@@ -96,7 +92,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 
 		err = os.Remove(destination)
 		if err != nil {
-			return errors.New("cannot delete the file " + destination + ": " + err.Error())
+			logger.Error("cannot delete the file " + destination + ": " + err.Error() + ". Please delete it manually.")
 		}
 
 		// Delete the parent directory if it is empty.
@@ -110,7 +106,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 		if len(files) == 0 {
 			err = os.Remove(parentDir)
 			if err != nil {
-				return errors.New("cannot delete the directory " + parentDir + ": " + err.Error())
+				logger.Error("cannot delete the directory " + parentDir + ": " + err.Error() + ". Please delete it manually.")
 			}
 		}
 	}
@@ -131,22 +127,17 @@ func Uninstall(recordFileName string, possessionList []string) error {
 			continue
 		}
 
-		workspaceDir, err := localfile.WorkSpaceDir()
-		if err != nil {
-			return err
-		}
-
 		// Remove the folder.
-		err = os.RemoveAll(workspaceDir + "/" + possession)
+		err = os.RemoveAll(possession)
 		if err != nil {
-			return errors.New("cannot delete the folder " + workspaceDir + "/" + possession + ": " + err.Error())
+			logger.Error("cannot delete the folder " + possession + ": " + err.Error() + ". Please delete it manually.")
 		}
 	}
 
 	// Delete the record file.
 	err = os.Remove(recordDir + "/" + recordFileName)
 	if err != nil {
-		return errors.New("cannot delete the record file " + recordDir + "/" + recordFileName + ": " + err.Error())
+		logger.Error("cannot delete the record file " + recordDir + "/" + recordFileName + ": " + err.Error() + ". Please delete it manually.")
 	}
 
 	return nil
