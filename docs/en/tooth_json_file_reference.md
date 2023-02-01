@@ -271,11 +271,9 @@ Indicates how should Lip handle file placement. When installing, files from "sou
 
 ### Syntax
 
-Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path relative to the root of BDS specified by destination.
+Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path specified by destination.
 
 If both the source and the destination ends with "*", the placement will be regarded as a wildcard. Lip will recursively place all files under the source directory to the destination directory.
-
-Here we make a strict rule that the source and destination can only contain letters, digits, hyphens, underscores, dots, slashes and asterisks (for the last letter treated as wildcard) [a-zA-Z0-9-_\.\/\*]. If you want to place files to the root of BDS, you should specify every file in the source field. The first letter should not be a slash or a dot. The last letter should not be a slash.
 
 You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
 
@@ -305,17 +303,13 @@ Extract from specific folders and place to specific folders:
 }
 ```
 
-### Notes
-
-Do not add any prefix like "/", "./" or "../". Otherwise, Lip will refused to install the tooth.
-
 ## possession
 
 Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
 
 ### Syntax
 
-Each item of the list should be a valid directory path relative to the root of BDS ending with "/".
+Each item of the list should be a valid directory path ending with "/".
 
 ### Examples
 
@@ -439,12 +433,10 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
         ],
         "properties": {
           "source": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "destination": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
@@ -459,8 +451,7 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
       "type": "array",
       "additionalItems": false,
       "items": {
-        "type": "string",
-        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+        "type": "string"
       }
     },
     "commands": {

@@ -272,11 +272,9 @@ Lip提供了一些版本匹配规则：
 
 ### 语法
 
-每个放置规则应该包含一个源字段和一个目标字段。Lip将从源字段指定的tooth包中的相对路径中提取文件，并将它们放置到目标地指定的BDS根目录的相对路径中。
+每个放置规则应该包含一个源字段和一个目标字段。Lip将从源字段指定的tooth包中的相对路径中提取文件，并将它们放置到目标地指定的路径中。
 
 如果源目录和目标目录都以 "*"结尾，则该位置将被视为通配符。Lip将递归地把源目录下的所有文件放置到目标目录。
-
-在这里我们做了一个严格的规定，源和目的地只能包含字母、数字、连字符、下划线、点、斜线和星号（对于最后一个字母作为通配符处理）[a-zA-Z0-9-_\.\/\*]。如果你想把文件放到BDS的根部，你应该在`placement`字段中指定每个文件。第一个字母不应该是斜线或点。最后一个字母不应该是斜线。
 
 You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
 
@@ -306,17 +304,13 @@ You can also specify GOOS and GOARCH to optionally place files for specific plat
 }
 ```
 
-### 注意
-
-不要添加任何前缀，如 "/", "./" 或 "../".否则，Lip将拒绝安装这一tooth包。
-
 ## `possession`
 
 声明哪些文件夹是由tooth包拥有的。卸载时，声明的文件夹中的文件将被删除。升级或重新安装时，在新旧两个版本的possession中都制定了的文件夹中的文件不会被移除（placement指定的除外）。
 
 ### 语法
 
-列表中的每一项都应该是相对于BDS根的有效目录路径，以"/"结尾。
+列表中的每一项都应该是有效目录路径，以"/"结尾。
 
 ### 样例
 
@@ -440,12 +434,10 @@ windows/arm64
         ],
         "properties": {
           "source": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "destination": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9-_]([a-zA-Z0-9-_\\.\/]*([a-zA-Z0-9-_]|\\/\\*))?$"
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
@@ -460,8 +452,7 @@ windows/arm64
       "type": "array",
       "additionalItems": false,
       "items": {
-        "type": "string",
-        "pattern": "^[a-zA-Z0-9-_][a-zA-Z0-9-_\\.\/]*\\/$"
+        "type": "string"
       }
     },
     "commands": {

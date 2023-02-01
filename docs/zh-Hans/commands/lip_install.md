@@ -67,6 +67,10 @@ Lip在安装依赖之前，是按照 "拓扑顺序 "安装依赖。当遇到依�
 
   重新安装tooth包，即使它们已经是最新的了。重新安装时，Lip会先卸载已安装的tooth包，然后再安装它。如果指定了版本，Lip将安装该版本，否则就是最新的版本。
 
+- `-y, --yes`
+
+  Assume yes to all prompts and run non-interactively.
+
 ## 样例
 
 从tooth存储库安装。

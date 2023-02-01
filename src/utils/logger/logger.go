@@ -24,6 +24,13 @@ func Error(format string, a ...interface{}) {
 	color.HiRed("ERROR: "+format, a...)
 }
 
+func Prompt(format string, a ...interface{}) string {
+	var input string
+	fmt.Printf(format, a...)
+	fmt.Scanln(&input)
+	return input
+}
+
 // Fatal prints an error message to the console and exits.
 func SetColor(status bool) {
 	color.NoColor = !status

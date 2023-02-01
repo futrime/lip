@@ -19,6 +19,7 @@ type FlagDict struct {
 	helpFlag           bool
 	upgradeFlag        bool
 	forceReinstallFlag bool
+	yesFlag            bool
 }
 
 const helpMessage = `
@@ -35,7 +36,8 @@ Description:
 Options:
   -h, --help                  Show help.
   --upgrade                   Upgrade the specified tooth to the newest available version.
-  --force-reinstall           Reinstall the tooth even if they are already up-to-date.`
+  --force-reinstall           Reinstall the tooth even if they are already up-to-date.
+  -y, --yes                   Assume yes to all prompts and run non-interactively.`
 
 // Run is the entry point.
 func Run() {
@@ -60,6 +62,9 @@ func Run() {
 	flagSet.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
 
 	flagSet.BoolVar(&flagDict.forceReinstallFlag, "force-reinstall", false, "")
+
+	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
+	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 
 	flagSet.Parse(os.Args[2:])
 
@@ -302,7 +307,7 @@ func Run() {
 		// TODO: Check if the tooth file is manually installed.
 		isManuallyInstalled := false
 
-		err = install(toothFile, isManuallyInstalled)
+		err = install(toothFile, isManuallyInstalled, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
 			return

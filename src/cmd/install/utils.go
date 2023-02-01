@@ -19,6 +19,7 @@ import (
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/download"
+	"github.com/liteldev/lip/utils/logger"
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 
@@ -163,7 +164,7 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 }
 
 // Install installs the .tth file.
-func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
+func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
 	// 1. Check if the tooth is already installed.
 
 	recordDir, err := localfile.RecordDir()
@@ -179,29 +180,7 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
 		return errors.New("the tooth is already installed")
 	}
 
-	// 2. Install the record file.
-
-	// Create a record object from the metadata.
-	record := toothrecord.NewFromMetadata(t.Metadata(), isManuallyInstalled)
-
-	// Encode the record object to JSON.
-	recordJSON, err := record.JSON()
-	if err != nil {
-		return err
-	}
-
-	// Write the metadata bytes to the record file.
-	err = os.WriteFile(recordFilePath, recordJSON, 0755)
-	if err != nil {
-		return errors.New("failed to write record file " + recordFilePath + " " + err.Error())
-	}
-
-	// 3. Place the files to the right place in the workspace.
-
-	workSpaceDir, err := localfile.WorkSpaceDir()
-	if err != nil {
-		return err
-	}
+	// 2. Place the files to the right place in the workspace.
 
 	// Open the .tth file.
 	r, err := zip.OpenReader(t.FilePath())
@@ -209,6 +188,11 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
 		return errors.New("failed to open tooth file " + t.FilePath())
 	}
 	defer r.Close()
+
+	workSpaceDir, err := localfile.WorkSpaceDir()
+	if err != nil {
+		return err
+	}
 
 	// Get the file prefix.
 	filePrefix := toothfile.GetFilePrefix(r)
@@ -223,7 +207,28 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
 		}
 
 		source := placement.Source
-		destination := workSpaceDir + "/" + placement.Destination
+		destination := placement.Destination
+
+		if !isYes {
+			workSpaceDirAbs, err := filepath.Abs(workSpaceDir)
+			if err != nil {
+				return errors.New("failed to get the absolute path of the workspace directory")
+			}
+
+			destinationAbs, err := filepath.Abs(destination)
+			if err != nil {
+				return errors.New("failed to get the absolute path of the destination")
+			}
+
+			relPath, err := filepath.Rel(workSpaceDirAbs, destinationAbs)
+			if err != nil || strings.HasPrefix(relPath, "../") || strings.HasPrefix(relPath, "..\\") {
+				ans := logger.Prompt("The destination " + destination + " is not in the workspace. Do you want to continue? (y/N)")
+				if ans != "y" && ans != "Y" {
+					return errors.New("installation aborted")
+				}
+				isYes = true
+			}
+		}
 
 		// Create the parent directory of the destination.
 		os.MkdirAll(filepath.Dir(destination), 0755)
@@ -289,6 +294,23 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool) error {
 				return errors.New("failed to run command: " + command + ": " + err.Error())
 			}
 		}
+	}
+
+	// 3. Install the record file.
+
+	// Create a record object from the metadata.
+	record := toothrecord.NewFromMetadata(t.Metadata(), isManuallyInstalled)
+
+	// Encode the record object to JSON.
+	recordJSON, err := record.JSON()
+	if err != nil {
+		return err
+	}
+
+	// Write the metadata bytes to the record file.
+	err = os.WriteFile(recordFilePath, recordJSON, 0755)
+	if err != nil {
+		return errors.New("failed to write record file " + recordFilePath + " " + err.Error())
 	}
 
 	return nil
