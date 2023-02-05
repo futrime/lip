@@ -33,16 +33,19 @@ func main() {
 	err = localfile.Init()
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Change the working directory to the project root.
 	workspaceDir, err := localfile.WorkSpaceDir()
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
 	err = os.Chdir(workspaceDir)
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Attempt to execute .lip/tools/lip or .lip/tools/lip.exe if it exists.
@@ -61,6 +64,7 @@ func main() {
 				err = os.Remove(".lip/tools/lip/" + lipExeName)
 				if err != nil {
 					logger.Error("failed to remove old Lip version: " + err.Error())
+					os.Exit(1)
 				}
 			}
 
@@ -68,6 +72,22 @@ func main() {
 			err = os.Rename(".lip/tools/lip/lip.update", ".lip/tools/lip/"+lipExeName)
 			if err != nil {
 				logger.Error("failed to move new Lip version: " + err.Error())
+				os.Exit(1)
+			}
+		}
+
+		// Remove {lipExeName} and lip.remove if they exist.
+		if _, err := os.Stat(".lip/tools/lip/lip.remove"); err == nil {
+			logger.Info("Removing .lip/tools/lip/" + lipExeName)
+			err = os.Remove(".lip/tools/lip/" + lipExeName)
+			if err != nil {
+				logger.Error("failed to remove old Lip version: " + err.Error())
+				os.Exit(1)
+			}
+			err = os.Remove(".lip/tools/lip/lip.remove")
+			if err != nil {
+				logger.Error("failed to remove old Lip version: " + err.Error())
+				os.Exit(1)
 			}
 		}
 
