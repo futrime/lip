@@ -217,6 +217,7 @@ func Run() {
 		for _, specifier := range specifiers {
 			// If the specifier is not a requirement specifier, skip.
 			if specifier.Type() != RequirementSpecifierType {
+				logger.Error("the specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
 				continue
 			}
 
