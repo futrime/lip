@@ -55,6 +55,21 @@ func main() {
 			lipExeName = "lip.exe"
 		}
 
+		// Remove {lipExeName} and lip.remove if they exist.
+		if _, err := os.Stat(".lip/tools/lip/lip.remove"); err == nil {
+			logger.Info("Removing .lip/tools/lip/" + lipExeName + " and .lip/tools/lip/lip.remove")
+			err = os.Remove(".lip/tools/lip/" + lipExeName)
+			if err != nil {
+				logger.Error("failed to remove old Lip version: " + err.Error())
+				os.Exit(1)
+			}
+			err = os.Remove(".lip/tools/lip/lip.remove")
+			if err != nil {
+				logger.Error("failed to remove old Lip version: " + err.Error())
+				os.Exit(1)
+			}
+		}
+
 		// Move lip.update to {lipExeName} if it exists.
 		if _, err := os.Stat(".lip/tools/lip/lip.update"); err == nil {
 			logger.Info("Moving .lip/tools/lip/lip.update to .lip/tools/lip/" + lipExeName)
@@ -72,21 +87,6 @@ func main() {
 			err = os.Rename(".lip/tools/lip/lip.update", ".lip/tools/lip/"+lipExeName)
 			if err != nil {
 				logger.Error("failed to move new Lip version: " + err.Error())
-				os.Exit(1)
-			}
-		}
-
-		// Remove {lipExeName} and lip.remove if they exist.
-		if _, err := os.Stat(".lip/tools/lip/lip.remove"); err == nil {
-			logger.Info("Removing .lip/tools/lip/" + lipExeName)
-			err = os.Remove(".lip/tools/lip/" + lipExeName)
-			if err != nil {
-				logger.Error("failed to remove old Lip version: " + err.Error())
-				os.Exit(1)
-			}
-			err = os.Remove(".lip/tools/lip/lip.remove")
-			if err != nil {
-				logger.Error("failed to remove old Lip version: " + err.Error())
 				os.Exit(1)
 			}
 		}
