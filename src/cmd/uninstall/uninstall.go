@@ -3,6 +3,7 @@ package cmdlipuninstall
 import (
 	"flag"
 	"os"
+	"strings"
 
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
@@ -63,7 +64,7 @@ func Run() {
 	// The value of the map is the name of the record file.
 	toothPathMap := make(map[string]string)
 	for _, toothPath := range toothPathList {
-		toothPathMap[toothPath] = ""
+		toothPathMap[strings.ToLower(toothPath)] = ""
 	}
 
 	// Read record files.
