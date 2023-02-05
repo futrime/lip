@@ -164,7 +164,7 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 }
 
 // Install installs the .tth file.
-func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
+func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
 	// 1. Check if the tooth is already installed.
 
 	recordDir, err := localfile.RecordDir()
