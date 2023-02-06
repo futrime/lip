@@ -278,7 +278,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 			continue
 		}
 
-		// Run the command.
+		// Run the command. When error occurs, just report it and continue.
 		for _, command := range commandItem.Commands {
 			var cmd *exec.Cmd
 			switch runtime.GOOS {
@@ -291,7 +291,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 			cmd.Stdout = os.Stdout
 			err := cmd.Run()
 			if err != nil {
-				return errors.New("failed to run command: " + command + ": " + err.Error())
+				logger.Error("failed to run command: " + command + ": " + err.Error())
 			}
 		}
 	}

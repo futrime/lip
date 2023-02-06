@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/registry"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
 )
@@ -27,6 +28,8 @@ Options:
 
 // Run is the entry point.
 func Run() {
+	var err error
+
 	// If there is no argument, print help message and exit.
 	if len(os.Args) == 2 {
 		logger.Info(helpMessage)
@@ -59,6 +62,17 @@ func Run() {
 
 	// Get tooth paths from arguments.
 	toothPathList := flagSet.Args()
+
+	// Convert all aliases to tooth paths.
+	for i, toothPath := range toothPathList {
+		if !strings.Contains(toothPath, "/") {
+			toothPathList[i], err = registry.LookupAlias(toothPath)
+			if err != nil {
+				logger.Error(err.Error())
+				return
+			}
+		}
+	}
 
 	// Make a map of tooth paths.
 	// The value of the map is the name of the record file.
