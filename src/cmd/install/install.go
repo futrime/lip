@@ -308,7 +308,7 @@ func Run() {
 		// TODO: Check if the tooth file is manually installed.
 		isManuallyInstalled := false
 
-		err = install(toothFile, isManuallyInstalled, flagDict.yesFlag)
+		err = Install(toothFile, isManuallyInstalled, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
 			return

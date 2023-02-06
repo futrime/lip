@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/liteldev/lip/registry"
 	"github.com/liteldev/lip/utils/version"
 )
 
@@ -31,6 +32,8 @@ type Specifier struct {
 
 // NewSpecifier creates a new specifier.
 func NewSpecifier(specifierString string) (Specifier, error) {
+	var err error
+
 	specifierType := getSpecifierType(specifierString)
 
 	switch specifierType {
@@ -77,8 +80,15 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 
 		toothRepo := splittedSpecifier[0]
 
+		if !strings.Contains(toothRepo, "/") {
+			toothRepo, err = registry.LookupAlias(toothRepo)
+			if err != nil {
+				return Specifier{}, err
+			}
+		}
+
 		var toothVersion version.Version
-		var err error
+
 		if len(splittedSpecifier) == 2 {
 			toothVersion, err = version.NewFromString(splittedSpecifier[1])
 			if err != nil {

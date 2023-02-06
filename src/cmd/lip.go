@@ -45,6 +45,9 @@ const versionMessage = "Lip %s from %s"
 
 // Run is the entry point of the lip command.
 func Run() {
+	// Initialize context
+	context.Init()
+
 	// If there is a subcommand, run it and exit.
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {

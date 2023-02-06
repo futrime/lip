@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strings"
 
 	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	"github.com/liteldev/lip/localfile"
@@ -65,7 +66,8 @@ func Run() {
 	}
 
 	// Get the record file path.
-	recordFileName := localfile.GetRecordFileName(flagSet.Args()[0])
+	toothPath := strings.ToLower(flagSet.Args()[0])
+	recordFileName := localfile.GetRecordFileName(toothPath)
 	recordDir, err := localfile.RecordDir()
 	if err != nil {
 		logger.Error(err.Error())
