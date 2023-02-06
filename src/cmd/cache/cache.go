@@ -19,7 +19,7 @@ Usage:
   lip cache <command> [subcommand options] ...
 
 Commands:
-  purge                       Initialize and writes a new tooth.json file in the current directory.
+  purge                       Clear the cache.
 
 Options:
   -h, --help                  Show help.`

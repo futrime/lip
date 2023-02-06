@@ -28,12 +28,14 @@ Options:
 func Run() {
 	// If there is no argument, initialize a new tooth.
 	if len(os.Args) == 3 {
-		err := purgeCache()
+		err := PurgeCache()
 
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
+
+		logger.Info("Cache has been purged successfully.")
 
 		return
 	}
@@ -59,8 +61,8 @@ func Run() {
 	}
 }
 
-// purgeCache removes all items from the cache.
-func purgeCache() error {
+// PurgeCache removes all items from the cache.
+func PurgeCache() error {
 	cacheDir, err := localfile.CacheDir()
 	if err != nil {
 		return err
