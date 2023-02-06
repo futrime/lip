@@ -8,11 +8,11 @@
 
 - 教程
 
-  - [创建一个Tooth包](tutorials/create_a_lip_tooth.md)
+  - [创建一个齿包](tutorials/create_a_lip_tooth.md)
 
   - [创建一个工具](tutorials/create_a_tool.md)
   
-  - [将你的tooth包提交给lip注册表](tutorials/submit_your_tooth_to_lip_registry.md)
+  - [将你的齿包提交给lip注册表](tutorials/submit_your_tooth_to_lip_registry.md)
 
 - 命令
 

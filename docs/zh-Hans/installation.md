@@ -24,4 +24,4 @@
 
 如果你使用安装器安装Lip，你可以卸载旧版本并使用安装器安装新版本。
 
-Since v0.8.0, Lip supports upgrading itself in local scope. You can run `lip install --upgrade lip` to upgrade Lip.
+从v0.8.0开始，Lip支持在本地范围内升级自己。你可以运行`lip install --upgrade lip`来升级Lip.

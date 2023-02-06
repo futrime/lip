@@ -1,22 +1,22 @@
 # tooth.json 文件参考
 
-每一个 Lip tooth包都通过tooth.json文件定义，该文件描述tooth包的属性，包括对其他tooth包的依赖信息和其他信息。
+每一个 Lip 齿包都通过tooth.json文件定义，该文件描述齿包的属性，包括对其他齿包的依赖信息和其他信息。
 
 这些属性包括：
 
 - **format version** 这一tooth.json的格式版本。
 
-- **tooth** 这一tooth包的路径。这一属性应向Lip提供一个Lip可以下载到这个tooth包的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
+- **tooth** 这一齿包的路径。这一属性应向Lip提供一个Lip可以下载到这个齿包的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
 
-- **version** 这一tooth包的版本号。
+- **version** 这一齿包的版本号。
 
-- **dependencies** 这一tooth包所依赖的tooth包以及他们的版本。
+- **dependencies** 这一齿包所依赖的齿包以及他们的版本。
 
-- **information** 这一tooth包的信息，包括名称，作者，描述等。
+- **information** 这一齿包的信息，包括名称，作者，描述等。
 
-- **placement** 这一tooth包的位置这是一个说明tooth包的文件应当被如何放置到安装目录的列表。
+- **placement** 这一齿包的位置这是一个说明齿包的文件应当被如何放置到安装目录的列表。
 
-- **possession** 这一tooth包占有的文件。这是一个声明tooth包所占用的文件夹的列表
+- **possession** 这一齿包占有的文件。这是一个声明齿包所占用的文件夹的列表
 
 - **format_version**、**tooth path**和**version**是必须的。其他属性是可选。
 
@@ -92,11 +92,11 @@ lip tooth init
 
 ## `tooth` - 包的路径
 
-tooth包的路径，是tooth包的唯一标示符 (当与版本号结合使用时)。
+齿包的路径，是齿包的唯一标示符 (当与版本号结合使用时)。
 
 ### 语法
 
-通常的，tooth包的路径应该为不含协议前缀的小写URL形式。（例：github.com/liteldev/liteloaderbds ）
+通常的，齿包的路径应该为不含协议前缀的小写URL形式。（例：github.com/liteldev/liteloaderbds ）
 
 只允许小写字母、数字、破折号、下划线、圆点和斜线[a-z0-9-_./]。大写字母在解析前会被转换为小写字母。
 
@@ -110,11 +110,11 @@ tooth包的路径，是tooth包的唯一标示符 (当与版本号结合使用�
 
 ### 注意
 
-tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段可以是一个Lip能找到你的包的URL。对于永远不会背直接下载的tooth包，tooth的路径可为一些你可以保证唯一性的名称。
+齿包的路径必须是唯一的。对于大多数的齿包，这一字段可以是一个Lip能找到你的包的URL。对于永远不会被直接下载的齿包，齿包的路径可为一些你可以保证唯一性的名称。
 
-注意，tooth的路径不应该包括协议前置（如 "https://" 或者 "git://"），这是不符合语法的。另外tooth的路径不应该以".tth"后缀作为结尾，因为这会导致Lip将其视为一个独立的tooth文件
+注意，齿包的路径不应该包括协议前置（如 "https://" 或者 "git://"），这是不符合语法的。另外齿包的路径不应该以".tth"后缀作为结尾，因为这会导致Lip将其视为一个独立的齿包文件
 
-如果你想发布你的tooth包，你应该让这一字段是一个真正的URL。例如，它应该以小写字母或者数字开头。
+如果你想发布你的齿包，你应该让这一字段是一个真正的URL。例如，它应该以小写字母或者数字开头。
 
 ## `version` - 版本
 
@@ -124,7 +124,7 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
 - 标准的版本号必须（MUST）采用 X.Y.Z 的格式，其中 X、Y 和 Z 为非负的整数，且禁止（MUST NOT）在数字前方补零。（例如: 1.01.02是被禁止的）。X 是主版本号、Y 是次版本号、而 Z 为修订号。每个元素必须（MUST）以数值来递增。例如：1.9.1 -> 1.10.0 -> 1.11.0。
 
-- 标记版本号的tooth包发行后，禁止（MUST NOT）改变该版本软件的内容。任何修改都必须（MUST）以新版本发行。
+- 标记版本号的齿包发行后，禁止（MUST NOT）改变该版本软件的内容。任何修改都必须（MUST）以新版本发行。
 
 - 主版本号为零（0.y.z）的软件处于开发初始阶段，一切都可能随时被改变。这样的公共 API 不应该被视为稳定版。当处于早期开发阶段时，请将主版本号设置为0.
 
@@ -184,9 +184,9 @@ tooth包的路径必须是唯一的。对于大多数的tooth包，这一字段�
 
 ### 注意
 
-在发布你的tooth包时，你应该在Git标签上设置前缀 "v"，例如v1.2.3。否则，Lip将无法正确解析标签。
+在发布你的齿包时，你应该在Git标签上设置前缀 "v"，例如v1.2.3。否则，Lip将无法正确解析标签。
 
-由于GOPROXY将前缀为 "v0.0.0" 的版本视为伪版本，如果你想发布你的tooth包，你不应该设置以 "0.0.0" 开头的版本。
+由于GOPROXY将前缀为 "v0.0.0" 的版本视为伪版本，如果你想发布你的齿包，你不应该设置以 "0.0.0" 开头的版本。
 
 ## `dependencies` - 依赖
 
@@ -234,7 +234,7 @@ Lip提供了一些版本匹配规则：
 
 ## `information` - 信息
 
-声明你的tooth的必要信息，并添加任何你喜欢的信息。
+声明你的齿包的必要信息，并添加任何你喜欢的信息。
 
 ### 语法
 
@@ -260,11 +260,11 @@ Lip提供了一些版本匹配规则：
 有些字段是习惯性的，可能会显示在一些的搜索页面上。例如下面列出的这些:
 
 
-- name: tooth包的名字
-- description: 对tooth包的一行描述
+- name: 齿包的名字
+- description: 对齿包的一行描述
 - author: 作者名字
-- license: tooth包的协议，私有包请留空
-- homepage: tooth包的主页
+- license: 齿包的协议，私有包请留空
+- homepage: 齿包的主页
 
 ## `placement` - 安装位置
 
@@ -272,11 +272,11 @@ Lip提供了一些版本匹配规则：
 
 ### 语法
 
-每个放置规则应该包含一个源字段和一个目标字段。Lip将从源字段指定的tooth包中的相对路径中提取文件，并将它们放置到目标地指定的路径中。
+每个放置规则应该包含一个源字段和一个目标字段。Lip将从源字段指定的齿包中的相对路径中提取文件，并将它们放置到目标地指定的路径中。
 
 如果源目录和目标目录都以 "*"结尾，则该位置将被视为通配符。Lip将递归地把源目录下的所有文件放置到目标目录。
 
-You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
+你也可以指定GOOS和GOARCH，为特定的平台选择性地放置文件。例如，你可以指定 "windows "和 "amd64"，只为Windows 64位放置文件。如果你想为所有平台放置文件，你可以省略GOOS和GOARCH字段。但是，如果您指定了GOARCH，您也必须指定GOOS。
 
 ### 样例
 
@@ -306,7 +306,7 @@ You can also specify GOOS and GOARCH to optionally place files for specific plat
 
 ## `possession`
 
-声明哪些文件夹是由tooth包拥有的。卸载时，声明的文件夹中的文件将被删除。升级或重新安装时，在新旧两个版本的possession中都制定了的文件夹中的文件不会被移除（placement指定的除外）。
+声明哪些文件夹是由齿包拥有的。卸载时，声明的文件夹中的文件将被删除。升级或重新安装时，在新旧两个版本的possession中都制定了的文件夹中的文件不会被移除（placement指定的除外）。
 
 ### 语法
 
@@ -324,7 +324,7 @@ You can also specify GOOS and GOARCH to optionally place files for specific plat
 
 ### 注意
 
-不要占有任何可能被其他tooth包使用的目录，例如像`worlds/`这样的公共目录。
+不要占有任何可能被其他齿包使用的目录，例如像`worlds/`这样的公共目录。
 
 ## `commands` - 命令
 
@@ -373,7 +373,7 @@ windows/arm64
 
 ## 语法
 
-下列JSON Schema展示了一个完整的tooth包的JSON文件的语法。
+下列JSON Schema展示了一个完整的齿包的JSON文件的语法。
 
 ```json
 {
