@@ -1,18 +1,18 @@
-# Tutorial: Submit Your Tooth to Lip Registry
+# 教程：将你的tooth包提交给lip注册表
 
-Since v0.8.0, Lip supports looking up teeth from a registry and installing them. You can submit your tooth to the registry to make it easier for others to install your tooth.
+从v0.8.0开始，Lip支持从注册表中查找tooth包并安装它们。你可以将你的tooth提交给注册表，使其他人更容易安装你的tooth包。
 
-In this tutorial, we will submit a tooth to the official Lip registry (<https://registry.litebds.com>).
+在本教程中，我们将向官方Lip注册表（<https://registry.litebds.com>）提交一个tooth包。
 
-## Create a Lip Tooth
+## 创造一个tooth包
 
-Follow the [Create a Lip Tooth](tutorials/create_a_lip_tooth.md) tutorial to create a Lip tooth. Make sure that you have a `tooth.json` file in the root directory of your tooth. And the **tooth** field is right the repository path of your tooth.
+遵循 [创建一个Tooth包](tutorials/create_a_lip_tooth.md) 的指导创建一个tooth包。请确保你在你的牙齿根目录下有一个`tooth.json`文件。同时确保你的tooth包存储在其所声明的存储库中
 
-## Submit Your Tooth to Lip Registry
+## 将你的tooth包提交给lip注册表
 
-To submit your tooth to the registry, you need to create a pull request to the registry repository (<https://github.com/LiteLDev/Registry>).
+要向注册表提交你的牙齿，你需要向注册表存储库创建一个Pull Requests  (<https://github.com/LiteLDev/Registry>).
 
-You should create a new file in the `teeth` directory. The file name should be the alias of your tooth. The file content should be a simplified version of your `tooth.json`. The file content should be in JSON format and should contain the following fields. In this example, the alias of the tooth is `exampletool`. Therefore, the file name is `exampletool.json`.
+你应该在`teeth`目录下创建一个新的文件。文件名应该是你的牙齿的别名。文件内容应该是你的`tooth.json`的简化版本。文件内容应该是JSON格式，应该包含以下字段。在这个例子中，牙齿的别名是`exampletool`。因此，文件名是`exampletool.json`。
 
 ```json
 {
@@ -28,22 +28,22 @@ You should create a new file in the `teeth` directory. The file name should be t
 }
 ```
 
-Unlike the `tooth.json` under your tooth repository, every field in the registry file is required. The `format_version` field should be `1`.
+与你的tooth存储库下的`tooth.json`不同，注册表文件中的每个字段都是必须的。`format_version`字段应该是`1'。
 
-After you create the file, you can create a pull request to the registry repository. The registry maintainers will review your pull request and merge it if it is valid.
+在你创建文件之后，你可以向注册表仓库创建一个Pull Requests。注册表维护者将审查你的Pull Requests，如果它是有效的，则将其合并。
 
-## Install Your Tooth from Lip Registry
+## 从Lip注册表安装你tooth包
 
-After your tooth is submitted to the registry, everyone can install it from the registry. You can use the `lip install` command to install your tooth from the registry.
+在你的tooth包提交到注册表后，每个人都可以从注册表中安装它。你可以使用`lip install`命令，从注册表中安装你的tooth包。
 
 ```bash
 lip install exampletool
 ```
 
-## Update Your Tooth in Lip Registry
+## 更新你的tooth包在Lip注册表上的注册
 
-If you want to update your tooth in the registry, you need to update the registry file. You can update the registry file in the same way as submitting your tooth to the registry. The registry maintainers will review your pull request and merge it if it is valid.
+如果你想在注册表中更新你的tooth包，你需要更新注册文件。你可以以向注册表提交你更新注册文件。注册表维护者将审查你的Pull Requests，如果它是有效的，则将其合并。
 
-## Remove Your Tooth from Lip Registry
+## 从Lip注册表中删除你的tooth包
 
-If you want to remove your tooth from the registry, you need to remove the registry file. You can remove the registry file in the same way as submitting your tooth to the registry. The registry maintainers will review your pull request and merge it if it is valid.
+如果你想从注册表中删除你的tooth包，你需要删除注册表文件。你可以用提交你的tooth包到注册表的同样方式来删除注册表文件。注册表维护者将审查你的Pull Requests，如果它是有效的，将其合并。

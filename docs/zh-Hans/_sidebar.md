@@ -12,7 +12,7 @@
 
   - [创建一个工具](tutorials/create_a_tool.md)
   
-  - [Submit Your Tooth to Lip Registry](tutorials/submit_your_tooth_to_lip_registry.md)
+  - [将你的tooth包提交给lip注册表](tutorials/submit_your_tooth_to_lip_registry.md)
 
 - 命令
 

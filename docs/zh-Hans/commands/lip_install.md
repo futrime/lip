@@ -34,16 +34,16 @@ lip install [options] <tooth url/files>
 
 在查看要安装的项目时，Lip按以下步骤检查每个项目是什么类型的：
 
-1. Remote tooth file with suffix `.tth` and prefix `http://` or `https://`.
-2. Local tooth file with suffix `.tth`.
-3. Tooth repository, which can be accessed via Goproxy.
-4. Tooth alias, which can be looked up in Lip registry.
+1. 后缀为`.tth` ，前缀为 `http://` 或 `https://` 的远程牙文件。
+2. 本地tooth包件，后缀为`.tth`。
+3. 牙齿库，可以通过Goproxy访问。
+4. 牙齿别名，可以在Lip注册表中查找。
 
-In 3 and 4, all letters will be converted to lowercase before processing.
+在3和4中，所有字母在处理前将被转换为小写。
 
-### Lip Registry
+### Lip注册表
 
-Since v0.8.0, Lip supports Lip registry, which enables you to use aliases to install teeth. By default, Lip will use the registry at <https://registry.litebds.com>. You can also use your own registry by setting environment variable `LIP_REGISTRY` to the URL of your registry.
+从v0.8.0开始，Lip支持Lip注册表，这使得你可以使用别名来安装tooth包。默认情况下，Lip会使用<https://registry.litebds.com>上的注册表。你也可以通过设置环境变量`LIP_REGISTRY`到你的注册表的URL来使用你自己的注册表。
 
 ### 安装依赖
 
