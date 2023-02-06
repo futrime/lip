@@ -23,3 +23,5 @@
 你可以通过将Lip.exe替换为最新版来升级它。
 
 如果你使用安装器安装Lip，你可以卸载旧版本并使用安装器安装新版本。
+
+Since v0.8.0, Lip supports upgrading itself in local scope. You can run `lip install --upgrade lip` to upgrade Lip.
