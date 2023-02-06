@@ -11,6 +11,8 @@
   - [创建一个Tooth包](tutorials/create_a_lip_tooth.md)
 
   - [创建一个工具](tutorials/create_a_tool.md)
+  
+  - [Submit Your Tooth to Lip Registry](tutorials/submit_your_tooth_to_lip_registry.md)
 
 - 命令
 

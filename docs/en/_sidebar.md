@@ -13,6 +13,8 @@
 
   - [Create a Tool](tutorials/create_a_tool.md)
 
+  - [Submit Your Tooth to Lip Registry](tutorials/submit_your_tooth_to_lip_registry.md)
+
 - Commands
 
   - [lip](commands/lip.md)
