@@ -23,74 +23,76 @@ import (
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 
-// downloadTooth downloads a tooth file from a tooth repository, a tooth url,
-// or a local path and returns the path of the downloaded tooth file.
-// If the specifier is a requirement specifier, it should contain version.
-func downloadTooth(specifier Specifier) (string, error) {
-	switch specifier.Type() {
-	case ToothFileSpecifierType:
+// Get cached tooth path if exists, otherwise download and cache it.
+// For ToothFileSpecifierType, it returns false and the abs path of the tooth file.
+// Otherwise, it returns true if downloaded(cache not exists) and the cached tooth file path.
+func GetOrCreateCachedTooth(specifier Specifier) (bool, string, error) {
+	if specifier.specifierType == ToothFileSpecifierType {
 		// For local tooth file, just return the path.
 
 		// Get full path of the tooth file.
 		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
-			return "", errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
+			return false, "", errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
 		}
 
-		return toothFilePath, nil
+		return false, toothFilePath, nil
+	}
+
+	cacheFileFile := localfile.GetCachedToothFileName(specifier.String())
+	cacheDir, err := localfile.CacheDir()
+	if err != nil {
+		return false, "", err
+	}
+	cacheFilePath := filepath.Join(cacheDir, cacheFileFile)
+
+	// Directly return the cached tooth file path if it exists.
+	isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
+	if err != nil {
+		return false, "", err
+	}
+
+	if isCacheExist {
+		return false, cacheFilePath, nil
+	}
+
+	// Download the tooth file to the cache.
+	err = DownloadTooth(specifier, cacheFilePath)
+	if err != nil {
+		return false, "", err
+	}
+
+	return true, cacheFilePath, nil
+}
+
+// DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
+// or a local path and returns the path of the downloaded tooth file.
+// If the specifier is a requirement specifier, it should contain version.
+func DownloadTooth(specifier Specifier, dest string) error {
+	switch specifier.Type() {
+	case ToothFileSpecifierType:
+		// For local tooth file, just return the path.
+
+		// Get full path of the tooth file.
+		_, err := filepath.Abs(specifier.ToothFilePath())
+		if err != nil {
+			return errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
+		}
+
+		return nil
 
 	case ToothURLSpecifierType:
 		// For tooth url, download the tooth file and return the path.
 
-		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
-
-		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
+		err := download.DownloadFile(specifier.ToothURL(), dest)
 		if err != nil {
-			return "", err
+			return err
 		}
 
-		if isCacheExist {
-			cacheDir, err := localfile.CacheDir()
-			if err != nil {
-				return "", err
-			}
-			return cacheDir + "/" + cacheFileName, nil
-		}
-
-		// Download the tooth file to the cache.
-		cacheDir, err := localfile.CacheDir()
-		if err != nil {
-			return "", err
-		}
-
-		cacheFilePath := cacheDir + "/" + cacheFileName
-
-		err = download.DownloadFile(specifier.ToothURL(), cacheFilePath)
-		if err != nil {
-			return "", err
-		}
-
-		return cacheFilePath, nil
+		return nil
 
 	case RequirementSpecifierType:
 		// For requirement specifier, download the tooth via GOPROXY and return the path.
-
-		cacheFileName := localfile.GetCachedToothFileName(specifier.String())
-
-		// Directly return the cached tooth file path if it exists.
-		isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
-		if err != nil {
-			return "", err
-		}
-
-		if isCacheExist {
-			cacheDir, err := localfile.CacheDir()
-			if err != nil {
-				return "", err
-			}
-			return cacheDir + "/" + cacheFileName, nil
-		}
 
 		// Get the tooth file url.
 		urlSuffix := "+incompatible.zip"
@@ -99,24 +101,16 @@ func downloadTooth(specifier Specifier) (string, error) {
 		}
 		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
-		// Download the tooth file to the cache.
-		cacheDir, err := localfile.CacheDir()
+		err := download.DownloadFile(url, dest)
 		if err != nil {
-			return "", err
+			return err
 		}
 
-		cacheFilePath := cacheDir + "/" + cacheFileName
-
-		err = download.DownloadFile(url, cacheFilePath)
-		if err != nil {
-			return "", err
-		}
-
-		return cacheFilePath, nil
+		return nil
 	}
 
 	// Default to unknown error.
-	return "", errors.New("unknown error")
+	return errors.New("unknown error")
 }
 
 // FetchVersionList fetches the version list of a tooth repository.
