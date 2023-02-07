@@ -14,9 +14,10 @@ import (
 // LookupAlias looks up the alias in the registry.
 func LookupAlias(alias string) (string, error) {
 	// Get index.
-	resp, err := http.Get(context.RegistryURL)
+	indexURL := strings.TrimSuffix(context.RegistryURL, "/") + "/index.json"
+	resp, err := http.Get(indexURL)
 	if err != nil {
-		return "", errors.New("cannot access registry: " + context.RegistryURL)
+		return "", errors.New("cannot access registry: " + indexURL)
 	}
 	defer resp.Body.Close()
 
