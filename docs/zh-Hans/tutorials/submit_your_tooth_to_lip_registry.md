@@ -12,23 +12,36 @@
 
 要向注册表提交你的牙齿，你需要向注册表存储库创建一个Pull Requests  (<https://github.com/LiteLDev/Registry>).
 
-你应该在`teeth`目录下创建一个新的文件。文件名应该是你的牙齿的别名。文件内容应该是你的`tooth.json`的简化版本。文件内容应该是JSON格式，应该包含以下字段。在这个例子中，牙齿的别名是`exampletool`。因此，文件名是`exampletool.json`。
+你应该在`teeth`目录下创建一个新的文件。文件名应该是你的牙齿的别名。文件内容应该是你的`tooth.json`的简化版本。文件内容应该是JSON格式，应该包含以下字段。在这个例子中，牙齿的别名是`lip`。因此，文件名是`lip.json`。
 
 ```json
 {
     "format_version": 1,
-    "tooth": "example.com/exampleuser/exampletool",
+    "tooth": "github.com/Tooth-Hub/Lip",
     "information": {
-        "name": "Example Tool",
-        "description": "An example tool",
-        "author": "Example User",
+        "author": "LiteLDev",
+        "description": "A package installer not only for LiteLoaderBDS",
+        "homepage": "https://www.example.com",
         "license": "MIT",
-        "homepage": "example.com"
+        "name": "Lip",
+        "repository": "github.com/LiteLDev/Lip"
     }
 }
 ```
 
-与你的齿包存储库下的`tooth.json`不同，注册表文件中的每个字段都是必须的。`format_version`字段应该是`1'。
+与你的齿库下的`tooth.json`不同，注册表文件中的每个字段都是必须的。这些字段也应该遵循这些规则。
+
+- `format_version`字段应该是`1`。
+- `tooth`字段应该是不含协议前缀的牙齿资源库路径。目前，我们只接受托管在GitHub上的牙齿。
+- `author`字段应该是牙齿作者的GitHub用户名。
+- 描述 "字段应该是对牙齿的单行描述。
+- `homepage`字段应该是一个有效的URL，前缀为`http://`或`https://`。
+- 许可证 "字段应该是有效的[SPDX许可证标识符](https://spdx.org/licenses/)（包括废弃的）。
+- `repository`文件应该是项目源代码库的路径，不含协议前缀。目前，我们只接受托管在GitHub上的仓库。
+
+你可能想在注册表网站上显示一个README页面。你可以创建一个与注册表文件同名的Markdown文件。例如，你可以创建一个`lip.md`文件。该文件的内容将显示在注册表网站上。
+
+通过www.DeepL.com/Translator（免费版）翻译
 
 在你创建文件之后，你可以向注册表仓库创建一个Pull Requests。注册表维护者将审查你的Pull Requests，如果它是有效的，则将其合并。
 

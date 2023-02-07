@@ -12,23 +12,34 @@ Follow the [Create a Lip Tooth](tutorials/create_a_lip_tooth.md) tutorial to cre
 
 To submit your tooth to the registry, you need to create a pull request to the registry repository (<https://github.com/LiteLDev/Registry>).
 
-You should create a new file in the `teeth` directory. The file name should be the alias of your tooth. The file content should be a simplified version of your `tooth.json`. The file content should be in JSON format and should contain the following fields. In this example, the alias of the tooth is `exampletool`. Therefore, the file name is `exampletool.json`.
+You should create a new file in the `teeth` directory. The file name should be the alias of your tooth. The file content should be a simplified version of your `tooth.json`. The file content should be in JSON format and should contain the following fields. In this example, the alias of the tooth is `lip`. Therefore, the file name is `lip.json`.
 
 ```json
 {
     "format_version": 1,
-    "tooth": "example.com/exampleuser/exampletool",
+    "tooth": "github.com/Tooth-Hub/Lip",
     "information": {
-        "name": "Example Tool",
-        "description": "An example tool",
-        "author": "Example User",
+        "author": "LiteLDev",
+        "description": "A package installer not only for LiteLoaderBDS",
+        "homepage": "https://www.example.com",
         "license": "MIT",
-        "homepage": "example.com"
+        "name": "Lip",
+        "repository": "github.com/LiteLDev/Lip"
     }
 }
 ```
 
-Unlike the `tooth.json` under your tooth repository, every field in the registry file is required. The `format_version` field should be `1`.
+Unlike the `tooth.json` under your tooth repository, every field in the registry file is required. The fields should also follow these rules:
+
+- The `format_version` field should be `1`.
+- The `tooth` field should be the tooth repository path without protocol prefix. Currently, we only accept teeth that are hosted on GitHub.
+- The `author` field should be the GitHub username of the author of the tooth.
+- The `description` field should be a one-line description of the tooth.
+- The `homepage` field should be a valid URL with `http://` or `https://` prefix.
+- The `license` field should be a valid [SPDX license identifier](https://spdx.org/licenses/) (including deprecated ones).
+- The `repository` filed should be the project source code repository path without protocol prefix. Currently, we only accept repositories that are hosted on GitHub.
+
+You may want to display a README page on the registry website. You can create a Markdown file with the same name as the registry file. For example, you can create a `lip.md` file. The content of the file will be displayed on the registry website.
 
 After you create the file, you can create a pull request to the registry repository. The registry maintainers will review your pull request and merge it if it is valid.
 
