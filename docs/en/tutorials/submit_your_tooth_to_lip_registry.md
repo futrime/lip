@@ -39,7 +39,7 @@ Unlike the `tooth.json` under your tooth repository, every field in the registry
 - The `license` field should be a valid [SPDX license identifier](https://spdx.org/licenses/) (including deprecated ones). For private tooth, just left it blank.
 - The `repository` filed should be the project source code repository path without protocol prefix. Currently, we only accept repositories that are hosted on GitHub.
 
-You may want to display a README page on the registry website. You can create a Markdown file with the same name as the registry file. For example, you can create a `lip.md` file. The content of the file will be displayed on the registry website.
+You may want to display a README page on the registry website. You can create a Markdown file with the same name as the registry file in `readmes` directory. For example, you can create a `lip.md` file. The content of the file will be displayed on the registry website.
 
 After you create the file, you can create a pull request to the registry repository. The registry maintainers will review your pull request and merge it if it is valid.
 

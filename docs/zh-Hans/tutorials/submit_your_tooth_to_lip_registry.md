@@ -39,7 +39,7 @@
 - `license` 字段应该是有效的[SPDX许可证标识符](https://spdx.org/licenses/)（包括废弃的）。对于私有软件，请留空。
 - `repository`文件应该是项目源代码库的路径，不含协议前缀。目前，我们只接受托管在GitHub上的仓库。
 
-你可能想在注册表网站上显示一个README页面。你可以创建一个与注册表文件同名的Markdown文件。例如，你可以创建一个`lip.md`文件。该文件的内容将显示在注册表网站上。
+你可能想在注册表网站上显示一个README页面。你可以创建一个与注册表文件同名的Markdown文件。例如，你可以在`readmes`目录下创建一个`lip.md`文件。该文件的内容将显示在注册表网站上。
 
 通过www.DeepL.com/Translator（免费版）翻译
 
