@@ -36,7 +36,7 @@ Unlike the `tooth.json` under your tooth repository, every field in the registry
 - The `author` field should be the GitHub username of the author of the tooth.
 - The `description` field should be a one-line description of the tooth.
 - The `homepage` field should be a valid URL with `http://` or `https://` prefix.
-- The `license` field should be a valid [SPDX license identifier](https://spdx.org/licenses/) (including deprecated ones).
+- The `license` field should be a valid [SPDX license identifier](https://spdx.org/licenses/) (including deprecated ones). For private tooth, just left it blank.
 - The `repository` filed should be the project source code repository path without protocol prefix. Currently, we only accept repositories that are hosted on GitHub.
 
 You may want to display a README page on the registry website. You can create a Markdown file with the same name as the registry file. For example, you can create a `lip.md` file. The content of the file will be displayed on the registry website.

@@ -34,9 +34,9 @@
 - `format_version`字段应该是`1`。
 - `tooth`字段应该是不含协议前缀的牙齿资源库路径。目前，我们只接受托管在GitHub上的牙齿。
 - `author`字段应该是牙齿作者的GitHub用户名。
-- 描述 "字段应该是对牙齿的单行描述。
+- `description` 字段应该是对牙齿的单行描述。
 - `homepage`字段应该是一个有效的URL，前缀为`http://`或`https://`。
-- 许可证 "字段应该是有效的[SPDX许可证标识符](https://spdx.org/licenses/)（包括废弃的）。
+- `license` 字段应该是有效的[SPDX许可证标识符](https://spdx.org/licenses/)（包括废弃的）。对于私有软件，请留空。
 - `repository`文件应该是项目源代码库的路径，不含协议前缀。目前，我们只接受托管在GitHub上的仓库。
 
 你可能想在注册表网站上显示一个README页面。你可以创建一个与注册表文件同名的Markdown文件。例如，你可以创建一个`lip.md`文件。该文件的内容将显示在注册表网站上。
