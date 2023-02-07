@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2023-02-07
+
+### Fixed
+
+- Failing to get information from registry with other index than index.json.
+
 ## [0.8.0] - 2023-02-06
 
 ### Added
@@ -131,7 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.8.0...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/LiteLDev/Lip/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/LiteLDev/Lip/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/LiteLDev/Lip/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/LiteLDev/Lip/compare/v0.6.0...v0.7.0
