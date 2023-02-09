@@ -281,7 +281,18 @@ func Run() {
 
 	logger.Info("Installing tooth files...")
 
+	// Store downloaded tooth files in an array.
+	downloadedToothFilesArray := make([]string, 0)
 	for _, downloadedToothFilePath := range downloadedToothFiles {
+		downloadedToothFilesArray = append(downloadedToothFilesArray, downloadedToothFilePath)
+	}
+
+	// Reverse the array.
+	for i := 0; i < len(downloadedToothFilesArray)/2; i++ {
+		downloadedToothFilesArray[i], downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i] = downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i], downloadedToothFilesArray[i]
+	}
+
+	for _, downloadedToothFilePath := range downloadedToothFilesArray {
 
 		// Open the tooth file.
 		toothFile, err := toothfile.New(downloadedToothFilePath)
