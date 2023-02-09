@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 // downloadFile downloads a file from a url and saves it to a local path.
@@ -19,7 +20,7 @@ func DownloadFile(url string, filePath string) error {
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("cannot download file: " + url)
+		return errors.New("cannot download file (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + url)
 	}
 
 	// Create the file
