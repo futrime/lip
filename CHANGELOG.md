@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2023-02-09
+
+### Fixed
+
+- Failing to input anything to post-install and pre-uninstall commands.
+- Wrong installation order of dependencies.
+- Registry not working in `lip show`.
+- Unstable versions can be wrongly installed when no specific version is specified.
+
 ## [0.8.1] - 2023-02-07
 
 ### Fixed
@@ -137,7 +146,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.8.1...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/LiteLDev/Lip/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/LiteLDev/Lip/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/LiteLDev/Lip/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/LiteLDev/Lip/compare/v0.7.0...v0.7.1
