@@ -24,8 +24,8 @@ Description:
 Options:
   -h, --help                  Show help.`
 
-func Run() {
-	if len(os.Args) == 2 {
+func Run(args []string) {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -42,7 +42,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

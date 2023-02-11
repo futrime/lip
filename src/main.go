@@ -85,12 +85,12 @@ func main() {
 			err = cmd.Run()
 			if err != nil {
 				logger.Error("redirection failed, falling back: " + err.Error())
-				cmdlip.Run()
+				cmdlip.Run(os.Args[1:])
 				return
 			}
 			return
 		}
 	}
 
-	cmdlip.Run()
+	cmdlip.Run(os.Args[1:])
 }

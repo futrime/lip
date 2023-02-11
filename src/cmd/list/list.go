@@ -2,7 +2,6 @@ package cmdliplist
 
 import (
 	"flag"
-	"os"
 	"strings"
 
 	"github.com/liteldev/lip/tooth/toothrecord"
@@ -25,7 +24,7 @@ Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	flagSet := flag.NewFlagSet("list", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -38,7 +37,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

@@ -31,10 +31,10 @@ Options:
   --files                     Show the full list of installed files.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	var err error
 
-	if len(os.Args) == 2 {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -53,7 +53,7 @@ func Run() {
 
 	flagSet.BoolVar(&flagDict.filesFlag, "files", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

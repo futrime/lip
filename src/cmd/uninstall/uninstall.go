@@ -27,11 +27,11 @@ Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	var err error
 
 	// If there is no argument, print help message and exit.
-	if len(os.Args) == 2 {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -48,7 +48,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

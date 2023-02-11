@@ -2,7 +2,6 @@ package cmdlipcache
 
 import (
 	"flag"
-	"os"
 
 	cmdlipcachepurge "github.com/liteldev/lip/cmd/cache/purge"
 	"github.com/liteldev/lip/utils/logger"
@@ -25,12 +24,12 @@ Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	// If there is a subcommand, run it and exit.
-	if len(os.Args) >= 3 {
-		switch os.Args[2] {
+	if len(args) >= 1 {
+		switch args[0] {
 		case "purge":
-			cmdlipcachepurge.Run()
+			cmdlipcachepurge.Run(args[1:])
 			return
 		}
 	}
@@ -47,7 +46,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

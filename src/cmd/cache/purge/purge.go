@@ -25,9 +25,9 @@ Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	// If there is no argument, initialize a new tooth.
-	if len(os.Args) == 3 {
+	if len(args) == 0 {
 		err := PurgeCache()
 
 		if err != nil {
@@ -52,7 +52,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[3:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
