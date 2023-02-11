@@ -24,13 +24,13 @@ import (
 	versionutils "github.com/liteldev/lip/utils/version"
 )
 
-// Get cached tooth path if exists, otherwise download and cache it.
-// For ToothFileSpecifierType, it returns false and the abs path of the tooth file.
-// Otherwise, it returns true if downloaded(cache not exists) and the cached tooth file path.
-func GetOrCreateCachedTooth(specifier Specifier) (bool, string, error) {
+// getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.
+// If the tooth file is downloaded, it will be cached.
+// If the specifier is local tooth file, it will return the path of the local tooth file.
+// toothFilePath is the absolute path of the tooth file.
+func getTooth(specifier Specifier) (isCached bool, toothFilePath string, err error) {
+	// For local tooth file, return the path directly.
 	if specifier.specifierType == ToothFileSpecifierType {
-		// For local tooth file, just return the path.
-
 		// Get full path of the tooth file.
 		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
@@ -40,21 +40,21 @@ func GetOrCreateCachedTooth(specifier Specifier) (bool, string, error) {
 		return false, toothFilePath, nil
 	}
 
-	cacheFileFile := localfile.GetCachedToothFileName(specifier.String())
-	cacheDir, err := localfile.CacheDir()
+	// Get the path to the cache tooth file.
+	cacheFileName := localfile.GetCachedToothFileName(specifier.String())
+	cacheDirectory, err := localfile.CacheDir()
 	if err != nil {
 		return false, "", err
 	}
-	cacheFilePath := filepath.Join(cacheDir, cacheFileFile)
+	cacheFilePath := filepath.Join(cacheDirectory, cacheFileName)
 
 	// Directly return the cached tooth file path if it exists.
 	isCacheExist, err := localfile.IsCachedToothFileExist(specifier.String())
 	if err != nil {
 		return false, "", err
 	}
-
 	if isCacheExist {
-		return false, cacheFilePath, nil
+		return true, cacheFilePath, nil
 	}
 
 	// Download the tooth file to the cache.
@@ -63,29 +63,22 @@ func GetOrCreateCachedTooth(specifier Specifier) (bool, string, error) {
 		return false, "", err
 	}
 
-	return true, cacheFilePath, nil
+	return false, cacheFilePath, nil
 }
 
 // DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
-func DownloadTooth(specifier Specifier, dest string) error {
+func DownloadTooth(specifier Specifier, destination string) error {
 	switch specifier.Type() {
 	case ToothFileSpecifierType:
-		// For local tooth file, just return the path.
-
-		// Get full path of the tooth file.
-		_, err := filepath.Abs(specifier.ToothFilePath())
-		if err != nil {
-			return errors.New("cannot get full path of tooth file: " + specifier.ToothFilePath())
-		}
-
-		return nil
+		// Local tooth file is not accepted here.
+		return errors.New("local tooth file is not able to be downloaded")
 
 	case ToothURLSpecifierType:
 		// For tooth url, download the tooth file and return the path.
 
-		err := download.DownloadFile(specifier.ToothURL(), dest)
+		err := download.DownloadFile(specifier.ToothURL(), destination)
 		if err != nil {
 			return err
 		}
@@ -102,7 +95,7 @@ func DownloadTooth(specifier Specifier, dest string) error {
 		}
 		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
-		err := download.DownloadFile(url, dest)
+		err := download.DownloadFile(url, destination)
 		if err != nil {
 			return err
 		}

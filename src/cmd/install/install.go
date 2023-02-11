@@ -131,14 +131,14 @@ func Run() {
 
 		logger.Info("  Fetching " + specifier.String() + "...")
 
-		// Download the tooth file.
-		isDownloaded, downloadedToothFilePath, err := GetOrCreateCachedTooth(specifier)
+		// Get tooth file
+		isCached, downloadedToothFilePath, err := getTooth(specifier)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
-		if !isDownloaded && specifier.specifierType != ToothFileSpecifierType {
-			logger.Info("    The tooth file is already downloaded & cached.")
+		if isCached {
+			logger.Info("    The tooth file is already cached.")
 		}
 
 		// Add the downloaded path to the downloaded tooth files.
