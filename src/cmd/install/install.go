@@ -43,6 +43,8 @@ Options:
 
 // Run is the entry point.
 func Run(args []string) {
+	var err error
+
 	// If there is no argument, print help message and exit.
 	if len(args) == 0 {
 		logger.Info(helpMessage)
@@ -287,25 +289,25 @@ func Run(args []string) {
 	logger.Info("Installing tooth files...")
 
 	// Store downloaded tooth files in an array.
-	downloadedToothFilesArray := make([]string, 0)
+	downloadedToothFileList := make([]toothfile.ToothFile, 0)
 	for _, downloadedToothFilePath := range downloadedToothFiles {
-		downloadedToothFilesArray = append(downloadedToothFilesArray, downloadedToothFilePath)
-	}
-
-	// Reverse the array.
-	for i := 0; i < len(downloadedToothFilesArray)/2; i++ {
-		downloadedToothFilesArray[i], downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i] = downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i], downloadedToothFilesArray[i]
-	}
-
-	for _, downloadedToothFilePath := range downloadedToothFilesArray {
-
-		// Open the tooth file.
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to open the downloaded tooth file " + downloadedToothFilePath + ": " + err.Error())
 			return
 		}
 
+		downloadedToothFileList = append(downloadedToothFileList, toothFile)
+	}
+
+	// Topological sort the array in descending order.
+	downloadedToothFileList, err = sortToothFiles(downloadedToothFileList)
+	if err != nil {
+		logger.Error("failed to sort the downloaded tooth files: " + err.Error())
+		return
+	}
+
+	for _, toothFile := range downloadedToothFileList {
 		// If the tooth file is already installed, skip.
 		isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 		if err != nil {
@@ -313,7 +315,7 @@ func Run(args []string) {
 			return
 		}
 		if isInstalled {
-			logger.Info("  " + toothFile.Metadata().ToothPath + " (" + downloadedToothFilePath + ") is already installed.")
+			logger.Info("  " + toothFile.Metadata().ToothPath + " is already installed.")
 			continue
 		}
 
