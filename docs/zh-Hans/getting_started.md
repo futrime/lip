@@ -68,7 +68,7 @@ Successfully installed all tooth files.
 ```shell
 > lip uninstall github.com/liteldev/exampletooth
 [...]
-Successfully uninstalled all teeth.
+Successfully uninstalled all tooths.
 ```
 
 ### 列出所有齿包

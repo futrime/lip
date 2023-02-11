@@ -25,8 +25,8 @@ If you have set environment variable GOPROXY, Lip will access tooth repositories
 `lip install` has several stages:
 
 1. Identify the base requirements. The user supplied arguments are processed here.
-2. Fetch teeth and resolve dependencies. Dependencies will be resolved as soon as teeth are fetched.
-3. Install the teeth (and uninstall anything being upgraded)
+2. Fetch tooths and resolve dependencies. Dependencies will be resolved as soon as tooths are fetched.
+3. Install the tooths (and uninstall anything being upgraded)
 
 Note that `lip install` prefers to leave the installed version as-is unless `--upgrade` is specified.
 
@@ -43,7 +43,7 @@ In 3 and 4, all letters will be converted to lowercase before processing.
 
 ### Lip Registry
 
-Since v0.8.0, Lip supports Lip registry, which enables you to use aliases to install teeth. By default, Lip will use the registry at <https://registry.litebds.com>. You can also use your own registry by setting environment variable `LIP_REGISTRY` to the URL of your registry.
+Since v0.8.0, Lip supports Lip registry, which enables you to use aliases to install tooths. By default, Lip will use the registry at <https://registry.litebds.com>. You can also use your own registry by setting environment variable `LIP_REGISTRY` to the URL of your registry.
 
 ### Satisfying Requirements
 
@@ -51,13 +51,13 @@ Once Lip has the set of requirements to satisfy, it chooses which version of eac
 
 ### Installation Order
 
-Lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, Lip will refuse to install teeth. All developers should avoid any cycle in the dependency graph.
+Lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, Lip will refuse to install tooths. All developers should avoid any cycle in the dependency graph.
 
 This dependency graph will be maintained by Lip. When uninstalling some packages, Lip will check the graph to ensure that all dependents uninstalled. If not, Lip will ask you whether to uninstall them or cancel the procedure.
 
 ### Pre-release Versions
 
-You can install any pre-release versions by specifying the version. And teeth can declare pre-release versions as their dependencies. However, when teeth use any type of range version match or wildcard, Lip will ignore pre-release versions.
+You can install any pre-release versions by specifying the version. And tooths can declare pre-release versions as their dependencies. However, when tooths use any type of range version match or wildcard, Lip will ignore pre-release versions.
 
 ## Options
 

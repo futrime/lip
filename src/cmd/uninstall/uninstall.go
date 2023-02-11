@@ -21,7 +21,7 @@ Usage:
   lip uninstall [options] <tooth paths>
 
 Description:
-  Uninstall teeth.
+  Uninstall tooths.
 
 Options:
   -h, --help                  Show help.`
@@ -115,7 +115,7 @@ func Run() {
 		}
 	}
 
-	// Check if all teeth to uninstall are installed.
+	// Check if all tooths to uninstall are installed.
 	for toothPath, recordFilePath := range toothPathMap {
 		if recordFilePath == "" {
 			logger.Error("the tooth " + toothPath + " is not installed")
@@ -123,9 +123,9 @@ func Run() {
 		}
 	}
 
-	// 2. Uninstall teeth.
+	// 2. Uninstall tooths.
 
-	logger.Info("Uninstalling teeth...")
+	logger.Info("Uninstalling tooths...")
 
 	for toothPath, recordFileName := range toothPathMap {
 		logger.Info("Uninstalling " + toothPath + "...")
@@ -137,5 +137,5 @@ func Run() {
 		}
 	}
 
-	logger.Info("Successfully uninstalled all teeth.")
+	logger.Info("Successfully uninstalled all tooths.")
 }

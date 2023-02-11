@@ -28,7 +28,7 @@ Usage:
   lip install [options] <tooth url/files>
 
 Description:
-  Install teeth from:
+  Install tooths from:
 
   - tooth repositories.
   - local or remote standalone tooth files (with suffix .tth).

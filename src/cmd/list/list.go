@@ -19,7 +19,7 @@ Usage:
   lip list [options]
 
 Description:
-  List installed teeth.
+  List installed tooths.
 
 Options:
   -h, --help                  Show help.`
@@ -46,12 +46,12 @@ func Run() {
 		return
 	}
 
-	// List installed teeth.
-	listInstalledTeeth()
+	// List installed tooths.
+	listInstalledTooths()
 }
 
-// listInstalledTeeth lists installed teeth.
-func listInstalledTeeth() {
+// listInstalledTooths lists installed tooths.
+func listInstalledTooths() {
 	// Get the sorted list of records.
 	recordList, err := toothrecord.ListAll()
 	if err != nil {

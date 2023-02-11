@@ -32,8 +32,8 @@ Commands:
   cache                       Inspect and manage Lip's cache.
   exec                        Execute a Lip tool.
   install                     Install a tooth.
-  list                        List installed teeth.
-  show                        Show information about installed teeth.
+  list                        List installed tooths.
+  show                        Show information about installed tooths.
   tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth.
 
