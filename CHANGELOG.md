@@ -14,11 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HTTP Code reporting when failing to make a request.
 - `lip list --upgradable` command.
 - Topological sorting for dependencies.
+- Progress bar for downloading tooth files.
 
 ### Fixed
 
 - No notice when a tooth file is cached.
 - Tooth paths in `dependencies` field of `tooth.json` not converting to lowercase.
+- Mistakes in help message of `lip cache purge`.
 
 ## [0.8.3] - 2023-02-09
 
