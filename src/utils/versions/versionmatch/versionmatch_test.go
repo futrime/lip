@@ -3,7 +3,7 @@ package versionmatch
 import (
 	"testing"
 
-	versionutils "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 func TestNew(t *testing.T) {
@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 	}
 
 	for index, test := range testList {
-		version, err := versionutils.NewFromString(test.input.version)
+		version, err := versions.NewFromString(test.input.version)
 		if err != nil {
 			t.Fatalf("error at test %d: %s", index, err.Error())
 		}

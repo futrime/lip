@@ -25,15 +25,17 @@ Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	// If there is no argument, initialize a new tooth.
-	if len(os.Args) == 3 {
-		err := purgeCache()
+	if len(args) == 0 {
+		err := PurgeCache()
 
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
+
+		logger.Info("Cache has been purged successfully.")
 
 		return
 	}
@@ -50,7 +52,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[3:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
@@ -59,8 +61,8 @@ func Run() {
 	}
 }
 
-// purgeCache removes all items from the cache.
-func purgeCache() error {
+// PurgeCache removes all items from the cache.
+func PurgeCache() error {
 	cacheDir, err := localfile.CacheDir()
 	if err != nil {
 		return err

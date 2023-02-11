@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/registry"
 	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/tooth/toothrepo"
 	"github.com/liteldev/lip/utils/logger"
 )
 
@@ -31,10 +31,10 @@ Options:
   --files                     Show the full list of installed files.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	var err error
 
-	if len(os.Args) == 2 {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -53,7 +53,7 @@ func Run() {
 
 	flagSet.BoolVar(&flagDict.filesFlag, "files", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
@@ -126,7 +126,7 @@ func Run() {
 	logger.Info("Fetching available versions...")
 
 	// Show version information
-	versionList, err := cmdlipinstall.FetchVersionList(toothPath)
+	versionList, err := toothrepo.FetchVersionList(toothPath)
 	if err != nil {
 		logger.Error("failed to fetch available versions: " + err.Error())
 		return

@@ -1,4 +1,4 @@
-package cmdlipinstall
+package specifiers
 
 import (
 	"errors"
@@ -9,7 +9,8 @@ import (
 	"strings"
 
 	"github.com/liteldev/lip/registry"
-	"github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/tooth/toothrepo"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 // SpecifierType is an enum that represents the type of a specifier.
@@ -27,11 +28,11 @@ type Specifier struct {
 	toothFilePath string
 	toothURL      string
 	toothRepo     string
-	toothVersion  version.Version
+	toothVersion  versions.Version
 }
 
-// NewSpecifier creates a new specifier.
-func NewSpecifier(specifierString string) (Specifier, error) {
+// New creates a new specifier.
+func New(specifierString string) (Specifier, error) {
 	var err error
 
 	specifierType := getSpecifierType(specifierString)
@@ -87,22 +88,22 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 			}
 		}
 
-		var toothVersion version.Version
+		var toothVersion versions.Version
 
 		if len(splittedSpecifier) == 2 {
-			toothVersion, err = version.NewFromString(splittedSpecifier[1])
+			toothVersion, err = versions.NewFromString(splittedSpecifier[1])
 			if err != nil {
 				return Specifier{}, err
 			}
 
 			// Check if the tooth version is valid.
-			err := validateToothRepoVersion(toothRepo, toothVersion)
+			err := toothrepo.ValidateVersion(toothRepo, toothVersion)
 			if err != nil {
 				return Specifier{}, err
 			}
 		} else {
 			// Fetch the latest version of the tooth repo.
-			toothVersionList, err := FetchVersionList(toothRepo)
+			toothVersionList, err := toothrepo.FetchVersionList(toothRepo)
 			if err != nil {
 				return Specifier{}, err
 			}
@@ -174,7 +175,7 @@ func (s Specifier) ToothURL() string {
 }
 
 // ToothVersion returns the version of the tooth.
-func (s Specifier) ToothVersion() version.Version {
+func (s Specifier) ToothVersion() versions.Version {
 	return s.toothVersion
 }
 

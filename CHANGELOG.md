@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Failing to uninstall teeth with uppercase letters in provided tooth path.
+- Failing to uninstall tooths with uppercase letters in provided tooth path.
 
 ## [0.7.1] - 2023-02-05
 

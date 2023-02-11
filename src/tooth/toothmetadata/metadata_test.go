@@ -3,8 +3,8 @@ package toothmetadata
 import (
 	"testing"
 
-	versionutils "github.com/liteldev/lip/utils/version"
-	"github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/liteldev/lip/utils/versions"
+	"github.com/liteldev/lip/utils/versions/versionmatch"
 )
 
 func TestNewFromJSON(t *testing.T) {
@@ -129,7 +129,7 @@ func TestNewFromJSON(t *testing.T) {
 
 func TestJSON(t *testing.T) {
 	// Create test data
-	version, _ := versionutils.NewFromString(`1.0.0`)
+	version, _ := versions.NewFromString(`1.0.0`)
 
 	versionMatch0, _ := versionmatch.NewFromString(`>=1.0.0`)
 	versionMatch1, _ := versionmatch.NewFromString(`<=1.1.0`)

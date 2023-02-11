@@ -21,17 +21,17 @@ Usage:
   lip uninstall [options] <tooth paths>
 
 Description:
-  Uninstall teeth.
+  Uninstall tooths.
 
 Options:
   -h, --help                  Show help.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
 	var err error
 
 	// If there is no argument, print help message and exit.
-	if len(os.Args) == 2 {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -48,7 +48,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
@@ -115,7 +115,7 @@ func Run() {
 		}
 	}
 
-	// Check if all teeth to uninstall are installed.
+	// Check if all tooths to uninstall are installed.
 	for toothPath, recordFilePath := range toothPathMap {
 		if recordFilePath == "" {
 			logger.Error("the tooth " + toothPath + " is not installed")
@@ -123,9 +123,9 @@ func Run() {
 		}
 	}
 
-	// 2. Uninstall teeth.
+	// 2. Uninstall tooths.
 
-	logger.Info("Uninstalling teeth...")
+	logger.Info("Uninstalling tooths...")
 
 	for toothPath, recordFileName := range toothPathMap {
 		logger.Info("Uninstalling " + toothPath + "...")
@@ -137,5 +137,5 @@ func Run() {
 		}
 	}
 
-	logger.Info("Successfully uninstalled all teeth.")
+	logger.Info("Successfully uninstalled all tooths.")
 }

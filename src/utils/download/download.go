@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/liteldev/lip/utils/logger"
+	"github.com/schollz/progressbar/v3"
 )
 
-// downloadFile downloads a file from a url and saves it to a local path.
+// DownloadFile downloads a file from a url and saves it to a local path.
 func DownloadFile(url string, filePath string) error {
-	// Get the data
-	resp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -24,17 +27,29 @@ func DownloadFile(url string, filePath string) error {
 	}
 
 	// Create the file
-	out, err := os.Create(filePath)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer file.Close()
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
+	bar := progressbar.NewOptions(
+		int(resp.ContentLength),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(30),
+		progressbar.OptionSetDescription("  "),
+		progressbar.OptionClearOnFinish(),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "=",
+			SaucerHead:    ">",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}))
+
+	io.Copy(io.MultiWriter(file, bar), resp.Body)
+
+	logger.Info("    Finished.")
 
 	return nil
 }

@@ -1,6 +1,6 @@
 # Tutorial: Submit Your Tooth to Lip Registry
 
-Since v0.8.0, Lip supports looking up teeth from a registry and installing them. You can submit your tooth to the registry to make it easier for others to install your tooth.
+Since v0.8.0, Lip supports looking up tooths from a registry and installing them. You can submit your tooth to the registry to make it easier for others to install your tooth.
 
 In this tutorial, we will submit a tooth to the official Lip registry (<https://registry.litebds.com>).
 
@@ -12,7 +12,7 @@ Follow the [Create a Lip Tooth](tutorials/create_a_lip_tooth.md) tutorial to cre
 
 To submit your tooth to the registry, you need to create a pull request to the registry repository (<https://github.com/LiteLDev/Registry>).
 
-You should create a new file in the `teeth` directory. The file name should be the alias of your tooth. The file content should be a simplified version of your `tooth.json`. The file content should be in JSON format and should contain the following fields. In this example, the alias of the tooth is `lip`. Therefore, the file name is `lip.json`.
+You should create a new file in the `tooths` directory. The file name should be the alias of your tooth. The file content should be a simplified version of your `tooth.json`. The file content should be in JSON format and should contain the following fields. In this example, the alias of the tooth is `lip`. Therefore, the file name is `lip.json`.
 
 ```json
 {
@@ -32,7 +32,7 @@ You should create a new file in the `teeth` directory. The file name should be t
 Unlike the `tooth.json` under your tooth repository, every field in the registry file is required. The fields should also follow these rules:
 
 - The `format_version` field should be `1`.
-- The `tooth` field should be the tooth repository path without protocol prefix. Currently, we only accept teeth that are hosted on GitHub.
+- The `tooth` field should be the tooth repository path without protocol prefix. Currently, we only accept tooths that are hosted on GitHub.
 - The `author` field should be the GitHub username of the author of the tooth.
 - The `description` field should be a one-line description of the tooth.
 - The `homepage` field should be a valid URL with `http://` or `https://` prefix.

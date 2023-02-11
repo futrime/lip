@@ -8,10 +8,12 @@ import (
 
 	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
 	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/tooth/toothrepo"
 	"github.com/liteldev/lip/utils/logger"
-	versionutils "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 // FlagDict is a dictionary of flags.
@@ -28,7 +30,7 @@ Usage:
   lip install [options] <tooth url/files>
 
 Description:
-  Install teeth from:
+  Install tooths from:
 
   - tooth repositories.
   - local or remote standalone tooth files (with suffix .tth).
@@ -40,9 +42,11 @@ Options:
   -y, --yes                   Assume yes to all prompts and run non-interactively.`
 
 // Run is the entry point.
-func Run() {
+func Run(args []string) {
+	var err error
+
 	// If there is no argument, print help message and exit.
-	if len(os.Args) == 2 {
+	if len(args) == 0 {
 		logger.Info(helpMessage)
 		return
 	}
@@ -66,7 +70,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 
-	flagSet.Parse(os.Args[2:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
@@ -81,20 +85,20 @@ func Run() {
 
 	logger.Info("Validating requirement specifiers and tooth url/files...")
 
-	// Make specifiers.
-	var specifiers []Specifier
+	// Make specifierList.
+	var specifierList []specifiers.Specifier
 	for _, specifierString := range flagSet.Args() {
-		specifier, err := NewSpecifier(specifierString)
+		specifier, err := specifiers.New(specifierString)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
 
-		specifiers = append(specifiers, specifier)
+		specifierList = append(specifierList, specifier)
 	}
 
 	// Check if the requirement specifier or tooth url/path is missing.
-	if len(specifiers) == 0 {
+	if len(specifierList) == 0 {
 		logger.Error("missing requirement specifier or tooth url/path")
 		return
 	}
@@ -115,13 +119,13 @@ func Run() {
 	var specifiersToFetch list.List
 
 	// Add all specifiers to the queue.
-	for _, specifier := range specifiers {
+	for _, specifier := range specifierList {
 		specifiersToFetch.PushBack(specifier)
 	}
 
 	for specifiersToFetch.Len() > 0 {
 		// Get the first specifier to fetch
-		specifier := specifiersToFetch.Front().Value.(Specifier)
+		specifier := specifiersToFetch.Front().Value.(specifiers.Specifier)
 		specifiersToFetch.Remove(specifiersToFetch.Front())
 
 		// If the tooth file of the specifier is already downloaded, skip.
@@ -131,11 +135,14 @@ func Run() {
 
 		logger.Info("  Fetching " + specifier.String() + "...")
 
-		// Download the tooth file.
-		downloadedToothFilePath, err := downloadTooth(specifier)
+		// Get tooth file
+		isCached, downloadedToothFilePath, err := getTooth(specifier)
 		if err != nil {
 			logger.Error(err.Error())
 			return
+		}
+		if isCached {
+			logger.Info("    The tooth file is already cached.")
 		}
 
 		// Add the downloaded path to the downloaded tooth files.
@@ -150,7 +157,7 @@ func Run() {
 
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
-		if specifier.specifierType == RequirementSpecifierType &&
+		if specifier.Type() == specifiers.RequirementSpecifierType &&
 			toothPath != specifier.ToothRepo() {
 			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
 
@@ -166,7 +173,7 @@ func Run() {
 
 		// Get proper version of each dependency and add them to the queue.
 		for toothPath, versionRange := range dependencies {
-			versionList, err := FetchVersionList(toothPath)
+			versionList, err := toothrepo.FetchVersionList(toothPath)
 			if err != nil {
 				logger.Error(err.Error())
 				return
@@ -179,7 +186,7 @@ func Run() {
 					for _, versionMatch := range innerVersionRange {
 						if versionMatch.Match(version) {
 							// Add the specifier to the queue.
-							specifier, err := NewSpecifier(toothPath + "@" + version.String())
+							specifier, err := specifiers.New(toothPath + "@" + version.String())
 							if err != nil {
 								logger.Error(err.Error())
 								return
@@ -214,9 +221,9 @@ func Run() {
 			logger.Info("upgrade flag is set, upgrading all installed tooth specified by the specifiers...")
 		}
 
-		for _, specifier := range specifiers {
+		for _, specifier := range specifierList {
 			// If the specifier is not a requirement specifier, skip.
-			if specifier.Type() != RequirementSpecifierType {
+			if specifier.Type() != specifiers.RequirementSpecifierType {
 				logger.Error("the specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
 				continue
 			}
@@ -254,7 +261,7 @@ func Run() {
 			// Compare the version of the tooth file and the version of the tooth record.
 			// If the version of the tooth file is not greater than the version of the tooth
 			// record, skip.
-			if !flagDict.forceReinstallFlag && !versionutils.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
+			if !flagDict.forceReinstallFlag && !versions.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
 				continue
 			}
 
@@ -282,25 +289,25 @@ func Run() {
 	logger.Info("Installing tooth files...")
 
 	// Store downloaded tooth files in an array.
-	downloadedToothFilesArray := make([]string, 0)
+	downloadedToothFileList := make([]toothfile.ToothFile, 0)
 	for _, downloadedToothFilePath := range downloadedToothFiles {
-		downloadedToothFilesArray = append(downloadedToothFilesArray, downloadedToothFilePath)
-	}
-
-	// Reverse the array.
-	for i := 0; i < len(downloadedToothFilesArray)/2; i++ {
-		downloadedToothFilesArray[i], downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i] = downloadedToothFilesArray[len(downloadedToothFilesArray)-1-i], downloadedToothFilesArray[i]
-	}
-
-	for _, downloadedToothFilePath := range downloadedToothFilesArray {
-
-		// Open the tooth file.
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("failed to open the downloaded tooth file " + downloadedToothFilePath + ": " + err.Error())
 			return
 		}
 
+		downloadedToothFileList = append(downloadedToothFileList, toothFile)
+	}
+
+	// Topological sort the array in descending order.
+	downloadedToothFileList, err = sortToothFiles(downloadedToothFileList)
+	if err != nil {
+		logger.Error("failed to sort the downloaded tooth files: " + err.Error())
+		return
+	}
+
+	for _, toothFile := range downloadedToothFileList {
 		// If the tooth file is already installed, skip.
 		isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 		if err != nil {
@@ -308,7 +315,7 @@ func Run() {
 			return
 		}
 		if isInstalled {
-			logger.Info("  " + toothFile.Metadata().ToothPath + " (" + downloadedToothFilePath + ") is already installed.")
+			logger.Info("  " + toothFile.Metadata().ToothPath + " is already installed.")
 			continue
 		}
 

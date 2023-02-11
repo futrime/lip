@@ -1,6 +1,6 @@
 # tooth.json File Reference
 
-Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other teeth and other information.
+Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other tooths and other information.
 
 These properties include:
 
@@ -110,7 +110,7 @@ Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./
 
 ### Notes
 
-The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
+The tooth path must uniquely identify your tooth. For most tooths, the path is a URL where Lip can find the code. For tooths that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
 Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
 

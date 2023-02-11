@@ -4,7 +4,7 @@ The local data directory is the .lpm directory in the root of BDS. It contains t
 
 - records/
 
-  The information of teeth installed
+  The information of tooths installed
 
 
 ## records/

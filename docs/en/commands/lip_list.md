@@ -8,12 +8,16 @@ lip list [options]
 
 ## Description
 
-List installed teeth.
+List installed tooths.
 
-Teeth are listed in a case-insensitive sorted order.
+Tooths are listed in a case-insensitive sorted order.
 
 ## Options
 
 - `-h, --help`
 
   Show help.
+
+- `--upgradable`
+
+  List upgradable tooths.

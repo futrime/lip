@@ -17,3 +17,7 @@ lip list [options]
 - `-h, --help`
 
   展示帮助
+
+- `--upgradable`
+
+  List upgradable tooths.

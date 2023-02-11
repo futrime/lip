@@ -1,5 +1,5 @@
 // Package version provides version related functions.
-package version
+package versions
 
 import (
 	"errors"

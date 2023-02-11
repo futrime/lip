@@ -21,7 +21,7 @@ Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 Successfully installed all tooth files.
 ```
 
-By default, Lip will fetch teeth via GOPROXY, a proxy of Git repos.
+By default, Lip will fetch tooths via GOPROXY, a proxy of Git repos.
 
 ### Install a tooth from URL
 
@@ -43,7 +43,7 @@ Successfully installed all tooth files.
 
 The tooth file should have ".tth" extension name.
 
-### Install multiple teeth
+### Install multiple tooths
 
 Lip suppports installing multiple files at a time.
 
@@ -68,10 +68,10 @@ To uninstall a tooth, you must provide the tooth path of the tooth.
 ```shell
 > lip uninstall github.com/liteldev/exampletooth
 [...]
-Successfully uninstalled all teeth.
+Successfully uninstalled all tooths.
 ```
 
-### List all teeth
+### List all tooths
 
 ```shell
 > lip list

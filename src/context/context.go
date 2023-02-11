@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 //------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ const DefaultRegistryURL = "https://registry.litebds.com"
 // Variables
 
 // Version is the version of Lip.
-var Version version.Version
+var Version versions.Version
 
 // Goproxy is the goproxy address.
 var Goproxy string
@@ -38,9 +38,9 @@ func Init() {
 	var err error
 
 	// Set Version.
-	Version, err = version.NewFromString(strings.TrimPrefix(VersionString, "v"))
+	Version, err = versions.NewFromString(strings.TrimPrefix(VersionString, "v"))
 	if err != nil {
-		Version, _ = version.NewFromString("0.0.0")
+		Version, _ = versions.NewFromString("0.0.0")
 	}
 
 	// Set Goproxy.

@@ -10,10 +10,10 @@ import (
 	"sort"
 	"strings"
 
-	localfile "github.com/liteldev/lip/localfile"
-	metadatautils "github.com/liteldev/lip/tooth/toothmetadata"
-	versionutils "github.com/liteldev/lip/utils/version"
-	versionmatchutils "github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/tooth/toothmetadata"
+	"github.com/liteldev/lip/utils/versions"
+	"github.com/liteldev/lip/utils/versions/versionmatch"
 )
 
 // infoStruct is the struct that contains the information of a tooth.
@@ -44,8 +44,8 @@ type CommandStruct struct {
 // Record is the struct that contains the record of a tooth installation.
 type Record struct {
 	ToothPath           string
-	Version             versionutils.Version
-	Dependencies        map[string]([][]versionmatchutils.VersionMatch)
+	Version             versions.Version
+	Dependencies        map[string]([][]versionmatch.VersionMatch)
 	Information         InfoStruct
 	Placement           []PlacementStruct
 	Possession          []string
@@ -83,20 +83,20 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 
 	record.ToothPath = recordMap["tooth"].(string)
 
-	version, err := versionutils.NewFromString(recordMap["version"].(string))
+	version, err := versions.NewFromString(recordMap["version"].(string))
 
 	if err != nil {
 		return Record{}, errors.New("failed to decode JSON into record: " + err.Error())
 	}
 	record.Version = version
 
-	record.Dependencies = make(map[string]([][]versionmatchutils.VersionMatch))
+	record.Dependencies = make(map[string]([][]versionmatch.VersionMatch))
 	for toothPath, versionMatchOuterList := range recordMap["dependencies"].(map[string]interface{}) {
-		record.Dependencies[toothPath] = make([][]versionmatchutils.VersionMatch, len(versionMatchOuterList.([]interface{})))
+		record.Dependencies[toothPath] = make([][]versionmatch.VersionMatch, len(versionMatchOuterList.([]interface{})))
 		for i, versionMatchInnerList := range versionMatchOuterList.([]interface{}) {
-			record.Dependencies[toothPath][i] = make([]versionmatchutils.VersionMatch, len(versionMatchInnerList.([]interface{})))
+			record.Dependencies[toothPath][i] = make([]versionmatch.VersionMatch, len(versionMatchInnerList.([]interface{})))
 			for j, versionMatch := range versionMatchInnerList.([]interface{}) {
-				versionMatch, err := versionmatchutils.NewFromString(versionMatch.(string))
+				versionMatch, err := versionmatch.NewFromString(versionMatch.(string))
 				if err != nil {
 					return Record{}, errors.New("failed to decode JSON into record: " + err.Error())
 				}
@@ -152,7 +152,7 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 }
 
 // NewFromMetadata creates a new record from a tooth metadata.
-func NewFromMetadata(metadata metadatautils.Metadata, isManuallyInstalled bool) Record {
+func NewFromMetadata(metadata toothmetadata.Metadata, isManuallyInstalled bool) Record {
 	record := Record{}
 
 	record.ToothPath = metadata.ToothPath

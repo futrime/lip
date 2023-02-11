@@ -32,8 +32,8 @@ Commands:
   cache                       Inspect and manage Lip's cache.
   exec                        Execute a Lip tool.
   install                     Install a tooth.
-  list                        List installed teeth.
-  show                        Show information about installed teeth.
+  list                        List installed tooths.
+  show                        Show information about installed tooths.
   tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth.
 
@@ -44,33 +44,33 @@ Options:
 const versionMessage = "Lip %s from %s"
 
 // Run is the entry point of the lip command.
-func Run() {
+func Run(args []string) {
 	// Initialize context
 	context.Init()
 
 	// If there is a subcommand, run it and exit.
-	if len(os.Args) >= 2 {
-		switch os.Args[1] {
+	if len(args) >= 1 {
+		switch args[0] {
 		case "cache":
-			cmdlipcache.Run()
+			cmdlipcache.Run(args[1:])
 			return
 		case "exec":
-			cmdlipexec.Run()
+			cmdlipexec.Run(args[1:])
 			return
 		case "install":
-			cmdlipinstall.Run()
+			cmdlipinstall.Run(args[1:])
 			return
 		case "list":
-			cmdliplist.Run()
+			cmdliplist.Run(args[1:])
 			return
 		case "show":
-			cmdlipshow.Run()
+			cmdlipshow.Run(args[1:])
 			return
 		case "tooth":
-			cmdliptooth.Run()
+			cmdliptooth.Run(args[1:])
 			return
 		case "uninstall":
-			cmdlipuninstall.Run()
+			cmdlipuninstall.Run(args[1:])
 			return
 		}
 	}
@@ -92,7 +92,7 @@ func Run() {
 	flagSet.BoolVar(&flagDict.versionFlag, "version", false, "")
 	flagSet.BoolVar(&flagDict.versionFlag, "V", false, "")
 
-	flagSet.Parse(os.Args[1:])
+	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {

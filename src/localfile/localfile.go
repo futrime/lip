@@ -48,7 +48,8 @@ func CacheDir() (string, error) {
 	return cacheDir, nil
 }
 
-// GetCachedToothFIlePath returns the path to the cached tooth file.
+// GetCachedToothFileName returns the file name of the cached tooth file.
+// Note that the cached tooth file may not exist.
 func GetCachedToothFileName(fullSpecifier string) string {
 	// Encode the full specifier with Base64.
 	fullSpecifier = base64.StdEncoding.EncodeToString([]byte(fullSpecifier))
