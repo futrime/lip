@@ -207,6 +207,9 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	metadata.Dependencies = make(map[string]([][]versionmatch.VersionMatch))
 	if _, ok := metadataMap["dependencies"]; ok {
 		for toothPath, versionMatchOuterList := range metadataMap["dependencies"].(map[string]interface{}) {
+			// Tooth path should be lower case.
+			toothPath = strings.ToLower(toothPath)
+
 			metadata.Dependencies[toothPath] = make([][]versionmatch.VersionMatch, len(versionMatchOuterList.([]interface{})))
 			for i, versionMatchInnerList := range versionMatchOuterList.([]interface{}) {
 				metadata.Dependencies[toothPath][i] = make([]versionmatch.VersionMatch, len(versionMatchInnerList.([]interface{})))
