@@ -2,35 +2,30 @@ package cmdlipinstall
 
 import (
 	"archive/zip"
-	"bufio"
 	"errors"
 	"io"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
-	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/liteldev/lip/context"
 	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/download"
 	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/versions"
 )
 
 // getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.
 // If the tooth file is downloaded, it will be cached.
 // If the specifier is local tooth file, it will return the path of the local tooth file.
 // toothFilePath is the absolute path of the tooth file.
-func getTooth(specifier Specifier) (isCached bool, toothFilePath string, err error) {
+func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath string, err error) {
 	// For local tooth file, return the path directly.
-	if specifier.specifierType == ToothFileSpecifierType {
+	if specifier.Type() == specifiers.ToothFileSpecifierType {
 		// Get full path of the tooth file.
 		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
@@ -69,13 +64,13 @@ func getTooth(specifier Specifier) (isCached bool, toothFilePath string, err err
 // DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
-func DownloadTooth(specifier Specifier, destination string) error {
+func DownloadTooth(specifier specifiers.Specifier, destination string) error {
 	switch specifier.Type() {
-	case ToothFileSpecifierType:
+	case specifiers.ToothFileSpecifierType:
 		// Local tooth file is not accepted here.
 		return errors.New("local tooth file is not able to be downloaded")
 
-	case ToothURLSpecifierType:
+	case specifiers.ToothURLSpecifierType:
 		// For tooth url, download the tooth file and return the path.
 
 		err := download.DownloadFile(specifier.ToothURL(), destination)
@@ -85,7 +80,7 @@ func DownloadTooth(specifier Specifier, destination string) error {
 
 		return nil
 
-	case RequirementSpecifierType:
+	case specifiers.RequirementSpecifierType:
 		// For requirement specifier, download the tooth via GOPROXY and return the path.
 
 		// Get the tooth file url.
@@ -105,50 +100,6 @@ func DownloadTooth(specifier Specifier, destination string) error {
 
 	// Default to unknown error.
 	return errors.New("unknown error")
-}
-
-// FetchVersionList fetches the version list of a tooth repository.
-func FetchVersionList(repoPath string) ([]versions.Version, error) {
-	if !isValidRepoPath(repoPath) {
-		return nil, errors.New("invalid repository path: " + repoPath)
-	}
-
-	url := context.Goproxy + "/" + repoPath + "/@v/list"
-
-	// To lowercases.
-	url = strings.ToLower(url)
-
-	// Get the version list.
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, errors.New("cannot access GOPROXY: " + context.Goproxy)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return nil, errors.New("cannot access tooth repository (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath)
-	}
-
-	// Each line is a version.
-	var versionList []versions.Version
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		versionString := scanner.Text()
-		versionString = strings.TrimPrefix(versionString, "v")
-		versionString = strings.TrimSuffix(versionString, "+incompatible")
-		version, err := versions.NewFromString(versionString)
-		if err != nil {
-			continue
-		}
-		versionList = append(versionList, version)
-	}
-
-	// Sort the version list in descending order.
-	sort.Slice(versionList, func(i, j int) bool {
-		return versions.GreaterThan(versionList[i], versionList[j])
-	})
-
-	return versionList, nil
 }
 
 // Install installs the .tth file.
@@ -300,46 +251,6 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 	err = os.WriteFile(recordFilePath, recordJSON, 0755)
 	if err != nil {
 		return errors.New("failed to write record file " + recordFilePath + " " + err.Error())
-	}
-
-	return nil
-}
-
-// isValidRepoPath checks if the repoPath is valid.
-func isValidRepoPath(repoPath string) bool {
-	reg := regexp.MustCompile(`^[a-zA-Z\d-_\.\/]*$`)
-
-	// If not matched or the matched string is not the same as the specifier, it is an
-	// invalid requirement specifier.
-	return reg.FindString(repoPath) == repoPath
-}
-
-// validateToothRepoVersion checks if the version of the tooth repository is valid.
-func validateToothRepoVersion(repoPath string, version versions.Version) error {
-	if !isValidRepoPath(repoPath) {
-		return errors.New("invalid repository path: " + repoPath)
-	}
-
-	// Check if the version is valid.
-	urlSuffix := "+incompatible.info"
-	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
-		urlSuffix = ".info"
-	}
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
-
-	// To lower case.
-	url = strings.ToLower(url)
-
-	// Get the version information.
-	resp, err := http.Get(url)
-	if err != nil {
-		return errors.New("cannot access GOPROXY: " + context.Goproxy)
-	}
-	defer resp.Body.Close()
-
-	// If the status code is 200, the version is valid.
-	if resp.StatusCode != 200 {
-		return errors.New("cannot access tooth (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath + "@" + version.String())
 	}
 
 	return nil

@@ -8,8 +8,10 @@ import (
 
 	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
 	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/tooth/toothrepo"
 	"github.com/liteldev/lip/utils/logger"
 	"github.com/liteldev/lip/utils/versions"
 )
@@ -81,20 +83,20 @@ func Run() {
 
 	logger.Info("Validating requirement specifiers and tooth url/files...")
 
-	// Make specifiers.
-	var specifiers []Specifier
+	// Make specifierList.
+	var specifierList []specifiers.Specifier
 	for _, specifierString := range flagSet.Args() {
-		specifier, err := NewSpecifier(specifierString)
+		specifier, err := specifiers.New(specifierString)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
 
-		specifiers = append(specifiers, specifier)
+		specifierList = append(specifierList, specifier)
 	}
 
 	// Check if the requirement specifier or tooth url/path is missing.
-	if len(specifiers) == 0 {
+	if len(specifierList) == 0 {
 		logger.Error("missing requirement specifier or tooth url/path")
 		return
 	}
@@ -115,13 +117,13 @@ func Run() {
 	var specifiersToFetch list.List
 
 	// Add all specifiers to the queue.
-	for _, specifier := range specifiers {
+	for _, specifier := range specifierList {
 		specifiersToFetch.PushBack(specifier)
 	}
 
 	for specifiersToFetch.Len() > 0 {
 		// Get the first specifier to fetch
-		specifier := specifiersToFetch.Front().Value.(Specifier)
+		specifier := specifiersToFetch.Front().Value.(specifiers.Specifier)
 		specifiersToFetch.Remove(specifiersToFetch.Front())
 
 		// If the tooth file of the specifier is already downloaded, skip.
@@ -153,7 +155,7 @@ func Run() {
 
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
-		if specifier.specifierType == RequirementSpecifierType &&
+		if specifier.Type() == specifiers.RequirementSpecifierType &&
 			toothPath != specifier.ToothRepo() {
 			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
 
@@ -169,7 +171,7 @@ func Run() {
 
 		// Get proper version of each dependency and add them to the queue.
 		for toothPath, versionRange := range dependencies {
-			versionList, err := FetchVersionList(toothPath)
+			versionList, err := toothrepo.FetchVersionList(toothPath)
 			if err != nil {
 				logger.Error(err.Error())
 				return
@@ -182,7 +184,7 @@ func Run() {
 					for _, versionMatch := range innerVersionRange {
 						if versionMatch.Match(version) {
 							// Add the specifier to the queue.
-							specifier, err := NewSpecifier(toothPath + "@" + version.String())
+							specifier, err := specifiers.New(toothPath + "@" + version.String())
 							if err != nil {
 								logger.Error(err.Error())
 								return
@@ -217,9 +219,9 @@ func Run() {
 			logger.Info("upgrade flag is set, upgrading all installed tooth specified by the specifiers...")
 		}
 
-		for _, specifier := range specifiers {
+		for _, specifier := range specifierList {
 			// If the specifier is not a requirement specifier, skip.
-			if specifier.Type() != RequirementSpecifierType {
+			if specifier.Type() != specifiers.RequirementSpecifierType {
 				logger.Error("the specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
 				continue
 			}

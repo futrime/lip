@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/registry"
 	"github.com/liteldev/lip/tooth/toothrecord"
+	"github.com/liteldev/lip/tooth/toothrepo"
 	"github.com/liteldev/lip/utils/logger"
 )
 
@@ -126,7 +126,7 @@ func Run() {
 	logger.Info("Fetching available versions...")
 
 	// Show version information
-	versionList, err := cmdlipinstall.FetchVersionList(toothPath)
+	versionList, err := toothrepo.FetchVersionList(toothPath)
 	if err != nil {
 		logger.Error("failed to fetch available versions: " + err.Error())
 		return

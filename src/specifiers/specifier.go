@@ -1,4 +1,4 @@
-package cmdlipinstall
+package specifiers
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/liteldev/lip/registry"
+	"github.com/liteldev/lip/tooth/toothrepo"
 	"github.com/liteldev/lip/utils/versions"
 )
 
@@ -30,8 +31,8 @@ type Specifier struct {
 	toothVersion  versions.Version
 }
 
-// NewSpecifier creates a new specifier.
-func NewSpecifier(specifierString string) (Specifier, error) {
+// New creates a new specifier.
+func New(specifierString string) (Specifier, error) {
 	var err error
 
 	specifierType := getSpecifierType(specifierString)
@@ -96,13 +97,13 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 			}
 
 			// Check if the tooth version is valid.
-			err := validateToothRepoVersion(toothRepo, toothVersion)
+			err := toothrepo.ValidateVersion(toothRepo, toothVersion)
 			if err != nil {
 				return Specifier{}, err
 			}
 		} else {
 			// Fetch the latest version of the tooth repo.
-			toothVersionList, err := FetchVersionList(toothRepo)
+			toothVersionList, err := toothrepo.FetchVersionList(toothRepo)
 			if err != nil {
 				return Specifier{}, err
 			}
