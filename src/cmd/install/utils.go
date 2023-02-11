@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/liteldev/lip/context"
@@ -132,7 +133,7 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New("cannot access tooth repository: " + repoPath)
+		return nil, errors.New("cannot access tooth repository (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath)
 	}
 
 	// Each line is a version.
@@ -281,6 +282,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 			default:
 				cmd = exec.Command("sh", "-c", command)
 			}
+			cmd.Stdin = os.Stdin
 			cmd.Stderr = os.Stderr
 			cmd.Stdout = os.Stdout
 			err := cmd.Run()
@@ -344,7 +346,7 @@ func validateToothRepoVersion(repoPath string, version versionutils.Version) err
 
 	// If the status code is 200, the version is valid.
 	if resp.StatusCode != 200 {
-		return errors.New("cannot access tooth: " + repoPath + "@" + version.String())
+		return errors.New("cannot access tooth (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath + "@" + version.String())
 	}
 
 	return nil

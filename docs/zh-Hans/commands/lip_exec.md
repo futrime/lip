@@ -1,26 +1,27 @@
 # lip exec
 
-## Usage
+## 用法
 
 ```shell
 lip exec [options] <tool> [args...]
 ```
 
-## Description
+## 功能
 
-Execute a Lip tool. Tools should be installed with `lip install` first.
+执行一个Lip工具。工具应该先用`lip install`来安装。
 
-In fact, this will execute ./lip/tools/<tool>/<tool> (or .\lip\tools\<tool>\<tool>.exe or .\lip\tools\<tool>\<tool>.cmd on Windows).
 
-## Options
+事实上，这将执行 ./lip/tools/\<tool>/\<tool> (或 在Windows上： .\lip\tools\\\<tool>\\\<tool>.exe 或 .\lip\tools\\\<tool>\\\<tool>.cmd ).
+
+## 选项
 
 - `-h, --help`
 
-  Show help.
+  展示帮助。
 
-## Examples
+## 样例
 
-You can even execute Lip itself:
+你甚至可以自己执行Lip。
 
 ```shell
 lip exec lip list

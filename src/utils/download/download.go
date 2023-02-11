@@ -2,9 +2,11 @@
 package download
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/liteldev/lip/utils/logger"
 	"github.com/schollz/progressbar/v3"
@@ -19,6 +21,12 @@ func DownloadFile(url string, filePath string) error {
 	}
 	defer resp.Body.Close()
 
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("cannot download file (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + url)
+	}
+
+	// Create the file
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err

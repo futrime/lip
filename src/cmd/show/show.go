@@ -8,6 +8,7 @@ import (
 
 	cmdlipinstall "github.com/liteldev/lip/cmd/install"
 	"github.com/liteldev/lip/localfile"
+	"github.com/liteldev/lip/registry"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
 )
@@ -31,6 +32,8 @@ Options:
 
 // Run is the entry point.
 func Run() {
+	var err error
+
 	if len(os.Args) == 2 {
 		logger.Info(helpMessage)
 		return
@@ -66,7 +69,17 @@ func Run() {
 	}
 
 	// Get the record file path.
+	// If the input is an alias, convert it to the repo path.
 	toothPath := strings.ToLower(flagSet.Args()[0])
+	if !strings.Contains(toothPath, "/") {
+		toothPath, err = registry.LookupAlias(toothPath)
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
+		logger.Info("The alias is converted to the repo path: " + toothPath)
+	}
+
 	recordFileName := localfile.GetRecordFileName(toothPath)
 	recordDir, err := localfile.RecordDir()
 	if err != nil {
@@ -113,7 +126,7 @@ func Run() {
 	logger.Info("Fetching available versions...")
 
 	// Show version information
-	versionList, err := cmdlipinstall.FetchVersionList(flagSet.Args()[0])
+	versionList, err := cmdlipinstall.FetchVersionList(toothPath)
 	if err != nil {
 		logger.Error("failed to fetch available versions: " + err.Error())
 		return

@@ -12,6 +12,8 @@ import (
 )
 
 // LookupAlias looks up the alias in the registry.
+// The alias is case-insensitive.
+// The returned repo path is in lowercase.
 func LookupAlias(alias string) (string, error) {
 	// Get index.
 	indexURL := strings.TrimSuffix(context.RegistryURL, "/") + "/index.json"
@@ -44,6 +46,7 @@ func LookupAlias(alias string) (string, error) {
 	}
 
 	// Check if the alias exists.
+	alias = strings.ToLower(alias)
 	toothRepo, ok := index["index"].(map[string]interface{})[alias]
 	if !ok {
 		return "", errors.New("alias not found: " + alias)

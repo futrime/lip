@@ -41,31 +41,46 @@ func parseMetadataPlacement(metadata toothmetadata.Metadata, r *zip.ReadCloser, 
 
 // GetFilePrefix returns the prefix of all files in a zip file.
 func GetFilePrefix(r *zip.ReadCloser) string {
+	if len(r.File) == 0 {
+		return ""
+	}
+
 	prefix := ""
-	for i, file := range r.File {
-		if strings.HasSuffix(file.Name, "/") { // Skip directories.
-			continue
-		}
 
-		// If the prefix is empty, set it to the first file.
+	// Get the longest common prefix of all files ending with a slash.
+	for i, f := range r.File {
+		// If this is the first file, set the prefix to the file name.
 		if i == 0 {
-			prefix = file.Name
+			prefix = getLongestPrefixEndingWithSlash(f.Name)
 			continue
 		}
 
-		// Find the common prefix between the prefix and the file.
-		for i := 0; i < len(prefix) && i < len(file.Name); i++ {
-			if prefix[i] != file.Name[i] {
-				prefix = prefix[:i]
+		// Get the longest common prefix of the current prefix and the file name.
+		prefix = getLongestPrefixEndingWithSlash(prefix)
+		filePrefix := getLongestPrefixEndingWithSlash(f.Name)
+
+		if strings.HasPrefix(prefix, filePrefix) {
+			prefix = filePrefix
+			continue
+		}
+
+		for j := 0; j < len(prefix) && j < len(filePrefix); j++ {
+			if prefix[j] != filePrefix[j] {
+				prefix = prefix[:j]
 				break
 			}
 		}
 	}
 
-	// If tooth.json is the only file, set the prefix to empty.
-	if prefix == "tooth.json" {
-		prefix = ""
+	return prefix
+}
+
+// getLongestPrefixEndingWithSlash returns the longest prefix of a string ending with a slash.
+func getLongestPrefixEndingWithSlash(s string) string {
+	lastSlash := strings.LastIndex(s, "/")
+	if lastSlash == -1 {
+		return ""
 	}
 
-	return prefix
+	return s[:lastSlash+1]
 }

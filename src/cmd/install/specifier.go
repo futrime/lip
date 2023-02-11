@@ -112,7 +112,20 @@ func NewSpecifier(specifierString string) (Specifier, error) {
 			}
 
 			// toothVersionList is sorted in descending order.
-			toothVersion = toothVersionList[0]
+			// Find the first stable version
+			isFound := false
+			for _, v := range toothVersionList {
+				if v.IsStable() {
+					toothVersion = v
+					isFound = true
+					break
+				}
+			}
+
+			// If no stable version is found, return an error.
+			if !isFound {
+				return Specifier{}, errors.New("no stable tooth version found for repo: " + toothRepo + ". You must specify a version manually")
+			}
 		}
 
 		return Specifier{

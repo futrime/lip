@@ -34,10 +34,16 @@ Note that `lip install` prefers to leave the installed version as-is unless `--u
 
 When looking at the items to be installed, Lip checks what type of item each is, in the following order:
 
-1. Tooth repository, which can be accessed via Goproxy.
+1. Remote tooth file with suffix `.tth` and prefix `http://` or `https://`.
 2. Local tooth file with suffix `.tth`.
+3. Tooth repository, which can be accessed via Goproxy.
+4. Tooth alias, which can be looked up in Lip registry.
 
-In the first case, all letters will be converted to lowercase before processing.
+In 3 and 4, all letters will be converted to lowercase before processing.
+
+### Lip Registry
+
+Since v0.8.0, Lip supports Lip registry, which enables you to use aliases to install teeth. By default, Lip will use the registry at <https://registry.litebds.com>. You can also use your own registry by setting environment variable `LIP_REGISTRY` to the URL of your registry.
 
 ### Satisfying Requirements
 
@@ -104,4 +110,10 @@ Install from a local tooth:
 ```shell
 lip install example.tth
 lip install ./example/example.tth
+```
+
+Install with an alias:
+
+```shell
+lip install liteloaderbds
 ```

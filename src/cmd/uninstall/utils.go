@@ -62,6 +62,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 			default:
 				cmd = exec.Command("sh", "-c", command)
 			}
+			cmd.Stdin = os.Stdin
 			cmd.Stderr = os.Stderr
 			cmd.Stdout = os.Stdout
 			err := cmd.Run()
