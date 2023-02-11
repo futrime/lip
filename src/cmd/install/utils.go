@@ -21,7 +21,7 @@ import (
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/download"
 	"github.com/liteldev/lip/utils/logger"
-	versionutils "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 // getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.
@@ -108,7 +108,7 @@ func DownloadTooth(specifier Specifier, destination string) error {
 }
 
 // FetchVersionList fetches the version list of a tooth repository.
-func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
+func FetchVersionList(repoPath string) ([]versions.Version, error) {
 	if !isValidRepoPath(repoPath) {
 		return nil, errors.New("invalid repository path: " + repoPath)
 	}
@@ -130,13 +130,13 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 	}
 
 	// Each line is a version.
-	var versionList []versionutils.Version
+	var versionList []versions.Version
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
 		versionString := scanner.Text()
 		versionString = strings.TrimPrefix(versionString, "v")
 		versionString = strings.TrimSuffix(versionString, "+incompatible")
-		version, err := versionutils.NewFromString(versionString)
+		version, err := versions.NewFromString(versionString)
 		if err != nil {
 			continue
 		}
@@ -145,7 +145,7 @@ func FetchVersionList(repoPath string) ([]versionutils.Version, error) {
 
 	// Sort the version list in descending order.
 	sort.Slice(versionList, func(i, j int) bool {
-		return versionutils.GreaterThan(versionList[i], versionList[j])
+		return versions.GreaterThan(versionList[i], versionList[j])
 	})
 
 	return versionList, nil
@@ -315,7 +315,7 @@ func isValidRepoPath(repoPath string) bool {
 }
 
 // validateToothRepoVersion checks if the version of the tooth repository is valid.
-func validateToothRepoVersion(repoPath string, version versionutils.Version) error {
+func validateToothRepoVersion(repoPath string, version versions.Version) error {
 	if !isValidRepoPath(repoPath) {
 		return errors.New("invalid repository path: " + repoPath)
 	}

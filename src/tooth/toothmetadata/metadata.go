@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/liteldev/lip/tooth"
-	versionutils "github.com/liteldev/lip/utils/version"
-	"github.com/liteldev/lip/utils/version/versionmatch"
+	"github.com/liteldev/lip/utils/versions"
+	"github.com/liteldev/lip/utils/versions/versionmatch"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -41,7 +41,7 @@ type CommandStruct struct {
 // Metadata is the struct that contains all the metadata of a tooth.
 type Metadata struct {
 	ToothPath    string
-	Version      versionutils.Version
+	Version      versions.Version
 	Dependencies map[string]([][]versionmatch.VersionMatch)
 	Information  InfoStruct
 	Placement    []PlacementStruct
@@ -197,7 +197,7 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		return Metadata{}, errors.New("failed to decode JSON into metadata: invalid tooth path: " + metadata.ToothPath)
 	}
 
-	version, err := versionutils.NewFromString(metadataMap["version"].(string))
+	version, err := versions.NewFromString(metadataMap["version"].(string))
 
 	if err != nil {
 		return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())

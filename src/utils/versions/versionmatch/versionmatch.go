@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	versionutils "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 // MatchType is an enum that represents the type of a version match.
@@ -24,13 +24,13 @@ const (
 // VersionMatch is a version match. The version match is used to match a version
 // to a version range.
 type VersionMatch struct {
-	version versionutils.Version
+	version versions.Version
 	// The match type.
 	matchType MatchType
 }
 
 // New creates a new version match.
-func New(version versionutils.Version, matchType MatchType) (VersionMatch, error) {
+func New(version versions.Version, matchType MatchType) (VersionMatch, error) {
 	// The match type must be valid.
 	if matchType < EqualMatchType || matchType > CompatibleMatchType {
 		return VersionMatch{}, errors.New("invalid match type")
@@ -73,7 +73,7 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 	}
 
 	// Create the version.
-	version, err := versionutils.NewFromString(versionMatchString)
+	version, err := versions.NewFromString(versionMatchString)
 	if err != nil {
 		return VersionMatch{}, err
 	}
@@ -82,22 +82,22 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 }
 
 // Match matches the version to the version match.
-func (vm VersionMatch) Match(version versionutils.Version) bool {
+func (vm VersionMatch) Match(version versions.Version) bool {
 	switch vm.matchType {
 	case EqualMatchType:
-		return versionutils.Equal(version, vm.version)
+		return versions.Equal(version, vm.version)
 	case InequalMatchType:
-		return !versionutils.Equal(version, vm.version)
+		return !versions.Equal(version, vm.version)
 	case GreaterThanMatchType:
-		return versionutils.GreaterThan(version, vm.version)
+		return versions.GreaterThan(version, vm.version)
 	case GreaterThanOrEqualMatchType:
-		return versionutils.GreaterThanOrEqual(version, vm.version)
+		return versions.GreaterThanOrEqual(version, vm.version)
 	case LessThanMatchType:
-		return versionutils.LessThan(version, vm.version)
+		return versions.LessThan(version, vm.version)
 	case LessThanOrEqualMatchType:
-		return versionutils.LessThanOrEqual(version, vm.version)
+		return versions.LessThanOrEqual(version, vm.version)
 	case CompatibleMatchType:
-		return versionutils.Compatible(version, vm.version)
+		return versions.Compatible(version, vm.version)
 	}
 
 	// This should never happen.

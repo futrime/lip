@@ -11,7 +11,7 @@ import (
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
-	versionutils "github.com/liteldev/lip/utils/version"
+	"github.com/liteldev/lip/utils/versions"
 )
 
 // FlagDict is a dictionary of flags.
@@ -257,7 +257,7 @@ func Run() {
 			// Compare the version of the tooth file and the version of the tooth record.
 			// If the version of the tooth file is not greater than the version of the tooth
 			// record, skip.
-			if !flagDict.forceReinstallFlag && !versionutils.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
+			if !flagDict.forceReinstallFlag && !versions.GreaterThan(toothFile.Metadata().Version, toothRecord.Version) {
 				continue
 			}
 
