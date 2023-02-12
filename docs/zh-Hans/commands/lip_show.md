@@ -21,3 +21,7 @@ lip show [options] <tooth path>
 - `--files`
 
   显示已安装文件的完整列表。
+
+- `--json`
+  
+  Output in JSON format. (cannot be hidden with `--quiet`)

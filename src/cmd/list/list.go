@@ -1,7 +1,9 @@
 package cmdliplist
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"strings"
 
 	"github.com/liteldev/lip/specifiers"
@@ -14,6 +16,7 @@ import (
 type FlagDict struct {
 	helpFlag       bool
 	upgradableFlag bool
+	jsonFlag       bool
 }
 
 const helpMessage = `
@@ -25,7 +28,8 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  --upgradable                List upgradable tooths.`
+  --upgradable                List upgradable tooths.
+  --json                      Output in JSON format. (cannot be hidden with "--quiet")`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -37,11 +41,10 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.upgradableFlag, "upgradable", false, "")
-
+	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -52,15 +55,15 @@ func Run(args []string) {
 
 	if flagDict.upgradableFlag {
 		// List upgradable tooths.
-		listUpgradableTooths()
+		listUpgradableTooths(flagDict.jsonFlag)
 	} else {
 		// List installed tooths.
-		listInstalledTooths()
+		listInstalledTooths(flagDict.jsonFlag)
 	}
 }
 
 // listInstalledTooths lists installed tooths.
-func listInstalledTooths() {
+func listInstalledTooths(isJSON bool) {
 	// Get the sorted list of records.
 	recordList, err := toothrecord.ListAll()
 	if err != nil {
@@ -68,17 +71,13 @@ func listInstalledTooths() {
 		return
 	}
 
-	// Get the longest tooth path.
-	longestToothPath := 20 // The mininum length
+	// Print table.
+	longestToothPath := 20     // The mininum length
+	longestVersionString := 10 // The mininum length
 	for _, record := range recordList {
 		if len(record.ToothPath) > longestToothPath {
 			longestToothPath = len(record.ToothPath)
 		}
-	}
-
-	// Get the longest version string.
-	longestVersionString := 10 // The mininum length
-	for _, record := range recordList {
 		if len(record.Version.String()) > longestVersionString {
 			longestVersionString = len(record.Version.String())
 		}
@@ -94,10 +93,23 @@ func listInstalledTooths() {
 		logger.Info(record.ToothPath + strings.Repeat(" ", longestToothPath-len(record.ToothPath)) +
 			" " + record.Version.String())
 	}
+
+	if isJSON {
+		// Print JSON.
+		var outputMap = make([]interface{}, 0)
+		for _, record := range recordList {
+			outputMap = append(outputMap, map[string]interface{}{
+				"tooth":   record.ToothPath,
+				"version": record.Version.String(),
+			})
+		}
+		outputJson, _ := json.Marshal(outputMap)
+		fmt.Println(string(outputJson))
+	}
 }
 
 // listUpgradableTooths lists upgradable tooths.
-func listUpgradableTooths() {
+func listUpgradableTooths(isJSON bool) {
 	type UpgradableToothInfoType struct {
 		ToothPath string
 		Version   versions.Version
@@ -140,6 +152,7 @@ func listUpgradableTooths() {
 		})
 	}
 
+	// Print table.
 	// Print header.
 	logger.Info("")
 	logger.Info("Tooth" + strings.Repeat(" ", longestToothPath-5) + " Latest Version")
@@ -150,5 +163,18 @@ func listUpgradableTooths() {
 	for _, upgradableToothInfo := range upgradableToothInfoList {
 		logger.Info(upgradableToothInfo.ToothPath + strings.Repeat(" ", longestToothPath-len(upgradableToothInfo.ToothPath)) +
 			" " + upgradableToothInfo.Version.String())
+	}
+
+	if isJSON {
+		// Print JSON.
+		var outputMap = make([]interface{}, 0)
+		for _, upgradableToothInfo := range upgradableToothInfoList {
+			outputMap = append(outputMap, map[string]interface{}{
+				"tooth":   upgradableToothInfo.ToothPath,
+				"version": upgradableToothInfo.Version.String(),
+			})
+		}
+		outputJson, _ := json.Marshal(outputMap)
+		fmt.Println(string(outputJson))
 	}
 }

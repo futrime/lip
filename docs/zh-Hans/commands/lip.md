@@ -15,3 +15,11 @@ lip [options]
 - `-V, --version`
 
   显示版本并退出。
+
+- `-v, --verbose`
+
+  Show verbose output.
+
+- `-q, --quiet`
+
+  Show only errors.
