@@ -3,6 +3,7 @@ package cmdlipinstall
 import (
 	"archive/zip"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -161,7 +162,9 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 
 			relPath, err := filepath.Rel(workSpaceDirAbs, destinationAbs)
 			if err != nil || strings.HasPrefix(relPath, "../") || strings.HasPrefix(relPath, "..\\") {
-				ans := logger.Prompt("The destination " + destination + " is not in the workspace. Do you want to continue? (y/N)")
+				logger.Info("The destination " + destination + " is not in the workspace. Do you want to continue? (y/N)")
+				var ans string
+				fmt.Scanln(&ans)
 				if ans != "y" && ans != "Y" {
 					return errors.New("installation aborted")
 				}
