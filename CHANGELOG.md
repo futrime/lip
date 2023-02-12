@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2023-02-11
+
+### Added
+
+- HTTP Code reporting when failing to make a request.
+- `lip list --upgradable` command.
+- Topological sorting for dependencies.
+- Progress bar for downloading tooth files.
+
+### Fixed
+
+- No notice when a tooth file is cached.
+- Tooth paths in `dependencies` field of `tooth.json` not converting to lowercase.
+- Mistakes in help message of `lip cache purge`.
+
 ## [0.8.3] - 2023-02-09
 
 ### Fixed
@@ -152,7 +167,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.8.3...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/LiteLDev/Lip/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/LiteLDev/Lip/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/LiteLDev/Lip/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/LiteLDev/Lip/compare/v0.8.0...v0.8.1
