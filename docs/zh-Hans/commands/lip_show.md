@@ -22,6 +22,10 @@ lip show [options] <tooth path>
 
   显示已安装文件的完整列表。
 
+- `--available`
+
+  Show the full list of available versions.
+
 - `--json`
   
   Output in JSON format. (cannot be hidden with `--quiet`)
