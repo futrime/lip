@@ -21,3 +21,7 @@ The output is in RFC-compliant mail header format.
 - `--files`
 
   Show the full list of installed files.
+
+- `--json`
+  
+  Output in JSON format. (cannot be hidden with `--quiet`)

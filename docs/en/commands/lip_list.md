@@ -21,3 +21,7 @@ Tooths are listed in a case-insensitive sorted order.
 - `--upgradable`
 
   List upgradable tooths.
+
+- `--json`
+
+  Output in JSON format. (cannot be hidden with `--quiet`)
