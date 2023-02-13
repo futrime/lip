@@ -77,6 +77,10 @@ Lip在安装依赖之前，是按照 "拓扑顺序 "安装依赖。当遇到依�
 
   Assume yes to all prompts and run non-interactively.
 
+- `--numeric-progress`
+
+  Show numeric progress instead of progress bar.
+
 ## 样例
 
 从齿包存储库安装。

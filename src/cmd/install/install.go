@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
+	"github.com/liteldev/lip/download"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
@@ -18,10 +19,11 @@ import (
 
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
-	helpFlag           bool
-	upgradeFlag        bool
-	forceReinstallFlag bool
-	yesFlag            bool
+	helpFlag            bool
+	upgradeFlag         bool
+	forceReinstallFlag  bool
+	yesFlag             bool
+	numericProgressFlag bool
 }
 
 const helpMessage = `
@@ -39,7 +41,8 @@ Options:
   -h, --help                  Show help.
   --upgrade                   Upgrade the specified tooth to the newest available version.
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.
-  -y, --yes                   Assume yes to all prompts and run non-interactively.`
+  -y, --yes                   Assume yes to all prompts and run non-interactively.
+  --numeric-progress          Show numeric progress instead of progress bar.`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -62,14 +65,11 @@ func Run(args []string) {
 
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
 	flagSet.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
-
 	flagSet.BoolVar(&flagDict.forceReinstallFlag, "force-reinstall", false, "")
-
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
-
+	flagSet.BoolVar(&flagDict.numericProgressFlag, "numeric-progress", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -135,8 +135,17 @@ func Run(args []string) {
 
 		logger.Info("  Fetching " + specifier.String() + "...")
 
+		var progressBarStyle download.ProgressBarStyleType
+		if logger.GetLevel() > logger.InfoLevel {
+			progressBarStyle = download.StyleNone
+		} else if flagDict.numericProgressFlag {
+			progressBarStyle = download.StylePercentageOnly
+		} else {
+			progressBarStyle = download.StyleDefault
+		}
+
 		// Get tooth file
-		isCached, downloadedToothFilePath, err := getTooth(specifier)
+		isCached, downloadedToothFilePath, err := getTooth(specifier, progressBarStyle)
 		if err != nil {
 			logger.Error(err.Error())
 			return

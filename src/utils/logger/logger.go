@@ -56,6 +56,11 @@ func Critical(format string, a ...interface{}) {
 	}
 }
 
+// GetLevel returns the logging level.
+func GetLevel() LoggingLevelType {
+	return loggingLevel
+}
+
 // SetLevel sets the logging level.
 func SetLevel(level LoggingLevelType) {
 	loggingLevel = level

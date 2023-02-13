@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `--available` flag for `lip show` command.
+- `--numeric-progress` flag for `lip install` command.
 
 ### Fixed
 

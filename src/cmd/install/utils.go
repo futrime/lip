@@ -12,11 +12,11 @@ import (
 	"strings"
 
 	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/download"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/download"
 	"github.com/liteldev/lip/utils/logger"
 )
 
@@ -24,7 +24,7 @@ import (
 // If the tooth file is downloaded, it will be cached.
 // If the specifier is local tooth file, it will return the path of the local tooth file.
 // toothFilePath is the absolute path of the tooth file.
-func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath string, err error) {
+func getTooth(specifier specifiers.Specifier, progressBarStyle download.ProgressBarStyleType) (isCached bool, toothFilePath string, err error) {
 	// For local tooth file, return the path directly.
 	if specifier.Type() == specifiers.ToothFileSpecifierType {
 		// Get full path of the tooth file.
@@ -54,7 +54,7 @@ func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath stri
 	}
 
 	// Download the tooth file to the cache.
-	err = DownloadTooth(specifier, cacheFilePath)
+	err = DownloadTooth(specifier, cacheFilePath, progressBarStyle)
 	if err != nil {
 		return false, "", err
 	}
@@ -65,7 +65,7 @@ func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath stri
 // DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
-func DownloadTooth(specifier specifiers.Specifier, destination string) error {
+func DownloadTooth(specifier specifiers.Specifier, destination string, progressBarStyle download.ProgressBarStyleType) error {
 	switch specifier.Type() {
 	case specifiers.ToothFileSpecifierType:
 		// Local tooth file is not accepted here.
@@ -74,7 +74,7 @@ func DownloadTooth(specifier specifiers.Specifier, destination string) error {
 	case specifiers.ToothURLSpecifierType:
 		// For tooth url, download the tooth file and return the path.
 
-		err := download.DownloadFile(specifier.ToothURL(), destination)
+		err := download.DownloadFile(specifier.ToothURL(), destination, progressBarStyle)
 		if err != nil {
 			return err
 		}
@@ -91,7 +91,7 @@ func DownloadTooth(specifier specifiers.Specifier, destination string) error {
 		}
 		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
 
-		err := download.DownloadFile(url, destination)
+		err := download.DownloadFile(url, destination, progressBarStyle)
 		if err != nil {
 			return err
 		}
