@@ -4,12 +4,12 @@
 
 - records/
 
-  每一个齿包的安装信息
+  每一个tooth的安装信息
 
 
 ## records/
 
-每个JSON文件的名称都应该是带有Base64编码的齿包的路径，不含版本。
+每个JSON文件的名称都应该是带有Base64编码的tooth的路径，不含版本。
 
 xxx.json
 
@@ -46,4 +46,4 @@ xxx.json
 
 - is_manually_installed
 
-  如果为真，Lip将不会自动删除或升级这个齿包。
+  如果为真，Lip将不会自动删除或升级这个tooth。

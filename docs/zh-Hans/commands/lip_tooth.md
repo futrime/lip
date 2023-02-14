@@ -8,7 +8,7 @@ lip tooth [options]
 
 ## 功能
 
-管理齿包
+管理tooth
 
 ## 选项
 
