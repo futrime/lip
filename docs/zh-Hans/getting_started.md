@@ -13,7 +13,7 @@ Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 
 ## 常见任务
 
-### 安装一个齿包
+### 安装一个tooth
 
 ```shell
 > lip install github.com/liteldev/exampletooth@1.0.0
@@ -21,9 +21,9 @@ Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 Successfully installed all tooth files.
 ```
 
-默认情况下，Lip会通过GOPROXY，一个Git仓库的代理来获取齿包。
+默认情况下，Lip会通过GOPROXY，一个Git仓库的代理来获取tooth。
 
-### 从URL安装齿包
+### 从URL安装tooth
 
 ```shell
 > lip install https://example.com/exampletooth.tth
@@ -33,7 +33,7 @@ Successfully installed all tooth files.
 
 Lip 只支持以"http://" 或 "https://"开头的URL，所有URL需要以".tth"作为结尾。
 
-### 齿包文件安装齿包
+### tooth文件安装tooth
 
 ```shell
 > lip install exampletooth.tth
@@ -41,11 +41,11 @@ Lip 只支持以"http://" 或 "https://"开头的URL，所有URL需要以".tth"�
 Successfully installed all tooth files.
 ```
 
-齿包文件需要有".tth"扩展名。
+tooth文件需要有".tth"扩展名。
 
-### 安装多个齿包
+### 安装多个tooth
 
-Lip 支持一次安装多个齿包
+Lip 支持一次安装多个tooth
 
 ```shell
 > lip install github.com/liteldev/exampletooth@1.0.0 github.com/liteldev/anotherexampletooth@1.0.0
@@ -53,7 +53,7 @@ Lip 支持一次安装多个齿包
 Successfully installed all tooth files.
 ```
 
-### 升级齿包
+### 升级tooth
 
 ```shell
 > lip install --upgrade github.com/liteldev/exampletooth
@@ -61,9 +61,9 @@ Successfully installed all tooth files.
 Successfully installed all tooth files.
 ```
 
-### 卸载齿包
+### 卸载tooth
 
-要卸载一个齿包，你必须提供该齿包的包路径。
+要卸载一个tooth，你必须提供该tooth的包路径。
 
 ```shell
 > lip uninstall github.com/liteldev/exampletooth
@@ -71,7 +71,7 @@ Successfully installed all tooth files.
 Successfully uninstalled all tooths.
 ```
 
-### 列出所有齿包
+### 列出所有tooth
 
 ```shell
 > lip list
@@ -80,7 +80,7 @@ Tooth                            Version
 github.com/liteldev/exampletooth 1.0.0
 ```
 
-### 查看一个齿包的具体信息
+### 查看一个tooth的具体信息
 
 ```shell
 > lip show github.com/liteldev/exampletooth
