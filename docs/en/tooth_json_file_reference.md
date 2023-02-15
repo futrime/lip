@@ -96,9 +96,9 @@ Declares the tooth's tooth path, which is the tooth's unique identifier (when co
 
 ### Syntax
 
-Generally, tooth path should be in the form of a lowercased URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
+Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
 
-Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
 
 ### Examples
 

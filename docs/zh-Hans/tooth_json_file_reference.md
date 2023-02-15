@@ -96,9 +96,9 @@ tooth的路径，是tooth的唯一标示符 (当与版本号结合使用时)。
 
 ### 语法
 
-通常的，tooth的路径应该为不含协议前缀的小写URL形式。（例：github.com/liteldev/liteloaderbds ）
+Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
 
-只允许小写字母、数字、破折号、下划线、圆点和斜线[a-z0-9-_./]。大写字母在解析前会被转换为小写字母。
+Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
 
 ### 样例
 
