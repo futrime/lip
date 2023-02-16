@@ -7,7 +7,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liteldev/lip/tooth"
+	"github.com/liteldev/lip/tooth/toothutils"
 	"github.com/liteldev/lip/utils/versions"
 	"github.com/liteldev/lip/utils/versions/versionmatch"
 	"github.com/xeipuuv/gojsonschema"
@@ -193,7 +193,7 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 	// Tooth path should be lower case.
 	metadata.ToothPath = strings.ToLower(metadataMap["tooth"].(string))
-	if !tooth.IsValidToothPath(metadata.ToothPath) {
+	if !toothutils.IsValidToothPath(metadata.ToothPath) {
 		return Metadata{}, errors.New("failed to decode JSON into metadata: invalid tooth path: " + metadata.ToothPath)
 	}
 
