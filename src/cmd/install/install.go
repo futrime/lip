@@ -163,7 +163,7 @@ func Run(args []string) {
 
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
-		if specifier.Type() == specifiers.RequirementSpecifierType &&
+		if specifier.Type() == specifiers.RequirementKind &&
 			toothPath != specifier.ToothRepo() {
 			logger.Error("The tooth path of the downloaded tooth file does not match the requirement specifier")
 
@@ -240,7 +240,7 @@ func Run(args []string) {
 			logger.Info("  Resolving " + specifier.String() + "...")
 
 			// If the specifier is not a requirement specifier, skip.
-			if specifier.Type() != specifiers.RequirementSpecifierType {
+			if specifier.Type() != specifiers.RequirementKind {
 				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
 				continue
 			}

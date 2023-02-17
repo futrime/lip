@@ -11,7 +11,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/liteldev/lip/context"
 	"github.com/liteldev/lip/download"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/specifiers"
@@ -26,7 +25,7 @@ import (
 // toothFilePath is the absolute path of the tooth file.
 func getTooth(specifier specifiers.Specifier, progressBarStyle download.ProgressBarStyleType) (isCached bool, toothFilePath string, err error) {
 	// For local tooth file, return the path directly.
-	if specifier.Type() == specifiers.ToothFileSpecifierType {
+	if specifier.Type() == specifiers.ToothFileKind {
 		// Get full path of the tooth file.
 		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
@@ -67,11 +66,11 @@ func getTooth(specifier specifiers.Specifier, progressBarStyle download.Progress
 // If the specifier is a requirement specifier, it should contain version.
 func downloadTooth(specifier specifiers.Specifier, destination string, progressBarStyle download.ProgressBarStyleType) error {
 	switch specifier.Type() {
-	case specifiers.ToothFileSpecifierType:
+	case specifiers.ToothFileKind:
 		// Local tooth file is not accepted here.
 		return errors.New("local tooth file is not able to be downloaded")
 
-	case specifiers.ToothURLSpecifierType:
+	case specifiers.ToothURLKind:
 		// For tooth url, download the tooth file and return the path.
 
 		err := download.DownloadFile(specifier.ToothURL(), destination, progressBarStyle)
@@ -81,17 +80,16 @@ func downloadTooth(specifier specifiers.Specifier, destination string, progressB
 
 		return nil
 
-	case specifiers.RequirementSpecifierType:
+	case specifiers.RequirementKind:
 		// For requirement specifier, download the tooth via GOPROXY and return the path.
 
-		// Get the tooth file url.
-		urlSuffix := "+incompatible.zip"
+		urlPathSuffix := "+incompatible.zip"
 		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
-			urlSuffix = ".zip"
+			urlPathSuffix = ".zip"
 		}
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
+		urlPath := specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlPathSuffix
 
-		err := download.DownloadFile(url, destination, progressBarStyle)
+		err := download.DownloadGoproxyFile(urlPath, destination, progressBarStyle)
 		if err != nil {
 			return err
 		}

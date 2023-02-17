@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
+	"github.com/liteldev/lip/context"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -68,4 +70,88 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 		io.Copy(io.MultiWriter(file, bar), resp.Body)
 		return nil
 	}
+}
+
+// DownloadGoproxyFile downloads a file from at least one goproxy url and saves it to a local path.
+// It will try to download from all goproxy urls until one succeeds.
+func DownloadGoproxyFile(urlPath, filePath string, progressBarStyle ProgressBarStyleType) error {
+	var errList []error
+
+	for _, goproxy := range context.GoproxyList {
+		goproxy = strings.TrimSuffix(goproxy, "/")
+
+		url := goproxy + "/" + urlPath
+
+		err := DownloadFile(url, filePath, progressBarStyle)
+		if err != nil {
+			errList = append(errList, err)
+			continue
+		}
+
+		return nil
+	}
+	if len(errList) > 0 {
+		errStr := ""
+		for i, err := range errList {
+			errStr += context.GoproxyList[i] + ": " + err.Error() + ", "
+		}
+		return errors.New("failed to download " + urlPath + " from any goproxy: (" + errStr[:len(errStr)-2] + ")")
+	}
+
+	return nil
+}
+
+// GetGoproxyContent gets the content of a file from at least one goproxy url.
+// It will try to download from all goproxy urls until one succeeds.
+func GetGoproxyContent(urlPath string) ([]byte, error) {
+	var errorList []error
+
+TryAllGoproxy:
+	for _, goproxy := range context.GoproxyList {
+		goproxy = strings.TrimSuffix(goproxy, "/")
+
+		url := goproxy + "/" + urlPath
+
+		resp, err := http.Get(url)
+		if err != nil {
+			errorList = append(errorList, err)
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			errorList = append(errorList,
+				errors.New("failed to get content (HTTP CODE "+strconv.Itoa(resp.StatusCode)+")"))
+			continue
+		}
+
+		content := make([]byte, 0)
+
+		for {
+			buf := make([]byte, 1024)
+			n, err := resp.Body.Read(buf)
+			if err != nil && err != io.EOF {
+				errorList = append(errorList, errors.New("failed to read content: "+err.Error()))
+				continue TryAllGoproxy
+			}
+			if n == 0 {
+				break
+			}
+			content = append(content, buf[:n]...)
+		}
+
+		resp.Body.Close()
+		return content, nil
+	}
+
+	if len(errorList) > 0 {
+		errStr := ""
+		for i, err := range errorList {
+			errStr += context.GoproxyList[i] + ": " + err.Error() + ", "
+		}
+		return make([]byte, 0),
+			errors.New("failed to get " + urlPath + " from any goproxy: (" + errStr[:len(errStr)-2] + ")")
+	}
+
+	return make([]byte, 0), errors.New("unknown error")
 }

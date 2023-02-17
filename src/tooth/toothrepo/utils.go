@@ -2,42 +2,38 @@ package toothrepo
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
-	"net/http"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/download"
 	"github.com/liteldev/lip/utils/versions"
 )
 
 // FetchVersionList fetches the version list of a tooth repository.
 func FetchVersionList(repoPath string) ([]versions.Version, error) {
+	var err error
 	if !isValidPath(repoPath) {
 		return nil, errors.New("invalid repository path: " + repoPath)
 	}
 
-	url := context.Goproxy + "/" + repoPath + "/@v/list"
+	urlPath := repoPath + "/@v/list"
 
 	// To lowercases.
-	url = strings.ToLower(url)
+	urlPath = strings.ToLower(urlPath)
 
-	// Get the version list.
-	resp, err := http.Get(url)
+	content, err := download.GetGoproxyContent(urlPath)
 	if err != nil {
-		return nil, errors.New("cannot access GOPROXY: " + context.Goproxy)
+		return nil, errors.New("Failed to fetch version list: " + err.Error())
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return nil, errors.New("cannot access tooth repository (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath)
-	}
+	reader := bytes.NewReader(content)
 
 	// Each line is a version.
 	var versionList []versions.Version
-	scanner := bufio.NewScanner(resp.Body)
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		versionString := scanner.Text()
 		versionString = strings.TrimPrefix(versionString, "v")
@@ -64,25 +60,18 @@ func ValidateVersion(repoPath string, version versions.Version) error {
 	}
 
 	// Check if the version is valid.
-	urlSuffix := "+incompatible.info"
+	urlPathSuffix := "+incompatible.info"
 	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
-		urlSuffix = ".info"
+		urlPathSuffix = ".info"
 	}
-	url := context.Goproxy + "/" + repoPath + "/@v/v" + version.String() + urlSuffix
+	urlPath := repoPath + "/@v/v" + version.String() + urlPathSuffix
 
 	// To lower case.
-	url = strings.ToLower(url)
+	urlPath = strings.ToLower(urlPath)
 
-	// Get the version information.
-	resp, err := http.Get(url)
+	_, err := download.GetGoproxyContent(urlPath)
 	if err != nil {
-		return errors.New("cannot access GOPROXY: " + context.Goproxy)
-	}
-	defer resp.Body.Close()
-
-	// If the status code is 200, the version is valid.
-	if resp.StatusCode != 200 {
-		return errors.New("cannot access tooth (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + repoPath + "@" + version.String())
+		return errors.New("Failed to access version " + version.String() + " of " + repoPath + ": " + err.Error())
 	}
 
 	return nil
