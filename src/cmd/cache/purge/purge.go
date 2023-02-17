@@ -49,7 +49,7 @@ func Run(args []string) {
 		err := purgeCache()
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 		logger.Info("Cache has been purged successfully.")
 		return

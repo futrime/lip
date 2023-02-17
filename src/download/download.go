@@ -51,6 +51,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 		// Only show percentage
 		bar := progressbar.NewOptions64(
 			resp.ContentLength,
+			progressbar.OptionClearOnFinish(),
 			progressbar.OptionSetElapsedTime(false),
 			progressbar.OptionSetPredictTime(false),
 			progressbar.OptionSetWidth(0),
@@ -60,6 +61,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 	default:
 		bar := progressbar.NewOptions64(
 			resp.ContentLength,
+			progressbar.OptionClearOnFinish(),
 			progressbar.OptionShowBytes(true),
 			progressbar.OptionShowCount(),
 		)

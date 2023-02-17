@@ -71,7 +71,7 @@ func Run(args []string) {
 			toothPathList[i], err = registry.LookupAlias(toothPath)
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 		}
 	}
@@ -87,13 +87,13 @@ func Run(args []string) {
 	recordDir, err := localfile.RecordDir()
 	if err != nil {
 		logger.Error(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	files, err := os.ReadDir(recordDir)
 	if err != nil {
 		logger.Error("cannot read the record directory " + recordDir + ": " + err.Error())
-		return
+		os.Exit(1)
 	}
 
 	for _, file := range files {
@@ -101,14 +101,14 @@ func Run(args []string) {
 		content, err := os.ReadFile(recordDir + "/" + file.Name())
 		if err != nil {
 			logger.Error("cannot read the record file " + recordDir + "/" + file.Name() + ": " + err.Error())
-			return
+			os.Exit(1)
 		}
 
 		// Parse the JSON.
 		currentRecord, err := toothrecord.NewFromJSON(content)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 
 		// Check if the tooth path is in toothPathMap.
@@ -121,7 +121,7 @@ func Run(args []string) {
 	for toothPath, recordFilePath := range toothPathMap {
 		if recordFilePath == "" {
 			logger.Error("the tooth " + toothPath + " is not installed")
-			return
+			os.Exit(1)
 		}
 	}
 
@@ -135,7 +135,7 @@ func Run(args []string) {
 		err = Uninstall(recordFileName, make([]string, 0), flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 	}
 

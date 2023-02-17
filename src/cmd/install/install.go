@@ -29,8 +29,7 @@ type FlagDict struct {
 
 const helpMessage = `
 Usage:
-  lip install [options] <requirement specifiers>
-  lip install [options] <tooth url/files>
+  lip install [options] <specifiers>
 
 Description:
   Install tooths from:
@@ -74,16 +73,24 @@ func Run(args []string) {
 		return
 	}
 
+	// At least one argument is required.
+	if flagSet.NArg() == 0 {
+		logger.Error("Too few arguments")
+		os.Exit(1)
+	}
+
 	// 1. Validate the requirement specifier or tooth url/path.
 	//    This process will check if the tooth file exists or the tooth url can be accessed
 	//    and if the requirement specifier syntax is valid. For requirement specifier, it
 	//    will also check if the tooth repository can be accessed via GOPROXY.
 
-	logger.Info("Validating requirement specifiers and tooth url/files...")
+	logger.Info("Validating specifiers...")
 
 	// Make specifierList.
 	var specifierList []specifiers.Specifier
 	for _, specifierString := range flagSet.Args() {
+		logger.Info("  Validating " + specifierString + "...")
+
 		specifier, err := specifiers.New(specifierString)
 		if err != nil {
 			logger.Error(err.Error())
@@ -93,12 +100,6 @@ func Run(args []string) {
 		specifierList = append(specifierList, specifier)
 	}
 
-	// Check if the requirement specifier or tooth url/path is missing.
-	if len(specifierList) == 0 {
-		logger.Error("Missing requirement specifier or tooth url/path")
-		os.Exit(1)
-	}
-
 	// 2. Parse dependency and download tooth files.
 	//    This process will maintain an array of tooth files to be downloaded. For each
 	//    specifier at the beginning, it will be added to the array. Then, for each
@@ -106,7 +107,7 @@ func Run(args []string) {
 	//    If it is not downloaded, it will be parsed to get its dependencies and add them
 	//    to the array. This process will continue until the array is empty.
 
-	logger.Info("Parsing dependencies and downloading tooth files...")
+	logger.Info("Resolving dependencies and downloading tooths...")
 
 	// An array of downloaded tooth files.
 	// The key is the specifier and the value is the path of the downloaded tooth file.
@@ -147,7 +148,7 @@ func Run(args []string) {
 			os.Exit(1)
 		}
 		if isCached {
-			logger.Info("    The tooth file is already cached.")
+			logger.Info("    Cached.")
 		}
 
 		// Add the downloaded path to the downloaded tooth files.
@@ -176,10 +177,14 @@ func Run(args []string) {
 
 		// If the no-dependencies flag is set, skip.
 		if !flagDict.noDependenciesFlag {
+			logger.Info("    Resolving dependencies...")
+
 			dependencies := toothFile.Metadata().Dependencies
 
 			// Get proper version of each dependency and add them to the queue.
 			for toothPath, versionRange := range dependencies {
+				logger.Info("      Resolving " + toothPath + "...")
+
 				versionList, err := toothrepo.FetchVersionList(toothPath)
 				if err != nil {
 					logger.Error(err.Error())
@@ -224,12 +229,16 @@ func Run(args []string) {
 
 	if flagDict.forceReinstallFlag || flagDict.upgradeFlag {
 		if flagDict.forceReinstallFlag {
-			logger.Info("force-reinstall flag is set, reinstalling all installed tooth specified by the specifiers...")
+			logger.Info("force-reinstall flag is set, Lip will reinstall all installed tooths specified by the specifiers...")
 		} else {
-			logger.Info("upgrade flag is set, upgrading all installed tooth specified by the specifiers...")
+			logger.Info("upgrade flag is set, Lip will upgrade all installed tooths specified by the specifiers...")
 		}
 
+		logger.Info("Uninstalling tooths to be reinstalled or upgraded...")
+
 		for _, specifier := range specifierList {
+			logger.Info("  Resolving " + specifier.String() + "...")
+
 			// If the specifier is not a requirement specifier, skip.
 			if specifier.Type() != specifiers.RequirementSpecifierType {
 				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
@@ -274,7 +283,7 @@ func Run(args []string) {
 			}
 
 			// If the tooth file of the specifier is installed, uninstall it.
-			logger.Info("  Uninstalling " + toothFile.Metadata().ToothPath + "...")
+			logger.Info("    Uninstalling " + toothFile.Metadata().ToothPath + "...")
 
 			possessionList := toothFile.Metadata().Possession
 			recordFileName := localfile.GetRecordFileName(toothFile.Metadata().ToothPath)
@@ -294,7 +303,7 @@ func Run(args []string) {
 	//    will be installed. If the tooth file is installed but the version is different,
 	//    it will be upgraded or reinstalled according to the flags.
 
-	logger.Info("Installing tooth files...")
+	logger.Info("Installing tooths...")
 
 	// Store downloaded tooth files in an array.
 	downloadedToothFileList := make([]toothfile.ToothFile, 0)
@@ -316,6 +325,8 @@ func Run(args []string) {
 	}
 
 	for _, toothFile := range downloadedToothFileList {
+		logger.Info("  Resolving " + toothFile.Metadata().ToothPath + "@" + toothFile.Metadata().Version.String() + "...")
+
 		// If the tooth file is already installed, skip.
 		isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 		if err != nil {
@@ -323,12 +334,12 @@ func Run(args []string) {
 			os.Exit(1)
 		}
 		if isInstalled {
-			logger.Info("  " + toothFile.Metadata().ToothPath + " is already installed.")
+			logger.Info("    " + toothFile.Metadata().ToothPath + " is already installed.")
 			continue
 		}
 
 		// Install the tooth file.
-		logger.Info("  Installing " + toothFile.Metadata().ToothPath + "@" +
+		logger.Info("    Installing " + toothFile.Metadata().ToothPath + "@" +
 			toothFile.Metadata().Version.String() + "...")
 
 		// TODO: Check if the tooth file is manually installed.

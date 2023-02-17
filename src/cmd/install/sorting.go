@@ -33,11 +33,6 @@ func sortToothFiles(toothFileList []toothfile.ToothFile) ([]toothfile.ToothFile,
 		}
 	}
 
-	// Print the sorted tooth files.
-	for _, toothFile := range sorted {
-		logger.Info(toothFile.Metadata().ToothPath)
-	}
-
 	return sorted, nil
 }
 

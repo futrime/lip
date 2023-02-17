@@ -66,12 +66,12 @@ func Run(args []string) {
 
 		} else {
 			logger.Error("Tool not found: " + toolPath)
-			return
+			os.Exit(1)
 		}
 	} else {
 		if _, err := os.Stat(toolPath); err != nil {
 			logger.Error("Tool not found: " + toolPath)
-			return
+			os.Exit(1)
 		}
 	}
 
@@ -92,6 +92,6 @@ func Run(args []string) {
 	err := cmd.Run()
 	if err != nil {
 		logger.Error("Failed to run tool: " + toolName + ": " + err.Error())
-		return
+		os.Exit(1)
 	}
 }
