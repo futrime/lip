@@ -19,7 +19,7 @@ type FlagDict struct {
 
 const helpMessage = `
 Usage:
-  lip uninstall [options] <tooth paths>
+  lip uninstall [options] <tooths>
 
 Description:
   Uninstall tooths.
@@ -31,12 +31,6 @@ Options:
 // Run is the entry point.
 func Run(args []string) {
 	var err error
-
-	// If there is no argument, print help message and exit.
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ExitOnError)
 
@@ -56,6 +50,12 @@ func Run(args []string) {
 	if flagDict.helpFlag {
 		logger.Info(helpMessage)
 		return
+	}
+
+	// Check if there are any arguments.
+	if flagSet.NArg() == 0 {
+		logger.Error("Too few arguments")
+		os.Exit(1)
 	}
 
 	// 1. Check if all tooth paths are installed.

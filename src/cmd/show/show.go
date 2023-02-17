@@ -40,11 +40,6 @@ Options:
 func Run(args []string) {
 	var err error
 
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
-
 	flagSet := flag.NewFlagSet("list", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -75,7 +70,7 @@ func Run(args []string) {
 
 	// Get the record file path.
 	// If the input is an alias, convert it to the repo path.
-	toothPath := strings.ToLower(flagSet.Args()[0])
+	toothPath := strings.ToLower(flagSet.Arg(0))
 	if !strings.Contains(toothPath, "/") {
 		toothPath, err = registry.LookupAlias(toothPath)
 		if err != nil {

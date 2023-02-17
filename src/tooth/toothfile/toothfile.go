@@ -19,7 +19,7 @@ type ToothFile struct {
 func New(filePath string) (ToothFile, error) {
 	r, err := zip.OpenReader(filePath)
 	if err != nil {
-		return ToothFile{}, errors.New("failed to open tooth file " + filePath)
+		return ToothFile{}, errors.New("Failed to open tooth file " + filePath)
 	}
 	defer r.Close()
 
@@ -33,14 +33,14 @@ func New(filePath string) (ToothFile, error) {
 			// Open tooth.json.
 			rc, err := f.Open()
 			if err != nil {
-				return ToothFile{}, errors.New("failed to open tooth.json in " + filePath)
+				return ToothFile{}, errors.New("Failed to open tooth.json in " + filePath)
 			}
 
 			// Read tooth.json as a string.
 			data, err := io.ReadAll(rc)
 			rc.Close()
 			if err != nil {
-				return ToothFile{}, errors.New("failed to read tooth.json in " + filePath)
+				return ToothFile{}, errors.New("Failed to read tooth.json in " + filePath)
 			}
 
 			// Decode tooth.json.

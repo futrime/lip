@@ -50,12 +50,6 @@ Options:
 func Run(args []string) {
 	var err error
 
-	// If there is no argument, print help message and exit.
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
-
 	flagSet := flag.NewFlagSet("install", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -64,7 +58,6 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.upgradeFlag, "upgrade", false, "")
@@ -94,7 +87,7 @@ func Run(args []string) {
 		specifier, err := specifiers.New(specifierString)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 
 		specifierList = append(specifierList, specifier)
@@ -102,8 +95,8 @@ func Run(args []string) {
 
 	// Check if the requirement specifier or tooth url/path is missing.
 	if len(specifierList) == 0 {
-		logger.Error("missing requirement specifier or tooth url/path")
-		return
+		logger.Error("Missing requirement specifier or tooth url/path")
+		os.Exit(1)
 	}
 
 	// 2. Parse dependency and download tooth files.
@@ -151,7 +144,7 @@ func Run(args []string) {
 		isCached, downloadedToothFilePath, err := getTooth(specifier, progressBarStyle)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 		if isCached {
 			logger.Info("    The tooth file is already cached.")
@@ -164,21 +157,21 @@ func Run(args []string) {
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 
 		// Validate the tooth file.
 		toothPath := toothFile.Metadata().ToothPath
 		if specifier.Type() == specifiers.RequirementSpecifierType &&
 			toothPath != specifier.ToothRepo() {
-			logger.Error("the tooth path of the downloaded tooth file does not match the requirement specifier")
+			logger.Error("The tooth path of the downloaded tooth file does not match the requirement specifier")
 
 			// Remove the downloaded tooth file.
 			err = os.Remove(downloadedToothFilePath)
 			if err != nil {
-				logger.Error("failed to remove the downloaded tooth file: " + err.Error())
+				logger.Error("Failed to remove the downloaded tooth file: " + err.Error())
 			}
-			return
+			os.Exit(1)
 		}
 
 		// If the no-dependencies flag is set, skip.
@@ -190,7 +183,7 @@ func Run(args []string) {
 				versionList, err := toothrepo.FetchVersionList(toothPath)
 				if err != nil {
 					logger.Error(err.Error())
-					return
+					os.Exit(1)
 				}
 
 				isMatched := false
@@ -203,7 +196,7 @@ func Run(args []string) {
 								specifier, err := specifiers.New(toothPath + "@" + version.String())
 								if err != nil {
 									logger.Error(err.Error())
-									return
+									os.Exit(1)
 								}
 								specifiersToFetch.PushBack(specifier)
 								isMatched = true
@@ -215,8 +208,8 @@ func Run(args []string) {
 
 				if !isMatched {
 					// If no version is selected, error.
-					logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
-					return
+					logger.Error("No version of " + toothPath + " matches the requirement of " + specifier.String())
+					os.Exit(1)
 				}
 			}
 		}
@@ -239,21 +232,21 @@ func Run(args []string) {
 		for _, specifier := range specifierList {
 			// If the specifier is not a requirement specifier, skip.
 			if specifier.Type() != specifiers.RequirementSpecifierType {
-				logger.Error("the specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
+				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
 				continue
 			}
 
 			toothFile, err := toothfile.New(downloadedToothFiles[specifier.String()])
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 
 			// If the tooth file of the specifier is not installed, skip.
 			isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 			if !isInstalled {
 				continue
@@ -263,14 +256,14 @@ func Run(args []string) {
 			recordDir, err := localfile.RecordDir()
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 
 			toothRecordFilePath := filepath.Join(recordDir, localfile.GetRecordFileName(toothFile.Metadata().ToothPath))
 			toothRecord, err := toothrecord.New(toothRecordFilePath)
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 
 			// Compare the version of the tooth file and the version of the tooth record.
@@ -289,7 +282,7 @@ func Run(args []string) {
 			err = cmdlipuninstall.Uninstall(recordFileName, possessionList, flagDict.yesFlag)
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 		}
 
@@ -308,8 +301,8 @@ func Run(args []string) {
 	for _, downloadedToothFilePath := range downloadedToothFiles {
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
-			logger.Error("failed to open the downloaded tooth file " + downloadedToothFilePath + ": " + err.Error())
-			return
+			logger.Error("Failed to open the downloaded tooth file " + downloadedToothFilePath + ": " + err.Error())
+			os.Exit(1)
 		}
 
 		downloadedToothFileList = append(downloadedToothFileList, toothFile)
@@ -318,8 +311,8 @@ func Run(args []string) {
 	// Topological sort the array in descending order.
 	downloadedToothFileList, err = sortToothFiles(downloadedToothFileList)
 	if err != nil {
-		logger.Error("failed to sort the downloaded tooth files: " + err.Error())
-		return
+		logger.Error("Failed to sort the downloaded tooth files: " + err.Error())
+		os.Exit(1)
 	}
 
 	for _, toothFile := range downloadedToothFileList {
@@ -327,7 +320,7 @@ func Run(args []string) {
 		isInstalled, err := toothrecord.IsToothInstalled(toothFile.Metadata().ToothPath)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 		if isInstalled {
 			logger.Info("  " + toothFile.Metadata().ToothPath + " is already installed.")
@@ -344,7 +337,7 @@ func Run(args []string) {
 		err = install(toothFile, isManuallyInstalled, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 	}
 

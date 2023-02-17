@@ -219,7 +219,7 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	var metadataMap map[string]interface{}
 	err = json.Unmarshal(jsonData, &metadataMap)
 	if err != nil {
-		return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
+		return Metadata{}, errors.New("Failed to decode JSON into metadata: " + err.Error())
 	}
 
 	// Parse to metadata.

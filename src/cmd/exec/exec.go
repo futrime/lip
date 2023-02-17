@@ -25,11 +25,6 @@ Options:
   -h, --help                  Show help.`
 
 func Run(args []string) {
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
-
 	flagSet := flag.NewFlagSet("exec", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -38,10 +33,8 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -52,11 +45,17 @@ func Run(args []string) {
 
 	// The tool name should not be empty.
 	if len(flagSet.Args()) == 0 {
-		logger.Error("missing tool name.")
-		return
+		logger.Error("Missing tool name.")
+		os.Exit(1)
 	}
 
-	toolName := flagSet.Args()[0]
+	// Only one tool can be executed at a time.
+	if len(flagSet.Args()) > 1 {
+		logger.Error("Only one tool can be executed at a time.")
+		os.Exit(1)
+	}
+
+	toolName := flagSet.Arg(0)
 	toolPath := ".lip/tools/" + toolName + "/" + toolName
 	toolPath = filepath.FromSlash(toolPath) // Convert to OS path.
 	if runtime.GOOS == "windows" {
@@ -66,12 +65,12 @@ func Run(args []string) {
 			toolPath += ".cmd"
 
 		} else {
-			logger.Error("tool not found: " + toolPath)
+			logger.Error("Tool not found: " + toolPath)
 			return
 		}
 	} else {
 		if _, err := os.Stat(toolPath); err != nil {
-			logger.Error("tool not found: " + toolPath)
+			logger.Error("Tool not found: " + toolPath)
 			return
 		}
 	}
@@ -92,7 +91,7 @@ func Run(args []string) {
 	cmd.Stdin = os.Stdin
 	err := cmd.Run()
 	if err != nil {
-		logger.Error("failed to run tool: " + toolName + ": " + err.Error())
+		logger.Error("Failed to run tool: " + toolName + ": " + err.Error())
 		return
 	}
 }
