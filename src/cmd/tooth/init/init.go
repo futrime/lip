@@ -48,21 +48,6 @@ Options:
 
 // Run is the entry point.
 func Run(args []string) {
-	// If there is no argument, initialize a new tooth.
-	if len(args) == 0 {
-		err := initTooth()
-
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-
-		logger.Info("tooth.json created successfully")
-		logger.Info("please edit tooth.json and modify the values with \"<>\"")
-
-		return
-	}
-
 	flagSet := flag.NewFlagSet("init", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -71,10 +56,8 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -82,6 +65,22 @@ func Run(args []string) {
 		logger.Info(helpMessage)
 		return
 	}
+
+	// No other arguments are supported.
+	if flagSet.NArg() > 0 {
+		logger.Error("Too many arguments.")
+		os.Exit(1)
+	}
+
+	err := initTooth()
+
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	logger.Info("tooth.json created successfully")
+	logger.Info("please edit tooth.json and modify the values with \"<>\"")
 }
 
 // initTooth initializes a new tooth.

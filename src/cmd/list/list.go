@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/liteldev/lip/specifiers"
@@ -53,6 +54,11 @@ func Run(args []string) {
 		return
 	}
 
+	if flagSet.NArg() > 0 {
+		logger.Error("Too many arguments.")
+		os.Exit(1)
+	}
+
 	if flagDict.upgradableFlag {
 		// List upgradable tooths.
 		listUpgradableTooths(flagDict.jsonFlag)
@@ -68,7 +74,7 @@ func listInstalledTooths(isJSON bool) {
 	recordList, err := toothrecord.ListAll()
 	if err != nil {
 		logger.Error(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	// Print table.
@@ -121,7 +127,7 @@ func listUpgradableTooths(isJSON bool) {
 	recordList, err := toothrecord.ListAll()
 	if err != nil {
 		logger.Error(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	// Get upgradable tooths.

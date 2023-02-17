@@ -8,7 +8,7 @@ lip cache [options]
 
 ## 功能
 
-检查和管理Lip的齿包缓存。
+检查和管理Lip的tooth缓存。
 
 ## 选项
 

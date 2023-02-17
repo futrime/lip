@@ -1,4 +1,4 @@
-package tooth
+package toothutils
 
 import (
 	"regexp"

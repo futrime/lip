@@ -7,7 +7,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liteldev/lip/tooth"
+	"github.com/liteldev/lip/tooth/toothutils"
 	"github.com/liteldev/lip/utils/versions"
 	"github.com/liteldev/lip/utils/versions/versionmatch"
 	"github.com/xeipuuv/gojsonschema"
@@ -38,6 +38,14 @@ type CommandStruct struct {
 	GOARCH   string
 }
 
+// ConfirmationStruct is the struct that contains the type, message, GOOS and GOARCH of a confirmation.
+type ConfirmationStruct struct {
+	Type    string
+	Message string
+	GOOS    string
+	GOARCH  string
+}
+
 // Metadata is the struct that contains all the metadata of a tooth.
 type Metadata struct {
 	ToothPath    string
@@ -47,6 +55,7 @@ type Metadata struct {
 	Placement    []PlacementStruct
 	Possession   []string
 	Commands     []CommandStruct
+	Confirmation []ConfirmationStruct
 }
 
 const jsonSchema string = `
@@ -157,6 +166,31 @@ const jsonSchema string = `
           }
         }
       }
+    },
+    "confirmation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
@@ -185,7 +219,7 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	var metadataMap map[string]interface{}
 	err = json.Unmarshal(jsonData, &metadataMap)
 	if err != nil {
-		return Metadata{}, errors.New("failed to decode JSON into metadata: " + err.Error())
+		return Metadata{}, errors.New("Failed to decode JSON into metadata: " + err.Error())
 	}
 
 	// Parse to metadata.
@@ -193,7 +227,7 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 	// Tooth path should be lower case.
 	metadata.ToothPath = strings.ToLower(metadataMap["tooth"].(string))
-	if !tooth.IsValidToothPath(metadata.ToothPath) {
+	if !toothutils.IsValidToothPath(metadata.ToothPath) {
 		return Metadata{}, errors.New("failed to decode JSON into metadata: invalid tooth path: " + metadata.ToothPath)
 	}
 
@@ -254,11 +288,10 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 			if _, ok := placement.(map[string]interface{})["GOOS"]; ok {
 				metadata.Placement[i].GOOS = placement.(map[string]interface{})["GOOS"].(string)
+			}
 
-				// If GOARCH is set, GOOS must be set.
-				if _, ok := placement.(map[string]interface{})["GOARCH"]; ok {
-					metadata.Placement[i].GOARCH = placement.(map[string]interface{})["GOARCH"].(string)
-				}
+			if _, ok := placement.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Placement[i].GOARCH = placement.(map[string]interface{})["GOARCH"].(string)
 			}
 		}
 	} else {
@@ -277,24 +310,41 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	if _, ok := metadataMap["commands"]; ok {
 		metadata.Commands = make([]CommandStruct, len(metadataMap["commands"].([]interface{})))
 		for i, command := range metadataMap["commands"].([]interface{}) {
-			commandType := command.(map[string]interface{})["type"].(string)
+			metadata.Commands[i].Type = command.(map[string]interface{})["type"].(string)
+
 			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
 			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
 				commandContent[j] = command.(string)
 			}
-			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
-			commandGOARCH := ""
-			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
-				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
-			}
-
-			metadata.Commands[i].Type = commandType
 			metadata.Commands[i].Commands = commandContent
-			metadata.Commands[i].GOOS = commandGOOS
-			metadata.Commands[i].GOARCH = commandGOARCH
+
+			metadata.Commands[i].GOOS = command.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Commands[i].GOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		metadata.Commands = make([]CommandStruct, 0)
+	}
+
+	if _, ok := metadataMap["confirmation"]; ok {
+		metadata.Confirmation = make([]ConfirmationStruct, len(metadataMap["confirmation"].([]interface{})))
+		for i, confirmation := range metadataMap["confirmation"].([]interface{}) {
+			metadata.Confirmation[i].Type = confirmation.(map[string]interface{})["type"].(string)
+
+			metadata.Confirmation[i].Message = confirmation.(map[string]interface{})["message"].(string)
+
+			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
+				metadata.Confirmation[i].GOOS = confirmation.(map[string]interface{})["GOOS"].(string)
+			}
+
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Confirmation[i].GOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
+		}
+	} else {
+		metadata.Confirmation = make([]ConfirmationStruct, 0)
 	}
 
 	return metadata, nil
@@ -348,6 +398,19 @@ func (metadata Metadata) JSON() ([]byte, error) {
 		metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
 		if command.GOARCH != "" {
 			metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
+	}
+
+	metadataMap["confirmation"] = make([]interface{}, len(metadata.Confirmation))
+	for i, confirmation := range metadata.Confirmation {
+		metadataMap["confirmation"].([]interface{})[i] = make(map[string]interface{})
+		metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["type"] = confirmation.Type
+		metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["message"] = confirmation.Message
+		if confirmation.GOOS != "" {
+			metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOOS"] = confirmation.GOOS
+		}
+		if confirmation.GOARCH != "" {
+			metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOARCH"] = confirmation.GOARCH
 		}
 	}
 

@@ -14,7 +14,7 @@ import (
 // Version is the version of Lip.
 var VersionString = "v0.0.0"
 
-const DefaultGoproxy = "https://goproxy.io"
+const DefaultGoproxyURL = "https://goproxy.io"
 
 const DefaultRegistryURL = "https://registry.litebds.com"
 
@@ -24,8 +24,8 @@ const DefaultRegistryURL = "https://registry.litebds.com"
 // Version is the version of Lip.
 var Version versions.Version
 
-// Goproxy is the goproxy address.
-var Goproxy string
+// GoproxyList is the goproxy address.
+var GoproxyList []string
 
 // RegistryURL is the registry address.
 var RegistryURL string
@@ -44,10 +44,10 @@ func Init() {
 	}
 
 	// Set Goproxy.
-	if goproxy := os.Getenv("GOPROXY"); goproxy != "" {
-		Goproxy = goproxy
+	if goproxy := os.Getenv("LIP_GOPROXY"); goproxy != "" {
+		GoproxyList = strings.Split(goproxy, ",")
 	} else {
-		Goproxy = DefaultGoproxy
+		GoproxyList = []string{DefaultGoproxyURL}
 	}
 
 	// Set RegistryURL.

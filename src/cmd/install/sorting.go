@@ -33,19 +33,12 @@ func sortToothFiles(toothFileList []toothfile.ToothFile) ([]toothfile.ToothFile,
 		}
 	}
 
-	// Print the sorted tooth files.
-	for _, toothFile := range sorted {
-		logger.Info(toothFile.Metadata().ToothPath)
-	}
-
 	return sorted, nil
 }
 
 // visit visits a tooth file and its dependencies.
 func visit(toothFile toothfile.ToothFile, toothFileMap map[string]toothfile.ToothFile, preVisited map[string]bool, visited map[string]bool, sorted *[]toothfile.ToothFile) error {
 	var err error
-
-	logger.Info("visiting", toothFile.Metadata().ToothPath)
 
 	if visited[toothFile.Metadata().ToothPath] {
 		return nil
@@ -56,8 +49,6 @@ func visit(toothFile toothfile.ToothFile, toothFileMap map[string]toothfile.Toot
 
 	preVisited[toothFile.Metadata().ToothPath] = true
 	for depToothPath := range toothFile.Metadata().Dependencies {
-		logger.Info("visiting dependency", depToothPath)
-
 		// Find the tooth file of the dependency.
 		dep, ok := toothFileMap[depToothPath]
 		if !ok {

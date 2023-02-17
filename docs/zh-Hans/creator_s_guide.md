@@ -14,7 +14,7 @@ Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 
 ## 常见任务
 
-### 初始化齿包工作区
+### 初始化tooth工作区
 
 ```shell
 > lip tooth init
@@ -24,14 +24,14 @@ please edit tooth.json and modify the values with "<>"
 
 然后你可以在 tooth.json中填写信息，使你的作品被Lip认可。
 
-### 打包齿包
+### 打包tooth
 
-目前，我们没有提供打包齿包的命令，你可以直接压缩所有的东西 (确保 tooth.json 在你的压缩文件的根目录) 并将拓展名从".zip" 改为 ".tth" 。
+目前，我们没有提供打包tooth的命令，你可以直接压缩所有的东西 (确保 tooth.json 在你的压缩文件的根目录) 并将拓展名从".zip" 改为 ".tth" 。
 
 
 ## GOPROXY相关通知
 
-由于我们使用GOPROXY作为代理来获取齿包文件，请不要将go.mod文件放在你版本库的根目录下。
+由于我们使用GOPROXY作为代理来获取tooth文件，请不要将go.mod文件放在你版本库的根目录下。
 
 ## 下一步
 

@@ -21,7 +21,7 @@ func main() {
 	}
 
 	// Change the working directory to the project root.
-	workspaceDir, err := localfile.WorkSpaceDir()
+	workspaceDir, err := localfile.WorkspaceDir()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

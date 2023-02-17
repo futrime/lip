@@ -17,9 +17,10 @@ import (
 
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
-	helpFlag  bool
-	filesFlag bool
-	jsonFlag  bool
+	helpFlag      bool
+	filesFlag     bool
+	availableFlag bool
+	jsonFlag      bool
 }
 
 const helpMessage = `
@@ -32,16 +33,12 @@ Description:
 Options:
   -h, --help                  Show help.
   --files                     Show the full list of installed files.
+  --available                 Show the full list of available versions.
   --json                      Output in JSON format. (cannot be hidden with "--quiet")`
 
 // Run is the entry point.
 func Run(args []string) {
 	var err error
-
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
 
 	flagSet := flag.NewFlagSet("list", flag.ExitOnError)
 
@@ -54,6 +51,7 @@ func Run(args []string) {
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.filesFlag, "files", false, "")
+	flagSet.BoolVar(&flagDict.availableFlag, "available", false, "")
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
 	flagSet.Parse(args)
 
@@ -72,7 +70,7 @@ func Run(args []string) {
 
 	// Get the record file path.
 	// If the input is an alias, convert it to the repo path.
-	toothPath := strings.ToLower(flagSet.Args()[0])
+	toothPath := strings.ToLower(flagSet.Arg(0))
 	if !strings.Contains(toothPath, "/") {
 		toothPath, err = registry.LookupAlias(toothPath)
 		if err != nil {
@@ -141,26 +139,29 @@ func Run(args []string) {
 		}
 	}
 
-	logger.Info("Fetching available versions...")
+	// Show the full list of available versions if the available flag is set.
+	if flagDict.availableFlag {
+		logger.Info("Fetching available versions...")
 
-	// Show version information
-	versionList, err := toothrepo.FetchVersionList(toothPath)
-	if err != nil {
-		logger.Error("failed to fetch available versions: " + err.Error())
-		os.Exit(1)
+		// Show version information
+		versionList, err := toothrepo.FetchVersionList(toothPath)
+		if err != nil {
+			logger.Error("failed to fetch available versions: " + err.Error())
+			os.Exit(1)
+		}
+
+		logger.Info("Available versions:")
+		versionListString := ""
+		outputJSONMap["versions"] = []string{}
+		for _, version := range versionList {
+			versionListString += "  " + version.String()
+
+			// Save to JSON map.
+			outputJSONMap["versions"] = append(outputJSONMap["versions"].([]string), version.String())
+		}
+		logger.Info(versionListString)
+		logger.Info("")
 	}
-
-	logger.Info("Available versions:")
-	versionListString := ""
-	outputJSONMap["versions"] = []string{}
-	for _, version := range versionList {
-		versionListString += "  " + version.String()
-
-		// Save to JSON map.
-		outputJSONMap["versions"] = append(outputJSONMap["versions"].([]string), version.String())
-	}
-	logger.Info(versionListString)
-	logger.Info("")
 
 	// Output in JSON format.
 	if flagDict.jsonFlag {

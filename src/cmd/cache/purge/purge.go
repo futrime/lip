@@ -26,20 +26,6 @@ Options:
 
 // Run is the entry point.
 func Run(args []string) {
-	// If there is no argument, initialize a new tooth.
-	if len(args) == 0 {
-		err := PurgeCache()
-
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-
-		logger.Info("Cache has been purged successfully.")
-
-		return
-	}
-
 	flagSet := flag.NewFlagSet("purge", flag.ExitOnError)
 
 	// Rewrite the default usage message.
@@ -48,10 +34,8 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -59,10 +43,25 @@ func Run(args []string) {
 		logger.Info(helpMessage)
 		return
 	}
+
+	// If there is no argument, initialize a new tooth.
+	if flagSet.NArg() == 0 {
+		err := purgeCache()
+		if err != nil {
+			logger.Error(err.Error())
+			os.Exit(1)
+		}
+		logger.Info("Cache has been purged successfully.")
+		return
+	}
+
+	// Otherwise, report an error.
+	logger.Error("Too many arguments.")
+	os.Exit(1)
 }
 
-// PurgeCache removes all items from the cache.
-func PurgeCache() error {
+// purgeCache removes all items from the cache.
+func purgeCache() error {
 	cacheDir, err := localfile.CacheDir()
 	if err != nil {
 		return err
@@ -70,13 +69,13 @@ func PurgeCache() error {
 
 	err = os.RemoveAll(cacheDir)
 	if err != nil {
-		return errors.New("failed to remove cache directory: " + err.Error())
+		return errors.New("Failed to remove cache directory: " + err.Error())
 	}
 
 	// Create a new cache directory.
 	err = os.MkdirAll(cacheDir, 0755)
 	if err != nil {
-		return errors.New("failed to create a new cache directory: " + err.Error())
+		return errors.New("Failed to create a new cache directory: " + err.Error())
 	}
 
 	return nil

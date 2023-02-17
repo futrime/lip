@@ -70,6 +70,14 @@ A tooth.json includes directives as shown in the following example. These are de
       ],
       "GOOS": "windows"
     }
+  ],
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
   ]
 }
 ```
@@ -96,9 +104,9 @@ Declares the tooth's tooth path, which is the tooth's unique identifier (when co
 
 ### Syntax
 
-Generally, tooth path should be in the form of a lowercased URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
+Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
 
-Only lowercase letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
 
 ### Examples
 
@@ -305,11 +313,11 @@ Extract from specific folders and place to specific folders:
 
 ## possession
 
-Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
+Declares the which folders or files are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
 
 ### Syntax
 
-Each item of the list should be a valid directory path ending with "/".
+Each item of the list should be a valid path relative to the workspace of Lip. Lip will recursively remove all files and folders under the path.
 
 ### Examples
 
@@ -363,6 +371,34 @@ windows/arm64
       "commands": [
         "start LLPeEditor.exe"
       ],
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
+  ]
+}
+```
+
+## confirmation
+
+Declares the confirmation message that will be shown when installing.
+
+### Syntax
+
+type is the type of the command. It can be one of the following:
+
+- install: execute the command when installing
+- uninstall: execute the command when uninstalling
+
+GOOS (optional) is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go.
+
+### Examples
+
+```json
+{
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
       "GOOS": "windows",
       "GOARCH": "amd64"
     }
@@ -473,6 +509,31 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
             "items": {
               "type": "string"
             }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confirmation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "message": {
+            "type": "string"
           },
           "GOOS": {
             "type": "string"

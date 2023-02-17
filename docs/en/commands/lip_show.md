@@ -22,6 +22,10 @@ The output is in RFC-compliant mail header format.
 
   Show the full list of installed files.
 
+- `--available`
+
+  Show the full list of available versions.
+
 - `--json`
   
   Output in JSON format. (cannot be hidden with `--quiet`)

@@ -123,6 +123,9 @@ func Run(args []string) {
 		case "uninstall":
 			cmdlipuninstall.Run(flagSet.Args()[1:])
 			return
+		default:
+			logger.Error("Unknown command: lip %s", flagSet.Arg(0))
+			os.Exit(1)
 		}
 	}
 

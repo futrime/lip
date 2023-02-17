@@ -3,6 +3,7 @@ package cmdlipuninstall
 import (
 	"flag"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/liteldev/lip/localfile"
@@ -13,28 +14,26 @@ import (
 
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
-	helpFlag bool
+	helpFlag           bool
+	yesFlag            bool
+	keepPossessionFlag bool
 }
 
 const helpMessage = `
 Usage:
-  lip uninstall [options] <tooth paths>
+  lip uninstall [options] <tooths>
 
 Description:
   Uninstall tooths.
 
 Options:
-  -h, --help                  Show help.`
+  -h, --help                  Show help.
+  -y, --yes                   Skip confirmation.
+  --keep-possession            Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.`
 
 // Run is the entry point.
 func Run(args []string) {
 	var err error
-
-	// If there is no argument, print help message and exit.
-	if len(args) == 0 {
-		logger.Info(helpMessage)
-		return
-	}
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ExitOnError)
 
@@ -44,16 +43,23 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
+	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
+	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
+	flagSet.BoolVar(&flagDict.keepPossessionFlag, "keep-possession", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
 		logger.Info(helpMessage)
 		return
+	}
+
+	// Check if there are any arguments.
+	if flagSet.NArg() == 0 {
+		logger.Error("Too few arguments")
+		os.Exit(1)
 	}
 
 	// 1. Check if all tooth paths are installed.
@@ -69,7 +75,7 @@ func Run(args []string) {
 			toothPathList[i], err = registry.LookupAlias(toothPath)
 			if err != nil {
 				logger.Error(err.Error())
-				return
+				os.Exit(1)
 			}
 		}
 	}
@@ -85,13 +91,13 @@ func Run(args []string) {
 	recordDir, err := localfile.RecordDir()
 	if err != nil {
 		logger.Error(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	files, err := os.ReadDir(recordDir)
 	if err != nil {
 		logger.Error("cannot read the record directory " + recordDir + ": " + err.Error())
-		return
+		os.Exit(1)
 	}
 
 	for _, file := range files {
@@ -99,14 +105,14 @@ func Run(args []string) {
 		content, err := os.ReadFile(recordDir + "/" + file.Name())
 		if err != nil {
 			logger.Error("cannot read the record file " + recordDir + "/" + file.Name() + ": " + err.Error())
-			return
+			os.Exit(1)
 		}
 
 		// Parse the JSON.
 		currentRecord, err := toothrecord.NewFromJSON(content)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 
 		// Check if the tooth path is in toothPathMap.
@@ -119,7 +125,7 @@ func Run(args []string) {
 	for toothPath, recordFilePath := range toothPathMap {
 		if recordFilePath == "" {
 			logger.Error("the tooth " + toothPath + " is not installed")
-			return
+			os.Exit(1)
 		}
 	}
 
@@ -128,12 +134,24 @@ func Run(args []string) {
 	logger.Info("Uninstalling tooths...")
 
 	for toothPath, recordFileName := range toothPathMap {
-		logger.Info("Uninstalling " + toothPath + "...")
+		logger.Info("  Uninstalling " + toothPath + "...")
 
-		err = Uninstall(recordFileName, make([]string, 0))
+		possessionList := make([]string, 0)
+		if flagDict.keepPossessionFlag {
+			// Read the record file.
+			recordFilePath := filepath.Join(recordDir, recordFileName)
+			record, err := toothrecord.New(recordFilePath)
+			if err != nil {
+				logger.Error("cannot read the record file " + recordFilePath + ": " + err.Error())
+				os.Exit(1)
+			}
+			possessionList = record.Possession
+		}
+
+		err = Uninstall(recordFileName, possessionList, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			os.Exit(1)
 		}
 	}
 

@@ -13,18 +13,18 @@ import (
 	"github.com/liteldev/lip/utils/versions"
 )
 
-// SpecifierType is an enum that represents the type of a specifier.
-type SpecifierType int
+// SpecifierKind is an enum that represents the type of a specifier.
+type SpecifierKind int
 
 const (
-	ToothFileSpecifierType SpecifierType = iota
-	ToothURLSpecifierType
-	RequirementSpecifierType
+	ToothFileKind SpecifierKind = iota
+	ToothURLKind
+	RequirementKind
 )
 
 // Specifier is a type that can be used to specify a tooth url/file or a requirement.
 type Specifier struct {
-	specifierType SpecifierType
+	specifierType SpecifierKind
 	toothFilePath string
 	toothURL      string
 	toothRepo     string
@@ -38,7 +38,7 @@ func New(specifierString string) (Specifier, error) {
 	specifierType := getSpecifierType(specifierString)
 
 	switch specifierType {
-	case ToothFileSpecifierType:
+	case ToothFileKind:
 		// Check if the tooth file exists.
 		_, err := os.Stat(specifierString)
 
@@ -51,7 +51,7 @@ func New(specifierString string) (Specifier, error) {
 			toothFilePath: specifierString,
 		}, nil
 
-	case ToothURLSpecifierType:
+	case ToothURLKind:
 		// Check if the tooth url can be accessed.
 		resp, err := http.Head(specifierString)
 
@@ -64,7 +64,7 @@ func New(specifierString string) (Specifier, error) {
 			toothURL:      specifierString,
 		}, nil
 
-	case RequirementSpecifierType:
+	case RequirementKind:
 		// Specifier string should be lower case.
 		specifierString = strings.ToLower(specifierString)
 
@@ -141,18 +141,18 @@ func New(specifierString string) (Specifier, error) {
 }
 
 // Type returns the type of the specifier.
-func (s Specifier) Type() SpecifierType {
+func (s Specifier) Type() SpecifierKind {
 	return s.specifierType
 }
 
 // String returns the string representation of the specifier.
 func (s Specifier) String() string {
 	switch s.specifierType {
-	case ToothFileSpecifierType:
+	case ToothFileKind:
 		return s.toothFilePath
-	case ToothURLSpecifierType:
+	case ToothURLKind:
 		return s.toothURL
-	case RequirementSpecifierType:
+	case RequirementKind:
 		return s.toothRepo + "@" + s.toothVersion.String()
 	}
 
@@ -180,14 +180,14 @@ func (s Specifier) ToothVersion() versions.Version {
 }
 
 // getSpecifierType gets the type of the requirement specifier.
-func getSpecifierType(specifier string) SpecifierType {
+func getSpecifierType(specifier string) SpecifierKind {
 	if strings.HasSuffix(specifier, ".tth") {
 		if strings.HasPrefix(specifier, "http://") || strings.HasPrefix(specifier, "https://") {
-			return ToothURLSpecifierType
+			return ToothURLKind
 		} else {
-			return ToothFileSpecifierType
+			return ToothFileKind
 		}
 	} else {
-		return RequirementSpecifierType
+		return RequirementKind
 	}
 }

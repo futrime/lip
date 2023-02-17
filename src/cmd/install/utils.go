@@ -11,22 +11,22 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/liteldev/lip/context"
+	"github.com/liteldev/lip/download"
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/specifiers"
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/download"
 	"github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/utils/paths"
 )
 
 // getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.
 // If the tooth file is downloaded, it will be cached.
 // If the specifier is local tooth file, it will return the path of the local tooth file.
 // toothFilePath is the absolute path of the tooth file.
-func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath string, err error) {
+func getTooth(specifier specifiers.Specifier, progressBarStyle download.ProgressBarStyleType) (isCached bool, toothFilePath string, err error) {
 	// For local tooth file, return the path directly.
-	if specifier.Type() == specifiers.ToothFileSpecifierType {
+	if specifier.Type() == specifiers.ToothFileKind {
 		// Get full path of the tooth file.
 		toothFilePath, err := filepath.Abs(specifier.ToothFilePath())
 		if err != nil {
@@ -54,7 +54,7 @@ func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath stri
 	}
 
 	// Download the tooth file to the cache.
-	err = DownloadTooth(specifier, cacheFilePath)
+	err = downloadTooth(specifier, cacheFilePath, progressBarStyle)
 	if err != nil {
 		return false, "", err
 	}
@@ -62,39 +62,48 @@ func getTooth(specifier specifiers.Specifier) (isCached bool, toothFilePath stri
 	return false, cacheFilePath, nil
 }
 
-// DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
+// downloadTooth downloads a tooth file from a tooth repository, a tooth url,
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
-func DownloadTooth(specifier specifiers.Specifier, destination string) error {
+func downloadTooth(specifier specifiers.Specifier, destination string, progressBarStyle download.ProgressBarStyleType) error {
 	switch specifier.Type() {
-	case specifiers.ToothFileSpecifierType:
+	case specifiers.ToothFileKind:
 		// Local tooth file is not accepted here.
 		return errors.New("local tooth file is not able to be downloaded")
 
-	case specifiers.ToothURLSpecifierType:
+	case specifiers.ToothURLKind:
 		// For tooth url, download the tooth file and return the path.
 
-		err := download.DownloadFile(specifier.ToothURL(), destination)
+		tempFilePath := destination + ".tmp"
+
+		err := download.DownloadFile(specifier.ToothURL(), tempFilePath, progressBarStyle)
 		if err != nil {
 			return err
 		}
+
+		// Move the downloaded file to the destination.
+		os.Rename(tempFilePath, destination)
 
 		return nil
 
-	case specifiers.RequirementSpecifierType:
+	case specifiers.RequirementKind:
 		// For requirement specifier, download the tooth via GOPROXY and return the path.
 
-		// Get the tooth file url.
-		urlSuffix := "+incompatible.zip"
-		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
-			urlSuffix = ".zip"
-		}
-		url := context.Goproxy + "/" + specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlSuffix
+		tempFilePath := destination + ".tmp"
 
-		err := download.DownloadFile(url, destination)
+		urlPathSuffix := "+incompatible.zip"
+		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
+			urlPathSuffix = ".zip"
+		}
+		urlPath := specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlPathSuffix
+
+		err := download.DownloadGoproxyFile(urlPath, tempFilePath, progressBarStyle)
 		if err != nil {
 			return err
 		}
+
+		// Move the downloaded file to the destination.
+		os.Rename(tempFilePath, destination)
 
 		return nil
 	}
@@ -103,8 +112,8 @@ func DownloadTooth(specifier specifiers.Specifier, destination string) error {
 	return errors.New("unknown error")
 }
 
-// Install installs the .tth file.
-func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
+// install installs the .tth file.
+func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
 	// 1. Check if the tooth is already installed.
 
 	recordDir, err := localfile.RecordDir()
@@ -120,7 +129,32 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		return errors.New("the tooth is already installed")
 	}
 
-	// 2. Place the files to the right place in the workspace.
+	// 2. Ask for confirmation if the tooth requires confirmation.
+
+	if len(t.Metadata().Confirmation) > 0 {
+		for _, confirmation := range t.Metadata().Confirmation {
+			if confirmation.Type != "install" {
+				continue
+			}
+
+			if confirmation.GOOS != "" && confirmation.GOOS != runtime.GOOS {
+				continue
+			}
+
+			if confirmation.GOARCH != "" && confirmation.GOARCH != runtime.GOARCH {
+				continue
+			}
+
+			logger.Info(confirmation.Message + " (Y/n)")
+			var ans string
+			fmt.Scanln(&ans)
+			if ans != "Y" && ans != "y" && ans != "" {
+				return errors.New("installation cancelled")
+			}
+		}
+	}
+
+	// 3. Place the files to the right place in the workspace.
 
 	// Open the .tth file.
 	r, err := zip.OpenReader(t.FilePath())
@@ -129,7 +163,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 	}
 	defer r.Close()
 
-	workSpaceDir, err := localfile.WorkSpaceDir()
+	workSpaceDir, err := localfile.WorkspaceDir()
 	if err != nil {
 		return err
 	}
@@ -150,19 +184,8 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		destination := placement.Destination
 
 		if !isYes {
-			workSpaceDirAbs, err := filepath.Abs(workSpaceDir)
-			if err != nil {
-				return errors.New("failed to get the absolute path of the workspace directory")
-			}
-
-			destinationAbs, err := filepath.Abs(destination)
-			if err != nil {
-				return errors.New("failed to get the absolute path of the destination")
-			}
-
-			relPath, err := filepath.Rel(workSpaceDirAbs, destinationAbs)
-			if err != nil || strings.HasPrefix(relPath, "../") || strings.HasPrefix(relPath, "..\\") {
-				logger.Info("The destination " + destination + " is not in the workspace. Do you want to continue? (y/N)")
+			if !paths.IsAncesterOf(workSpaceDir, destination) {
+				logger.Info("This tooth is placing files to " + destination + ", which is not in current workspace. Do you want to continue? (y/N)")
 				var ans string
 				fmt.Scanln(&ans)
 				if ans != "y" && ans != "Y" {
@@ -239,7 +262,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		}
 	}
 
-	// 3. Install the record file.
+	// 5. Install the record file.
 
 	// Create a record object from the metadata.
 	record := toothrecord.NewFromMetadata(t.Metadata(), isManuallyInstalled)

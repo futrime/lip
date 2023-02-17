@@ -41,6 +41,14 @@ type CommandStruct struct {
 	GOARCH   string
 }
 
+// ConfirmationStruct is the struct that contains the type, message, GOOS and GOARCH of a confirmation.
+type ConfirmationStruct struct {
+	Type    string
+	Message string
+	GOOS    string
+	GOARCH  string
+}
+
 // Record is the struct that contains the record of a tooth installation.
 type Record struct {
 	ToothPath           string
@@ -50,6 +58,7 @@ type Record struct {
 	Placement           []PlacementStruct
 	Possession          []string
 	Commands            []CommandStruct
+	Confirmation        []ConfirmationStruct
 	IsManuallyInstalled bool
 }
 
@@ -126,24 +135,41 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 	if _, ok := recordMap["commands"]; ok {
 		record.Commands = make([]CommandStruct, len(recordMap["commands"].([]interface{})))
 		for i, command := range recordMap["commands"].([]interface{}) {
-			commandType := command.(map[string]interface{})["type"].(string)
+			record.Commands[i].Type = command.(map[string]interface{})["type"].(string)
+
 			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
 			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
 				commandContent[j] = command.(string)
 			}
-			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
-			commandGOARCH := ""
-			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
-				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
-			}
-
-			record.Commands[i].Type = commandType
 			record.Commands[i].Commands = commandContent
-			record.Commands[i].GOOS = commandGOOS
-			record.Commands[i].GOARCH = commandGOARCH
+
+			record.Commands[i].GOOS = command.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				record.Commands[i].GOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		record.Commands = make([]CommandStruct, 0)
+	}
+
+	if _, ok := recordMap["confirmation"]; ok {
+		record.Confirmation = make([]ConfirmationStruct, len(recordMap["confirmation"].([]interface{})))
+		for i, confirmation := range recordMap["confirmation"].([]interface{}) {
+			record.Confirmation[i].Type = confirmation.(map[string]interface{})["type"].(string)
+
+			record.Confirmation[i].Message = confirmation.(map[string]interface{})["message"].(string)
+
+			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
+				record.Confirmation[i].GOOS = confirmation.(map[string]interface{})["GOOS"].(string)
+			}
+
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				record.Confirmation[i].GOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
+		}
+	} else {
+		record.Confirmation = make([]ConfirmationStruct, 0)
 	}
 
 	record.IsManuallyInstalled = recordMap["is_manually_installed"].(bool)
@@ -185,6 +211,14 @@ func NewFromMetadata(metadata toothmetadata.Metadata, isManuallyInstalled bool) 
 		copy(record.Commands[i].Commands, command.Commands)
 		record.Commands[i].GOOS = command.GOOS
 		record.Commands[i].GOARCH = command.GOARCH
+	}
+
+	record.Confirmation = make([]ConfirmationStruct, len(metadata.Confirmation))
+	for i, confirmation := range metadata.Confirmation {
+		record.Confirmation[i].Type = confirmation.Type
+		record.Confirmation[i].Message = confirmation.Message
+		record.Confirmation[i].GOOS = confirmation.GOOS
+		record.Confirmation[i].GOARCH = confirmation.GOARCH
 	}
 
 	record.IsManuallyInstalled = isManuallyInstalled
@@ -243,6 +277,19 @@ func (record Record) JSON() ([]byte, error) {
 		recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
 		if command.GOARCH != "" {
 			recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
+	}
+
+	recordMap["confirmation"] = make([]interface{}, len(record.Confirmation))
+	for i, confirmation := range record.Confirmation {
+		recordMap["confirmation"].([]interface{})[i] = make(map[string]interface{})
+		recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["type"] = confirmation.Type
+		recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["message"] = confirmation.Message
+		if confirmation.GOOS != "" {
+			recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOOS"] = confirmation.GOOS
+		}
+		if confirmation.GOARCH != "" {
+			recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOARCH"] = confirmation.GOARCH
 		}
 	}
 

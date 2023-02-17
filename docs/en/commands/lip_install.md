@@ -77,6 +77,14 @@ You can install any pre-release versions by specifying the version. And tooths c
 
   Assume yes to all prompts and run non-interactively.
 
+- `--numeric-progress`
+
+  Show numeric progress instead of progress bar.
+
+- `--no-dependencies`
+
+  Do not install dependencies.
+
 ## Examples
 
 Install from tooth repositories:
