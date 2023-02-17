@@ -17,6 +17,7 @@ import (
 	"github.com/liteldev/lip/tooth/toothfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/utils/paths"
 )
 
 // getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.
@@ -173,19 +174,8 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		destination := placement.Destination
 
 		if !isYes {
-			workSpaceDirAbs, err := filepath.Abs(workSpaceDir)
-			if err != nil {
-				return errors.New("failed to get the absolute path of the workspace directory")
-			}
-
-			destinationAbs, err := filepath.Abs(destination)
-			if err != nil {
-				return errors.New("failed to get the absolute path of the destination")
-			}
-
-			relPath, err := filepath.Rel(workSpaceDirAbs, destinationAbs)
-			if err != nil || strings.HasPrefix(relPath, "../") || strings.HasPrefix(relPath, "..\\") {
-				logger.Info("The destination " + destination + " is not in the workspace. Do you want to continue? (y/N)")
+			if !paths.IsAncesterOf(workSpaceDir, destination) {
+				logger.Info("This tooth is placing files to " + destination + ", which is not in current workspace. Do you want to continue? (y/N)")
 				var ans string
 				fmt.Scanln(&ans)
 				if ans != "y" && ans != "Y" {
