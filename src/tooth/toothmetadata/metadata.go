@@ -38,6 +38,14 @@ type CommandStruct struct {
 	GOARCH   string
 }
 
+// ConfirmationStruct is the struct that contains the type, message, GOOS and GOARCH of a confirmation.
+type ConfirmationStruct struct {
+	Type    string
+	Message string
+	GOOS    string
+	GOARCH  string
+}
+
 // Metadata is the struct that contains all the metadata of a tooth.
 type Metadata struct {
 	ToothPath    string
@@ -47,6 +55,7 @@ type Metadata struct {
 	Placement    []PlacementStruct
 	Possession   []string
 	Commands     []CommandStruct
+	Confirmation []ConfirmationStruct
 }
 
 const jsonSchema string = `
@@ -148,6 +157,31 @@ const jsonSchema string = `
             "items": {
               "type": "string"
             }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confirmation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "message": {
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
@@ -297,6 +331,29 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		metadata.Commands = make([]CommandStruct, 0)
 	}
 
+	if _, ok := metadataMap["confirmation"]; ok {
+		metadata.Confirmation = make([]ConfirmationStruct, len(metadataMap["confirmation"].([]interface{})))
+		for i, confirmation := range metadataMap["confirmation"].([]interface{}) {
+			confirmationType := confirmation.(map[string]interface{})["type"].(string)
+			confirmationMessage := confirmation.(map[string]interface{})["message"].(string)
+			confirmationGOOS := ""
+			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
+				confirmationGOOS = confirmation.(map[string]interface{})["GOOS"].(string)
+			}
+			confirmationGOARCH := ""
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				confirmationGOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
+
+			metadata.Confirmation[i].Type = confirmationType
+			metadata.Confirmation[i].Message = confirmationMessage
+			metadata.Confirmation[i].GOOS = confirmationGOOS
+			metadata.Confirmation[i].GOARCH = confirmationGOARCH
+		}
+	} else {
+		metadata.Confirmation = make([]ConfirmationStruct, 0)
+	}
+
 	return metadata, nil
 }
 
@@ -348,6 +405,19 @@ func (metadata Metadata) JSON() ([]byte, error) {
 		metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
 		if command.GOARCH != "" {
 			metadataMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
+	}
+
+	metadataMap["confirmation"] = make([]interface{}, len(metadata.Confirmation))
+	for i, confirmation := range metadata.Confirmation {
+		metadataMap["confirmation"].([]interface{})[i] = make(map[string]interface{})
+		metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["type"] = confirmation.Type
+		metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["message"] = confirmation.Message
+		if confirmation.GOOS != "" {
+			metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOOS"] = confirmation.GOOS
+		}
+		if confirmation.GOARCH != "" {
+			metadataMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOARCH"] = confirmation.GOARCH
 		}
 	}
 

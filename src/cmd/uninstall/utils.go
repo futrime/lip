@@ -2,6 +2,7 @@ package cmdlipuninstall
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,7 +18,7 @@ import (
 // It also deletes the record file.
 // However, when files are in both the possession of the record file
 // and one in the possession list, the file is not deleted.
-func Uninstall(recordFileName string, possessionList []string) error {
+func Uninstall(recordFileName string, possessionList []string, isYes bool) error {
 	// Read the record file.
 	recordDir, err := localfile.RecordDir()
 	if err != nil {
@@ -35,7 +36,32 @@ func Uninstall(recordFileName string, possessionList []string) error {
 		return errors.New(err.Error())
 	}
 
-	// 1. Run pre-uninstall commands.
+	// 2. Ask for confirmation if the tooth requires confirmation.
+
+	if len(currentRecord.Confirmation) > 0 {
+		for _, confirmation := range currentRecord.Confirmation {
+			if confirmation.Type != "uninstall" {
+				continue
+			}
+
+			if confirmation.GOOS != "" && confirmation.GOOS != runtime.GOOS {
+				continue
+			}
+
+			if confirmation.GOARCH != "" && confirmation.GOARCH != runtime.GOARCH {
+				continue
+			}
+
+			logger.Info(confirmation.Message + " (Y/n)")
+			var ans string
+			fmt.Scanln(&ans)
+			if ans != "Y" && ans != "y" && ans != "" {
+				return errors.New("uninstallation cancelled")
+			}
+		}
+	}
+
+	// 2. Run pre-uninstall commands.
 	//    Iterate over the commands and run the commands that are
 	//    for the current OS and architecture.
 	for _, commandItem := range currentRecord.Commands {
@@ -72,7 +98,7 @@ func Uninstall(recordFileName string, possessionList []string) error {
 		}
 	}
 
-	// 2. Delete files and folders.
+	// 3. Delete files and folders.
 	//    Interate over the placements and delete files specified
 	//    in the destinations.
 	for _, placement := range currentRecord.Placement {

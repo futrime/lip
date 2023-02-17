@@ -70,6 +70,14 @@ A tooth.json includes directives as shown in the following example. These are de
       ],
       "GOOS": "windows"
     }
+  ],
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
   ]
 }
 ```
@@ -370,6 +378,34 @@ windows/arm64
 }
 ```
 
+## confirmation
+
+Declares the confirmation message that will be shown when installing.
+
+### Syntax
+
+type is the type of the command. It can be one of the following:
+
+- install: execute the command when installing
+- uninstall: execute the command when uninstalling
+
+GOOS (optional) is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go.
+
+### Examples
+
+```json
+{
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
+  ]
+}
+```
+
 ## Syntax
 
 This is a JSON schema of tooth.json, describing the syntax of tooth.json.
@@ -473,6 +509,31 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
             "items": {
               "type": "string"
             }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confirmation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "message": {
+            "type": "string"
           },
           "GOOS": {
             "type": "string"

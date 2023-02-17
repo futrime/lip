@@ -41,6 +41,14 @@ type CommandStruct struct {
 	GOARCH   string
 }
 
+// ConfirmationStruct is the struct that contains the type, message, GOOS and GOARCH of a confirmation.
+type ConfirmationStruct struct {
+	Type    string
+	Message string
+	GOOS    string
+	GOARCH  string
+}
+
 // Record is the struct that contains the record of a tooth installation.
 type Record struct {
 	ToothPath           string
@@ -50,6 +58,7 @@ type Record struct {
 	Placement           []PlacementStruct
 	Possession          []string
 	Commands            []CommandStruct
+	Confirmation        []ConfirmationStruct
 	IsManuallyInstalled bool
 }
 
@@ -146,6 +155,29 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 		record.Commands = make([]CommandStruct, 0)
 	}
 
+	if _, ok := recordMap["confirmation"]; ok {
+		record.Confirmation = make([]ConfirmationStruct, len(recordMap["confirmation"].([]interface{})))
+		for i, confirmation := range recordMap["confirmation"].([]interface{}) {
+			confirmationType := confirmation.(map[string]interface{})["type"].(string)
+			confirmationMessage := confirmation.(map[string]interface{})["message"].(string)
+			confirmationGOOS := ""
+			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
+				confirmationGOOS = confirmation.(map[string]interface{})["GOOS"].(string)
+			}
+			confirmationGOARCH := ""
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				confirmationGOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
+
+			record.Confirmation[i].Type = confirmationType
+			record.Confirmation[i].Message = confirmationMessage
+			record.Confirmation[i].GOOS = confirmationGOOS
+			record.Confirmation[i].GOARCH = confirmationGOARCH
+		}
+	} else {
+		record.Confirmation = make([]ConfirmationStruct, 0)
+	}
+
 	record.IsManuallyInstalled = recordMap["is_manually_installed"].(bool)
 
 	return record, nil
@@ -185,6 +217,14 @@ func NewFromMetadata(metadata toothmetadata.Metadata, isManuallyInstalled bool) 
 		copy(record.Commands[i].Commands, command.Commands)
 		record.Commands[i].GOOS = command.GOOS
 		record.Commands[i].GOARCH = command.GOARCH
+	}
+
+	record.Confirmation = make([]ConfirmationStruct, len(metadata.Confirmation))
+	for i, confirmation := range metadata.Confirmation {
+		record.Confirmation[i].Type = confirmation.Type
+		record.Confirmation[i].Message = confirmation.Message
+		record.Confirmation[i].GOOS = confirmation.GOOS
+		record.Confirmation[i].GOARCH = confirmation.GOARCH
 	}
 
 	record.IsManuallyInstalled = isManuallyInstalled
@@ -243,6 +283,19 @@ func (record Record) JSON() ([]byte, error) {
 		recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOOS"] = command.GOOS
 		if command.GOARCH != "" {
 			recordMap["commands"].([]interface{})[i].(map[string]interface{})["GOARCH"] = command.GOARCH
+		}
+	}
+
+	recordMap["confirmation"] = make([]interface{}, len(record.Confirmation))
+	for i, confirmation := range record.Confirmation {
+		recordMap["confirmation"].([]interface{})[i] = make(map[string]interface{})
+		recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["type"] = confirmation.Type
+		recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["message"] = confirmation.Message
+		if confirmation.GOOS != "" {
+			recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOOS"] = confirmation.GOOS
+		}
+		if confirmation.GOARCH != "" {
+			recordMap["confirmation"].([]interface{})[i].(map[string]interface{})["GOARCH"] = confirmation.GOARCH
 		}
 	}
 

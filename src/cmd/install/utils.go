@@ -54,7 +54,7 @@ func getTooth(specifier specifiers.Specifier, progressBarStyle download.Progress
 	}
 
 	// Download the tooth file to the cache.
-	err = DownloadTooth(specifier, cacheFilePath, progressBarStyle)
+	err = downloadTooth(specifier, cacheFilePath, progressBarStyle)
 	if err != nil {
 		return false, "", err
 	}
@@ -62,10 +62,10 @@ func getTooth(specifier specifiers.Specifier, progressBarStyle download.Progress
 	return false, cacheFilePath, nil
 }
 
-// DownloadTooth downloads a tooth file from a tooth repository, a tooth url,
+// downloadTooth downloads a tooth file from a tooth repository, a tooth url,
 // or a local path and returns the path of the downloaded tooth file.
 // If the specifier is a requirement specifier, it should contain version.
-func DownloadTooth(specifier specifiers.Specifier, destination string, progressBarStyle download.ProgressBarStyleType) error {
+func downloadTooth(specifier specifiers.Specifier, destination string, progressBarStyle download.ProgressBarStyleType) error {
 	switch specifier.Type() {
 	case specifiers.ToothFileSpecifierType:
 		// Local tooth file is not accepted here.
@@ -103,8 +103,8 @@ func DownloadTooth(specifier specifiers.Specifier, destination string, progressB
 	return errors.New("unknown error")
 }
 
-// Install installs the .tth file.
-func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
+// install installs the .tth file.
+func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error {
 	// 1. Check if the tooth is already installed.
 
 	recordDir, err := localfile.RecordDir()
@@ -120,7 +120,32 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		return errors.New("the tooth is already installed")
 	}
 
-	// 2. Place the files to the right place in the workspace.
+	// 2. Ask for confirmation if the tooth requires confirmation.
+
+	if len(t.Metadata().Confirmation) > 0 {
+		for _, confirmation := range t.Metadata().Confirmation {
+			if confirmation.Type != "install" {
+				continue
+			}
+
+			if confirmation.GOOS != "" && confirmation.GOOS != runtime.GOOS {
+				continue
+			}
+
+			if confirmation.GOARCH != "" && confirmation.GOARCH != runtime.GOARCH {
+				continue
+			}
+
+			logger.Info(confirmation.Message + " (Y/n)")
+			var ans string
+			fmt.Scanln(&ans)
+			if ans != "Y" && ans != "y" && ans != "" {
+				return errors.New("installation cancelled")
+			}
+		}
+	}
+
+	// 3. Place the files to the right place in the workspace.
 
 	// Open the .tth file.
 	r, err := zip.OpenReader(t.FilePath())
@@ -239,7 +264,7 @@ func Install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		}
 	}
 
-	// 3. Install the record file.
+	// 5. Install the record file.
 
 	// Create a record object from the metadata.
 	record := toothrecord.NewFromMetadata(t.Metadata(), isManuallyInstalled)

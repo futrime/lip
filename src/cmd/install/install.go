@@ -286,7 +286,7 @@ func Run(args []string) {
 			possessionList := toothFile.Metadata().Possession
 			recordFileName := localfile.GetRecordFileName(toothFile.Metadata().ToothPath)
 
-			err = cmdlipuninstall.Uninstall(recordFileName, possessionList)
+			err = cmdlipuninstall.Uninstall(recordFileName, possessionList, flagDict.yesFlag)
 			if err != nil {
 				logger.Error(err.Error())
 				return
@@ -341,7 +341,7 @@ func Run(args []string) {
 		// TODO: Check if the tooth file is manually installed.
 		isManuallyInstalled := false
 
-		err = Install(toothFile, isManuallyInstalled, flagDict.yesFlag)
+		err = install(toothFile, isManuallyInstalled, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
 			return

@@ -14,6 +14,7 @@ import (
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
 	helpFlag bool
+	yesFlag  bool
 }
 
 const helpMessage = `
@@ -24,7 +25,8 @@ Description:
   Uninstall tooths.
 
 Options:
-  -h, --help                  Show help.`
+  -h, --help                  Show help.
+  -y, --yes                   Skip confirmation.`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -44,10 +46,10 @@ func Run(args []string) {
 	}
 
 	var flagDict FlagDict
-
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
+	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
+	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -130,7 +132,7 @@ func Run(args []string) {
 	for toothPath, recordFileName := range toothPathMap {
 		logger.Info("Uninstalling " + toothPath + "...")
 
-		err = Uninstall(recordFileName, make([]string, 0))
+		err = Uninstall(recordFileName, make([]string, 0), flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
 			return

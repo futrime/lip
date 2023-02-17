@@ -16,3 +16,7 @@ lip uninstall [options] <tooth paths>
 - `-h, --help`
 
   展示帮助.
+
+- `-y, --yes`
+
+  Skip the confirmation prompt.

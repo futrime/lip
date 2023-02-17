@@ -70,6 +70,14 @@ lip tooth init
       ],
       "GOOS": "windows"
     }
+  ],
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
   ]
 }
 ```
@@ -371,6 +379,34 @@ windows/arm64
 }
 ```
 
+## confirmation
+
+Declares the confirmation message that will be shown when installing.
+
+### Syntax
+
+type is the type of the command. It can be one of the following:
+
+- install: execute the command when installing
+- uninstall: execute the command when uninstalling
+
+GOOS (optional) is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go.
+
+### Examples
+
+```json
+{
+  "confirmation": [
+    {
+      "type": "install",
+      "message": "Do you want to install LiteLoaderBDS?",
+      "GOOS": "windows",
+      "GOARCH": "amd64"
+    }
+  ]
+}
+```
+
 ## 语法
 
 下列JSON Schema展示了一个完整的tooth的JSON文件的语法。
@@ -474,6 +510,31 @@ windows/arm64
             "items": {
               "type": "string"
             }
+          },
+          "GOOS": {
+            "type": "string"
+          },
+          "GOARCH": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "confirmation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "enum": ["install", "uninstall"]
+          },
+          "message": {
+            "type": "string"
           },
           "GOOS": {
             "type": "string"
