@@ -81,6 +81,10 @@ Lip在安装依赖之前，是按照 "拓扑顺序 "安装依赖。当遇到依�
 
   Show numeric progress instead of progress bar.
 
+- `--no-dependencies`
+
+  Do not install dependencies.
+
 ## 样例
 
 从tooth存储库安装。

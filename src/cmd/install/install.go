@@ -24,6 +24,7 @@ type FlagDict struct {
 	forceReinstallFlag  bool
 	yesFlag             bool
 	numericProgressFlag bool
+	noDependenciesFlag  bool
 }
 
 const helpMessage = `
@@ -42,7 +43,8 @@ Options:
   --upgrade                   Upgrade the specified tooth to the newest available version.
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.
   -y, --yes                   Assume yes to all prompts and run non-interactively.
-  --numeric-progress          Show numeric progress instead of progress bar.`
+  --numeric-progress          Show numeric progress instead of progress bar.
+  --no-dependencies            Do not install dependencies.`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -70,6 +72,7 @@ func Run(args []string) {
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 	flagSet.BoolVar(&flagDict.numericProgressFlag, "numeric-progress", false, "")
+	flagSet.BoolVar(&flagDict.noDependenciesFlag, "no-dependencies", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -178,40 +181,43 @@ func Run(args []string) {
 			return
 		}
 
-		dependencies := toothFile.Metadata().Dependencies
+		// If the no-dependencies flag is set, skip.
+		if !flagDict.noDependenciesFlag {
+			dependencies := toothFile.Metadata().Dependencies
 
-		// Get proper version of each dependency and add them to the queue.
-		for toothPath, versionRange := range dependencies {
-			versionList, err := toothrepo.FetchVersionList(toothPath)
-			if err != nil {
-				logger.Error(err.Error())
-				return
-			}
+			// Get proper version of each dependency and add them to the queue.
+			for toothPath, versionRange := range dependencies {
+				versionList, err := toothrepo.FetchVersionList(toothPath)
+				if err != nil {
+					logger.Error(err.Error())
+					return
+				}
 
-			isMatched := false
-		selectVersion:
-			for _, version := range versionList {
-				for _, innerVersionRange := range versionRange {
-					for _, versionMatch := range innerVersionRange {
-						if versionMatch.Match(version) {
-							// Add the specifier to the queue.
-							specifier, err := specifiers.New(toothPath + "@" + version.String())
-							if err != nil {
-								logger.Error(err.Error())
-								return
+				isMatched := false
+			selectVersion:
+				for _, version := range versionList {
+					for _, innerVersionRange := range versionRange {
+						for _, versionMatch := range innerVersionRange {
+							if versionMatch.Match(version) {
+								// Add the specifier to the queue.
+								specifier, err := specifiers.New(toothPath + "@" + version.String())
+								if err != nil {
+									logger.Error(err.Error())
+									return
+								}
+								specifiersToFetch.PushBack(specifier)
+								isMatched = true
+								break selectVersion
 							}
-							specifiersToFetch.PushBack(specifier)
-							isMatched = true
-							break selectVersion
 						}
 					}
 				}
-			}
 
-			if !isMatched {
-				// If no version is selected, error.
-				logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
-				return
+				if !isMatched {
+					// If no version is selected, error.
+					logger.Error("no version of " + toothPath + " matches the requirement of " + specifier.String())
+					return
+				}
 			}
 		}
 	}
