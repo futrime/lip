@@ -161,24 +161,19 @@ func Uninstall(recordFileName string, possessionList []string, isYes bool) error
 
 	// Iterate over the possessions and delete the folders as well as
 	// the files in the folders.
+ForEachOldPossession:
 	for _, possession := range currentRecord.Possession {
 		// Continue if the possession is in the new possession list.
-		isInNewPossessionList := false
 		for _, newPossession := range possessionList {
-			if possession == newPossession {
-				isInNewPossessionList = true
-				break
+			if paths.IsIdentical(newPossession, possession) {
+				continue ForEachOldPossession
 			}
-		}
-
-		if isInNewPossessionList {
-			continue
 		}
 
 		// Remove the folder.
 		err = os.RemoveAll(possession)
 		if err != nil {
-			logger.Error("cannot delete the folder " + possession + ": " + err.Error() + ". Please delete it manually.")
+			logger.Error("cannot delete " + possession + ": " + err.Error() + ". Please delete it manually.")
 		}
 	}
 

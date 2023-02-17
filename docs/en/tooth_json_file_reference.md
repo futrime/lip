@@ -313,11 +313,11 @@ Extract from specific folders and place to specific folders:
 
 ## possession
 
-Declares the which folders are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
+Declares the which folders or files are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
 
 ### Syntax
 
-Each item of the list should be a valid directory path ending with "/".
+Each item of the list should be a valid path relative to the workspace of Lip. Lip will recursively remove all files and folders under the path.
 
 ### Examples
 
