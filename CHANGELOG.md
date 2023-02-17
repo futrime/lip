@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Remove wrongly displayed debug information.
+- Failing to re-download when a broken tooth file exists in cache.
 
 ## [0.10.0] - 2023-02-12
 

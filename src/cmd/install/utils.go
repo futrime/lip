@@ -74,15 +74,22 @@ func downloadTooth(specifier specifiers.Specifier, destination string, progressB
 	case specifiers.ToothURLKind:
 		// For tooth url, download the tooth file and return the path.
 
-		err := download.DownloadFile(specifier.ToothURL(), destination, progressBarStyle)
+		tempFilePath := destination + ".tmp"
+
+		err := download.DownloadFile(specifier.ToothURL(), tempFilePath, progressBarStyle)
 		if err != nil {
 			return err
 		}
+
+		// Move the downloaded file to the destination.
+		os.Rename(tempFilePath, destination)
 
 		return nil
 
 	case specifiers.RequirementKind:
 		// For requirement specifier, download the tooth via GOPROXY and return the path.
+
+		tempFilePath := destination + ".tmp"
 
 		urlPathSuffix := "+incompatible.zip"
 		if strings.HasPrefix(specifier.ToothVersion().String(), "0.") || strings.HasPrefix(specifier.ToothVersion().String(), "1.") {
@@ -90,10 +97,13 @@ func downloadTooth(specifier specifiers.Specifier, destination string, progressB
 		}
 		urlPath := specifier.ToothRepo() + "/@v/v" + specifier.ToothVersion().String() + urlPathSuffix
 
-		err := download.DownloadGoproxyFile(urlPath, destination, progressBarStyle)
+		err := download.DownloadGoproxyFile(urlPath, tempFilePath, progressBarStyle)
 		if err != nil {
 			return err
 		}
+
+		// Move the downloaded file to the destination.
+		os.Rename(tempFilePath, destination)
 
 		return nil
 	}
