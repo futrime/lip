@@ -107,6 +107,13 @@ func listInstalledTooths(isJSON bool) {
 			outputMap = append(outputMap, map[string]interface{}{
 				"tooth":   record.ToothPath,
 				"version": record.Version.String(),
+				"information": map[string]interface{}{
+					"name":        record.Information.Name,
+					"description": record.Information.Description,
+					"author":      record.Information.Author,
+					"license":     record.Information.License,
+					"homepage":    record.Information.Homepage,
+				},
 			})
 		}
 		outputJson, _ := json.Marshal(outputMap)
