@@ -3,6 +3,7 @@ package cmdlipuninstall
 import (
 	"flag"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/liteldev/lip/localfile"
@@ -13,8 +14,9 @@ import (
 
 // FlagDict is a dictionary of flags.
 type FlagDict struct {
-	helpFlag bool
-	yesFlag  bool
+	helpFlag           bool
+	yesFlag            bool
+	keepPossessionFlag bool
 }
 
 const helpMessage = `
@@ -26,7 +28,8 @@ Description:
 
 Options:
   -h, --help                  Show help.
-  -y, --yes                   Skip confirmation.`
+  -y, --yes                   Skip confirmation.
+  --keep-possession            Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -44,6 +47,7 @@ func Run(args []string) {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
+	flagSet.BoolVar(&flagDict.keepPossessionFlag, "keep-possession", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -130,9 +134,21 @@ func Run(args []string) {
 	logger.Info("Uninstalling tooths...")
 
 	for toothPath, recordFileName := range toothPathMap {
-		logger.Info("Uninstalling " + toothPath + "...")
+		logger.Info("  Uninstalling " + toothPath + "...")
 
-		err = Uninstall(recordFileName, make([]string, 0), flagDict.yesFlag)
+		possessionList := make([]string, 0)
+		if flagDict.keepPossessionFlag {
+			// Read the record file.
+			recordFilePath := filepath.Join(recordDir, recordFileName)
+			record, err := toothrecord.New(recordFilePath)
+			if err != nil {
+				logger.Error("cannot read the record file " + recordFilePath + ": " + err.Error())
+				os.Exit(1)
+			}
+			possessionList = record.Possession
+		}
+
+		err = Uninstall(recordFileName, possessionList, flagDict.yesFlag)
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)

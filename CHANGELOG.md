@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check for invalid additional arguments.
 - Structured information output.
 - Support for multiple GOPROXYs.
+- `--keep-possession` flag for `lip uninstall` command.
 
 ### Fixed
 
