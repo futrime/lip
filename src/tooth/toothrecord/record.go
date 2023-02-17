@@ -135,21 +135,19 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 	if _, ok := recordMap["commands"]; ok {
 		record.Commands = make([]CommandStruct, len(recordMap["commands"].([]interface{})))
 		for i, command := range recordMap["commands"].([]interface{}) {
-			commandType := command.(map[string]interface{})["type"].(string)
+			record.Commands[i].Type = command.(map[string]interface{})["type"].(string)
+
 			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
 			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
 				commandContent[j] = command.(string)
 			}
-			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
-			commandGOARCH := ""
-			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
-				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
-			}
-
-			record.Commands[i].Type = commandType
 			record.Commands[i].Commands = commandContent
-			record.Commands[i].GOOS = commandGOOS
-			record.Commands[i].GOARCH = commandGOARCH
+
+			record.Commands[i].GOOS = command.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				record.Commands[i].GOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		record.Commands = make([]CommandStruct, 0)
@@ -158,21 +156,17 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 	if _, ok := recordMap["confirmation"]; ok {
 		record.Confirmation = make([]ConfirmationStruct, len(recordMap["confirmation"].([]interface{})))
 		for i, confirmation := range recordMap["confirmation"].([]interface{}) {
-			confirmationType := confirmation.(map[string]interface{})["type"].(string)
-			confirmationMessage := confirmation.(map[string]interface{})["message"].(string)
-			confirmationGOOS := ""
+			record.Confirmation[i].Type = confirmation.(map[string]interface{})["type"].(string)
+
+			record.Confirmation[i].Message = confirmation.(map[string]interface{})["message"].(string)
+
 			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
-				confirmationGOOS = confirmation.(map[string]interface{})["GOOS"].(string)
-			}
-			confirmationGOARCH := ""
-			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
-				confirmationGOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+				record.Confirmation[i].GOOS = confirmation.(map[string]interface{})["GOOS"].(string)
 			}
 
-			record.Confirmation[i].Type = confirmationType
-			record.Confirmation[i].Message = confirmationMessage
-			record.Confirmation[i].GOOS = confirmationGOOS
-			record.Confirmation[i].GOARCH = confirmationGOARCH
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				record.Confirmation[i].GOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		record.Confirmation = make([]ConfirmationStruct, 0)

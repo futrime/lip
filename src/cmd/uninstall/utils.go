@@ -11,6 +11,7 @@ import (
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
+	"github.com/liteldev/lip/utils/paths"
 )
 
 // Uninstall uninstalls a tooth.
@@ -99,6 +100,11 @@ func Uninstall(recordFileName string, possessionList []string, isYes bool) error
 	}
 
 	// 3. Delete files and folders.
+	//    Iterate over the placements and delete files specified
+	//    in the destinations. Iterate over the possessions and delete the folders
+	//    as well as the files in the folders but keep the files in the specific possession
+	//    list to preserved.
+
 	//    Interate over the placements and delete files specified
 	//    in the destinations.
 	for _, placement := range currentRecord.Placement {
@@ -111,6 +117,14 @@ func Uninstall(recordFileName string, possessionList []string, isYes bool) error
 		}
 
 		destination := placement.Destination
+		destination = filepath.FromSlash(destination)
+		destination = filepath.Clean(destination)
+
+		// Get the absolute path of the destination.
+		destination, err = filepath.Abs(destination)
+		if err != nil {
+			return errors.New("cannot get the absolute path of the destination " + destination + ": " + err.Error())
+		}
 
 		// Continue if the destination does not exist.
 		if _, err := os.Stat(destination); os.IsNotExist(err) {
@@ -122,18 +136,25 @@ func Uninstall(recordFileName string, possessionList []string, isYes bool) error
 			logger.Error("cannot delete the file " + destination + ": " + err.Error() + ". Please delete it manually.")
 		}
 
-		// Delete the parent directory if it is empty.
-		// TODO: Recursively delete parent directories until the workspace directory.
-		parentDir := filepath.Dir(destination)
-		files, err := os.ReadDir(parentDir)
+		// Delete all ancestor directories if they are empty until the workspace directory.
+		workspaceDir, err := localfile.WorkspaceDir()
 		if err != nil {
-			return errors.New("cannot read the directory " + parentDir + ": " + err.Error())
+			return err
 		}
 
-		if len(files) == 0 {
-			err = os.Remove(parentDir)
+		for parentDir := filepath.Dir(destination); parentDir != workspaceDir && paths.IsAncesterOf(workspaceDir, parentDir); parentDir = filepath.Dir(parentDir) {
+			files, err := os.ReadDir(parentDir)
 			if err != nil {
-				logger.Error("cannot delete the directory " + parentDir + ": " + err.Error() + ". Please delete it manually.")
+				return errors.New("cannot read the directory " + parentDir + ": " + err.Error())
+			}
+
+			if len(files) == 0 {
+				err = os.Remove(parentDir)
+				if err != nil {
+					logger.Error("cannot delete the directory " + parentDir + ": " + err.Error() + ". Please delete it manually.")
+				}
+			} else {
+				break
 			}
 		}
 	}
@@ -161,7 +182,10 @@ func Uninstall(recordFileName string, possessionList []string, isYes bool) error
 		}
 	}
 
-	// Delete the record file.
+	// 4. Delete the record file.
+	//    The record file is deleted after the files and folders are deleted
+	//    so that the record file is not deleted if the files and folders
+	//    cannot be deleted.
 	err = os.Remove(recordDir + "/" + recordFileName)
 	if err != nil {
 		logger.Error("cannot delete the record file " + recordDir + "/" + recordFileName + ": " + err.Error() + ". Please delete it manually.")

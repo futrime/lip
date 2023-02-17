@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"os"
+	"path/filepath"
 )
 
 // Init initializes the ~/.lip and ./.lip directories.
@@ -106,23 +107,29 @@ func RecordDir() (string, error) {
 	return recordDir, nil
 }
 
-// WorkSpaceDir returns the path to the current working directory.
-func WorkSpaceDir() (string, error) {
+// WorkspaceDir returns the absolute path to the current working directory.
+func WorkspaceDir() (string, error) {
 	dirname, err := os.Getwd()
 	if err != nil {
-		err = errors.New("failed to get current directory")
+		err = errors.New("failed to get current directory: " + err.Error())
+		return "", err
+	}
+	dirname, err = filepath.Abs(dirname)
+	if err != nil {
+		err = errors.New("failed to get absolute path of current directory: " + err.Error())
 		return "", err
 	}
 	return dirname, nil
 }
 
-// WorkspaceLipDir returns the path to the ./.lip directory.
+// WorkspaceLipDir returns the absolute path to the ./.lip directory.
 func WorkspaceLipDir() (string, error) {
-	dirname, err := WorkSpaceDir()
+	dirname, err := WorkspaceDir()
 	if err != nil {
 		return "", err
 	}
 
-	workspaceLipDir := dirname + "/.lip"
+	workspaceLipDir := filepath.Join(dirname, ".lip")
+
 	return workspaceLipDir, nil
 }

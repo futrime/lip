@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Structured information output.
 - Support for multiple GOPROXYs.
 - `--keep-possession` flag for `lip uninstall` command.
+- Automaic deletion of empty directories when uninstalling a tooth.
 
 ### Fixed
 

@@ -288,11 +288,10 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 
 			if _, ok := placement.(map[string]interface{})["GOOS"]; ok {
 				metadata.Placement[i].GOOS = placement.(map[string]interface{})["GOOS"].(string)
+			}
 
-				// If GOARCH is set, GOOS must be set.
-				if _, ok := placement.(map[string]interface{})["GOARCH"]; ok {
-					metadata.Placement[i].GOARCH = placement.(map[string]interface{})["GOARCH"].(string)
-				}
+			if _, ok := placement.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Placement[i].GOARCH = placement.(map[string]interface{})["GOARCH"].(string)
 			}
 		}
 	} else {
@@ -311,21 +310,19 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	if _, ok := metadataMap["commands"]; ok {
 		metadata.Commands = make([]CommandStruct, len(metadataMap["commands"].([]interface{})))
 		for i, command := range metadataMap["commands"].([]interface{}) {
-			commandType := command.(map[string]interface{})["type"].(string)
+			metadata.Commands[i].Type = command.(map[string]interface{})["type"].(string)
+
 			commandContent := make([]string, len(command.(map[string]interface{})["commands"].([]interface{})))
 			for j, command := range command.(map[string]interface{})["commands"].([]interface{}) {
 				commandContent[j] = command.(string)
 			}
-			commandGOOS := command.(map[string]interface{})["GOOS"].(string)
-			commandGOARCH := ""
-			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
-				commandGOARCH = command.(map[string]interface{})["GOARCH"].(string)
-			}
-
-			metadata.Commands[i].Type = commandType
 			metadata.Commands[i].Commands = commandContent
-			metadata.Commands[i].GOOS = commandGOOS
-			metadata.Commands[i].GOARCH = commandGOARCH
+
+			metadata.Commands[i].GOOS = command.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := command.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Commands[i].GOARCH = command.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		metadata.Commands = make([]CommandStruct, 0)
@@ -334,21 +331,17 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 	if _, ok := metadataMap["confirmation"]; ok {
 		metadata.Confirmation = make([]ConfirmationStruct, len(metadataMap["confirmation"].([]interface{})))
 		for i, confirmation := range metadataMap["confirmation"].([]interface{}) {
-			confirmationType := confirmation.(map[string]interface{})["type"].(string)
-			confirmationMessage := confirmation.(map[string]interface{})["message"].(string)
-			confirmationGOOS := ""
+			metadata.Confirmation[i].Type = confirmation.(map[string]interface{})["type"].(string)
+
+			metadata.Confirmation[i].Message = confirmation.(map[string]interface{})["message"].(string)
+
 			if _, ok := confirmation.(map[string]interface{})["GOOS"]; ok {
-				confirmationGOOS = confirmation.(map[string]interface{})["GOOS"].(string)
-			}
-			confirmationGOARCH := ""
-			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
-				confirmationGOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+				metadata.Confirmation[i].GOOS = confirmation.(map[string]interface{})["GOOS"].(string)
 			}
 
-			metadata.Confirmation[i].Type = confirmationType
-			metadata.Confirmation[i].Message = confirmationMessage
-			metadata.Confirmation[i].GOOS = confirmationGOOS
-			metadata.Confirmation[i].GOARCH = confirmationGOARCH
+			if _, ok := confirmation.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Confirmation[i].GOARCH = confirmation.(map[string]interface{})["GOARCH"].(string)
+			}
 		}
 	} else {
 		metadata.Confirmation = make([]ConfirmationStruct, 0)

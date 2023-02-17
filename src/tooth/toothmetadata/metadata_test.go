@@ -11,6 +11,7 @@ func TestNewFromJSON(t *testing.T) {
 	// Read test data
 	jsonData := []byte(`
 {
+  "format_version": 1,
   "dependencies": {
     "test.test/test/depend": [
       [

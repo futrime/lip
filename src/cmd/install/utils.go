@@ -163,7 +163,7 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 	}
 	defer r.Close()
 
-	workSpaceDir, err := localfile.WorkSpaceDir()
+	workSpaceDir, err := localfile.WorkspaceDir()
 	if err != nil {
 		return err
 	}
