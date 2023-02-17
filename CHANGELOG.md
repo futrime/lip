@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `--available` flag for `lip show` command.
 - `--numeric-progress` flag for `lip install` command.
+- `--no-dependencies` flag for `lip install` command.
+- `confirmation` field in `tooth.json` to show messages and ask for confirmation before installing.
+- Check for invalid additional arguments.
+- Structured information output.
+- Support for multiple GOPROXYs.
 
 ### Fixed
 
