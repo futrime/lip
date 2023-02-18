@@ -1,6 +1,6 @@
 # Getting Started
 
-To get started with using Lip, you should [have Lip installed](installation.md) first.
+To get started with using Lip, you should [have Lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [LipUI](lipui_quickstart.md) to manage your tooths.
 
 ## Ensure you have a working Lip
 
@@ -8,7 +8,7 @@ As a first step, you should check that you have a working Lip installed. This ca
 
 ```shell
 > lip --version
-Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
+Lip 0.11.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 ```
 
 ## Common Tasks

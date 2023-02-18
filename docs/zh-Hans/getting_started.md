@@ -1,6 +1,6 @@
 # 开始使用
 
-要开始使用Lip你应该先完成[安装](installation.md)
+要开始使用Lip你应该先完成[安装](installation.md)。如果你对命令行界面不熟悉，你也可以使用[LipUI](lipui_quickstart.md)来管理你的tooth。
 
 ## 确定你的Lip正常工作
 
@@ -8,7 +8,7 @@
 
 ```shell
 > lip --version
-Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
+Lip 0.11.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 ```
 
 ## 常见任务

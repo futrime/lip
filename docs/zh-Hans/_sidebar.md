@@ -4,7 +4,11 @@
 
 - [快速开始](getting_started.md)
 
+- [LipUI快速入门](lipui_quickstart.md)
+
 - [创作者指南](creator_s_guide.md)
+
+- [常见问题](faq.md)
 
 - 教程
 
