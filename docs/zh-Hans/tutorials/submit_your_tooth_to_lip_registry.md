@@ -55,16 +55,27 @@ Some tags can be recognized by the registry website, Lip and LipUI. The recogniz
 
 Reserved tags:
 
-- `featured`: The tooth is featured on the registry website. You should not set this tag manually. The registry maintainers will set this tag for you.
+- `featured`: 这个tooth在注册表网站上被推荐。你不应该手动设置这个标签。注册表维护者将为你设置这个标签。
 
 Type tags:
 
 - `utility`: The tooth is a utility tool.
 - `plugin`: The tooth is a plugin.
-- `module`: The tooth is a module.
+- `module`: The tooth is a module. This 
 - `mod`: The tooth is a mod.
+- `modpack`: The tooth is a modpack. This tag means that the tooth is a collection of mods.
 - `addon`: The tooth is an addon.
 - `world`: The tooth is a world.
+- `integration`: The tooth is an integration pack. This tag means that the tooth is a collection of mods and plugins as well as the server software.
+
+Ecosystem tags:
+
+- `ll`: The tooth is for LiteLoaderBDS.
+- `llse`: The tooth is for LiteLoaderBDS and depends on LiteLoaderBDS Script Engine.
+- `llnet`: The tooth is for LiteLoaderBDS and depends on LiteLoader.NET.
+- `bdsx`: The tooth is for BDSX.
+- `pnx`: The tooth is for PowerNukkitX.
+- `bds`: The tooth is for pure BDS.
 
 ## 从Lip注册表安装你tooth
 

@@ -59,10 +59,21 @@ Type tags:
 
 - `utility`: The tooth is a utility tool.
 - `plugin`: The tooth is a plugin.
-- `module`: The tooth is a module.
+- `module`: The tooth is a module. This 
 - `mod`: The tooth is a mod.
+- `modpack`: The tooth is a modpack. This tag means that the tooth is a collection of mods.
 - `addon`: The tooth is an addon.
 - `world`: The tooth is a world.
+- `integration`: The tooth is an integration pack. This tag means that the tooth is a collection of mods and plugins as well as the server software.
+
+Ecosystem tags:
+
+- `ll`: The tooth is for LiteLoaderBDS.
+- `llse`: The tooth is for LiteLoaderBDS and depends on LiteLoaderBDS Script Engine.
+- `llnet`: The tooth is for LiteLoaderBDS and depends on LiteLoader.NET.
+- `bdsx`: The tooth is for BDSX.
+- `pnx`: The tooth is for PowerNukkitX.
+- `bds`: The tooth is for pure BDS.
 
 ## Install Your Tooth from Lip Registry
 
