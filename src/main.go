@@ -41,7 +41,7 @@ func main() {
 
 		// Remove {lipExeName} and lip.remove if they exist.
 		if _, err := os.Stat(".lip/tools/lip/lip.remove"); err == nil {
-			logger.Info("Removing .lip/tools/lip/" + lipExeName + " and .lip/tools/lip/lip.remove")
+			logger.Debug("Removing .lip/tools/lip/" + lipExeName + " and .lip/tools/lip/lip.remove")
 			err = os.Remove(".lip/tools/lip/" + lipExeName)
 			if err != nil {
 				logger.Error("failed to remove old Lip version: " + err.Error())
@@ -56,7 +56,7 @@ func main() {
 
 		// Move lip.update to {lipExeName} if it exists.
 		if _, err := os.Stat(".lip/tools/lip/lip.update"); err == nil {
-			logger.Info("Moving .lip/tools/lip/lip.update to .lip/tools/lip/" + lipExeName)
+			logger.Debug("Moving .lip/tools/lip/lip.update to .lip/tools/lip/" + lipExeName)
 
 			// Remove the old {lipExeName} if it exists.
 			if _, err := os.Stat(".lip/tools/lip/" + lipExeName); err == nil {
@@ -76,7 +76,7 @@ func main() {
 		}
 
 		if _, err := os.Stat(".lip/tools/lip/" + lipExeName); err == nil {
-			logger.Info("Redirecting to .lip/tools/lip/" + lipExeName)
+			logger.Debug("Redirecting to .lip/tools/lip/" + lipExeName)
 			cmd := exec.Command(".lip/tools/lip/"+lipExeName, os.Args[1:]...)
 			cmd.Env = append(os.Environ(), "LIP_REDIRECTED=1")
 			cmd.Stdout = os.Stdout
