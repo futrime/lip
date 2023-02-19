@@ -24,12 +24,13 @@ You should create a new file in the `tooths` directory. The file name should be 
         "homepage": "https://www.example.com",
         "license": "MIT",
         "name": "Lip",
-        "repository": "github.com/LiteLDev/Lip"
+        "repository": "github.com/LiteLDev/Lip",
+        "tags": ["utility", "package-manager"]
     }
 }
 ```
 
-Unlike the `tooth.json` under your tooth repository, every field in the registry file is required. The fields should also follow these rules:
+The `format_version`, `tooth`, `author`, `description` and `name` fields are required. The fields should also follow these rules:
 
 - The `format_version` field should be `1`.
 - The `tooth` field should be the tooth repository path without protocol prefix. Currently, we only accept tooths that are hosted on GitHub.
@@ -38,6 +39,7 @@ Unlike the `tooth.json` under your tooth repository, every field in the registry
 - The `homepage` field should be a valid URL with `http://` or `https://` prefix.
 - The `license` field should be a valid [SPDX license identifier](https://spdx.org/licenses/) (including deprecated ones). For private tooth, just left it blank.
 - The `repository` filed should be the project source code repository path without protocol prefix. Currently, we only accept repositories that are hosted on GitHub.
+- The `tags` field should be an array of strings. Each string should be a valid tag. The tag can only contain lowercase letters, numbers and hyphens [a-z0-9-]. The tag should not start or end with a hyphen. The tag should not contain consecutive hyphens.
 
 You may want to display a README page on the registry website. You can create a Markdown file with the same name as the registry file in `readmes` directory. For example, you can create a `lip.md` file. The content of the file will be displayed on the registry website.
 

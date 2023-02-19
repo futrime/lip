@@ -24,12 +24,13 @@
         "homepage": "https://www.example.com",
         "license": "MIT",
         "name": "Lip",
-        "repository": "github.com/LiteLDev/Lip"
+        "repository": "github.com/LiteLDev/Lip",
+        "tags": ["utility", "package-manager"]
     }
 }
 ```
 
-与你的齿库下的`tooth.json`不同，注册表文件中的每个字段都是必须的。这些字段也应该遵循这些规则。
+The `format_version`, `tooth`, `author`, `description` and `name` fields are required. 这些字段也应该遵循这些规则。
 
 - `format_version`字段应该是`1`。
 - `tooth`字段应该是不含协议前缀的tooth资源库路径。目前，我们只接受托管在GitHub上的tooth。
@@ -38,6 +39,7 @@
 - `homepage`字段应该是一个有效的URL，前缀为`http://`或`https://`。
 - `license` 字段应该是有效的[SPDX许可证标识符](https://spdx.org/licenses/)（包括废弃的）。对于私有软件，请留空。
 - `repository`文件应该是项目源代码库的路径，不含协议前缀。目前，我们只接受托管在GitHub上的仓库。
+- The `tags` field should be an array of strings. Each string should be a valid tag. The tag can only contain lowercase letters, numbers and hyphens [a-z0-9-]. The tag should not start or end with a hyphen. The tag should not contain consecutive hyphens.
 
 你可能想在注册表网站上显示一个README页面。你可以创建一个与注册表文件同名的Markdown文件。例如，你可以在`readmes`目录下创建一个`lip.md`文件。该文件的内容将显示在注册表网站上。
 
