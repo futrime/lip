@@ -47,6 +47,25 @@ The `format_version`, `tooth`, `author`, `description` and `name` fields are req
 
 在你创建文件之后，你可以向注册表仓库创建一个Pull Requests。注册表维护者将审查你的Pull Requests，如果它是有效的，则将其合并。
 
+### How to Set Tags
+
+You can set tags for your tooth. The tags will be displayed on the registry website. You can set tags in the `tags` field of the registry file. The `tags` field should be an array of strings. Each string should be a valid tag. The tag can only contain lowercase letters, numbers and hyphens [a-z0-9-]. The tag should not start or end with a hyphen. The tag should not contain consecutive hyphens.
+
+Some tags can be recognized by the registry website, Lip and LipUI. The recognized tags are:
+
+Reserved tags:
+
+- `featured`: The tooth is featured on the registry website. You should not set this tag manually. The registry maintainers will set this tag for you.
+
+Type tags:
+
+- `utility`: The tooth is a utility tool.
+- `plugin`: The tooth is a plugin.
+- `module`: The tooth is a module.
+- `mod`: The tooth is a mod.
+- `addon`: The tooth is an addon.
+- `world`: The tooth is a world.
+
 ## 从Lip注册表安装你tooth
 
 在你的tooth提交到注册表后，每个人都可以从注册表中安装它。你可以使用`lip install`命令，从注册表中安装你的tooth。
