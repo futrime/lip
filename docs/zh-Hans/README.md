@@ -1,4 +1,4 @@
-# Lip Documentation
+# Lip 文档
 
 [![Build](https://img.shields.io/github/actions/workflow/status/LiteLDev/Lip/build.yml?style=for-the-badge)](https://github.com/LiteLDev/Lip/actions)
 [![Latest Tag](https://img.shields.io/github/v/tag/LiteLDev/Lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/LiteLDev/Lip/releases/latest)

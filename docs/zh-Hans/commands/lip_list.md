@@ -20,8 +20,8 @@ tooth以不区分大小写的排序方式列出。
 
 - `--upgradable`
 
-  List upgradable tooths.
+  列出所有可升级的tooth
 
 - `--json`
   
-  Output in JSON format. (cannot be hidden with `--quiet`)
+  以JSON格式输出。(不能用`--quiet`隐藏)

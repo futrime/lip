@@ -18,8 +18,8 @@ lip [options]
 
 - `-v, --verbose`
 
-  Show verbose output.
+  显示详细的输出。
 
 - `-q, --quiet`
 
-  Show only errors.
+  只显示错误。

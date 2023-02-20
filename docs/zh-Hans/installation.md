@@ -26,6 +26,6 @@
 
 从v0.8.0开始，Lip支持在本地范围内升级自己。你可以运行`lip install --upgrade lip`来升级Lip.
 
-## Install LipUI
+## 安装LipUI
 
-LipUI is a GUI for Lip. You can download it from <https://github.com/LiteLDev/LipUI/releases/latest>.
+LipUI是Lip的一个GUI。你可以从以下网站下载它 <https://github.com/LiteLDev/LipUI/releases/latest>.

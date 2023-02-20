@@ -31,7 +31,7 @@ Successfully installed all tooth files.
 Successfully installed all tooth files.
 ```
 
-Lip 只支持以"http://" 或 "https://"开头的URL，所有URL需要以".tth"作为结尾。
+Lip 只支持以`http://` 或 `https://`开头的URL，所有URL需要以`.tth`作为结尾。
 
 ### tooth文件安装tooth
 
@@ -41,7 +41,7 @@ Lip 只支持以"http://" 或 "https://"开头的URL，所有URL需要以".tth"�
 Successfully installed all tooth files.
 ```
 
-tooth文件需要有".tth"扩展名。
+tooth文件需要有`.tth`扩展名。
 
 ### 安装多个tooth
 
@@ -95,4 +95,4 @@ Homepage: www.example.com
 
 ## 下一步
 
-你可以阅读Commands目录下的页面，以获得Lip命令的更详细描述。
+你可以阅读 **命令** 目录下的页面，以获得Lip命令的更详细描述。

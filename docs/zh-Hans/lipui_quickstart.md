@@ -1,29 +1,31 @@
-# LipUI Quickstart
+# LipUI快速入门
 
-To simplify the usage in the maximum extent, LipUI is provided. It is a GUI application that can be used to install, uninstall, and manage Lip tooths. It is also a good way to get started with Lip.
+为了在最大程度上简化使用，我们提供了LipUI。它是一个GUI应用程序，可以用来安装、卸载和管理Lip tooth。它也是开始使用Lip的一个好方法。
 
-## Prerequisites
+## 在开始之前
 
-Before you start, you need to install Lip. You can find the installation guide [here](installation.md).
+在你开始之前，你需要安装Lip。你可以找到安装指南[安装](installation.md)。
 
-LipUI only runs on Windows. If you are using Linux or macOS, you can use the command-line interface of Lip.
+- 另外需求注意：请尽可能使用较新版本的Lip 以确保LipUI的正常运行
 
-LipUI depends on .NET 7.0 or .NET Framework 4.6.2. For most distributions of Windows 10, Windows 11, Windows Server 2019 and Windows Server 2022, .NET Framework 4.6 is bundled. Therefore, you are likely to be able to run LipUI directly. If you don't have .NET Framework installed, you can download .NET 7.0 [here](https://dotnet.microsoft.com/download/dotnet/7.0).
+LipUI只在Windows上运行。如果你使用的是Linux或macOS，你可以使用Lip的命令行界面。
 
-## Installation
+LipUI依赖于.NET 7.0或.NET Framework 4.6.2。对于Windows 10、Windows 11、Windows Server 2019和Windows Server 2022的大多数发行版，.NET Framework 4.6是捆绑的。因此，你很可能能够直接运行LipUI。如果你没有安装.NET框架，你可以下载[.NET 7.0](https://dotnet.microsoft.com/download/dotnet/7.0)。
 
-LipUI is a portable application. You can download the latest version of LipUI [here](https://github.com/LiteLDev/LipUI/releases/latest). You can put it anywhere you want.
+## 安装
 
-## Usage
+LipUI是一个便携式的应用程序。你可以下载LipUI的最新版本[这里](https://github.com/LiteLDev/LipUI/releases/latest)。你可以把它放在你想要的任何地方。
 
-Just run `LipUI.exe` and you will see the main window of LipUI. First, you need to select a workspace. A workspace is a directory that contains all the tooths you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. LipUI will automatically detect the tooths in the workspace.
+## 使用
 
-![LipUI Main Window](../assets/img/lipui_main_window.png)
+只要运行`LipUI.exe`，你就会看到LipUI的主窗口。首先，你需要选择一个工作区。工作区是一个包含你所安装的所有牙齿的目录。对于Bedrock Server用户，工作区是包含`bedrock_server.exe`的目录。你可以添加多个工作区。LipUI将自动检测工作区中的tooth。
 
-After you select a workspace, you can install, uninstall, and manage tooths. You can also use the search box to search for tooths.
+![LipUI 主页](../assets/img/lipui_main_window.png)
 
-![LipUI Registry](../assets/img/lipui_registry.png)
+在你选择一个工作区后，你可以安装、卸载和管理tooth。你还可以使用搜索框来搜索tooth。
 
-For tooths not in the registry, you can install them by clicking the `Install` button. You can also install tooths from a URL or a tooth file.
+![LipUI 包市场](../assets/img/lipui_registry.png)
+
+对于不在注册表中的tooth，你可以通过进入 `安装齿包` 页面 输入 URL 或者本地文件路径来安装他们。
 
 ![LipUI Install Tooth](../assets/img/lipui_install_tooth.png)
