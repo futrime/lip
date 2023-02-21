@@ -24,8 +24,8 @@ lip show [options] <tooth path>
 
 - `--available`
 
-  Show the full list of available versions.
+  显示可用版本的完整列表。
 
 - `--json`
   
-  Output in JSON format. (cannot be hidden with `--quiet`)
+  以JSON格式输出。(不能用`--quiet`隐藏)

@@ -379,20 +379,20 @@ windows/arm64
 }
 ```
 
-## confirmation
+## `confirmation` - 确认信息
 
-Declares the confirmation message that will be shown when installing.
+声明安装时将显示的确认信息。
 
-### Syntax
+### 语法
 
-type is the type of the command. It can be one of the following:
+type是待确认信息的类型。它可以是以下之一。
 
-- install: execute the command when installing
-- uninstall: execute the command when uninstalling
+- `install`: 在安装时提示
+- `uninstall`: 在卸载时提示
 
-GOOS (optional) is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go.
+`GOOS`（可选）是操作系统选择器，它应该与Go中可能的GOOS变量相匹配。`GOARCH`（可选）是平台选择器，应与Go中可能的GOARCH变量相匹配。
 
-### Examples
+### 样例
 
 ```json
 {

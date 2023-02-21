@@ -47,35 +47,36 @@ The `format_version`, `tooth`, `author`, `description` and `name` fields are req
 
 在你创建文件之后，你可以向注册表仓库创建一个Pull Requests。注册表维护者将审查你的Pull Requests，如果它是有效的，则将其合并。
 
-### How to Set Tags
+### 如果设置标签
 
-You can set tags for your tooth. The tags will be displayed on the registry website. You can set tags in the `tags` field of the registry file. The `tags` field should be an array of strings. Each string should be a valid tag. The tag can only contain lowercase letters, numbers and hyphens [a-z0-9-]. The tag should not start or end with a hyphen. The tag should not contain consecutive hyphens.
+yphens [a-z0-9-]. The tag should not start or end with a hyphen. The tag should not contain consecutive hyphens.
+你可以为你的tooth设置标签。这些标签将显示在Lip注册表网站上。你可以在注册表文件的`tags`字段中设置标签。`tags`字段应该是一个字符串数组。每个字符串都应该是一个有效的标签。标签只能包含小写字母、数字和连字符[a-z0-9-]。标签不应该以连字符开始或结束。标签不应包含连续的连字符。
 
-Some tags can be recognized by the registry website, Lip and LipUI. The recognized tags are:
+有些标签可以被注册网站、Lip和LipUI识别。被识别的标签有：
 
-Reserved tags:
+保留的标签：
 
 - `featured`: 这个tooth在注册表网站上被推荐。你不应该手动设置这个标签。注册表维护者将为你设置这个标签。
 
-Type tags:
+包种类标签：
 
-- `utility`: The tooth is a utility tool.
-- `plugin`: The tooth is a plugin.
-- `module`: The tooth is a module. This 
-- `mod`: The tooth is a mod.
-- `modpack`: The tooth is a modpack. This tag means that the tooth is a collection of mods.
-- `addon`: The tooth is an addon.
-- `world`: The tooth is a world.
-- `integration`: The tooth is an integration pack. This tag means that the tooth is a collection of mods and plugins as well as the server software.
+- `utility`: 该tooth是一个实用工具。
+- `plugin`: 该tooth是一个插件。
+- `module`: 该tooth是一个模块
+- `mod`: 该tooth是一个Mod
+- `modpack`: 该tooth是一个MOD包。这个标签意味着该tooth是一个MOD的集合。
+- `addon`: 牙齿是一个addon。
+- `world`: 该tooth是一个游戏世界
+- `integration`: 该tooth是一个整合包。这个标签意味着该tooth是一个MOD和插件以及服务器软件的集合。
 
-Ecosystem tags:
+生态系统标签：
 
-- `ll`: The tooth is for LiteLoaderBDS.
-- `llse`: The tooth is for LiteLoaderBDS and depends on LiteLoaderBDS Script Engine.
-- `llnet`: The tooth is for LiteLoaderBDS and depends on LiteLoader.NET.
-- `bdsx`: The tooth is for BDSX.
-- `pnx`: The tooth is for PowerNukkitX.
-- `bds`: The tooth is for pure BDS.
+- `ll`: 该tooth是用于LiteLoaderBDS的。
+- `llse`: 该tooth是为LiteLoaderBDS设计的，并依赖于LiteLoaderBDS脚本引擎。
+- `llnet`: 该tooth是为LiteLoaderBDS设计的，并依赖于LiteLoader.NET。
+- `bdsx`: 这是一个bdsx的tooth包。
+- `pnx`: 这是一个PowerNukkitX的tooth包
+- `bds`: 这是一个原生BDS的tooth包。
 
 ## 从Lip注册表安装你tooth
 
