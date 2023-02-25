@@ -30,9 +30,8 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 	}
 	defer resp.Body.Close()
 
-	// Check server response
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("cannot download file (HTTP CODE " + strconv.Itoa(resp.StatusCode) + "): " + url)
+		return errors.New("cannot download file (HTTP " + resp.Status + "): " + url)
 	}
 
 	// Create the file
