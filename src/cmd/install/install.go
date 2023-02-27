@@ -152,9 +152,6 @@ func Run(args []string) {
 			logger.Info("    Cached.")
 		}
 
-		// Add the downloaded path to the downloaded tooth files.
-		downloadedToothFilePathMap[specifier.String()] = downloadedToothFilePath
-
 		// Parse the tooth file
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
@@ -175,6 +172,38 @@ func Run(args []string) {
 			}
 			os.Exit(1)
 		}
+
+		isToothInstalled, err := toothrecord.IsToothInstalled(toothPath)
+		if err != nil {
+			logger.Error(err.Error())
+			os.Exit(1)
+		}
+		if isToothInstalled {
+			if !flagDict.forceReinstallFlag && !flagDict.upgradeFlag {
+				logger.Info("    Already installed.")
+				continue
+			} else if !flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+				record, err := toothrecord.Get(toothPath)
+				if err != nil {
+					logger.Error(err.Error())
+					os.Exit(1)
+				}
+				if record.Version == toothFile.Metadata().Version {
+					logger.Info("    Already installed.")
+					continue
+				} else if versions.GreaterThan(record.Version, toothFile.Metadata().Version) {
+					logger.Info("    A newer version already installed.")
+					continue
+				}
+			} else if flagDict.forceReinstallFlag && !flagDict.upgradeFlag {
+				logger.Info("    Already installed, reinstalling...")
+			} else if flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+				logger.Info("    Already installed, reinstalling...")
+			}
+		}
+
+		// Add the downloaded path to the downloaded tooth files.
+		downloadedToothFilePathMap[specifier.String()] = downloadedToothFilePath
 
 		// If the no-dependencies flag is set, skip.
 		if !flagDict.noDependenciesFlag {
@@ -298,22 +327,32 @@ func Run(args []string) {
 	//    tooth specified by the specifiers will be skipped.
 
 	if flagDict.forceReinstallFlag || flagDict.upgradeFlag {
+		if flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+			logger.Error("the force-reinstall flag and the upgrade flag cannot be used together")
+			os.Exit(1)
+		}
+
 		if flagDict.forceReinstallFlag {
-			logger.Info("force-reinstall flag is set, Lip will reinstall all installed tooths specified by the specifiers...")
-		} else {
-			logger.Info("upgrade flag is set, Lip will upgrade all installed tooths specified by the specifiers...")
+			logger.Info("--force-reinstall flag is set, Lip will reinstall all installed tooths specified by the specifiers...")
+		} else if flagDict.upgradeFlag {
+			logger.Info("--upgrade flag is set, Lip will upgrade all installed tooths specified by the specifiers...")
 		}
 
 		logger.Info("Uninstalling tooths to be reinstalled or upgraded...")
 
 		for _, specifier := range requirementSpecifierList {
-			logger.Info("  Resolving " + specifier.String() + "...")
-
 			// If the specifier is not a requirement specifier, skip.
 			if specifier.Type() != specifiers.RequirementKind {
-				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
+				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the --force-reinstall flag or the --upgrade flag")
 				continue
 			}
+
+			if _, ok := downloadedToothFilePathMap[specifier.String()]; !ok {
+				// Already processed.
+				continue
+			}
+
+			logger.Info("  Resolving " + specifier.String() + "...")
 
 			toothFile, err := toothfile.New(downloadedToothFilePathMap[specifier.String()])
 			if err != nil {

@@ -10,6 +10,24 @@ import (
 	"github.com/liteldev/lip/localfile"
 )
 
+// Get returns the tooth record of the specified tooth.
+func Get(toothPath string) (Record, error) {
+	// Get the tooth record list.
+	recordList, err := ListAll()
+	if err != nil {
+		return Record{}, err
+	}
+
+	// Get the tooth record.
+	for _, record := range recordList {
+		if record.ToothPath == toothPath {
+			return record, nil
+		}
+	}
+
+	return Record{}, errors.New("tooth record not found")
+}
+
 // ListAll lists all installed tooth records.
 func ListAll() ([]Record, error) {
 	recordList := make([]Record, 0)

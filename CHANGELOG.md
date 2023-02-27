@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2023-02-27
+
 ### Added
 
 - Dependency version validation when installing.
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Failing to run tools with arguments.
+- Dependencies still being installed when the dependent is not going to be installed.
 
 ## [0.11.45141] - 2023-02-19
 
@@ -215,7 +218,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.11.45141...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/LiteLDev/Lip/compare/v0.11.45141...v0.12.0
 [0.11.45141]: https://github.com/LiteLDev/Lip/compare/v0.11.4514...v0.11.45141
 [0.11.4514]: https://github.com/LiteLDev/Lip/compare/v0.11.0...v0.11.4514
 [0.11.0]: https://github.com/LiteLDev/Lip/compare/v0.10.0...v0.11.0
