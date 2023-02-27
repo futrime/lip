@@ -96,7 +96,7 @@ func Run(args []string) {
 		logger.Info("")
 	} else {
 		// Get the record file content.
-		recordObject, err := toothrecord.New(recordFilePath)
+		recordObject, err := toothrecord.NewFromFile(recordFilePath)
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)

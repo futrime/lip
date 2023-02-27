@@ -191,23 +191,92 @@ func Run(args []string) {
 					os.Exit(1)
 				}
 
-				isMatched := false
-			selectVersion:
-				for _, version := range versionList {
+				// If the dependency is installed, check if the installed version matches the requirement.
+				ok, err := toothrecord.IsToothInstalled(toothPath)
+				if err != nil {
+					logger.Error(err.Error())
+					os.Exit(1)
+				}
+				if ok {
+					record, err := toothrecord.New(toothPath)
+					if err != nil {
+						logger.Error(err.Error())
+						os.Exit(1)
+					}
+
+					version := record.Version
+
+					var isAnyMatched bool = false
 					for _, innerVersionRange := range versionRange {
+						var isAllMatched bool = true
 						for _, versionMatch := range innerVersionRange {
-							if versionMatch.Match(version) {
-								// Add the specifier to the queue.
-								specifier, err := specifiers.New(toothPath + "@" + version.String())
-								if err != nil {
-									logger.Error(err.Error())
-									os.Exit(1)
-								}
-								specifiersToFetch.PushBack(specifier)
-								isMatched = true
-								break selectVersion
+							if !versionMatch.Match(version) {
+								isAllMatched = false
+								break
 							}
 						}
+
+						if isAllMatched {
+							isAnyMatched = true
+							break
+						}
+					}
+
+					if isAnyMatched {
+						logger.Info("        Installed version " + version.String() + " matches the requirement.")
+						continue
+					} else {
+						versionRangeString := ""
+						for i, innerVersionRange := range versionRange {
+							if i > 0 {
+								versionRangeString += " or "
+							}
+
+							versionRangeString += "("
+
+							for j, versionMatch := range innerVersionRange {
+								if j > 0 {
+									versionRangeString += " and "
+								}
+
+								versionRangeString += versionMatch.String()
+							}
+
+							versionRangeString += ")"
+						}
+						logger.Error("The installed version of " + toothPath + "(" + version.String() + ") does not match the requirement of " + specifier.String() + "(" + versionRangeString + ")")
+						os.Exit(1)
+					}
+				}
+
+				isMatched := false
+				for _, version := range versionList {
+					var isAnyMatched bool = false
+					for _, innerVersionRange := range versionRange {
+						var isAllMatched bool = true
+						for _, versionMatch := range innerVersionRange {
+							if !versionMatch.Match(version) {
+								isAllMatched = false
+								break
+							}
+						}
+
+						if isAllMatched {
+							isAnyMatched = true
+							break
+						}
+					}
+
+					if isAnyMatched {
+						// Add the specifier to the queue.
+						specifier, err := specifiers.New(toothPath + "@" + version.String())
+						if err != nil {
+							logger.Error(err.Error())
+							os.Exit(1)
+						}
+						specifiersToFetch.PushBack(specifier)
+						isMatched = true
+						break
 					}
 				}
 
@@ -269,7 +338,7 @@ func Run(args []string) {
 			}
 
 			toothRecordFilePath := filepath.Join(recordDir, localfile.GetRecordFileName(toothFile.Metadata().ToothPath))
-			toothRecord, err := toothrecord.New(toothRecordFilePath)
+			toothRecord, err := toothrecord.NewFromFile(toothRecordFilePath)
 			if err != nil {
 				logger.Error(err.Error())
 				os.Exit(1)

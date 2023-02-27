@@ -140,7 +140,7 @@ func Run(args []string) {
 		if flagDict.keepPossessionFlag {
 			// Read the record file.
 			recordFilePath := filepath.Join(recordDir, recordFileName)
-			record, err := toothrecord.New(recordFilePath)
+			record, err := toothrecord.NewFromFile(recordFilePath)
 			if err != nil {
 				logger.Error("cannot read the record file " + recordFilePath + ": " + err.Error())
 				os.Exit(1)

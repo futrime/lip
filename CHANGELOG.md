@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dependency version validation when installing.
+
+### Fixed
+
+- Failing to run tools with arguments.
+
 ## [0.11.45141] - 2023-02-19
 
 ### Fixed
