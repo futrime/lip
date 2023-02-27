@@ -7,8 +7,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 
 	"github.com/liteldev/lip/localfile"
 	"github.com/liteldev/lip/tooth/toothmetadata"
@@ -62,8 +60,24 @@ type Record struct {
 	IsManuallyInstalled bool
 }
 
-// New creates a new Record struct from a record file.
-func New(recordFilePath string) (Record, error) {
+// New creates a new Record struct from a tooth path.
+func New(toothPath string) (Record, error) {
+	var err error
+
+	recordDir, err := localfile.RecordDir()
+	if err != nil {
+		return Record{}, errors.New("failed to get record directory: " + err.Error())
+	}
+
+	recordFileName := localfile.GetRecordFileName(toothPath)
+
+	recordFilePath := filepath.Join(recordDir, recordFileName)
+
+	return NewFromFile(recordFilePath)
+}
+
+// NewFromFile creates a new Record struct from a record file.
+func NewFromFile(recordFilePath string) (Record, error) {
 	content, err := os.ReadFile(recordFilePath)
 	if err != nil {
 		return Record{}, errors.New("cannot read the record file " + recordFilePath + ": " + err.Error())
@@ -311,39 +325,4 @@ func (record Record) JSON() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
-}
-
-// ListAll lists all installed tooth records.
-func ListAll() ([]Record, error) {
-	recordList := make([]Record, 0)
-
-	// Get all record paths
-	recordDir, err := localfile.RecordDir()
-	if err != nil {
-		return nil, errors.New("failed to get record directory: " + err.Error())
-	}
-
-	files, err := os.ReadDir(recordDir)
-	if err != nil {
-		return nil, errors.New("failed to read record directory: " + err.Error())
-	}
-
-	for _, file := range files {
-		recordFilePath := filepath.Join(recordDir, file.Name())
-
-		// Read record
-		record, err := New(recordFilePath)
-		if err != nil {
-			return nil, errors.New("failed to read record file" + file.Name() + ": " + err.Error())
-		}
-
-		recordList = append(recordList, record)
-	}
-
-	// Sort record list by tooth path in a case-insensitive order.
-	sort.Slice(recordList, func(i, j int) bool {
-		return strings.ToLower(recordList[i].ToothPath) < strings.ToLower(recordList[j].ToothPath)
-	})
-
-	return recordList, nil
 }

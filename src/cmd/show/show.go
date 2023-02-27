@@ -96,7 +96,7 @@ func Run(args []string) {
 		logger.Info("")
 	} else {
 		// Get the record file content.
-		recordObject, err := toothrecord.New(recordFilePath)
+		recordObject, err := toothrecord.NewFromFile(recordFilePath)
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)
@@ -111,6 +111,7 @@ func Run(args []string) {
 		logger.Info("  Author: " + recordObject.Information.Author)
 		logger.Info("  License: " + recordObject.Information.License)
 		logger.Info("  Homepage: " + recordObject.Information.Homepage)
+		logger.Info("  Is-manually-installed: " + fmt.Sprint(recordObject.IsManuallyInstalled))
 		logger.Info("")
 
 		// Save to JSON map.
@@ -121,6 +122,7 @@ func Run(args []string) {
 		outputJSONMap["author"] = recordObject.Information.Author
 		outputJSONMap["license"] = recordObject.Information.License
 		outputJSONMap["homepage"] = recordObject.Information.Homepage
+		outputJSONMap["is-manually-installed"] = recordObject.IsManuallyInstalled
 
 		// Show the full list of installed files if the files flag is set.
 		if flagDict.filesFlag {

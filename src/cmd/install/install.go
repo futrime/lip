@@ -86,8 +86,8 @@ func Run(args []string) {
 
 	logger.Info("Validating specifiers...")
 
-	// Make specifierList.
-	var specifierList []specifiers.Specifier
+	// Make requirementSpecifierList.
+	var requirementSpecifierList []specifiers.Specifier
 	for _, specifierString := range flagSet.Args() {
 		logger.Info("  Validating " + specifierString + "...")
 
@@ -97,7 +97,7 @@ func Run(args []string) {
 			os.Exit(1)
 		}
 
-		specifierList = append(specifierList, specifier)
+		requirementSpecifierList = append(requirementSpecifierList, specifier)
 	}
 
 	// 2. Parse dependency and download tooth files.
@@ -109,16 +109,17 @@ func Run(args []string) {
 
 	logger.Info("Resolving dependencies and downloading tooths...")
 
-	// An array of downloaded tooth files.
-	// The key is the specifier and the value is the path of the downloaded tooth file.
-	downloadedToothFiles := make(map[string]string)
 	// An queue of tooth files to be downloaded.
 	var specifiersToFetch list.List
 
 	// Add all specifiers to the queue.
-	for _, specifier := range specifierList {
+	for _, specifier := range requirementSpecifierList {
 		specifiersToFetch.PushBack(specifier)
 	}
+
+	// An array of downloaded tooth files.
+	// Specifier string -> downloaded tooth file path
+	downloadedToothFilePathMap := make(map[string]string)
 
 	for specifiersToFetch.Len() > 0 {
 		// Get the first specifier to fetch
@@ -126,7 +127,7 @@ func Run(args []string) {
 		specifiersToFetch.Remove(specifiersToFetch.Front())
 
 		// If the tooth file of the specifier is already downloaded, skip.
-		if _, ok := downloadedToothFiles[specifier.String()]; ok {
+		if _, ok := downloadedToothFilePathMap[specifier.String()]; ok {
 			continue
 		}
 
@@ -151,9 +152,6 @@ func Run(args []string) {
 			logger.Info("    Cached.")
 		}
 
-		// Add the downloaded path to the downloaded tooth files.
-		downloadedToothFiles[specifier.String()] = downloadedToothFilePath
-
 		// Parse the tooth file
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
@@ -175,6 +173,38 @@ func Run(args []string) {
 			os.Exit(1)
 		}
 
+		isToothInstalled, err := toothrecord.IsToothInstalled(toothPath)
+		if err != nil {
+			logger.Error(err.Error())
+			os.Exit(1)
+		}
+		if isToothInstalled {
+			if !flagDict.forceReinstallFlag && !flagDict.upgradeFlag {
+				logger.Info("    Already installed.")
+				continue
+			} else if !flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+				record, err := toothrecord.Get(toothPath)
+				if err != nil {
+					logger.Error(err.Error())
+					os.Exit(1)
+				}
+				if record.Version == toothFile.Metadata().Version {
+					logger.Info("    Already installed.")
+					continue
+				} else if versions.GreaterThan(record.Version, toothFile.Metadata().Version) {
+					logger.Info("    A newer version already installed.")
+					continue
+				}
+			} else if flagDict.forceReinstallFlag && !flagDict.upgradeFlag {
+				logger.Info("    Already installed, reinstalling...")
+			} else if flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+				logger.Info("    Already installed, reinstalling...")
+			}
+		}
+
+		// Add the downloaded path to the downloaded tooth files.
+		downloadedToothFilePathMap[specifier.String()] = downloadedToothFilePath
+
 		// If the no-dependencies flag is set, skip.
 		if !flagDict.noDependenciesFlag {
 			logger.Info("    Resolving dependencies...")
@@ -191,23 +221,92 @@ func Run(args []string) {
 					os.Exit(1)
 				}
 
-				isMatched := false
-			selectVersion:
-				for _, version := range versionList {
+				// If the dependency is installed, check if the installed version matches the requirement.
+				ok, err := toothrecord.IsToothInstalled(toothPath)
+				if err != nil {
+					logger.Error(err.Error())
+					os.Exit(1)
+				}
+				if ok {
+					record, err := toothrecord.New(toothPath)
+					if err != nil {
+						logger.Error(err.Error())
+						os.Exit(1)
+					}
+
+					version := record.Version
+
+					var isAnyMatched bool = false
 					for _, innerVersionRange := range versionRange {
+						var isAllMatched bool = true
 						for _, versionMatch := range innerVersionRange {
-							if versionMatch.Match(version) {
-								// Add the specifier to the queue.
-								specifier, err := specifiers.New(toothPath + "@" + version.String())
-								if err != nil {
-									logger.Error(err.Error())
-									os.Exit(1)
-								}
-								specifiersToFetch.PushBack(specifier)
-								isMatched = true
-								break selectVersion
+							if !versionMatch.Match(version) {
+								isAllMatched = false
+								break
 							}
 						}
+
+						if isAllMatched {
+							isAnyMatched = true
+							break
+						}
+					}
+
+					if isAnyMatched {
+						logger.Info("        Installed version " + version.String() + " matches the requirement.")
+						continue
+					} else {
+						versionRangeString := ""
+						for i, innerVersionRange := range versionRange {
+							if i > 0 {
+								versionRangeString += " or "
+							}
+
+							versionRangeString += "("
+
+							for j, versionMatch := range innerVersionRange {
+								if j > 0 {
+									versionRangeString += " and "
+								}
+
+								versionRangeString += versionMatch.String()
+							}
+
+							versionRangeString += ")"
+						}
+						logger.Error("The installed version of " + toothPath + "(" + version.String() + ") does not match the requirement of " + specifier.String() + "(" + versionRangeString + ")")
+						os.Exit(1)
+					}
+				}
+
+				isMatched := false
+				for _, version := range versionList {
+					var isAnyMatched bool = false
+					for _, innerVersionRange := range versionRange {
+						var isAllMatched bool = true
+						for _, versionMatch := range innerVersionRange {
+							if !versionMatch.Match(version) {
+								isAllMatched = false
+								break
+							}
+						}
+
+						if isAllMatched {
+							isAnyMatched = true
+							break
+						}
+					}
+
+					if isAnyMatched {
+						// Add the specifier to the queue.
+						specifier, err := specifiers.New(toothPath + "@" + version.String())
+						if err != nil {
+							logger.Error(err.Error())
+							os.Exit(1)
+						}
+						specifiersToFetch.PushBack(specifier)
+						isMatched = true
+						break
 					}
 				}
 
@@ -228,24 +327,34 @@ func Run(args []string) {
 	//    tooth specified by the specifiers will be skipped.
 
 	if flagDict.forceReinstallFlag || flagDict.upgradeFlag {
+		if flagDict.forceReinstallFlag && flagDict.upgradeFlag {
+			logger.Error("the force-reinstall flag and the upgrade flag cannot be used together")
+			os.Exit(1)
+		}
+
 		if flagDict.forceReinstallFlag {
-			logger.Info("force-reinstall flag is set, Lip will reinstall all installed tooths specified by the specifiers...")
-		} else {
-			logger.Info("upgrade flag is set, Lip will upgrade all installed tooths specified by the specifiers...")
+			logger.Info("--force-reinstall flag is set, Lip will reinstall all installed tooths specified by the specifiers...")
+		} else if flagDict.upgradeFlag {
+			logger.Info("--upgrade flag is set, Lip will upgrade all installed tooths specified by the specifiers...")
 		}
 
 		logger.Info("Uninstalling tooths to be reinstalled or upgraded...")
 
-		for _, specifier := range specifierList {
-			logger.Info("  Resolving " + specifier.String() + "...")
-
+		for _, specifier := range requirementSpecifierList {
 			// If the specifier is not a requirement specifier, skip.
 			if specifier.Type() != specifiers.RequirementKind {
-				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the force-reinstall flag or the upgrade flag")
+				logger.Error("The specifier " + specifier.String() + " is not a requirement specifier. It cannot be used with the --force-reinstall flag or the --upgrade flag")
 				continue
 			}
 
-			toothFile, err := toothfile.New(downloadedToothFiles[specifier.String()])
+			if _, ok := downloadedToothFilePathMap[specifier.String()]; !ok {
+				// Already processed.
+				continue
+			}
+
+			logger.Info("  Resolving " + specifier.String() + "...")
+
+			toothFile, err := toothfile.New(downloadedToothFilePathMap[specifier.String()])
 			if err != nil {
 				logger.Error(err.Error())
 				os.Exit(1)
@@ -269,7 +378,7 @@ func Run(args []string) {
 			}
 
 			toothRecordFilePath := filepath.Join(recordDir, localfile.GetRecordFileName(toothFile.Metadata().ToothPath))
-			toothRecord, err := toothrecord.New(toothRecordFilePath)
+			toothRecord, err := toothrecord.NewFromFile(toothRecordFilePath)
 			if err != nil {
 				logger.Error(err.Error())
 				os.Exit(1)
@@ -307,14 +416,29 @@ func Run(args []string) {
 
 	// Store downloaded tooth files in an array.
 	downloadedToothFileList := make([]toothfile.ToothFile, 0)
-	for _, downloadedToothFilePath := range downloadedToothFiles {
+	manuallyInstalledToothFilePathList := make([]string, 0)
+	for specifierString, downloadedToothFilePath := range downloadedToothFilePathMap {
 		toothFile, err := toothfile.New(downloadedToothFilePath)
 		if err != nil {
 			logger.Error("Failed to open the downloaded tooth file " + downloadedToothFilePath + ": " + err.Error())
 			os.Exit(1)
 		}
 
+		// If specifierString is in the requirementSpecifierList, it is a manually
+		// installed tooth file. Otherwise, it is a dependency tooth file.
+		isManuallyInstalled := false
+		for _, requirementSpecifier := range requirementSpecifierList {
+			if requirementSpecifier.String() == specifierString {
+				isManuallyInstalled = true
+				break
+			}
+		}
+
 		downloadedToothFileList = append(downloadedToothFileList, toothFile)
+
+		if isManuallyInstalled {
+			manuallyInstalledToothFilePathList = append(manuallyInstalledToothFilePathList, toothFile.FilePath())
+		}
 	}
 
 	// Topological sort the array in descending order.
@@ -342,8 +466,13 @@ func Run(args []string) {
 		logger.Info("    Installing " + toothFile.Metadata().ToothPath + "@" +
 			toothFile.Metadata().Version.String() + "...")
 
-		// TODO: Check if the tooth file is manually installed.
 		isManuallyInstalled := false
+		for _, manuallyInstalledToothFilePath := range manuallyInstalledToothFilePathList {
+			if toothFile.FilePath() == manuallyInstalledToothFilePath {
+				isManuallyInstalled = true
+				break
+			}
+		}
 
 		err = install(toothFile, isManuallyInstalled, flagDict.yesFlag)
 		if err != nil {

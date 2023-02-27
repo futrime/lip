@@ -29,7 +29,7 @@ Description:
 Options:
   -h, --help                  Show help.
   -y, --yes                   Skip confirmation.
-  --keep-possession            Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.`
+  --keep-possession           Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.`
 
 // Run is the entry point.
 func Run(args []string) {
@@ -140,7 +140,7 @@ func Run(args []string) {
 		if flagDict.keepPossessionFlag {
 			// Read the record file.
 			recordFilePath := filepath.Join(recordDir, recordFileName)
-			record, err := toothrecord.New(recordFilePath)
+			record, err := toothrecord.NewFromFile(recordFilePath)
 			if err != nil {
 				logger.Error("cannot read the record file " + recordFilePath + ": " + err.Error())
 				os.Exit(1)

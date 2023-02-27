@@ -22,6 +22,8 @@
 
   - [lip](commands/lip.md)
 
+  - [lip autoremove](commands/lip_autoremove.md)
+
   - [lip cache](commands/lip_cache.md)
 
     - [lip cache purge](commands/lip_cache_purge.md)

@@ -54,7 +54,7 @@ func visit(toothFile toothfile.ToothFile, toothFileMap map[string]toothfile.Toot
 		if !ok {
 			// Ignore the dependency if it is not in the tooth file list.
 			// sortToothFiles only sorts the tooth files in the tooth file list.
-			logger.Info("dependency not found", depToothPath)
+			logger.Info("Dependency not found: %s", depToothPath)
 			continue
 		}
 
