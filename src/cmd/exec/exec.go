@@ -49,12 +49,6 @@ func Run(args []string) {
 		os.Exit(1)
 	}
 
-	// Only one tool can be executed at a time.
-	if len(flagSet.Args()) > 1 {
-		logger.Error("Only one tool can be executed at a time.")
-		os.Exit(1)
-	}
-
 	toolName := flagSet.Arg(0)
 	toolPath := ".lip/tools/" + toolName + "/" + toolName
 	toolPath = filepath.FromSlash(toolPath) // Convert to OS path.

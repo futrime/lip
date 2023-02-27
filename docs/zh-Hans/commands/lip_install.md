@@ -75,15 +75,15 @@ Lip在安装依赖之前，是按照 "拓扑顺序 "安装依赖。当遇到依�
 
 - `-y, --yes`
 
-  Assume yes to all prompts and run non-interactively.
+  对所有的提示都以肯定回答，并以非交互式方式运行。
 
 - `--numeric-progress`
 
-  Show numeric progress instead of progress bar.
+  显示数字进度而不是进度条。
 
 - `--no-dependencies`
 
-  Do not install dependencies.
+  不安装依赖
 
 ## 样例
 
@@ -121,7 +121,7 @@ lip install example.tth
 lip install ./example/example.tth
 ```
 
-Install with an alias:
+用一个别名来安装：
 
 ```shell
 lip install liteloaderbds

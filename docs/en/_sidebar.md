@@ -4,8 +4,11 @@
 
 - [Getting Started](getting_started.md)
 
+- [LipUI Quickstart](lipui_quickstart.md)
 
 - [Creator's Guide](creator_s_guide.md)
+
+- [FAQ](faq.md)
 
 - Tutorials
 

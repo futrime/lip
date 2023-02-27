@@ -11,7 +11,7 @@ lip exec [options] <tool> [args...]
 执行一个Lip工具。工具应该先用`lip install`来安装。
 
 
-事实上，这将执行 ./lip/tools/\<tool>/\<tool> (或 在Windows上： .\lip\tools\\\<tool>\\\<tool>.exe 或 .\lip\tools\\\<tool>\\\<tool>.cmd ).
+事实上，这将执行 ./lip/tools/\<tool>/\<tool> (在Windows上将会执行 .\lip\tools\\\<tool>\\\<tool>.exe 或 .\lip\tools\\\<tool>\\\<tool>.cmd ).
 
 ## 选项
 

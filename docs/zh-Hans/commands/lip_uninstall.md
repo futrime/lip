@@ -19,8 +19,8 @@ lip uninstall [options] <tooth paths>
 
 - `-y, --yes`
 
-  Skip the confirmation prompt.
+  跳过确认提示。
 
 - `--keep-possession`
 
-  Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.
+  保留tooth作者指定的tooth所占用的文件。这些文件通常是配置文件、数据文件等。
