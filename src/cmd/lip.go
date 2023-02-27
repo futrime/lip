@@ -9,6 +9,7 @@ import (
 	"github.com/liteldev/lip/context"
 	"github.com/liteldev/lip/utils/logger"
 
+	cmdlipautoremove "github.com/liteldev/lip/cmd/autoremove"
 	cmdlipcache "github.com/liteldev/lip/cmd/cache"
 	cmdlipexec "github.com/liteldev/lip/cmd/exec"
 	cmdlipinstall "github.com/liteldev/lip/cmd/install"
@@ -31,6 +32,7 @@ Usage:
   lip [options] [<command> [subcommand options]] ...
 
 Commands:
+  autoremove                  Uninstall tooths that are not depended by any other tooths.
   cache                       Inspect and manage Lip's cache.
   exec                        Execute a Lip tool.
   install                     Install a tooth.
@@ -102,6 +104,9 @@ func Run(args []string) {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
+		case "autoremove":
+			cmdlipautoremove.Run(flagSet.Args()[1:])
+			return
 		case "cache":
 			cmdlipcache.Run(flagSet.Args()[1:])
 			return

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Dependency version validation when installing.
+- `lip autoremove` command to remove tooths not required by other tooths.
 
 ### Fixed
 
