@@ -58,3 +58,11 @@ You can create a tooth.json like this:
     ]
 }
 ```
+
+## Test the tool
+
+In addition to the guide in [Create a Lip Tooth](create_a_lip_tooth.md#test-the-tooth), you should also run the command below to test the tool:
+
+```shell
+lip exec npm [args]
+```

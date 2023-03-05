@@ -85,6 +85,32 @@ exampleplugin/
    
    `possession` 字段用于表示这一tooth的私有路径。当使用`lip uninstall`卸载tooth时，这些路径将会被一同删除。在使用升级和重新安装tooth时，这些文件夹会被保留。请注意，在 `possession` 字段中的路径应为以BDS的根目录为基础的相对路径。每个路径都应该以"/"结束。
 
+## 测测你的tooth
+
+Before publishing the tooth, you should test it to make sure it works as expected.
+
+1. Zip all files in the repository root, and rename the zip file to "exampleplugin.tth".
+
+2. Copy the zip file to a certain directory, and then run the command below to install the tooth.
+
+   ```shell
+   lip install exampleplugin.tth
+   ```
+
+3. Run the command below to uninstall the tooth.
+
+   ```shell
+   lip uninstall exampleplugin.tth
+   ```
+
+4. Run the command below to install the tooth again.
+
+   ```shell
+   lip install exampleplugin.tth
+   ```
+
+5. Check if the tooth works as expected.
+
 ## 发布你的tooth
 
 1. 储存并提交修改，然后推送到公共Git服务。
