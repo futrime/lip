@@ -4,19 +4,23 @@
 
 ```shell
 lip exec [options] <tool> [args...]
+
+alias: x
 ```
 
 ## Description
 
 Execute a Lip tool. Tools should be installed with `lip install` first.
 
-In fact, this will execute ./lip/tools/\<tool>/\<tool> (or .\lip\tools\\\<tool>\\\<tool>.exe or .\lip\tools\\\<tool>\\\<tool>.cmd on Windows).
-
 ## Options
 
 - `-h, --help`
 
   Show help.
+
+- `--list`
+
+  List all installed tools.
 
 ## Examples
 

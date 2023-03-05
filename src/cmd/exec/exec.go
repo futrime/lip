@@ -4,14 +4,16 @@ import (
 	"flag"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
+	"strings"
 
+	"github.com/liteldev/lip/tooth/toothrecord"
 	"github.com/liteldev/lip/utils/logger"
 )
 
 type FlagDict struct {
 	helpFlag bool
+	listFlag bool
 }
 
 const helpMessage = `
@@ -22,7 +24,8 @@ Description:
   Execute a Lip tool.
 
 Options:
-  -h, --help                  Show help.`
+  -h, --help                  Show help.
+  --list					  List all available tools.`
 
 func Run(args []string) {
 	flagSet := flag.NewFlagSet("exec", flag.ExitOnError)
@@ -35,6 +38,7 @@ func Run(args []string) {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
+	flagSet.BoolVar(&flagDict.listFlag, "list", false, "")
 	flagSet.Parse(args)
 
 	// Help flag has the highest priority.
@@ -43,49 +47,117 @@ func Run(args []string) {
 		return
 	}
 
+	if flagDict.listFlag {
+		if flagSet.NArg() > 0 {
+			logger.Error("too many arguments.")
+			os.Exit(1)
+		}
+
+		ListTools()
+		return
+	}
+
 	// The tool name should not be empty.
 	if len(flagSet.Args()) == 0 {
-		logger.Error("Missing tool name.")
+		logger.Error("missing tool name.")
 		os.Exit(1)
 	}
 
-	toolName := flagSet.Arg(0)
-	toolPath := ".lip/tools/" + toolName + "/" + toolName
-	toolPath = filepath.FromSlash(toolPath) // Convert to OS path.
-	if runtime.GOOS == "windows" {
-		if _, err := os.Stat(toolPath + ".exe"); err == nil {
-			toolPath += ".exe"
-		} else if _, err := os.Stat(toolPath + ".cmd"); err == nil {
-			toolPath += ".cmd"
+	// Run the tool.
+	RunTool(flagSet.Args())
+}
 
-		} else {
-			logger.Error("Tool not found: " + toolPath)
-			os.Exit(1)
-		}
-	} else {
-		if _, err := os.Stat(toolPath); err != nil {
-			logger.Error("Tool not found: " + toolPath)
-			os.Exit(1)
+// ListTools lists all available tools.
+func ListTools() {
+	var err error
+
+	recordList, err := toothrecord.ListAll()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// Remove tooths that is not a tool.
+	for i := 0; i < len(recordList); i++ {
+		if !recordList[i].IsTool() {
+			recordList = append(recordList[:i], recordList[i+1:]...)
+			i--
 		}
 	}
 
-	// Execute the tool.
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" && filepath.Ext(toolPath) == ".cmd" {
-		// If the tool is a .cmd file, we need to use "cmd /c" to execute it.
-		// Otherwise, the tool will not be able to read from stdin.
-		args := []string{"/c", toolPath}
-		args = append(args, flagSet.Args()[1:]...)
-		cmd = exec.Command("cmd", args...)
-	} else {
-		cmd = exec.Command(toolPath, flagSet.Args()[1:]...)
+	// Print table
+	longestNameLength := 10        // The minimum length of the column.
+	longestDescriptionLength := 20 // The minimum length of the column.
+	for _, record := range recordList {
+		if len(record.Tool.Name) > longestNameLength {
+			longestNameLength = len(record.Tool.Name)
+		}
+		if len(record.Tool.Description) > longestDescriptionLength {
+			longestDescriptionLength = len(record.Tool.Description)
+		}
 	}
+
+	// Print header
+	logger.Info("Name" + strings.Repeat(" ", longestNameLength-4) + " Description")
+	logger.Info(strings.Repeat("-", longestNameLength) + " " +
+		strings.Repeat("-", longestDescriptionLength))
+
+	// Print tools
+	for _, record := range recordList {
+		logger.Info(record.Tool.Name +
+			strings.Repeat(" ", longestNameLength-len(record.Tool.Name)) + " " +
+			record.Tool.Description)
+	}
+}
+
+// RunTool runs a tool.
+func RunTool(args []string) {
+	var err error
+
+	toolName := args[0]
+	toolArgs := args[1:]
+
+	recordList, err := toothrecord.ListAll()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	toolPath := ""
+FindCorrectToolPath:
+	for _, record := range recordList {
+		if !record.IsTool() || record.Tool.Name != toolName {
+			continue
+		}
+
+		for _, entrypoint := range record.Tool.Entrypoints {
+			if entrypoint.GOOS != runtime.GOOS {
+				continue
+			}
+
+			if entrypoint.GOARCH != "" && entrypoint.GOARCH != runtime.GOARCH {
+				continue
+			}
+
+			toolPath = entrypoint.Path
+			break FindCorrectToolPath
+		}
+	}
+
+	if toolPath == "" {
+		logger.Error("tool not found.")
+		os.Exit(1)
+	}
+
+	// Run the tool.
+	cmd := exec.Command(toolPath, toolArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
-	err := cmd.Run()
+
+	err = cmd.Run()
 	if err != nil {
-		logger.Error("Failed to run tool: " + toolName + ": " + err.Error())
+		logger.Error("failed to run the tool: %s", err.Error())
 		os.Exit(1)
 	}
 }

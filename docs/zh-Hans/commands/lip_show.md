@@ -4,6 +4,8 @@
 
 ```shell
 lip show [options] <tooth path>
+
+aliases: view, v, info
 ```
 
 ## 功能

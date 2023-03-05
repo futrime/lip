@@ -2,23 +2,7 @@
 
 Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other tooths and other information.
 
-These properties include:
-
-- The **format version** of the tooth.json file.
-
-- The current tooth's **tooth path**. This should be a location where the tooth can be downloaded by Lip, such as the tooth code's Git repository location. This serves as a unique identifier, when combined with the tooth’s version number.
-
-- The current tooth's **version**.
-
-- **Dependencies** along with there versions required by the current tooth.
-
-- The current tooth's **information**, including the name, the author, the description and so on.
-
-- The current tooth's **placement**. This is a list of files that should be placed in the tooth's installation directory.
-
-- The current tooth's **possession**. This is a list of files that should be placed in the tooth's possession directory.
-
-The **format_version**, **tooth path** and **version** are required. The other properties are optional.
+The **format_version**, **tooth path** and **version** fields are required. The other properties are optional.
 
 You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
 
@@ -406,6 +390,44 @@ GOOS (optional) is the operating system selector, which should match a possible 
 }
 ```
 
+## tool
+
+Registers tools that can be used with `lip exec`.
+
+### Syntax
+
+name is the name of the tool. It must only contains lowercase letters, numbers and dashes [a-z0-9-].
+
+description is the description of the tool. It will show up when executing `lip exec --list`.
+
+entrypoints is a list of entrypoints of the tool. Each entrypoint should contain a path field, which is the path of the executable relative to the root of the tooth. It can also contain GOOS and GOARCH fields, which are the operating system and platform selectors, which should match a possible GOOS and GOARCH variable of Go.
+
+### Examples
+
+```json
+{
+  "tool": {
+    "name": "lip",
+    "description": "A tool to edit Bedrock Dedicated Server to load plugins.",
+    "entrypoints": [
+      {
+        "path": ".lip/tools/lip/lip",
+        "GOOS": "linux",
+        "GOARCH": "amd64"
+      },
+      {
+        "path": ".lip/tools/lip/lip.exe",
+        "GOOS": "windows"
+      }
+    ]
+  }
+}
+```
+
+### Notes
+
+Do not put more than one entrypoint for the same GOOS and GOARCH. Lip will use the first entrypoint that matches the current platform.
+
 ## Syntax
 
 This is a JSON schema of tooth.json, describing the syntax of tooth.json.
@@ -540,6 +562,46 @@ This is a JSON schema of tooth.json, describing the syntax of tooth.json.
           },
           "GOARCH": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description",
+        "entrypoints"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z\\d-]+$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "entrypoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "GOOS"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "GOOS": {
+                "type": "string"
+              },
+              "GOARCH": {
+                "type": "string"
+              }
+            }
           }
         }
       }

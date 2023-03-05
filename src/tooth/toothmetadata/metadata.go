@@ -46,6 +46,18 @@ type ConfirmationStruct struct {
 	GOARCH  string
 }
 
+type ToolStruct struct {
+	Name        string
+	Description string
+	Entrypoints []ToolEntrypointStruct
+}
+
+type ToolEntrypointStruct struct {
+	Path   string
+	GOOS   string
+	GOARCH string
+}
+
 // Metadata is the struct that contains all the metadata of a tooth.
 type Metadata struct {
 	ToothPath    string
@@ -56,143 +68,192 @@ type Metadata struct {
 	Possession   []string
 	Commands     []CommandStruct
 	Confirmation []ConfirmationStruct
+	Tool         ToolStruct
 }
 
 const jsonSchema string = `
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "format_version",
-    "tooth",
-    "version"
-  ],
-  "properties": {
-    "format_version": {
-      "enum": [1]
-    },
-    "tooth": {
-      "type": "string",
-      "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
-    },
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
-    },
-    "dependencies": {
-      "type": "object",
-      "additionalProperties": false,
-      "patternProperties": {
-        "^[a-zA-Z\\d-_\\.\\/]*$": {
-          "type": "array",
-          "uniqueItems": true,
-          "minItems": 1,
-          "additionalItems": false,
-          "items": {
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "format_version",
+        "tooth",
+        "version"
+    ],
+    "properties": {
+        "format_version": {
+            "enum": [
+                1
+            ]
+        },
+        "tooth": {
+            "type": "string",
+            "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
+        },
+        "dependencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[a-zA-Z\\d-_\\.\\/]*$": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "additionalItems": false,
+                    "items": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "minItems": 1,
+                        "additionalItems": false,
+                        "items": {
+                            "type": "string",
+                            "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
+                        }
+                    }
+                }
+            }
+        },
+        "information": {
+            "type": "object"
+        },
+        "placement": {
             "type": "array",
-            "uniqueItems": true,
-            "minItems": 1,
             "additionalItems": false,
             "items": {
-              "type": "string",
-              "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "source",
+                    "destination"
+                ],
+                "properties": {
+                    "source": {
+                        "type": "string"
+                    },
+                    "destination": {
+                        "type": "string"
+                    },
+                    "GOOS": {
+                        "type": "string"
+                    },
+                    "GOARCH": {
+                        "type": "string"
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "information": {
-      "type": "object"
-    },
-    "placement": {
-      "type": "array",
-      "additionalItems": false,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "source",
-          "destination"
-        ],
-        "properties": {
-          "source": {
-            "type": "string"
-          },
-          "destination": {
-            "type": "string"
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "possession": {
-      "type": "array",
-      "additionalItems": false,
-      "items": {
-        "type": "string"
-      }
-    },
-    "commands": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "commands",
-          "GOOS"
-        ],
-        "properties": {
-          "type": {
-            "enum": ["install", "uninstall"]
-          },
-          "commands": {
+        },
+        "possession": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "type": "string"
+            }
+        },
+        "commands": {
             "type": "array",
             "items": {
-              "type": "string"
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "type",
+                    "commands",
+                    "GOOS"
+                ],
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "install",
+                            "uninstall"
+                        ]
+                    },
+                    "commands": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "GOOS": {
+                        "type": "string"
+                    },
+                    "GOARCH": {
+                        "type": "string"
+                    }
+                }
             }
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
+        },
+        "confirmation": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "type",
+                    "message"
+                ],
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "install",
+                            "uninstall"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "GOOS": {
+                        "type": "string"
+                    },
+                    "GOARCH": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "tool": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "description",
+                "entrypoints"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z\\d-]+$"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "entrypoints": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "path",
+                            "GOOS"
+                        ],
+                        "properties": {
+                            "path": {
+                                "type": "string"
+                            },
+                            "GOOS": {
+                                "type": "string"
+                            },
+                            "GOARCH": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
-    },
-    "confirmation": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "message"
-        ],
-        "properties": {
-          "type": {
-            "enum": ["install", "uninstall"]
-          },
-          "message": {
-            "type": "string"
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
-        }
-      }
     }
-  }
 }
 `
 
@@ -347,6 +408,21 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 		metadata.Confirmation = make([]ConfirmationStruct, 0)
 	}
 
+	if _, ok := metadataMap["tool"]; ok {
+		metadata.Tool.Name = metadataMap["tool"].(map[string]interface{})["name"].(string)
+		metadata.Tool.Description = metadataMap["tool"].(map[string]interface{})["description"].(string)
+
+		metadata.Tool.Entrypoints = make([]ToolEntrypointStruct, len(metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})))
+		for i, entrypoint := range metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{}) {
+			metadata.Tool.Entrypoints[i].Path = entrypoint.(map[string]interface{})["path"].(string)
+			metadata.Tool.Entrypoints[i].GOOS = entrypoint.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := entrypoint.(map[string]interface{})["GOARCH"]; ok {
+				metadata.Tool.Entrypoints[i].GOARCH = entrypoint.(map[string]interface{})["GOARCH"].(string)
+			}
+		}
+	}
+
 	return metadata, nil
 }
 
@@ -414,6 +490,19 @@ func (metadata Metadata) JSON() ([]byte, error) {
 		}
 	}
 
+	metadataMap["tool"] = make(map[string]interface{})
+	metadataMap["tool"].(map[string]interface{})["name"] = metadata.Tool.Name
+	metadataMap["tool"].(map[string]interface{})["description"] = metadata.Tool.Description
+	metadataMap["tool"].(map[string]interface{})["entrypoints"] = make([]interface{}, len(metadata.Tool.Entrypoints))
+	for i, entrypoint := range metadata.Tool.Entrypoints {
+		metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i] = make(map[string]interface{})
+		metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["path"] = entrypoint.Path
+		metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["GOOS"] = entrypoint.GOOS
+		if entrypoint.GOARCH != "" {
+			metadataMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["GOARCH"] = entrypoint.GOARCH
+		}
+	}
+
 	// Encode metadataMap into JSON
 	buf := bytes.NewBuffer([]byte{})
 	encoder := json.NewEncoder(buf)
@@ -430,4 +519,9 @@ func (metadata Metadata) JSON() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// IsTool returns true if the metadata is for a tool.
+func (m Metadata) IsTool() bool {
+	return m.Tool.Name != ""
 }

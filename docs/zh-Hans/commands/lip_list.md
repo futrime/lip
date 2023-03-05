@@ -4,6 +4,8 @@
 
 ```shell
 lip list [options]
+
+alias: ls
 ```
 
 ## 功能
