@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2023-03-05
+
 ### Added
 
 - Aliases for subcommands.
@@ -226,7 +228,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.12.0...HEAD
+[unreleased]: https://github.com/LiteLDev/Lip/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/LiteLDev/Lip/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/LiteLDev/Lip/compare/v0.11.45141...v0.12.0
 [0.11.45141]: https://github.com/LiteLDev/Lip/compare/v0.11.4514...v0.11.45141
 [0.11.4514]: https://github.com/LiteLDev/Lip/compare/v0.11.0...v0.11.4514
