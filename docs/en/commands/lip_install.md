@@ -5,6 +5,8 @@
 ```shell
 lip install [options] <requirement specifiers>
 lip install [options] <tooth url/files>
+
+aliases: add, i
 ```
 
 ## Description

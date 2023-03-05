@@ -4,6 +4,8 @@
 
 ```shell
 lip exec [options] <tool> [args...]
+
+alias: x
 ```
 
 ## Description

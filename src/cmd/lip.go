@@ -107,27 +107,35 @@ func Run(args []string) {
 		case "autoremove":
 			cmdlipautoremove.Run(flagSet.Args()[1:])
 			return
+
 		case "cache":
 			cmdlipcache.Run(flagSet.Args()[1:])
 			return
-		case "exec":
+
+		case "exec", "x":
 			cmdlipexec.Run(flagSet.Args()[1:])
 			return
-		case "install":
+
+		case "install", "i", "add":
 			cmdlipinstall.Run(flagSet.Args()[1:])
 			return
-		case "list":
+
+		case "list", "ls":
 			cmdliplist.Run(flagSet.Args()[1:])
 			return
-		case "show":
+
+		case "show", "view", "v", "info":
 			cmdlipshow.Run(flagSet.Args()[1:])
 			return
+
 		case "tooth":
 			cmdliptooth.Run(flagSet.Args()[1:])
 			return
-		case "uninstall":
+
+		case "uninstall", "un", "remove", "rm", "r":
 			cmdlipuninstall.Run(flagSet.Args()[1:])
 			return
+
 		default:
 			logger.Error("Unknown command: lip %s", flagSet.Arg(0))
 			os.Exit(1)
