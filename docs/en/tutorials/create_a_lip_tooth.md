@@ -85,6 +85,32 @@ exampleplugin/
    
    The possession field indicates the private directory of this tooth. It will be removed when uninstalling the tooth but will be kept when reinstalling or upgrading the tooth. Note that the path indicated in the possession field bases on the root of BDS. And every item should ends with "/".
 
+## Test the tooth
+
+Before publishing the tooth, you should test it to make sure it works as expected.
+
+1. Zip all files in the repository root, and rename the zip file to "exampleplugin.tth".
+
+2. Copy the zip file to a certain directory, and then run the command below to install the tooth.
+
+   ```shell
+   lip install exampleplugin.tth
+   ```
+
+3. Run the command below to uninstall the tooth.
+
+   ```shell
+   lip uninstall exampleplugin.tth
+   ```
+
+4. Run the command below to install the tooth again.
+
+   ```shell
+   lip install exampleplugin.tth
+   ```
+
+5. Check if the tooth works as expected.
+
 ## Publish your tooth
 
 1. Stash and commit the changes, and then push them to the public Git service.
