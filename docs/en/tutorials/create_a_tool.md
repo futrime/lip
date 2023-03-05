@@ -26,8 +26,6 @@ npm.cmd
 
 ## Write tooth.json
 
-Lip will regard executable files with tool name as its name (on Windows, ends with .exe or .cmd) under .lip/tools/tool_name/ as Lip tools. Therefore, you should put the executable file under .lip/tools/tool_name/ and name it as the tool name.
-
 You can create a tooth.json like this:
 
 ```json
@@ -55,7 +53,23 @@ You can create a tooth.json like this:
     ],
     "possession": [
         ".lip/tools/npm/node_modules/"
-    ]
+    ],
+    "tool": {
+        "name": "npm",
+        "description": "A tool to install Node.js packages",
+        "entrypoints": [
+            {
+                "path": ".lip/tools/npm/npm.cmd",
+                "GOOS": "windows",
+                "GOARCH": "amd64"
+            },
+            {
+                "path": ".lip/tools/npm/npm",
+                "GOOS": "linux",
+                "GOARCH": "amd64"
+            }
+        ]
+    }
 }
 ```
 

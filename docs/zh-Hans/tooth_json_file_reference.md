@@ -2,23 +2,7 @@
 
 每一个 Lip tooth都通过tooth.json文件定义，该文件描述tooth的属性，包括对其他tooth的依赖信息和其他信息。
 
-这些属性包括：
-
-- **format version** 这一tooth.json的格式版本。
-
-- **tooth** 这一tooth的路径。这一属性应向Lip提供一个Lip可以下载到这个tooth的位置，比如一个代码存储库。当这一路径与版本号结合使用时，它可以作为一个唯一标识符。
-
-- **version** 这一tooth的版本号。
-
-- **dependencies** 这一tooth所依赖的tooth以及他们的版本。
-
-- **information** 这一tooth的信息，包括名称，作者，描述等。
-
-- **placement** 这一tooth的位置这是一个说明tooth的文件应当被如何放置到安装目录的列表。
-
-- **possession** 这一tooth占有的文件。这是一个声明tooth所占用的文件夹的列表
-
-- **format_version**、**tooth path**和**version**是必须的。其他属性是可选。
+**format_version**、**tooth path**和**version**字段是必须的。其他属性是可选。
 
 你可以通过运行 lip tooth init 命令来生成和初始化一个tooth.json。下面的例子创建了一个 tooth.json 文件。
 
@@ -407,6 +391,44 @@ type是待确认信息的类型。它可以是以下之一。
 }
 ```
 
+## tools
+
+Registers tools that can be used with `lip exec`.
+
+### Syntax
+
+name is the name of the tool. It must only contains lowercase letters, numbers and dashes [a-z0-9-].
+
+description is the description of the tool. It will show up when executing `lip exec --list`.
+
+entrypoints is a list of entrypoints of the tool. Each entrypoint should contain a path field, which is the path of the executable relative to the root of the tooth. It can also contain GOOS and GOARCH fields, which are the operating system and platform selectors, which should match a possible GOOS and GOARCH variable of Go.
+
+### Examples
+
+```json
+{
+  "tool": {
+    "name": "lip",
+    "description": "A tool to edit Bedrock Dedicated Server to load plugins.",
+    "entrypoints": [
+      {
+        "path": ".lip/tools/lip/lip",
+        "GOOS": "linux",
+        "GOARCH": "amd64"
+      },
+      {
+        "path": ".lip/tools/lip/lip.exe",
+        "GOOS": "windows"
+      }
+    ]
+  }
+}
+```
+
+### Notes
+
+Do not put more than one entrypoint for the same GOOS and GOARCH. Lip will use the first entrypoint that matches the current platform.
+
 ## 语法
 
 下列JSON Schema展示了一个完整的tooth的JSON文件的语法。
@@ -541,6 +563,46 @@ type是待确认信息的类型。它可以是以下之一。
           },
           "GOARCH": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description",
+        "entrypoints"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z\\d-]+$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "entrypoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "GOOS"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "GOOS": {
+                "type": "string"
+              },
+              "GOARCH": {
+                "type": "string"
+              }
+            }
           }
         }
       }

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Aliases for subcommands.
 
+### Changed
+
+- Tool should be registered in `tooth.json` manually now.
+
 ## [0.12.0] - 2023-02-27
 
 ### Added

@@ -129,6 +129,27 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 		return errors.New("the tooth is already installed")
 	}
 
+	// 1.1. If the tooth is a tool, check if a tool with the same name is already installed.
+
+	if t.Metadata().IsTool() {
+		installedToolRecordList, err := toothrecord.ListAll()
+		if err != nil {
+			return errors.New("cannot list installed tools: " + err.Error())
+		}
+		// Remove records that is not a tool
+		for i := 0; i < len(installedToolRecordList); i++ {
+			if !installedToolRecordList[i].IsTool() {
+				installedToolRecordList = append(installedToolRecordList[:i], installedToolRecordList[i+1:]...)
+				i--
+			}
+		}
+		for _, installedToolRecord := range installedToolRecordList {
+			if installedToolRecord.Tool.Name == t.Metadata().Tool.Name {
+				return errors.New("a tool with the same name is already installed")
+			}
+		}
+	}
+
 	// 2. Ask for confirmation if the tooth requires confirmation.
 
 	if len(t.Metadata().Confirmation) > 0 {

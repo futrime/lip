@@ -47,6 +47,18 @@ type ConfirmationStruct struct {
 	GOARCH  string
 }
 
+type ToolStruct struct {
+	Name        string
+	Description string
+	Entrypoints []ToolEntrypointStruct
+}
+
+type ToolEntrypointStruct struct {
+	Path   string
+	GOOS   string
+	GOARCH string
+}
+
 // Record is the struct that contains the record of a tooth installation.
 type Record struct {
 	ToothPath           string
@@ -57,6 +69,7 @@ type Record struct {
 	Possession          []string
 	Commands            []CommandStruct
 	Confirmation        []ConfirmationStruct
+	Tool                ToolStruct
 	IsManuallyInstalled bool
 }
 
@@ -186,6 +199,21 @@ func NewFromJSON(jsonData []byte) (Record, error) {
 		record.Confirmation = make([]ConfirmationStruct, 0)
 	}
 
+	if _, ok := recordMap["tool"]; ok {
+		record.Tool.Name = recordMap["tool"].(map[string]interface{})["name"].(string)
+		record.Tool.Description = recordMap["tool"].(map[string]interface{})["description"].(string)
+
+		record.Tool.Entrypoints = make([]ToolEntrypointStruct, len(recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})))
+		for i, entrypoint := range recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{}) {
+			record.Tool.Entrypoints[i].Path = entrypoint.(map[string]interface{})["path"].(string)
+			record.Tool.Entrypoints[i].GOOS = entrypoint.(map[string]interface{})["GOOS"].(string)
+
+			if _, ok := entrypoint.(map[string]interface{})["GOARCH"]; ok {
+				record.Tool.Entrypoints[i].GOARCH = entrypoint.(map[string]interface{})["GOARCH"].(string)
+			}
+		}
+	}
+
 	record.IsManuallyInstalled = recordMap["is_manually_installed"].(bool)
 
 	return record, nil
@@ -233,6 +261,15 @@ func NewFromMetadata(metadata toothmetadata.Metadata, isManuallyInstalled bool) 
 		record.Confirmation[i].Message = confirmation.Message
 		record.Confirmation[i].GOOS = confirmation.GOOS
 		record.Confirmation[i].GOARCH = confirmation.GOARCH
+	}
+
+	record.Tool.Name = metadata.Tool.Name
+	record.Tool.Description = metadata.Tool.Description
+	record.Tool.Entrypoints = make([]ToolEntrypointStruct, len(metadata.Tool.Entrypoints))
+	for i, entrypoint := range metadata.Tool.Entrypoints {
+		record.Tool.Entrypoints[i].Path = entrypoint.Path
+		record.Tool.Entrypoints[i].GOOS = entrypoint.GOOS
+		record.Tool.Entrypoints[i].GOARCH = entrypoint.GOARCH
 	}
 
 	record.IsManuallyInstalled = isManuallyInstalled
@@ -307,6 +344,19 @@ func (record Record) JSON() ([]byte, error) {
 		}
 	}
 
+	recordMap["tool"] = make(map[string]interface{})
+	recordMap["tool"].(map[string]interface{})["name"] = record.Tool.Name
+	recordMap["tool"].(map[string]interface{})["description"] = record.Tool.Description
+	recordMap["tool"].(map[string]interface{})["entrypoints"] = make([]interface{}, len(record.Tool.Entrypoints))
+	for i, entrypoint := range record.Tool.Entrypoints {
+		recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i] = make(map[string]interface{})
+		recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["path"] = entrypoint.Path
+		recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["GOOS"] = entrypoint.GOOS
+		if entrypoint.GOARCH != "" {
+			recordMap["tool"].(map[string]interface{})["entrypoints"].([]interface{})[i].(map[string]interface{})["GOARCH"] = entrypoint.GOARCH
+		}
+	}
+
 	recordMap["is_manually_installed"] = record.IsManuallyInstalled
 
 	// Encode recordMap into JSON
@@ -325,4 +375,9 @@ func (record Record) JSON() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// IsTool returns true if the record is a tool.
+func (r Record) IsTool() bool {
+	return r.Tool.Name != ""
 }
