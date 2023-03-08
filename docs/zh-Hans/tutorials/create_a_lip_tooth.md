@@ -87,29 +87,29 @@ exampleplugin/
 
 ## 测测你的tooth
 
-Before publishing the tooth, you should test it to make sure it works as expected.
+在发布齿包之前，你需要测测这个齿包，康康它是否按预期工作。
 
-1. Zip all files in the repository root, and rename the zip file to "exampleplugin.tth".
+1. 将仓库根目录文件全部打成 zip 压缩包，然后可以把它重命名为 `exampleplugin.tth`，当然其他名称也是可以的
 
-2. Copy the zip file to a certain directory, and then run the command below to install the tooth.
+2. 把这个文件扔到一个合适的文件夹，然后润一下下面的命令来安装你刚刚打好的齿包
 
    ```shell
    lip install exampleplugin.tth
    ```
 
-3. Run the command below to uninstall the tooth.
+3. 润一下下面的命令把你刚刚装好的齿包卸载掉
 
    ```shell
    lip uninstall exampleplugin.tth
    ```
 
-4. Run the command below to install the tooth again.
+4. 润一下下面的命令再把这个齿包装上
 
    ```shell
    lip install exampleplugin.tth
    ```
 
-5. Check if the tooth works as expected.
+5. 检查一下，康康你的齿包是否按你想要的方式工作
 
 ## 发布你的tooth
 
