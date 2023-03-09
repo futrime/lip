@@ -9,7 +9,9 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/src"
+            "program": "${workspaceFolder}/src",
+            "cwd": "build",
+            "args": []
         }
     ]
 }
