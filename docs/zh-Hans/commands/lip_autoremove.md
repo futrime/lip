@@ -1,6 +1,6 @@
 # lip autoremove
 
-## 用房
+## 用法
 
 ```shell
 lip autoremove [options]
