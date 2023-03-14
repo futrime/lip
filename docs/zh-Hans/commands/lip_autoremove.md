@@ -10,7 +10,7 @@ lip autoremove [options]
 
 卸载不受任何其他tooth依赖的tooth。
 
-## 旋转
+## 选项
 
 - `-h, --help`
 
