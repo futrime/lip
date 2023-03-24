@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Not properly parsing placement sometimes.
+- Not aborting when a tooth fails to install.
+
 ## [0.13.0] - 2023-03-05
 
 ### Added
