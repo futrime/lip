@@ -9,10 +9,13 @@ import (
 
 // parseMetadataPlacement parses the wildcard placements of a tooth metadata.
 func parseMetadataPlacement(metadata toothmetadata.Metadata, r *zip.ReadCloser, filePrefix string) toothmetadata.Metadata {
-	for i, placement := range metadata.Placement {
+	placementList := make([]toothmetadata.PlacementStruct, 0)
+
+	for _, placement := range metadata.Placement {
 		// If either source or destination is not a wildcard, skip.
 		if !strings.HasSuffix(placement.Source, "*") ||
 			!strings.HasSuffix(placement.Destination, "*") {
+			placementList = append(placementList, placement)
 			continue
 		}
 
@@ -25,16 +28,15 @@ func parseMetadataPlacement(metadata toothmetadata.Metadata, r *zip.ReadCloser, 
 			if strings.HasPrefix(fileName, placement.Source) &&
 				!strings.HasSuffix(fileName, "/") { // Skip directories.
 				// Add the file to the metadata.
-				metadata.Placement = append(metadata.Placement, toothmetadata.PlacementStruct{
+				placementList = append(placementList, toothmetadata.PlacementStruct{
 					Source:      fileName,
 					Destination: placement.Destination + strings.TrimPrefix(fileName, placement.Source),
 				})
 			}
 		}
-
-		// Remove the wildcard placement.
-		metadata.Placement = append(metadata.Placement[:i], metadata.Placement[i+1:]...)
 	}
+
+	metadata.Placement = placementList
 
 	return metadata
 }

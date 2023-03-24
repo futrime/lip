@@ -278,7 +278,7 @@ func install(t toothfile.ToothFile, isManuallyInstalled bool, isYes bool) error 
 			cmd.Stdout = os.Stdout
 			err := cmd.Run()
 			if err != nil {
-				logger.Error("failed to run command: " + command + ": " + err.Error())
+				return errors.New("failed to run command: " + command + ": " + err.Error())
 			}
 		}
 	}

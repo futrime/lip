@@ -40,16 +40,20 @@
 
     - [lip tooth init](commands/lip_tooth_init.md)
 
+    - [lip tooth pack](commands/lip_tooth_pack.md)
+
   - [lip uninstall](commands/lip_uninstall.md)
 
 - [tooth.json 文件参考](tooth_json_file_reference.md)
 
 - Lip开发
 
+  - [Build Guide](development/build_guide.md)
+
   - 全局数据目录
 
-  - [本地数据目录](maintenance/local_data_directory.md)
+  - [本地数据目录](development/local_data_directory.md)
   
-  - [在线索引](maintenance/registry.md)
+  - [在线索引](development/registry.md)
 
 - [更新日志](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

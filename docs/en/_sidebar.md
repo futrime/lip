@@ -40,16 +40,20 @@
 
     - [lip tooth init](commands/lip_tooth_init.md)
 
+    - [lip tooth pack](commands/lip_tooth_pack.md)
+
   - [lip uninstall](commands/lip_uninstall.md)
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
 
 - Development
 
+  - [Build Guide](development/build_guide.md)
+
   - Global Data Directory
 
-  - [Local Data Directory](maintenance/local_data_directory.md)
+  - [Local Data Directory](development/local_data_directory.md)
   
-  - [Registry](maintenance/registry.md)
+  - [Registry](development/registry.md)
 
 - [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

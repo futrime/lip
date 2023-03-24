@@ -47,3 +47,4 @@ xxx.json
 - is_manually_installed
 
   如果为真，Lip将不会自动删除或升级这个tooth。
+  
