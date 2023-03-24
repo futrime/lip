@@ -5,6 +5,7 @@ import (
 	"os"
 
 	cmdliptoothinit "github.com/liteldev/lip/cmd/tooth/init"
+	cmdliptoothpack "github.com/liteldev/lip/cmd/tooth/pack"
 	"github.com/liteldev/lip/utils/logger"
 )
 
@@ -20,6 +21,7 @@ Usage:
 
 Commands:
   init                        Initialize and writes a new tooth.json file in the current directory.
+  pack                        Pack the current directory into a tooth file.
 
 Options:
   -h, --help                  Show help.`
@@ -49,6 +51,9 @@ func Run(args []string) {
 		switch flagSet.Arg(0) {
 		case "init":
 			cmdliptoothinit.Run(args[1:])
+			return
+		case "pack":
+			cmdliptoothpack.Run(args[1:])
 			return
 		default:
 			logger.Error("Unknown command.")

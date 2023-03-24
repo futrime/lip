@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `lip tooth pack` command to pack a tooth into a tooth file.
+
 ### Fixed
 
 - Not properly parsing placement sometimes.

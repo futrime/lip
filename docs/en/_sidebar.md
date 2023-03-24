@@ -40,6 +40,8 @@
 
     - [lip tooth init](commands/lip_tooth_init.md)
 
+    - [lip tooth pack](commands/lip_tooth_pack.md)
+
   - [lip uninstall](commands/lip_uninstall.md)
 
 - [tooth.json File Reference](tooth_json_file_reference.md)
