@@ -25,3 +25,4 @@ go.work
 ## Repository specific
 build/
 .lip/
+.vscode/
