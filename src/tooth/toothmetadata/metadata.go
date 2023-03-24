@@ -224,7 +224,7 @@ const jsonSchema string = `
             "properties": {
                 "name": {
                     "type": "string",
-                    "pattern": "^[a-z\\d-]+$"
+                    "pattern": "(^[a-z\\d-]+|)$"
                 },
                 "description": {
                     "type": "string"
@@ -429,6 +429,8 @@ func NewFromJSON(jsonData []byte) (Metadata, error) {
 // JSON encodes a Metadata struct into a JSON byte array.
 func (metadata Metadata) JSON() ([]byte, error) {
 	metadataMap := make(map[string]interface{})
+
+	metadataMap["format_version"] = 1
 
 	metadataMap["tooth"] = metadata.ToothPath
 
