@@ -46,10 +46,12 @@
 
 - Development
 
+  - [Build Guide](development/build_guide.md)
+
   - Global Data Directory
 
-  - [Local Data Directory](maintenance/local_data_directory.md)
+  - [Local Data Directory](development/local_data_directory.md)
   
-  - [Registry](maintenance/registry.md)
+  - [Registry](development/registry.md)
 
 - [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)

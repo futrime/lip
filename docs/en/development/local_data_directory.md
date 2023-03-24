@@ -47,3 +47,4 @@ xxx.json
 - is_manually_installed
 
   If true, Lip will not automatically remove or upgrade this tooth.
+  
