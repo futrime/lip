@@ -31,6 +31,8 @@ func parseMetadataPlacement(metadata toothmetadata.Metadata, r *zip.ReadCloser, 
 				placementList = append(placementList, toothmetadata.PlacementStruct{
 					Source:      fileName,
 					Destination: placement.Destination + strings.TrimPrefix(fileName, placement.Source),
+					GOOS:        placement.GOOS,
+					GOARCH:      placement.GOARCH,
 				})
 			}
 		}
