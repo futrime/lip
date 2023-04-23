@@ -56,7 +56,7 @@ SetCompressorDictSize 32
 ; MUI end ------
 
 Name "${PRODUCT_NAME}"
-OutFile "lip-${PRODUCT_VERSION}-windows-amd64-setup.exe"
+OutFile "lip-windows-amd64-setup.exe"
 InstallDir "$PROGRAMFILES64\Lip"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show

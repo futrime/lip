@@ -1,147 +1,34 @@
-name: Build
-
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-  release:
-    types: 
-      - released
+  push:
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   build:
-    name: Build
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        GOOS: [darwin, linux, openbsd, windows]
+        GOOS: [darwin, linux, windows]
         GOARCH: [amd64, arm64]
-        include:
-          - GOOS: darwin
-            output: lip
-          - GOOS: linux
-            output: lip
-          - GOOS: openbsd
-            output: lip
-          - GOOS: windows
-            output: lip.exe
-    runs-on: ubuntu-latest
     steps:
-      - name: Get version if release
-        if: github.event_name == 'release'
-        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $GITHUB_ENV
+      - uses: actions/checkout@v3
 
-      - name: Set default version if not release
-        if: github.event_name != 'release'
-        run: echo "VERSION=0.0.0" >> $GITHUB_ENV
-
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
+      - uses: actions/setup-go@v3
         with:
-         go-version-file: src/go.mod
          cache: true
          cache-dependency-path: src/go.sum
+         go-version-file: src/go.mod
 
       - name: Set up workspace
         run: go work init ./src
 
-      - name: Build Lip
+      - name: Build
         run: |
           export GOOS=${{ matrix.GOOS }}
           export GOARCH=${{ matrix.GOARCH }}
-          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ env.VERSION }}' -s -w" -o ./build/${{ matrix.output }} github.com/liteldev/lip
+          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=0.0.0' -s -w" -o ./build/ github.com/liteldev/lip
 
-      - name: Upload build
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
-          name: lip-${{ env.VERSION }}-${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
-
-  make-windows-setup-program:
-    name: Make Windows setup program
-    needs: build
-    runs-on: windows-latest
-    steps:
-      - name: Get version if release
-        if: github.event_name == 'release'
-        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
-
-      - name: Set default version if not release
-        if: github.event_name != 'release'
-        run: echo "VERSION=0.0.0" >> $env:GITHUB_ENV
-
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-
-      - name: Download build
-        uses: actions/download-artifact@v3
-        with:
-          name: lip-${{ env.VERSION }}-windows-amd64
-
-      - name: Set up NSIS
-        run:  |
-          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07.zip -O nsis.zip
-          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07-strlen_8192.zip -O nsis-strlen.zip
-          C:\msys64\usr\bin\wget.exe -q https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip -O EnVar_plugin.zip
-          unzip -q -o nsis.zip
-          mv nsis-3.07 nsis-portable
-          unzip -q -o nsis-strlen.zip -d nsis-portable
-          unzip -q -o EnVar_plugin.zip -d nsis-portable
-
-      - name: Build setup program
-        run: |
-          mv ./lip.exe ./nsis/
-          mv ./LICENSE ./nsis/
-          .\nsis-portable\makensis /DLIP_VERSION=${{ env.VERSION }} ./nsis/make_installer.nsi
-
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: lip-${{ env.VERSION }}-windows-amd64-setup
-          path: nsis/lip-${{ env.VERSION }}-windows-amd64-setup.exe
-
-  upload-to-release:
-    name: Upload to release
-    needs: 
-      - build
-      - make-windows-setup-program
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-    steps:
-      - name: Get version
-        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $GITHUB_ENV
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Pack artifacts
-        run: |
-          zip -9r lip-${{ env.VERSION }}-windows-amd64.zip lip-${{ env.VERSION }}-windows-amd64
-          zip -9r lip-${{ env.VERSION }}-windows-arm64.zip lip-${{ env.VERSION }}-windows-arm64
-          cp lip-${{ env.VERSION }}-windows-amd64-setup/lip-${{ env.VERSION }}-windows-amd64-setup.exe ./
-          tar -czf lip-${{ env.VERSION }}-linux-amd64.tar.gz lip-${{ env.VERSION }}-linux-amd64
-          tar -czf lip-${{ env.VERSION }}-linux-arm64.tar.gz lip-${{ env.VERSION }}-linux-arm64
-          tar -czf lip-${{ env.VERSION }}-darwin-amd64.tar.gz lip-${{ env.VERSION }}-darwin-amd64
-          tar -czf lip-${{ env.VERSION }}-darwin-arm64.tar.gz lip-${{ env.VERSION }}-darwin-arm64
-          tar -czf lip-${{ env.VERSION }}-openbsd-amd64.tar.gz lip-${{ env.VERSION }}-openbsd-amd64
-          tar -czf lip-${{ env.VERSION }}-openbsd-arm64.tar.gz lip-${{ env.VERSION }}-openbsd-arm64
-
-      - name: Upload release assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            lip-${{ env.VERSION }}-windows-amd64.zip
-            lip-${{ env.VERSION }}-windows-arm64.zip
-            lip-${{ env.VERSION }}-windows-amd64-setup.exe
-            lip-${{ env.VERSION }}-linux-amd64.tar.gz
-            lip-${{ env.VERSION }}-linux-arm64.tar.gz
-            lip-${{ env.VERSION }}-darwin-amd64.tar.gz
-            lip-${{ env.VERSION }}-darwin-arm64.tar.gz
-            lip-${{ env.VERSION }}-openbsd-amd64.tar.gz
-            lip-${{ env.VERSION }}-openbsd-arm64.tar.gz

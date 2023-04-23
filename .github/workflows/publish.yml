@@ -1,0 +1,156 @@
+on:
+  release:
+    types: 
+      - published
+
+env:
+  VERSION: 0.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        GOOS: [darwin, linux, windows]
+        GOARCH: [amd64, arm64]
+    steps:
+      - name: Get version
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        with:
+         cache: true
+         cache-dependency-path: src/go.sum
+         go-version-file: src/go.mod
+
+      - name: Set up workspace
+        run: go work init ./src
+
+      - name: Build
+        run: |
+          export GOOS=${{ matrix.GOOS }}
+          export GOARCH=${{ matrix.GOARCH }}
+          go build -ldflags "-X 'github.com/liteldev/lip/context.VersionString=${{ env.VERSION }}' -s -w" -o ./build/ github.com/liteldev/lip
+
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          path: build
+
+  make-windows-setup-program:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Get version
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows-amd64
+          path: artifact
+
+      - name: Set up NSIS
+        run:  |
+          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07.zip -O nsis.zip
+          C:\msys64\usr\bin\wget.exe -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.07/nsis-3.07-strlen_8192.zip -O nsis-strlen.zip
+          C:\msys64\usr\bin\wget.exe -q https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip -O EnVar_plugin.zip
+          unzip -q -o nsis.zip
+          mv nsis-3.07 nsis-portable
+          unzip -q -o nsis-strlen.zip -d nsis-portable
+          unzip -q -o EnVar_plugin.zip -d nsis-portable
+
+      - name: Build setup program
+        run: |
+          cp -r artifact/* nsis/
+          cp CHANGELOG.md LICENSE README.md nsis/
+          .\nsis-portable\makensis /DLIP_VERSION=${{ env.VERSION }} ./nsis/make_installer.nsi
+
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: lip-windows-amd64-setup
+          path: nsis/lip-windows-amd64-setup.exe
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            nsis/lip-windows-amd64-setup.exe
+
+  upload-to-release:
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        GOOS: [darwin, linux, windows]
+        GOARCH: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          path: artifact
+
+      - name: Copy essential files
+        run: |
+          cp CHANGELOG.md LICENSE README.md artifact/
+
+      - name: Pack artifact (Windows)
+        if: matrix.GOOS == 'windows'
+        run: |
+          cd artifact
+          zip -r ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip *
+          cd ..
+
+      - name: Pack artifact (Others)
+        if: matrix.GOOS != 'windows'
+        run: |
+          cd artifact
+          tar -czvf ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz *
+          cd ..
+
+      - name: Upload artifact to release (Windows)
+        if: matrix.GOOS == 'windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip
+
+      - name: Upload artifact to release (Others)
+        if: matrix.GOOS != 'windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz
+
+  upload-bundle-to-release:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Pack artifacts
+        run: |
+          cd artifacts
+          zip -9r ../bundle.zip *
+          cd ..
+
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            bundle.zip
