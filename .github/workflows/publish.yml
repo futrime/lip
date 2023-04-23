@@ -14,7 +14,7 @@ jobs:
         GOOS: [darwin, linux, windows]
         GOARCH: [amd64, arm64]
     steps:
-      - name: Get version
+      - name: Trim prefix "v" from version
         run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
     needs: build
     runs-on: windows-latest
     steps:
-      - name: Get version
+      - name: Trim prefix "v" from version
         run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v3
@@ -70,8 +70,7 @@ jobs:
           cp CHANGELOG.md LICENSE README.md nsis/
           .\nsis-portable\makensis /DLIP_VERSION=${{ env.VERSION }} ./nsis/make_installer.nsi
 
-      - name: Upload build
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: lip-windows-amd64-setup
           path: nsis/lip-windows-amd64-setup.exe
