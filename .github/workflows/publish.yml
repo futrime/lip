@@ -70,7 +70,9 @@ jobs:
       - name: Build setup program
         run: |
           cp -r artifact/* nsis/
-          cp CHANGELOG.md LICENSE README.md nsis/
+          cp CHANGELOG.md nsis/
+          cp LICENSE nsis/
+          cp README.md nsis/
           .\nsis-portable\makensis /DLIP_VERSION=${{ env.VERSION }} ./nsis/make_installer.nsi
 
       - uses: actions/upload-artifact@v3
