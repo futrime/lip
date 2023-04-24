@@ -137,7 +137,7 @@ func packTooth(output string) error {
 	for _, file := range fileList {
 		logger.Info("packing " + file + " ...")
 
-		writer, err := zipWriter.Create(file)
+		writer, err := zipWriter.Create(filepath.ToSlash(file))
 		if err != nil {
 			return errors.New("failed to create zip writer for " + file + ": " + err.Error())
 		}
