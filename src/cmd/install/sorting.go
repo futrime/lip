@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/liteldev/lip/tooth/toothfile"
-	"github.com/liteldev/lip/utils/logger"
 )
 
 // sortToothFiles sorts tooth files by dependence with topological sort in descending order.
