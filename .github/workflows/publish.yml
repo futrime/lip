@@ -18,7 +18,7 @@ jobs:
         GOARCH: [amd64, arm64]
     steps:
       - name: Trim prefix "v" from version
-        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $env:GITHUB_ENV
+        run: echo "VERSION=${{ github.ref_name }}" | sed 's/=v/=/' >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
 
