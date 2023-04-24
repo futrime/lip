@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"strings"
 
-	"github.com/liteldev/lip/tooth/toothmetadata"
+	"github.com/lippkg/lip/tooth/toothmetadata"
 )
 
 // parseMetadataPlacement parses the wildcard placements of a tooth metadata.

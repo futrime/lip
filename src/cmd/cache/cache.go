@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	cmdlipcachepurge "github.com/liteldev/lip/cmd/cache/purge"
-	"github.com/liteldev/lip/utils/logger"
+	cmdlipcachepurge "github.com/lippkg/lip/cmd/cache/purge"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

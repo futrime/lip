@@ -11,13 +11,13 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/liteldev/lip/download"
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/specifiers"
-	"github.com/liteldev/lip/tooth/toothfile"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/paths"
+	"github.com/lippkg/lip/download"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/specifiers"
+	"github.com/lippkg/lip/tooth/toothfile"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/utils/logger"
+	"github.com/lippkg/lip/utils/paths"
 )
 
 // getTooth gets the tooth file path of a tooth specifier either from the cache or from the tooth repository.

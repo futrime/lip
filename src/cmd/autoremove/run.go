@@ -4,10 +4,10 @@ import (
 	"flag"
 	"os"
 
-	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/logger"
+	cmdlipuninstall "github.com/lippkg/lip/cmd/uninstall"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 type FlagDict struct {

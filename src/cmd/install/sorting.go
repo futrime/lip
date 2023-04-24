@@ -3,7 +3,7 @@ package cmdlipinstall
 import (
 	"errors"
 
-	"github.com/liteldev/lip/tooth/toothfile"
+	"github.com/lippkg/lip/tooth/toothfile"
 )
 
 // sortToothFiles sorts tooth files by dependence with topological sort in descending order.

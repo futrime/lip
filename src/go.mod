@@ -1,4 +1,4 @@
-module github.com/liteldev/lip
+module github.com/lippkg/lip
 
 go 1.19
 

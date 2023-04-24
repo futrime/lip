@@ -4,7 +4,7 @@
 
 > 包管理器，但不仅仅用于LiteLoaderBDS
 
-[GitHub](https://github.com/LiteLDev/Lip)
+[GitHub](https://github.com/LipPkg/Lip)
 [阅读文档](/README.md)
 
 ![](../assets/banner.webp)

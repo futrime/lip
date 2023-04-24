@@ -6,15 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
-	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
-	"github.com/liteldev/lip/download"
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/specifiers"
-	"github.com/liteldev/lip/tooth/toothfile"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/tooth/toothrepo"
-	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/versions"
+	cmdlipuninstall "github.com/lippkg/lip/cmd/uninstall"
+	"github.com/lippkg/lip/download"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/specifiers"
+	"github.com/lippkg/lip/tooth/toothfile"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/tooth/toothrepo"
+	"github.com/lippkg/lip/utils/logger"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 // FlagDict is a dictionary of flags.

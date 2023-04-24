@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/liteldev/lip/download"
-	"github.com/liteldev/lip/utils/versions"
+	"github.com/lippkg/lip/download"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 // FetchVersionList fetches the version list of a tooth repository.

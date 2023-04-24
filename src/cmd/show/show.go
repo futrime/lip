@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/registry"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/tooth/toothrepo"
-	"github.com/liteldev/lip/utils/logger"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/registry"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/tooth/toothrepo"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

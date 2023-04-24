@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liteldev/lip/context"
+	"github.com/lippkg/lip/context"
 	"github.com/schollz/progressbar/v3"
 )
 

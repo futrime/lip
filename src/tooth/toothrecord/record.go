@@ -8,10 +8,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/tooth/toothmetadata"
-	"github.com/liteldev/lip/utils/versions"
-	"github.com/liteldev/lip/utils/versions/versionmatch"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/tooth/toothmetadata"
+	"github.com/lippkg/lip/utils/versions"
+	"github.com/lippkg/lip/utils/versions/versionmatch"
 )
 
 // infoStruct is the struct that contains the information of a tooth.

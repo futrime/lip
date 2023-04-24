@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/liteldev/lip/specifiers"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/versions"
+	"github.com/lippkg/lip/specifiers"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/utils/logger"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 // FlagDict is a dictionary of flags.

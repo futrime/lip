@@ -7,9 +7,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liteldev/lip/tooth/toothutils"
-	"github.com/liteldev/lip/utils/versions"
-	"github.com/liteldev/lip/utils/versions/versionmatch"
+	"github.com/lippkg/lip/tooth/toothutils"
+	"github.com/lippkg/lip/utils/versions"
+	"github.com/lippkg/lip/utils/versions/versionmatch"
 	"github.com/xeipuuv/gojsonschema"
 )
 

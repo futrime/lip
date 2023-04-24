@@ -56,4 +56,4 @@
   
   - [Registry](development/registry.md)
 
-- [Changelog](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)
+- [Changelog](https://github.com/LipPkg/Lip/blob/main/CHANGELOG.md)

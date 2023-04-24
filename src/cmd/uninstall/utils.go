@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/tooth/toothrecord"
-	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/paths"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/tooth/toothrecord"
+	"github.com/lippkg/lip/utils/logger"
+	"github.com/lippkg/lip/utils/paths"
 )
 
 // Uninstall uninstalls a tooth.

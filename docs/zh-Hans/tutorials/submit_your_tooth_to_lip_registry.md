@@ -24,7 +24,7 @@
         "homepage": "https://www.example.com",
         "license": "MIT",
         "name": "Lip",
-        "repository": "github.com/LiteLDev/Lip",
+        "repository": "github.com/LipPkg/Lip",
         "tags": ["utility", "package-manager"]
     }
 }

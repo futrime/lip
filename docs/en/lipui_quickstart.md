@@ -12,7 +12,7 @@ LipUI depends on .NET 7.0 or .NET Framework 4.6.2. For most distributions of Win
 
 ## Installation
 
-LipUI is a portable application. You can download the latest version of LipUI [here](https://github.com/LiteLDev/LipUI/releases/latest). You can put it anywhere you want.
+LipUI is a portable application. You can download the latest version of LipUI [here](https://github.com/LipPkg/LipUI/releases/latest). You can put it anywhere you want.
 
 ## Usage
 

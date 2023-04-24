@@ -4,9 +4,9 @@ import (
 	"flag"
 	"os"
 
-	cmdliptoothinit "github.com/liteldev/lip/cmd/tooth/init"
-	cmdliptoothpack "github.com/liteldev/lip/cmd/tooth/pack"
-	"github.com/liteldev/lip/utils/logger"
+	cmdliptoothinit "github.com/lippkg/lip/cmd/tooth/init"
+	cmdliptoothpack "github.com/lippkg/lip/cmd/tooth/pack"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

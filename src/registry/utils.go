@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liteldev/lip/context"
+	"github.com/lippkg/lip/context"
 )
 
 // LookupAlias looks up the alias in the registry.

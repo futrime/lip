@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/liteldev/lip/registry"
-	"github.com/liteldev/lip/tooth/toothrepo"
-	"github.com/liteldev/lip/utils/versions"
+	"github.com/lippkg/lip/registry"
+	"github.com/lippkg/lip/tooth/toothrepo"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 // SpecifierKind is an enum that represents the type of a specifier.

@@ -6,10 +6,10 @@ import (
 	"flag"
 	"os"
 
-	"github.com/liteldev/lip/tooth/toothmetadata"
-	"github.com/liteldev/lip/utils/logger"
-	"github.com/liteldev/lip/utils/versions"
-	"github.com/liteldev/lip/utils/versions/versionmatch"
+	"github.com/lippkg/lip/tooth/toothmetadata"
+	"github.com/lippkg/lip/utils/logger"
+	"github.com/lippkg/lip/utils/versions"
+	"github.com/lippkg/lip/utils/versions/versionmatch"
 )
 
 // FlagDict is a dictionary of flags.
@@ -95,7 +95,7 @@ func initTooth() error {
 	var ans string
 	scanner := bufio.NewScanner(os.Stdin)
 
-	logger.Info("What is the tooth path? (e.g. github.com/liteldev/lip)")
+	logger.Info("What is the tooth path? (e.g. github.com/lippkg/lip)")
 	scanner.Scan()
 	ans = scanner.Text()
 	metadata.ToothPath = ans

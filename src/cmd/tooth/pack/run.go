@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/liteldev/lip/tooth/toothmetadata"
-	"github.com/liteldev/lip/utils/logger"
+	"github.com/lippkg/lip/tooth/toothmetadata"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 // FlagDict is a dictionary of flags.

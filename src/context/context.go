@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/liteldev/lip/utils/versions"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 //------------------------------------------------------------------------------

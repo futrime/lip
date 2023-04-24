@@ -24,7 +24,7 @@ You should create a new file in the `tooths` directory. The file name should be 
         "homepage": "https://www.example.com",
         "license": "MIT",
         "name": "Lip",
-        "repository": "github.com/LiteLDev/Lip",
+        "repository": "github.com/LipPkg/Lip",
         "tags": ["utility", "package-manager"]
     }
 }

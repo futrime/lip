@@ -6,7 +6,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/liteldev/lip/tooth/toothmetadata"
+	"github.com/lippkg/lip/tooth/toothmetadata"
 )
 
 // ToothFile is the struct that contains the metadata of a .tth file.

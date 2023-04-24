@@ -6,17 +6,17 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/liteldev/lip/context"
-	"github.com/liteldev/lip/utils/logger"
+	"github.com/lippkg/lip/context"
+	"github.com/lippkg/lip/utils/logger"
 
-	cmdlipautoremove "github.com/liteldev/lip/cmd/autoremove"
-	cmdlipcache "github.com/liteldev/lip/cmd/cache"
-	cmdlipexec "github.com/liteldev/lip/cmd/exec"
-	cmdlipinstall "github.com/liteldev/lip/cmd/install"
-	cmdliplist "github.com/liteldev/lip/cmd/list"
-	cmdlipshow "github.com/liteldev/lip/cmd/show"
-	cmdliptooth "github.com/liteldev/lip/cmd/tooth"
-	cmdlipuninstall "github.com/liteldev/lip/cmd/uninstall"
+	cmdlipautoremove "github.com/lippkg/lip/cmd/autoremove"
+	cmdlipcache "github.com/lippkg/lip/cmd/cache"
+	cmdlipexec "github.com/lippkg/lip/cmd/exec"
+	cmdlipinstall "github.com/lippkg/lip/cmd/install"
+	cmdliplist "github.com/lippkg/lip/cmd/list"
+	cmdlipshow "github.com/lippkg/lip/cmd/show"
+	cmdliptooth "github.com/lippkg/lip/cmd/tooth"
+	cmdlipuninstall "github.com/lippkg/lip/cmd/uninstall"
 )
 
 // FlagDict is a dictionary of flags.

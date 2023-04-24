@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"runtime"
 
-	cmdlip "github.com/liteldev/lip/cmd"
-	"github.com/liteldev/lip/localfile"
-	"github.com/liteldev/lip/utils/logger"
+	cmdlip "github.com/lippkg/lip/cmd"
+	"github.com/lippkg/lip/localfile"
+	"github.com/lippkg/lip/utils/logger"
 )
 
 func main() {

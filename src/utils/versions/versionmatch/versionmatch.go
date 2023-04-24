@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liteldev/lip/utils/versions"
+	"github.com/lippkg/lip/utils/versions"
 )
 
 // MatchType is an enum that represents the type of a version match.

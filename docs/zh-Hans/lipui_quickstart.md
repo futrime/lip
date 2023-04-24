@@ -14,7 +14,7 @@ LipUI依赖于.NET 7.0或.NET Framework 4.6.2。对于Windows 10、Windows 11、
 
 ## 安装
 
-LipUI是一个便携式的应用程序。你可以下载LipUI的最新版本[这里](https://github.com/LiteLDev/LipUI/releases/latest)。你可以把它放在你想要的任何地方。
+LipUI是一个便携式的应用程序。你可以下载LipUI的最新版本[这里](https://github.com/LipPkg/LipUI/releases/latest)。你可以把它放在你想要的任何地方。
 
 ## 使用
 

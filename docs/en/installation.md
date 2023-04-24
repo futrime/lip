@@ -5,7 +5,7 @@ We provide multiple methods to install Lip.
 
 ### Standalone Application
 
-Download latest version of Lip from <https://github.com/litelDev/lip/releases/latest>.
+Download latest version of Lip from <https://github.com/LipPkg/Lip/releases/latest>.
 
 Unzip the content to somewhere you would like to install Lip.
 
@@ -15,7 +15,7 @@ Add the location to PATH environment variable.
 
 If your OS is Windows on AMD64 platform, we provide a easy-to-use installer.
 
-Download lip-x.x.x-windows-amd64-setup.exe from <https://github.com/litelDev/lip/releases/latest> and run it.
+Download lip-x.x.x-windows-amd64-setup.exe from <https://github.com/LipPkg/Lip/releases/latest> and run it.
 
 ## Upgrading Lip
 
@@ -27,4 +27,4 @@ Since v0.8.0, Lip supports upgrading itself in local scope. You can run `lip ins
 
 ## Install LipUI
 
-LipUI is a GUI for Lip. You can download it from <https://github.com/LiteLDev/LipUI/releases/latest>.
+LipUI is a GUI for Lip. You can download it from <https://github.com/LipPkg/LipUI/releases/latest>.

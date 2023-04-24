@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/liteldev/lip/localfile"
+	"github.com/lippkg/lip/localfile"
 )
 
 // Get returns the tooth record of the specified tooth.

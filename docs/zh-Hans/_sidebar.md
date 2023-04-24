@@ -56,4 +56,4 @@
   
   - [在线索引](development/registry.md)
 
-- [更新日志](https://github.com/LiteLDev/Lip/blob/main/CHANGELOG.md)
+- [更新日志](https://github.com/LipPkg/Lip/blob/main/CHANGELOG.md)

@@ -9,7 +9,7 @@
 2. Build Lip.
 
     ```bash
-    go build -o build/ github.com/liteldev/lip
+    go build -o build/ github.com/lippkg/lip
     ```
 
 We also provide GitHub Actions workflow to build Lip. You can find it in `.github/workflows/build.yml`.

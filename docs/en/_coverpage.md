@@ -4,7 +4,7 @@
 
 > A package installer not only for LiteLoaderBDS
 
-[GitHub](https://github.com/LiteLDev/Lip)
+[GitHub](https://github.com/LipPkg/Lip)
 [Read Docs](/README.md)
 
 ![](../assets/banner.webp)
