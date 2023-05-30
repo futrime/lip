@@ -1,6 +1,6 @@
 # 教程: 创建一个tooth
 
-这是教程的第一部分，介绍了Lip的一些基本功能。如果你刚开始使用Lip，一定要看看[入门](getting_started.md)和[创造者指南](creator_s_guide.md)，其中介绍了Lip的基本命令。
+这是教程的第一部分，介绍了Lip的一些基本功能。如果你刚开始使用Lip，一定要看看[入门](../quickstart.md)和[创造者指南](../creator_quickstart.md)，其中介绍了Lip的基本命令。
 
 在本教程中，你将创建一个包含LiteLoaderBDS插件的tooth。
 
@@ -12,7 +12,7 @@
 
 - **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同样可以使用如 Windows Terminal 一类的终端程序。
 
-- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](installation.md)
+- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](../installation.md)
 
 ## 准备要分发的插件
 
@@ -117,7 +117,7 @@ exampleplugin/
 
 2. 添加一个标签并以版本名发布一个版本。标签名称应该是添加了前缀 "v "的版本名称，例如："v1.0.0"。
 
-3. 如您向将您的tooth提交给lip注册表，可以参见[教程：将你的tooth提交给lip注册表](tutorials/submit_your_tooth_to_lip_registry.md)
+3. 如您向将您的tooth提交给lip注册表，可以参见[教程：将你的tooth提交给lip注册表](submit_your_tooth_to_lip_registry.md)
 
 ## 另一个例子：让一个Minecraft的世界成为一个tooth
 

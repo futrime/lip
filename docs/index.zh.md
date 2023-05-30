@@ -1,4 +1,4 @@
-# Lip 文档
+# Lip
 
 [![Build](https://img.shields.io/github/actions/workflow/status/LipPkg/Lip/build.yml?style=for-the-badge)](https://github.com/LipPkg/Lip/actions)
 [![Latest Tag](https://img.shields.io/github/v/tag/LipPkg/Lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/LipPkg/Lip/releases/latest)

@@ -1,4 +1,4 @@
-# Getting Started
+# Quickstart
 
 To get started with using Lip, you should [have Lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [LipUI](lipui_quickstart.md) to manage your tooths.
 

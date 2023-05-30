@@ -10,7 +10,7 @@ Since 0.5.0, Lip supports tools. Tools are programs that can be executed by Lip.
 
 - **A command terminal** Lip works well with both PowerShell and cmd in Windows.
 
-- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](installation.md)
+- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](../installation.md)
 
 ## Prepare tool distributions
 

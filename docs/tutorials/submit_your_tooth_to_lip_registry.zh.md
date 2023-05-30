@@ -6,7 +6,7 @@
 
 ## 创造一个tooth
 
-遵循 [创建一个tooth](tutorials/create_a_lip_tooth.md) 的指导创建一个tooth。请确保你在你的tooth根目录下有一个`tooth.json`文件。同时确保你的tooth存储在其所声明的存储库中
+遵循 [创建一个tooth](create_a_lip_tooth.md) 的指导创建一个tooth。请确保你在你的tooth根目录下有一个`tooth.json`文件。同时确保你的tooth存储在其所声明的存储库中
 
 ## 将你的tooth提交给lip注册表
 
