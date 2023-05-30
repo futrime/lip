@@ -32,3 +32,31 @@ jobs:
         with:
           name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
           path: build
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install MkDocs and MkDocs static i18n plugin
+        run: |
+          pip install mkdocs
+          pip install mkdocs-static-i18n
+
+      - name: Build
+        run: |
+          mkdocs build
+
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: site/
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build-docs
+    permissions:
+      id-token: write
+      pages: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v1

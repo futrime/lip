@@ -18,12 +18,12 @@ LipUI is a portable application. You can download the latest version of LipUI [h
 
 Just run `LipUI.exe` and you will see the main window of LipUI. First, you need to select a workspace. A workspace is a directory that contains all the tooths you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. LipUI will automatically detect the tooths in the workspace.
 
-![LipUI Main Window](../assets/img/lipui_main_window.png)
+![LipUI Main Window](img/lipui_main_window.png)
 
 After you select a workspace, you can install, uninstall, and manage tooths. You can also use the search box to search for tooths.
 
-![LipUI Registry](../assets/img/lipui_registry.png)
+![LipUI Registry](img/lipui_registry.png)
 
 For tooths not in the registry, you can install them by clicking the `Install` button. You can also install tooths from a URL or a tooth file.
 
-![LipUI Install Tooth](../assets/img/lipui_install_tooth.png)
+![LipUI Install Tooth](img/lipui_install_tooth.png)

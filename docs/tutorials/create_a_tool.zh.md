@@ -10,7 +10,7 @@
 - 
 - **一个命令行终端** Lip在Windows中的PowerShell和cmd都能很好地工作，你同样可以使用如 Windows Terminal 一类的终端程序。
 
-- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](installation.md)
+- **Lip命令行工具** 你应当安装好一个Lip，如需了解更多信息，可查看[安装](../installation.md)
 
 ## 准备工具分发
 

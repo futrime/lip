@@ -1,4 +1,4 @@
-# Creator's Guide
+# Creator Quickstart
 
 We're pleased that you are interested in creating with Lip.
 

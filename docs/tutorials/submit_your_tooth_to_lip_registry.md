@@ -6,7 +6,7 @@ In this tutorial, we will submit a tooth to the official Lip registry (<https://
 
 ## Create a Lip Tooth
 
-Follow the [Create a Lip Tooth](tutorials/create_a_lip_tooth.md) tutorial to create a Lip tooth. Make sure that you have a `tooth.json` file in the root directory of your tooth. And the **tooth** field is right the repository path of your tooth.
+Follow the [Create a Lip Tooth](create_a_lip_tooth.md) tutorial to create a Lip tooth. Make sure that you have a `tooth.json` file in the root directory of your tooth. And the **tooth** field is right the repository path of your tooth.
 
 ## Submit Your Tooth to Lip Registry
 

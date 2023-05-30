@@ -1,6 +1,6 @@
 # Tutorial: Create a Lip Tooth
 
-This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](getting_started.md) and [Creator's Guide](creator_s_guide.md), which introduces the basic commands of Lip.
+This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](../quickstart.md) and [Creator's Guide](../creator_quickstart.md), which introduces the basic commands of Lip.
 
 In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
 
@@ -12,7 +12,7 @@ In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
 
 - **A command terminal** Lip works well with both PowerShell and cmd in Windows.
 
-- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](installation.md)
+- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](../installation.md)
 
 ## Prepare plugin distributions
 
