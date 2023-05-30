@@ -52,6 +52,7 @@ jobs:
           path: site/
 
   deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: build-docs
     permissions:
       id-token: write
