@@ -12,12 +12,12 @@ function rootPathJumpByLang() {
             continue;
         }
 
-        location.assign('/' + shortLangCode);
+        location.assign('/' + shortLangCode + location.pathname);
         return;
     }
 
     // Default to English
-    location.assign('/en');
+    location.assign('/en' + location.pathname);
 }
 
 function changeLanguage(toLang) {
