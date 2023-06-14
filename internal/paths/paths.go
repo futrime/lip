@@ -1,4 +1,4 @@
-package pathutils
+package paths
 
 import (
 	"path/filepath"

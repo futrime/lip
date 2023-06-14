@@ -3,7 +3,7 @@ package contexts
 import (
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/pathutils"
+	"github.com/lippkg/lip/internal/paths"
 	"github.com/lippkg/lip/internal/versions"
 )
 
@@ -30,7 +30,7 @@ func (ctx Context) CacheDir() (string, error) {
 	var err error
 
 	path := filepath.Join(ctx.globalDotLipDir, "cache")
-	path, err = pathutils.Regularize(path)
+	path, err = paths.Regularize(path)
 	if err != nil {
 		return "", err
 	}
@@ -53,7 +53,7 @@ func (ctx Context) WorkspaceDir() (string, error) {
 	var err error
 
 	path := ctx.workspaceDir
-	path, err = pathutils.Regularize(path)
+	path, err = paths.Regularize(path)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +66,7 @@ func (ctx Context) WorkspaceDotLipDir() (string, error) {
 	var err error
 
 	path := filepath.Join(ctx.workspaceDir, ".lip")
-	path, err = pathutils.Regularize(path)
+	path, err = paths.Regularize(path)
 	if err != nil {
 		return "", err
 	}

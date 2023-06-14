@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/loggingutils"
+	"github.com/lippkg/lip/internal/logging"
 )
 
 // FlagDict is a dictionary of flags.
@@ -67,22 +67,22 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Set logging level.
 	if flagDict.verboseFlag {
-		loggingutils.SetLoggingLevel(loggingutils.DebugLevel)
+		logging.SetLoggingLevel(logging.DebugLevel)
 	} else if flagDict.quietFlag {
-		loggingutils.SetLoggingLevel(loggingutils.ErrorLevel)
+		logging.SetLoggingLevel(logging.ErrorLevel)
 	} else {
-		loggingutils.SetLoggingLevel(loggingutils.InfoLevel)
+		logging.SetLoggingLevel(logging.InfoLevel)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		loggingutils.Info(helpMessage)
+		logging.Info(helpMessage)
 		return nil
 	}
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		loggingutils.Info("Lip %s from %s", ctx.LipVersion().String(), os.Args[0])
+		logging.Info("Lip %s from %s", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 

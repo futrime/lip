@@ -1,5 +1,4 @@
-// Package logger deals with the output of Lip.
-package loggingutils
+package logging
 
 import (
 	"fmt"
