@@ -18,7 +18,8 @@ const (
 )
 
 // DownloadFile downloads a file from a url and saves it to a local path.
-// Note that if the style is not StyleNone, the progress bar will be shown on the terminal.
+// Note that if the style is not StyleNone, the progress bar will be shown
+// on the terminal.
 func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyleType) error {
 	var err error
 

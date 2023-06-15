@@ -14,15 +14,18 @@ type Context struct {
 	globalDotLipDir string
 	goProxyList     []string
 	lipVersion      versions.Version
+	pluginSet       map[string]struct{}
 	workspaceDir    string
 }
 
 // New creates a new context.
-func New(globalDotLipDir string, goProxyList []string, lipVersion versions.Version, workspaceDir string) Context {
+func New(globalDotLipDir string, goProxyList []string, lipVersion versions.Version,
+	pluginSet map[string]struct{}, workspaceDir string) Context {
 	return Context{
 		globalDotLipDir: globalDotLipDir,
 		goProxyList:     goProxyList,
 		lipVersion:      lipVersion,
+		pluginSet:       pluginSet,
 		workspaceDir:    workspaceDir,
 	}
 }
@@ -115,6 +118,11 @@ func (ctx Context) MetadataDir() (string, error) {
 	}
 
 	return path, nil
+}
+
+// PluginSet returns the plugin set.
+func (ctx Context) PluginSet() map[string]struct{} {
+	return ctx.pluginSet
 }
 
 // WorkspaceDir returns the workspace directory.

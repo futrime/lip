@@ -1,4 +1,3 @@
-// Package versionmatch provides version match functionality.
 package versionmatches
 
 import (
@@ -22,31 +21,34 @@ const (
 	CompatibleMatchType
 )
 
-// VersionMatch is a version match. The version match is used to match a version
-// to a version range.
-type VersionMatch struct {
-	version versions.Version
-	// The match type.
+// A version match item is a version match for a single criterion.
+type Item struct {
+	version   versions.Version
 	matchType MatchType
 }
 
-// New creates a new version match.
-func New(version versions.Version, matchType MatchType) (VersionMatch, error) {
-	// The match type must be valid.
-	if matchType < EqualMatchType || matchType > CompatibleMatchType {
-		return VersionMatch{}, fmt.Errorf("invalid match type")
+// NewItem creates a new version match item.
+func NewItem(version versions.Version, matchType MatchType) (Item, error) {
+	// The version should not have a prerelease.
+	if matchType == CompatibleMatchType && (!version.IsStable() || version.Patch() != 0) {
+		return Item{}, fmt.Errorf("cannot create a compatible version match for a prerelease or a patch version")
 	}
 
-	return VersionMatch{
+	// The match type must be valid.
+	if matchType < EqualMatchType || matchType > CompatibleMatchType {
+		return Item{}, fmt.Errorf("invalid match type")
+	}
+
+	return Item{
 		version:   version,
 		matchType: matchType,
 	}, nil
 }
 
-// NewFromString creates a new version match from a string.
-func NewFromString(versionMatchString string) (VersionMatch, error) {
-	if !IsValidVersionMatchString(versionMatchString) {
-		return VersionMatch{}, fmt.Errorf("invalid version match string")
+// NewItemFromString creates a new version match item from a string.
+func NewItemFromString(versionMatchString string) (Item, error) {
+	if !isValidVersionMatchString(versionMatchString) {
+		return Item{}, fmt.Errorf("invalid version match string")
 	}
 
 	// Get the match type.
@@ -76,62 +78,60 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 	// Create the version.
 	version, err := versions.NewFromString(versionMatchString)
 	if err != nil {
-		return VersionMatch{}, fmt.Errorf("cannot parse version: %w", err)
+		return Item{}, fmt.Errorf("cannot parse version: %w", err)
 	}
 
-	return New(version, matchType)
+	return NewItem(version, matchType)
 }
 
 // Match matches the version to the version match.
-func (vm VersionMatch) Match(version versions.Version) bool {
-	switch vm.matchType {
+func (item Item) Match(version versions.Version) bool {
+	switch item.matchType {
 	case EqualMatchType:
-		return versions.Equal(version, vm.version)
+		return versions.Equal(version, item.version)
 	case InequalMatchType:
-		return !versions.Equal(version, vm.version)
+		return !versions.Equal(version, item.version)
 	case GreaterThanMatchType:
-		return versions.GreaterThan(version, vm.version)
+		return versions.GreaterThan(version, item.version)
 	case GreaterThanOrEqualMatchType:
-		return versions.GreaterThanOrEqual(version, vm.version)
+		return versions.GreaterThanOrEqual(version, item.version)
 	case LessThanMatchType:
-		return versions.LessThan(version, vm.version)
+		return versions.LessThan(version, item.version)
 	case LessThanOrEqualMatchType:
-		return versions.LessThanOrEqual(version, vm.version)
+		return versions.LessThanOrEqual(version, item.version)
 	case CompatibleMatchType:
-		return versions.Compatible(version, vm.version)
+		return versions.Compatible(version, item.version)
 	}
 
-	// This should never happen.
-	return false
+	panic("unreachable")
 }
 
 // String returns the string representation of the version match.
-func (vm VersionMatch) String() string {
-	switch vm.matchType {
+func (item Item) String() string {
+	switch item.matchType {
 	case EqualMatchType:
-		return vm.version.String()
+		return item.version.String()
 	case InequalMatchType:
-		return "!" + vm.version.String()
+		return "!" + item.version.String()
 	case GreaterThanMatchType:
-		return ">" + vm.version.String()
+		return ">" + item.version.String()
 	case GreaterThanOrEqualMatchType:
-		return ">=" + vm.version.String()
+		return ">=" + item.version.String()
 	case LessThanMatchType:
-		return "<" + vm.version.String()
+		return "<" + item.version.String()
 	case LessThanOrEqualMatchType:
-		return "<=" + vm.version.String()
+		return "<=" + item.version.String()
 	case CompatibleMatchType:
-		return strings.TrimSuffix(vm.version.String(), "0") + "x"
+		return strings.TrimSuffix(item.version.String(), "0") + "x"
 	}
 
-	// This should never happen.
-	return ""
+	panic("unreachable")
 }
 
 // ---------------------------------------------------------------------
 
-// IsValidVersionMatchString returns true if the version match string is valid.
-func IsValidVersionMatchString(versionMatchString string) bool {
+// isValidVersionMatchString returns true if the version match string is valid.
+func isValidVersionMatchString(versionMatchString string) bool {
 	reg := regexp.MustCompile(`^(>|>=|<|<=|!)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*|x)$`)
 	if !reg.MatchString(versionMatchString) {
 		return false

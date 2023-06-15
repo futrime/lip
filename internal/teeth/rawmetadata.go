@@ -263,7 +263,8 @@ func NewRawMetadata(jsonBytes []byte) (RawMetadata, error) {
 		for _, err := range result.Errors() {
 			errors = append(errors, err.String())
 		}
-		return RawMetadata{}, fmt.Errorf("raw metadata is invalid: %v", strings.Join(errors, ", "))
+		return RawMetadata{}, fmt.Errorf("raw metadata is invalid: %v",
+			strings.Join(errors, ", "))
 	}
 
 	// Unmarshal JSON

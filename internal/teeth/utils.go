@@ -16,7 +16,8 @@ import (
 )
 
 // FetchVersionList fetches the version list of a tooth repository.
-func FetchVersionList(ctx contexts.Context, repoPath string) ([]versions.Version, error) {
+func FetchVersionList(ctx contexts.Context, repoPath string) ([]versions.Version,
+	error) {
 	var err error
 	if !IsValidToothRepo(repoPath) {
 		return nil, fmt.Errorf("invalid repository path: %v", repoPath)
@@ -57,12 +58,14 @@ func FetchVersionList(ctx contexts.Context, repoPath string) ([]versions.Version
 }
 
 // FindInstalledToothMetadata finds the installed tooth metadata.
-func FindInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata, error) {
+func FindInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata,
+	error) {
 	var err error
 
 	metadataList, err := ListAllInstalledToothMetadata(ctx)
 	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to list all installed tooth metadata: %w", err)
+		return Metadata{}, fmt.Errorf(
+			"failed to list all installed tooth metadata: %w", err)
 	}
 
 	for _, metadata := range metadataList {
@@ -71,7 +74,8 @@ func FindInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadat
 		}
 	}
 
-	return Metadata{}, fmt.Errorf("cannot find installed tooth metadata: %v", toothRepo)
+	return Metadata{}, fmt.Errorf("cannot find installed tooth metadata: %v",
+		toothRepo)
 }
 
 // GetContentFromAllGoproxies gets the content from all Go proxies.
@@ -83,7 +87,8 @@ func GetContentFromAllGoproxies(ctx contexts.Context, urlPath string) ([]byte, e
 
 		content, err := downloading.GetContent(url)
 		if err != nil {
-			errList = append(errList, fmt.Errorf("cannot get content from %v: %w", url, err))
+			errList = append(errList, fmt.Errorf("cannot get content from %v: %w",
+				url, err))
 			continue
 		}
 
@@ -130,9 +135,11 @@ func ListAllInstalledToothMetadata(ctx contexts.Context) ([]Metadata, error) {
 		metadataList = append(metadataList, metadata)
 	}
 
-	// Sort the metadata list in case-insensitive ascending order of the tooth repository.
+	// Sort the metadata list in case-insensitive ascending order of the tooth
+	// repository.
 	sort.Slice(metadataList, func(i, j int) bool {
-		return strings.ToLower(metadataList[i].Tooth()) < strings.ToLower(metadataList[j].Tooth())
+		return strings.ToLower(metadataList[i].Tooth()) < strings.ToLower(
+			metadataList[j].Tooth())
 	})
 
 	return metadataList, nil
@@ -146,7 +153,8 @@ func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Ver
 
 	// Check if the version is valid.
 	urlPathSuffix := "+incompatible.info"
-	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(version.String(), "1.") {
+	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(
+		version.String(), "1.") {
 		urlPathSuffix = ".info"
 	}
 	urlPath := repoPath + "/@v/v" + version.String() + urlPathSuffix
@@ -156,7 +164,8 @@ func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Ver
 
 	_, err := GetContentFromAllGoproxies(ctx, urlPath)
 	if err != nil {
-		return fmt.Errorf("failed to access version %v of %v: %w", version.String(), repoPath, err)
+		return fmt.Errorf("failed to access version %v of %v: %w", version.String(),
+			repoPath, err)
 	}
 
 	return nil

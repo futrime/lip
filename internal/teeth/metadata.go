@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/lippkg/lip/internal/versionmatches"
 	"github.com/lippkg/lip/internal/versions"
 )
 
 type Metadata struct {
 	rawMetadata RawMetadata
-	version     versions.Version
 }
 
 func NewMetadata(jsonBytes []byte) (Metadata, error) {
@@ -22,7 +22,7 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 }
 
 func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
-	version, err := versions.NewFromString(rawMetadata.Version)
+	_, err := versions.NewFromString(rawMetadata.Version)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse version: %w", err)
 	}
@@ -45,12 +45,18 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 		rawMetadata.Dependencies = platform.Dependencies
 		rawMetadata.Files = platform.Files
 	}
-
 	rawMetadata.Platforms = nil
+
+	for _, dep := range rawMetadata.Dependencies {
+		_, err := versionmatches.NewGroupFromString(dep)
+		if err != nil {
+			return Metadata{},
+				fmt.Errorf("failed to parse dependency %v: %w", dep, err)
+		}
+	}
 
 	return Metadata{
 		rawMetadata: rawMetadata,
-		version:     version,
 	}, nil
 }
 
@@ -67,7 +73,12 @@ func (m Metadata) Tooth() string {
 }
 
 func (m Metadata) Version() versions.Version {
-	return m.version
+	version, err := versions.NewFromString(m.rawMetadata.Version)
+	if err != nil {
+		panic(err)
+	}
+
+	return version
 }
 
 func (m Metadata) Info() RawMetadataInfo {
@@ -78,8 +89,19 @@ func (m Metadata) Commands() RawMetadataCommands {
 	return m.rawMetadata.Commands
 }
 
-func (m Metadata) Dependencies() map[string]string {
-	return m.rawMetadata.Dependencies
+func (m Metadata) Dependencies() map[string]versionmatches.Group {
+	dependencies := make(map[string]versionmatches.Group)
+
+	for toothRepo, dep := range m.rawMetadata.Dependencies {
+		versionMatch, err := versionmatches.NewGroupFromString(dep)
+		if err != nil {
+			panic(err)
+		}
+
+		dependencies[toothRepo] = versionMatch
+	}
+
+	return dependencies
 }
 
 func (m Metadata) Files() RawMetadataFiles {

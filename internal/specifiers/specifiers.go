@@ -38,7 +38,8 @@ func New(specifierString string) (Specifier, error) {
 		_, err := os.Stat(specifierString)
 
 		if err != nil {
-			return Specifier{}, fmt.Errorf("cannot access tooth file: %v", specifierString)
+			return Specifier{}, fmt.Errorf("cannot access tooth file: %v",
+				specifierString)
 		}
 
 		return Specifier{
@@ -50,12 +51,14 @@ func New(specifierString string) (Specifier, error) {
 		// Specifier string should be lower case.
 		specifierString = strings.ToLower(specifierString)
 
-		reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*(@\d+\.\d+\.\d+(-[a-z]+(\.\d+)?)?)?$`)
+		reg := regexp.MustCompile(
+			`^[a-z0-9][a-z0-9-_\.\/]*(@\d+\.\d+\.\d+(-[a-z]+(\.\d+)?)?)?$`)
 
 		// If not matched or the matched string is not the same as the specifier, it is an
 		// invalid requirement specifier.
 		if reg.FindString(specifierString) != specifierString {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v", specifierString)
+			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
+				specifierString)
 		}
 
 		// Parse the tooth repo and version.
@@ -68,7 +71,8 @@ func New(specifierString string) (Specifier, error) {
 		if len(splittedSpecifier) == 2 {
 			toothVersion, err = versions.NewFromString(splittedSpecifier[1])
 			if err != nil {
-				return Specifier{}, fmt.Errorf("invalid requirement specifier: %v", specifierString)
+				return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
+					specifierString)
 			}
 
 			return Specifier{

@@ -66,7 +66,8 @@ func NewArchive(path string) (Archive, error) {
 
 	metadata, err = resolveMetadataFilesPlaceRegex(metadata, filePaths)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to resolve metadata files place regular expressions: %w", err)
+		return Archive{}, fmt.Errorf(
+			"failed to resolve metadata files place regular expressions: %w", err)
 	}
 
 	return Archive{

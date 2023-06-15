@@ -33,7 +33,8 @@ func ExtractCommonAncestor(paths []string) string {
 
 	filePathCommonPrefix := extractCommonPrefix(paths)
 
-	// If the common prefix contains a slash but is not the first character, remove everything after it.
+	// If the common prefix contains a slash but is not the first character,
+	// remove everything after it.
 	if slashIndex := strings.LastIndex(filePathCommonPrefix, "/"); slashIndex > 0 {
 		filePathCommonPrefix = filePathCommonPrefix[:slashIndex+1]
 	}

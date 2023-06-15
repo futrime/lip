@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lippkg/lip/internal/cli/cmdlipcache"
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/logging"
 )
 
-// FlagDict is a dictionary of flags.
 type FlagDict struct {
 	helpFlag    bool
 	versionFlag bool
@@ -38,7 +38,6 @@ Options:
   -q, --quiet                 Show only errors.
 `
 
-// Run is the entry point of the lip command.
 func Run(ctx contexts.Context, args []string) error {
 	var err error
 
@@ -93,6 +92,12 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
+		case "cache":
+			err = cmdlipcache.Run(ctx, flagSet.Args())
+			if err != nil {
+				return fmt.Errorf("failed to run the 'cache' command: %w", err)
+			}
+			return nil
 
 		default:
 			return fmt.Errorf("unknown command: lip %v", flagSet.Arg(0))
