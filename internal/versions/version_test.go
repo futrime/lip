@@ -1,6 +1,8 @@
 package versions
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestNewFromString(t *testing.T) {
 	testList := []struct {

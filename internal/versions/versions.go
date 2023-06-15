@@ -2,7 +2,6 @@
 package versions
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -43,20 +42,20 @@ func New(
 	// The major, minor, and patch versions must be greater than or equal to 0.
 	if major < 0 || minor < 0 || patch < 0 {
 		return Version{},
-			errors.New("major, minor, and patch versions must be greater than or equal to 0")
+			fmt.Errorf("major, minor, and patch versions must be greater than or equal to 0")
 	}
 
 	// The patch version must be 0 if the pre-release name is not empty.
 	if patch != 0 && preReleaseName != "" {
 		return Version{},
-			errors.New("patch version must be 0 if the pre-release name is not empty")
+			fmt.Errorf("patch version must be 0 if the pre-release name is not empty")
 	}
 
 	// The pre-release name must not be empty if the pre-release number is not
 	// less than 0.
 	if preReleaseName == "" && preReleaseNumber >= 0 {
 		return Version{},
-			errors.New("pre-release name must not be empty if the pre-release number is not less than 0")
+			fmt.Errorf("pre-release name must not be empty if the pre-release number is not less than 0")
 	}
 
 	// The pre-release number should be set to -1 if the pre-release name is
@@ -77,7 +76,7 @@ func New(
 // NewFromString creates a new version from a version string.
 func NewFromString(versionString string) (Version, error) {
 	if !IsValidVersionString(versionString) {
-		return Version{}, errors.New("invalid version string: " + versionString)
+		return Version{}, fmt.Errorf("invalid version string %s", versionString)
 	}
 
 	var major, minor, patch int

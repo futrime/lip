@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -9,14 +10,17 @@ import (
 func Equal(path1 string, path2 string) (bool, error) {
 	var err error
 
-	path1, err = Regularize(path1)
+	path1 = filepath.Clean(path1)
+	path2 = filepath.Clean(path2)
+
+	path1, err = filepath.Abs(path1)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
-	path2, err = Regularize(path2)
+	path2, err = filepath.Abs(path2)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
 	return path1 == path2, nil
@@ -29,21 +33,23 @@ func IsAncesterOf(ancestor string, path string) (bool, error) {
 	// If ancestor equals to path, return false.
 	isEqual, err := Equal(ancestor, path)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot compare paths: %w", err)
 	}
-
 	if isEqual {
 		return false, nil
 	}
 
-	ancestor, err = Regularize(ancestor)
+	ancestor = filepath.Clean(ancestor)
+	path = filepath.Clean(path)
+
+	ancestor, err = filepath.Abs(ancestor)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
-	path, err = Regularize(path)
+	path, err = filepath.Abs(path)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot get absolute path: %w", err)
 	}
 
 	relativePath, err := filepath.Rel(ancestor, path)
@@ -55,20 +61,4 @@ func IsAncesterOf(ancestor string, path string) (bool, error) {
 	relativePath = filepath.ToSlash(relativePath)
 
 	return !strings.HasPrefix(relativePath, "../") && relativePath != "..", nil
-}
-
-// Regularize converts path to standard path, which is slash-separated absolute path.
-func Regularize(path string) (string, error) {
-	var err error
-
-	path = filepath.FromSlash(path)
-	path, err = filepath.Abs(path)
-	if err != nil {
-		return "", err
-	}
-
-	// Convert to slash for Windows.
-	path = filepath.ToSlash(path)
-
-	return path, nil
 }

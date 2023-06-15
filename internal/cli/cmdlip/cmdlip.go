@@ -1,7 +1,6 @@
 package cmdlip
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -62,7 +61,7 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
 	err = flagSet.Parse(args[1:])
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot parse flags: %w", err)
 	}
 
 	// Set logging level.
@@ -88,7 +87,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Verbose and quiet flags are mutually exclusive.
 	if flagDict.verboseFlag && flagDict.quietFlag {
-		return errors.New("verbose and quiet flags are mutually exclusive")
+		return fmt.Errorf("verbose and quiet flags are mutually exclusive")
 	}
 
 	// If there is a subcommand, run it and exit.
@@ -100,5 +99,5 @@ func Run(ctx contexts.Context, args []string) error {
 		}
 	}
 
-	return errors.New("no command specified. See 'lip --help' for more information")
+	return fmt.Errorf("no command specified. See 'lip --help' for more information")
 }

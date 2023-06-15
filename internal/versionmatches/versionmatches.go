@@ -2,7 +2,7 @@
 package versionmatches
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -34,7 +34,7 @@ type VersionMatch struct {
 func New(version versions.Version, matchType MatchType) (VersionMatch, error) {
 	// The match type must be valid.
 	if matchType < EqualMatchType || matchType > CompatibleMatchType {
-		return VersionMatch{}, errors.New("invalid match type")
+		return VersionMatch{}, fmt.Errorf("invalid match type")
 	}
 
 	return VersionMatch{
@@ -46,7 +46,7 @@ func New(version versions.Version, matchType MatchType) (VersionMatch, error) {
 // NewFromString creates a new version match from a string.
 func NewFromString(versionMatchString string) (VersionMatch, error) {
 	if !IsValidVersionMatchString(versionMatchString) {
-		return VersionMatch{}, errors.New("invalid version match string")
+		return VersionMatch{}, fmt.Errorf("invalid version match string")
 	}
 
 	// Get the match type.
@@ -76,7 +76,7 @@ func NewFromString(versionMatchString string) (VersionMatch, error) {
 	// Create the version.
 	version, err := versions.NewFromString(versionMatchString)
 	if err != nil {
-		return VersionMatch{}, err
+		return VersionMatch{}, fmt.Errorf("cannot parse version: %w", err)
 	}
 
 	return New(version, matchType)

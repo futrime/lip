@@ -1,9 +1,10 @@
 package contexts
 
 import (
+	"fmt"
+	"net/url"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/paths"
 	"github.com/lippkg/lip/internal/versions"
 )
 
@@ -27,15 +28,25 @@ func New(globalDotLipDir string, goProxyList []string, lipVersion versions.Versi
 
 // CacheDir returns the cache directory.
 func (ctx Context) CacheDir() (string, error) {
-	var err error
-
 	path := filepath.Join(ctx.globalDotLipDir, "cache")
-	path, err = paths.Regularize(path)
-	if err != nil {
-		return "", err
-	}
 
 	return path, nil
+}
+
+// CalculateCachePath calculates the cache path of a file downloaded from a URL.
+func (ctx Context) CalculateCachePath(fileURL string) (string, error) {
+	var err error
+
+	encodedURL := url.QueryEscape(fileURL)
+
+	cacheDir, err := ctx.CacheDir()
+	if err != nil {
+		return "", fmt.Errorf("cannot get cache directory: %w", err)
+	}
+
+	cachePath := filepath.Join(cacheDir, encodedURL)
+
+	return cachePath, nil
 }
 
 // GoProxyURL returns the Go Proxy URL.
@@ -50,26 +61,14 @@ func (ctx Context) LipVersion() versions.Version {
 
 // WorkspaceDir returns the workspace directory.
 func (ctx Context) WorkspaceDir() (string, error) {
-	var err error
-
 	path := ctx.workspaceDir
-	path, err = paths.Regularize(path)
-	if err != nil {
-		return "", err
-	}
 
 	return path, nil
 }
 
 // WorkspaceDotLipDir returns the workspace .lip directory.
 func (ctx Context) WorkspaceDotLipDir() (string, error) {
-	var err error
-
 	path := filepath.Join(ctx.workspaceDir, ".lip")
-	path, err = paths.Regularize(path)
-	if err != nil {
-		return "", err
-	}
 
 	return path, nil
 }

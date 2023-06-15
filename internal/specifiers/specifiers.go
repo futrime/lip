@@ -1,7 +1,6 @@
 package specifiers
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -39,7 +38,7 @@ func New(specifierString string) (Specifier, error) {
 		_, err := os.Stat(specifierString)
 
 		if err != nil {
-			return Specifier{}, errors.New("cannot access tooth file: " + specifierString)
+			return Specifier{}, fmt.Errorf("cannot access tooth file: %s", specifierString)
 		}
 
 		return Specifier{
@@ -56,7 +55,7 @@ func New(specifierString string) (Specifier, error) {
 		// If not matched or the matched string is not the same as the specifier, it is an
 		// invalid requirement specifier.
 		if reg.FindString(specifierString) != specifierString {
-			return Specifier{}, errors.New("invalid requirement specifier: " + specifierString)
+			return Specifier{}, fmt.Errorf("invalid requirement specifier: %s", specifierString)
 		}
 
 		// Parse the tooth repo and version.
@@ -69,7 +68,7 @@ func New(specifierString string) (Specifier, error) {
 		if len(splittedSpecifier) == 2 {
 			toothVersion, err = versions.NewFromString(splittedSpecifier[1])
 			if err != nil {
-				return Specifier{}, err
+				return Specifier{}, fmt.Errorf("invalid requirement specifier: %s", specifierString)
 			}
 
 			return Specifier{
@@ -88,8 +87,8 @@ func New(specifierString string) (Specifier, error) {
 		}
 	}
 
-	// The specifier type should never be invalid.
-	panic("invalid specifier type" + fmt.Sprintf("%d", specifierType))
+	// Never reached.
+	panic("unreachable")
 }
 
 // IsToothVersionSpecified returns whether the specifier has a tooth version.
@@ -102,18 +101,19 @@ func (s Specifier) String() string {
 	switch s.specifierKind {
 	case ToothFileKind:
 		return s.toothFilePath
+
 	case ToothRepoKind:
 		return s.toothRepo + "@" + s.toothVersion.String()
 	}
 
-	// The specifier type should never be invalid.
-	panic("invalid specifier type" + fmt.Sprintf("%d", s.specifierKind))
+	// Never reached.
+	panic("unreachable")
 }
 
 // ToothFilePath returns the path of the tooth file.
 func (s Specifier) ToothFilePath() (string, error) {
 	if s.Type() != ToothFileKind {
-		return "", errors.New("specifier is not a tooth file")
+		return "", fmt.Errorf("specifier is not a tooth file")
 	}
 
 	return s.toothFilePath, nil
@@ -122,7 +122,7 @@ func (s Specifier) ToothFilePath() (string, error) {
 // ToothRepo returns the tooth repo of the specifier.
 func (s Specifier) ToothRepo() (string, error) {
 	if s.Type() != ToothRepoKind {
-		return "", errors.New("specifier is not a tooth repo")
+		return "", fmt.Errorf("specifier is not a tooth repo")
 	}
 
 	return s.toothRepo, nil
@@ -131,11 +131,11 @@ func (s Specifier) ToothRepo() (string, error) {
 // ToothVersion returns the version of the tooth.
 func (s Specifier) ToothVersion() (versions.Version, error) {
 	if s.Type() != ToothRepoKind {
-		return versions.Version{}, errors.New("specifier is not a tooth repo")
+		return versions.Version{}, fmt.Errorf("specifier is not a tooth repo")
 	}
 
 	if !s.isToothVersionSpecified {
-		return versions.Version{}, errors.New("tooth version is not specified")
+		return versions.Version{}, fmt.Errorf("tooth version is not specified")
 	}
 
 	return s.toothVersion, nil
