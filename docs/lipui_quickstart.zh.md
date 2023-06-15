@@ -20,12 +20,12 @@ LipUI是一个便携式的应用程序。你可以下载LipUI的最新版本[这
 
 只要运行`LipUI.exe`，你就会看到LipUI的主窗口。首先，你需要选择一个工作区。工作区是一个包含你所安装的所有牙齿的目录。对于Bedrock Server用户，工作区是包含`bedrock_server.exe`的目录。你可以添加多个工作区。LipUI将自动检测工作区中的tooth。
 
-![LipUI 主页](../assets/img/lipui_main_window.png)
+![LipUI 主页](img/lipui_main_window.png)
 
 在你选择一个工作区后，你可以安装、卸载和管理tooth。你还可以使用搜索框来搜索tooth。
 
-![LipUI 包市场](../assets/img/lipui_registry.png)
+![LipUI 包市场](img/lipui_registry.png)
 
 对于不在注册表中的tooth，你可以通过进入 `安装齿包` 页面 输入 URL 或者本地文件路径来安装他们。
 
-![LipUI Install Tooth](../assets/img/lipui_install_tooth.png)
+![LipUI Install Tooth](img/lipui_install_tooth.png)

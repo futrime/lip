@@ -49,6 +49,10 @@ func main() {
 	}
 
 	context := contexts.New(globalDotLipDir, goProxyList, lipVersion, workspaceDir)
+	if err != nil {
+		logging.Error("cannot create context: %w", err)
+		return
+	}
 
 	err = cli.Run(context)
 	if err != nil {

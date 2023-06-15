@@ -34,7 +34,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("cannot download file (HTTP %s): %s", resp.Status, url)
+		return fmt.Errorf("cannot download file (HTTP %v): %v", resp.Status, url)
 	}
 
 	// Create the file
@@ -48,7 +48,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 	case StyleNone:
 		_, err = io.Copy(file, resp.Body)
 		if err != nil {
-			return fmt.Errorf("cannot download file from %s: %w", url, err)
+			return fmt.Errorf("cannot download file from %v: %w", url, err)
 		}
 		return nil
 
@@ -62,7 +62,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 		)
 		_, err = io.Copy(io.MultiWriter(file, bar), resp.Body)
 		if err != nil {
-			return fmt.Errorf("cannot download file from %s: %w", url, err)
+			return fmt.Errorf("cannot download file from %v: %w", url, err)
 		}
 
 		return nil
@@ -76,7 +76,7 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 		)
 		_, err = io.Copy(io.MultiWriter(file, bar), resp.Body)
 		if err != nil {
-			return fmt.Errorf("cannot download file from %s: %w", url, err)
+			return fmt.Errorf("cannot download file from %v: %w", url, err)
 		}
 
 		return nil
@@ -84,4 +84,31 @@ func DownloadFile(url string, filePath string, progressBarStyle ProgressBarStyle
 
 	// Never reached.
 	panic("unreachable")
+}
+
+// GetContent gets the content of a URL.
+func GetContent(url string) ([]byte, error) {
+	var err error
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create HTTP request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("cannot send HTTP request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("cannot get content (HTTP %v): %v", resp.Status, url)
+	}
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read HTTP response: %w", err)
+	}
+
+	return content, nil
 }

@@ -81,7 +81,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		logging.Info("Lip %s from %s", ctx.LipVersion().String(), os.Args[0])
+		logging.Info("Lip %v from %v", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 
@@ -95,7 +95,7 @@ func Run(ctx contexts.Context, args []string) error {
 		switch flagSet.Arg(0) {
 
 		default:
-			return fmt.Errorf("unknown command: lip %s", flagSet.Arg(0))
+			return fmt.Errorf("unknown command: lip %v", flagSet.Arg(0))
 		}
 	}
 

@@ -26,6 +26,21 @@ func Equal(path1 string, path2 string) (bool, error) {
 	return path1 == path2, nil
 }
 
+func ExtractCommonAncestor(paths []string) string {
+	if len(paths) == 0 {
+		return ""
+	}
+
+	filePathCommonPrefix := extractCommonPrefix(paths)
+
+	// If the common prefix contains a slash but is not the first character, remove everything after it.
+	if slashIndex := strings.LastIndex(filePathCommonPrefix, "/"); slashIndex > 0 {
+		filePathCommonPrefix = filePathCommonPrefix[:slashIndex+1]
+	}
+
+	return filePathCommonPrefix
+}
+
 // IsAncesterOf returns true if ancestor is an ancestor of path.
 func IsAncesterOf(ancestor string, path string) (bool, error) {
 	var err error
@@ -61,4 +76,36 @@ func IsAncesterOf(ancestor string, path string) (bool, error) {
 	relativePath = filepath.ToSlash(relativePath)
 
 	return !strings.HasPrefix(relativePath, "../") && relativePath != "..", nil
+}
+
+// ---------------------------------------------------------------------
+
+// extractCommonPrefix returns the common prefix of a list of strings.
+func extractCommonPrefix(strList []string) string {
+	if len(strList) == 0 {
+		return ""
+	}
+
+	commonPrefix := strList[0]
+
+	for _, str := range strList {
+		commonPrefix = extractCommonPrefix2(commonPrefix, str)
+	}
+
+	return commonPrefix
+}
+
+// extractCommonPrefix2 returns the common prefix of two strings.
+func extractCommonPrefix2(str1, str2 string) string {
+	commonPrefix := ""
+
+	for i := 0; i < len(str1) && i < len(str2); i++ {
+		if str1[i] != str2[i] {
+			break
+		}
+
+		commonPrefix += string(str1[i])
+	}
+
+	return commonPrefix
 }

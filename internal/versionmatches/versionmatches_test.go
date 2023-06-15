@@ -28,12 +28,12 @@ func TestNew(t *testing.T) {
 	for index, test := range testList {
 		version, err := versions.NewFromString(test.input.version)
 		if err != nil {
-			t.Fatalf("error at test %d: %s", index, err.Error())
+			t.Fatalf("error at test %d: %v", index, err.Error())
 		}
 
 		versionMatch, err := New(version, test.input.matchType)
 		if err != nil {
-			t.Fatalf("error at test %d: %s", index, err.Error())
+			t.Fatalf("error at test %d: %v", index, err.Error())
 		}
 
 		if versionMatch.version != version {
@@ -45,7 +45,7 @@ func TestNew(t *testing.T) {
 		}
 
 		if versionMatch.String() != testList[index].output {
-			t.Errorf("wrong output at test %d: %s != %s", index, versionMatch.String(), test.output)
+			t.Errorf("wrong output at test %d: %v != %v", index, versionMatch.String(), test.output)
 		}
 	}
 }
@@ -67,11 +67,11 @@ func TestNewFromString(t *testing.T) {
 	for index, test := range testList {
 		versionMatch, err := NewFromString(test.input)
 		if err != nil {
-			t.Fatalf("error at test %d: %s", index, err.Error())
+			t.Fatalf("error at test %d: %v", index, err.Error())
 		}
 
 		if versionMatch.String() != test.output {
-			t.Errorf("wrong output at test %d: %s != %s", index, versionMatch.String(), test.output)
+			t.Errorf("wrong output at test %d: %v != %v", index, versionMatch.String(), test.output)
 		}
 	}
 }

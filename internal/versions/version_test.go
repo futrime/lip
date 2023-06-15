@@ -21,11 +21,11 @@ func TestNewFromString(t *testing.T) {
 	for index, test := range testList {
 		version, err := NewFromString(test.input)
 		if err != nil {
-			t.Fatalf("error at test %d: %s", index, err.Error())
+			t.Fatalf("error at test %d: %v", index, err.Error())
 		}
 
 		if version.String() != test.output {
-			t.Errorf("wrong output at test %d: %s != %s", index, version.String(), test.output)
+			t.Errorf("wrong output at test %d: %v != %v", index, version.String(), test.output)
 		}
 	}
 }

@@ -76,7 +76,7 @@ func New(
 // NewFromString creates a new version from a version string.
 func NewFromString(versionString string) (Version, error) {
 	if !IsValidVersionString(versionString) {
-		return Version{}, fmt.Errorf("invalid version string %s", versionString)
+		return Version{}, fmt.Errorf("invalid version string %v", versionString)
 	}
 
 	var major, minor, patch int
@@ -141,11 +141,11 @@ func (v Version) String() string {
 	}
 
 	if v.preReleaseNumber < 0 {
-		return fmt.Sprintf("%d.%d.%d-%s", v.major, v.minor, v.patch, v.preReleaseName)
+		return fmt.Sprintf("%d.%d.%d-%v", v.major, v.minor, v.patch, v.preReleaseName)
 	}
 
 	return fmt.Sprintf(
-		"%d.%d.%d-%s.%d",
+		"%d.%d.%d-%v.%d",
 		v.major,
 		v.minor,
 		v.patch,
