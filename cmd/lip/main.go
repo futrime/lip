@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/cli"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/logging"
+	"github.com/lippkg/lip/pkg/plugins"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 //------------------------------------------------------------------------------
@@ -24,9 +25,15 @@ const LipVersionString = "v0.0.0"
 func main() {
 	var err error
 
-	ctx, err := initContext()
+	ctx, err := createContext()
 	if err != nil {
-		logging.Error(err.Error())
+		logging.Error("cannot initialize context: %s", err.Error())
+		return
+	}
+
+	err = initPlugins(ctx)
+	if err != nil {
+		logging.Error("cannot initialize plugins: %s", err.Error())
 		return
 	}
 
@@ -37,8 +44,8 @@ func main() {
 	}
 }
 
-// initContext initializes the context.
-func initContext() (contexts.Context, error) {
+// createContext initializes the context.
+func createContext() (contexts.Context, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return contexts.Context{},
@@ -77,6 +84,26 @@ func initContext() (contexts.Context, error) {
 	}
 
 	return ctx, nil
+}
+
+// initPlugins initializes plugins.
+func initPlugins(ctx contexts.Context) error {
+	// TODO: Make the real API Hub.
+	apiHub := struct{}{}
+
+	for pluginName := range ctx.PluginSet() {
+		plug, err := plugins.OpenPlugin(ctx, pluginName)
+		if err != nil {
+			return fmt.Errorf("cannot open plugin %v: %w", pluginName, err)
+		}
+
+		err = plug.Init(ctx, apiHub)
+		if err != nil {
+			return fmt.Errorf("cannot initialize plugin %v: %w", pluginName, err)
+		}
+	}
+
+	return nil
 }
 
 // listPlugins lists all plugins.

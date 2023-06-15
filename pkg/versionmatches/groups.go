@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 type Group struct {

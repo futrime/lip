@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lippkg/lip/internal/cli/cmdlipautoremove"
 	"github.com/lippkg/lip/internal/cli/cmdlipcache"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/internal/cli/cmdlipexec"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/logging"
 )
 
 type FlagDict struct {
@@ -92,10 +94,24 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
+		case "autoreremove":
+			err = cmdlipautoremove.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return fmt.Errorf("failed to run the 'autoreremove' command: %w", err)
+			}
+			return nil
+
 		case "cache":
-			err = cmdlipcache.Run(ctx, flagSet.Args())
+			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return fmt.Errorf("failed to run the 'cache' command: %w", err)
+			}
+			return nil
+
+		case "exec":
+			err = cmdlipexec.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return fmt.Errorf("failed to run the 'exec' command: %w", err)
 			}
 			return nil
 

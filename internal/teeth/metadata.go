@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/lippkg/lip/internal/versionmatches"
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/versionmatches"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 type Metadata struct {

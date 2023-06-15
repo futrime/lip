@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 // SpecifierKind is an enum that represents the type of a specifier.

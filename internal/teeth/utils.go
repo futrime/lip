@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/downloading"
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 // FetchVersionList fetches the version list of a tooth repository.

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/lippkg/lip/internal/cli/cmdlipcachepurge"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/logging"
 )
 
 type FlagDict struct {
@@ -28,7 +28,7 @@ Options:
 func Run(ctx contexts.Context, args []string) error {
 	var err error
 
-	flagSet := flag.NewFlagSet("cache", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
 	flagSet.Usage = func() {
@@ -38,7 +38,7 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args[1:])
+	err = flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -53,7 +53,7 @@ func Run(ctx contexts.Context, args []string) error {
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
 		case "purge":
-			err = cmdlipcachepurge.Run(ctx, args[1:])
+			err = cmdlipcachepurge.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return fmt.Errorf("failed to run the 'purge' command: %w", err)
 			}

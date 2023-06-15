@@ -1,6 +1,6 @@
 package installing
 
-import "github.com/lippkg/lip/internal/contexts"
+import "github.com/lippkg/lip/pkg/contexts"
 
 // CheckIsToothManuallyInstalled checks if a tooth is manually installed.
 func CheckIsToothManuallyInstalled(ctx contexts.Context,

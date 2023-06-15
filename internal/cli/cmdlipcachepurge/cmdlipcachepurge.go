@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/logging"
 )
 
 type FlagDict struct {
@@ -27,7 +27,7 @@ Options:
 func Run(ctx contexts.Context, args []string) error {
 	var err error
 
-	flagSet := flag.NewFlagSet("purge", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("purge", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
 	flagSet.Usage = func() {
@@ -37,7 +37,7 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args[1:])
+	err = flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}

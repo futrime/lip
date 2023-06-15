@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 // Context is the context of the application.
@@ -115,6 +115,25 @@ func (ctx Context) MetadataDir() (string, error) {
 	err = createDirIfNotExist(path)
 	if err != nil {
 		return "", fmt.Errorf("cannot create metadata directory: %w", err)
+	}
+
+	return path, nil
+}
+
+// PluginDir returns the plugin directory.
+func (ctx Context) PluginDir() (string, error) {
+	var err error
+
+	workspaceDotLipDir, err := ctx.WorkspaceDotLipDir()
+	if err != nil {
+		return "", fmt.Errorf("cannot get workspace .lip directory: %w", err)
+	}
+
+	path := filepath.Join(workspaceDotLipDir, "plugins")
+
+	err = createDirIfNotExist(path)
+	if err != nil {
+		return "", fmt.Errorf("cannot create plugin directory: %w", err)
 	}
 
 	return path, nil

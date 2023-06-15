@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/logging"
 	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/logging"
 )
 
 type FlagDict struct {
@@ -30,7 +30,7 @@ Options:
 func Run(ctx contexts.Context, args []string) error {
 	var err error
 
-	flagSet := flag.NewFlagSet("autoremove", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("autoremove", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
 	flagSet.Usage = func() {
@@ -95,6 +95,9 @@ func autoremove(ctx contexts.Context, yesFlag bool) error {
 		logging.Info("  %s", tooth)
 
 		err = installing.Uninstall(ctx, tooth)
+		if err != nil {
+			return fmt.Errorf("failed to uninstall tooth %s: %w", tooth, err)
+		}
 	}
 
 	logging.Info("All isolated teeth are uninstalled.")

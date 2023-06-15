@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/lippkg/lip/internal/cli/cmdlip"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/pkg/contexts"
 )
 
 func Run(context contexts.Context) error {

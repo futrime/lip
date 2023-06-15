@@ -3,7 +3,7 @@ package versionmatches
 import (
 	"testing"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/pkg/versions"
 )
 
 func TestNew(t *testing.T) {
