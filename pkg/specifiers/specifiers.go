@@ -2,7 +2,6 @@ package specifiers
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -13,14 +12,14 @@ import (
 type SpecifierKind int
 
 const (
-	ToothFileKind SpecifierKind = iota
+	ToothArchiveKind SpecifierKind = iota
 	ToothRepoKind
 )
 
 // Specifier is a type that can be used to specify a tooth url/file or a requirement.
 type Specifier struct {
 	specifierKind           SpecifierKind
-	toothFilePath           string
+	toothArchivePath        string
 	toothRepo               string
 	toothVersion            versions.Version
 	isToothVersionSpecified bool
@@ -33,18 +32,10 @@ func New(specifierString string) (Specifier, error) {
 	specifierType := getSpecifierType(specifierString)
 
 	switch specifierType {
-	case ToothFileKind:
-		// Check if the tooth file exists.
-		_, err := os.Stat(specifierString)
-
-		if err != nil {
-			return Specifier{}, fmt.Errorf("cannot access tooth file: %v",
-				specifierString)
-		}
-
+	case ToothArchiveKind:
 		return Specifier{
-			specifierKind: specifierType,
-			toothFilePath: specifierString,
+			specifierKind:    specifierType,
+			toothArchivePath: specifierString,
 		}, nil
 
 	case ToothRepoKind:
@@ -103,8 +94,8 @@ func (s Specifier) IsToothVersionSpecified() bool {
 // String returns the string representation of the specifier.
 func (s Specifier) String() string {
 	switch s.specifierKind {
-	case ToothFileKind:
-		return s.toothFilePath
+	case ToothArchiveKind:
+		return s.toothArchivePath
 
 	case ToothRepoKind:
 		return s.toothRepo + "@" + s.toothVersion.String()
@@ -114,13 +105,13 @@ func (s Specifier) String() string {
 	panic("unreachable")
 }
 
-// ToothFilePath returns the path of the tooth file.
-func (s Specifier) ToothFilePath() (string, error) {
-	if s.Type() != ToothFileKind {
-		return "", fmt.Errorf("specifier is not a tooth file")
+// ToothArchivePath returns the path of the tooth archive.
+func (s Specifier) ToothArchivePath() (string, error) {
+	if s.Type() != ToothArchiveKind {
+		return "", fmt.Errorf("specifier is not a tooth archive")
 	}
 
-	return s.toothFilePath, nil
+	return s.toothArchivePath, nil
 }
 
 // ToothRepo returns the tooth repo of the specifier.
@@ -155,7 +146,7 @@ func (s Specifier) Type() SpecifierKind {
 // getSpecifierType gets the type of the requirement specifier.
 func getSpecifierType(specifier string) SpecifierKind {
 	if strings.HasSuffix(specifier, ".tth") {
-		return ToothFileKind
+		return ToothArchiveKind
 	} else {
 		return ToothRepoKind
 	}

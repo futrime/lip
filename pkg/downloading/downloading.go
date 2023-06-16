@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/lippkg/lip/pkg/versions"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -16,6 +17,13 @@ const (
 	StylePercentageOnly
 	StyleNone
 )
+
+// CalculateDownloadURLViaGoProxy calculates the download URL of a tooth
+// version via GoProxy.
+func CalculateDownloadURLViaGoProxy(goProxy string, toothRepo string, version versions.Version) (string, error) {
+	// TODO
+	return "", nil
+}
 
 // DownloadFile downloads a file from a url and saves it to a local path.
 // Note that if the style is not StyleNone, the progress bar will be shown

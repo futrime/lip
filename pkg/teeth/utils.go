@@ -10,10 +10,29 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lippkg/lip/pkg/downloading"
 	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/downloading"
 	"github.com/lippkg/lip/pkg/versions"
 )
+
+// CheckIsToothInstalled checks if a tooth is installed.
+func CheckIsToothInstalled(ctx contexts.Context, toothRepo string) (bool, error) {
+	var err error
+
+	metadataList, err := ListAllInstalledToothMetadata(ctx)
+	if err != nil {
+		return false, fmt.Errorf(
+			"failed to list all installed tooth metadata: %w", err)
+	}
+
+	for _, metadata := range metadataList {
+		if metadata.Tooth() == toothRepo {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
 
 // FetchVersionList fetches the version list of a tooth repository.
 func FetchVersionList(ctx contexts.Context, repoPath string) ([]versions.Version,
