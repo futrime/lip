@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/lippkg/lip/internal/cli/cmdlipcachepurge"
+	"github.com/lippkg/lip/pkg/cli/cmdlipcachepurge"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/internal/cli"
+	"github.com/lippkg/lip/pkg/cli"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 	"github.com/lippkg/lip/pkg/plugins"

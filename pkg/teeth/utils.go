@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lippkg/lip/internal/downloading"
+	"github.com/lippkg/lip/pkg/downloading"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/versions"
 )

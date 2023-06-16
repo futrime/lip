@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/cli/cmdlipautoremove"
-	"github.com/lippkg/lip/internal/cli/cmdlipcache"
-	"github.com/lippkg/lip/internal/cli/cmdlipexec"
+	"github.com/lippkg/lip/pkg/cli/cmdlipautoremove"
+	"github.com/lippkg/lip/pkg/cli/cmdlipcache"
+	"github.com/lippkg/lip/pkg/cli/cmdlipexec"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )

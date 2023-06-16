@@ -3,7 +3,7 @@ package cli
 import (
 	"os"
 
-	"github.com/lippkg/lip/internal/cli/cmdlip"
+	"github.com/lippkg/lip/pkg/cli/cmdlip"
 	"github.com/lippkg/lip/pkg/contexts"
 )
 

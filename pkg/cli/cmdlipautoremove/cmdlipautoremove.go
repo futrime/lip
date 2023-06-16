@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/pkg/installing"
+	"github.com/lippkg/lip/pkg/teeth"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )

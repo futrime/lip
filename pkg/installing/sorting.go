@@ -3,7 +3,7 @@ package installing
 import (
 	"errors"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/pkg/teeth"
 )
 
 type SortingOrder int

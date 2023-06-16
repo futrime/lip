@@ -6,7 +6,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/paths"
+	"github.com/lippkg/lip/pkg/paths"
 )
 
 // Archive is an archive containing a tooth.
