@@ -8,6 +8,8 @@ import (
 	"github.com/lippkg/lip/pkg/cli/cmdlipautoremove"
 	"github.com/lippkg/lip/pkg/cli/cmdlipcache"
 	"github.com/lippkg/lip/pkg/cli/cmdlipexec"
+	"github.com/lippkg/lip/pkg/cli/cmdlipinstall"
+	"github.com/lippkg/lip/pkg/cli/cmdliplist"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )
@@ -114,6 +116,18 @@ func Run(ctx contexts.Context, args []string) error {
 				return fmt.Errorf("failed to run the 'exec' command: %w", err)
 			}
 			return nil
+
+		case "install":
+			err = cmdlipinstall.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return fmt.Errorf("failed to run the 'install' command: %w", err)
+			}
+
+		case "list":
+			err = cmdliplist.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return fmt.Errorf("failed to run the 'list' command: %w", err)
+			}
 
 		default:
 			return fmt.Errorf("unknown command: lip %v", flagSet.Arg(0))

@@ -101,7 +101,16 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("failed to sort teeth: %w", err)
 	}
 
-	// 4. Install teeth.
+	// 4. Ask for confirmation.
+
+	if !flagDict.yesFlag {
+		err = askForConfirmation(ctx, archiveToInstallList)
+		if err != nil {
+			return fmt.Errorf("failed to ask for confirmation: %w", err)
+		}
+	}
+
+	// 5. Install teeth.
 
 	err = installToothArchiveList(ctx, archiveToInstallList, flagDict.forceReinstallFlag,
 		flagDict.upgradeFlag)
@@ -113,6 +122,28 @@ func Run(ctx contexts.Context, args []string) error {
 }
 
 // ---------------------------------------------------------------------
+
+// askForConfirmation asks for confirmation before installing the tooth.
+func askForConfirmation(ctx contexts.Context,
+	archiveList []teeth.Archive) error {
+
+	// Print the list of teeth to be installed.
+	logging.Info("The following teeth will be installed:")
+	for _, archive := range archiveList {
+		logging.Info("  %s: %s", archive.Metadata().Tooth(),
+			archive.Metadata().Info().Name)
+	}
+
+	// Ask for confirmation.
+	logging.Info("Do you want to continue? [y/N]")
+	var ans string
+	fmt.Scanln(&ans)
+	if ans != "y" && ans != "Y" {
+		return fmt.Errorf("aborted")
+	}
+
+	return nil
+}
 
 // downloadFromAllGoProxies downloads the tooth from all Go proxies and returns
 // the path to the downloaded tooth.
@@ -167,12 +198,16 @@ func downloadSpecifier(ctx contexts.Context,
 		return archivePath, nil
 
 	case specifiers.ToothRepoKind:
-		toothVersion, err := lookUpVersion(ctx, specifier)
+		toothRepo, err := specifier.ToothRepo()
+		if err != nil {
+			return "", fmt.Errorf("failed to get tooth repo: %w", err)
+		}
+
+		toothVersion, err := installing.LookUpVersion(ctx, toothRepo)
 		if err != nil {
 			return "", fmt.Errorf("failed to look up tooth version: %w", err)
 		}
 
-		toothRepo, err := specifier.ToothRepo()
 		if err != nil {
 			return "", fmt.Errorf("failed to get tooth repo: %w", err)
 		}
@@ -255,14 +290,6 @@ func installToothArchiveList(ctx contexts.Context,
 	}
 
 	return nil
-}
-
-// lookUpVersion returns the correct version of the tooth specified by the
-// specifier.
-func lookUpVersion(ctx contexts.Context,
-	specifier specifiers.Specifier) (versions.Version, error) {
-	// TODO
-	return versions.Version{}, nil
 }
 
 // parseAndDownloadSpecifierStringList parses the specifier string list and
