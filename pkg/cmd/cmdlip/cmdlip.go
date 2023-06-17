@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/pkg/cli/cmdlipautoremove"
-	"github.com/lippkg/lip/pkg/cli/cmdlipcache"
-	"github.com/lippkg/lip/pkg/cli/cmdlipexec"
-	"github.com/lippkg/lip/pkg/cli/cmdlipinstall"
-	"github.com/lippkg/lip/pkg/cli/cmdliplist"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipautoremove"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipcache"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipexec"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipinstall"
+	"github.com/lippkg/lip/pkg/cmd/cmdliplist"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipshow"
+	"github.com/lippkg/lip/pkg/cmd/cmdliptooth"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )
@@ -99,35 +101,51 @@ func Run(ctx contexts.Context, args []string) error {
 		case "autoreremove":
 			err = cmdlipautoremove.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'autoreremove' command: %w", err)
+				return err
 			}
 			return nil
 
 		case "cache":
 			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'cache' command: %w", err)
+				return err
 			}
 			return nil
 
 		case "exec":
 			err = cmdlipexec.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'exec' command: %w", err)
+				return err
 			}
 			return nil
 
 		case "install":
 			err = cmdlipinstall.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'install' command: %w", err)
+				return err
 			}
+			return nil
 
 		case "list":
 			err = cmdliplist.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'list' command: %w", err)
+				return err
 			}
+			return nil
+
+		case "show":
+			err = cmdlipshow.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return err
+			}
+			return nil
+
+		case "tooth":
+			err = cmdliptooth.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return err
+			}
+			return nil
 
 		default:
 			return fmt.Errorf("unknown command: lip %v", flagSet.Arg(0))

@@ -42,8 +42,8 @@ func ExtractCommonAncestor(paths []string) string {
 	return filePathCommonPrefix
 }
 
-// IsAncesterOf returns true if ancestor is an ancestor of path.
-func IsAncesterOf(ancestor string, path string) (bool, error) {
+// CheckIsAncesterOf returns true if ancestor is an ancestor of path.
+func CheckIsAncesterOf(ancestor string, path string) (bool, error) {
 	var err error
 
 	// If ancestor equals to path, return false.

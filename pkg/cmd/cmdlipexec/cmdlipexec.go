@@ -70,7 +70,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("no plugin specified")
 	}
 
-	err = execPlugin(ctx, flagSet.Args()[0], flagSet.Args()[1:])
+	err = execPlugin(ctx, flagSet.Arg(0), flagSet.Args()[1:])
 	if err != nil {
 		return fmt.Errorf("failed to execute plugin: %w", err)
 	}

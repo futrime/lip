@@ -9,16 +9,16 @@ import (
 )
 
 type RawMetadata struct {
-	FormatVersion string          `json:"format_version"`
+	FormatVersion int             `json:"format_version"`
 	Tooth         string          `json:"tooth"`
 	Version       string          `json:"version"`
 	Info          RawMetadataInfo `json:"info"`
 
-	Commands     RawMetadataCommands `json:"commands"`
-	Dependencies map[string]string   `json:"dependencies"`
-	Files        RawMetadataFiles    `json:"files"`
+	Commands     RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies map[string]string   `json:"dependencies,omitempty"`
+	Files        RawMetadataFiles    `json:"files,omitempty"`
 
-	Platforms []RawMetadataPlatformsItem `json:"platforms"`
+	Platforms []RawMetadataPlatformsItem `json:"platforms,omitempty"`
 }
 
 type RawMetadataInfo struct {
@@ -28,15 +28,15 @@ type RawMetadataInfo struct {
 }
 
 type RawMetadataCommands struct {
-	PreInstall    []string `json:"pre_install"`
-	PostInstall   []string `json:"post_install"`
-	PreUninstall  []string `json:"pre_uninstall"`
-	PostUninstall []string `json:"post_uninstall"`
+	PreInstall    []string `json:"pre_install,omitempty"`
+	PostInstall   []string `json:"post_install,omitempty"`
+	PreUninstall  []string `json:"pre_uninstall,omitempty"`
+	PostUninstall []string `json:"post_uninstall,omitempty"`
 }
 
 type RawMetadataFiles struct {
-	Place    []RawMetadataFilesPlaceItem `json:"place"`
-	Preserve []string                    `json:"preserve"`
+	Place    []RawMetadataFilesPlaceItem `json:"place,omitempty"`
+	Preserve []string                    `json:"preserve,omitempty"`
 }
 
 type RawMetadataFilesPlaceItem struct {
@@ -45,12 +45,12 @@ type RawMetadataFilesPlaceItem struct {
 }
 
 type RawMetadataPlatformsItem struct {
-	GOARCH string `json:"goarch"`
+	GOARCH string `json:"goarch,omitempty"`
 	GOOS   string `json:"goos"`
 
-	Commands     RawMetadataCommands `json:"commands"`
-	Dependencies map[string]string   `json:"dependencies"`
-	Files        RawMetadataFiles    `json:"files"`
+	Commands     RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies map[string]string   `json:"dependencies,omitempty"`
+	Files        RawMetadataFiles    `json:"files,omitempty"`
 }
 
 const rawMetadataJSONSchema = `

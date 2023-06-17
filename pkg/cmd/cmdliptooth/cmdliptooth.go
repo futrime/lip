@@ -1,10 +1,11 @@
-package cmdlipcache
+package cmdliptooth
 
 import (
 	"flag"
 	"fmt"
 
-	"github.com/lippkg/lip/pkg/cli/cmdlipcachepurge"
+	"github.com/lippkg/lip/pkg/cmd/cmdliptoothinit"
+	"github.com/lippkg/lip/pkg/cmd/cmdliptoothpack"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )
@@ -15,11 +16,12 @@ type FlagDict struct {
 
 const helpMessage = `
 Usage:
-  lip cache [options]
-  lip cache <command> [subcommand options] ...
+  lip tooth [options]
+  lip tooth <command> [subcommand options] ...
 
 Commands:
-  purge                       Clear the cache.
+  init                        Initialize and writes a new tooth.json file in the current directory.
+  pack                        Pack the current directory into a tooth file.
 
 Options:
   -h, --help                  Show help.
@@ -28,7 +30,7 @@ Options:
 func Run(ctx contexts.Context, args []string) error {
 	var err error
 
-	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
+	flagSet := flag.NewFlagSet("tooth", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
 	flagSet.Usage = func() {
@@ -52,18 +54,25 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
-		case "purge":
-			err = cmdlipcachepurge.Run(ctx, flagSet.Args()[1:])
+		case "init":
+			err = cmdliptoothinit.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
-				return fmt.Errorf("failed to run the 'purge' command: %w", err)
+				return err
+			}
+			return nil
+
+		case "pack":
+			err = cmdliptoothpack.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return err
 			}
 			return nil
 
 		default:
-			return fmt.Errorf("unknown command: lip cache %v", flagSet.Arg(0))
+			return fmt.Errorf("unknown command: lip tooth %v", flagSet.Arg(0))
 		}
 	}
 
 	return fmt.Errorf(
-		"no command specified. See 'lip cache --help' for more information")
+		"no command specified. See 'lip tooth --help' for more information")
 }

@@ -130,7 +130,7 @@ func askForConfirmation(ctx contexts.Context,
 	// Print the list of teeth to be installed.
 	logging.Info("The following teeth will be installed:")
 	for _, archive := range archiveList {
-		logging.Info("  %s: %s", archive.Metadata().Tooth(),
+		logging.Info("  %v: %v", archive.Metadata().Tooth(),
 			archive.Metadata().Info().Name)
 	}
 
@@ -203,7 +203,7 @@ func downloadSpecifier(ctx contexts.Context,
 			return "", fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
-		toothVersion, err := installing.LookUpVersion(ctx, toothRepo)
+		toothVersion, err := teeth.GetToothLatestVersion(ctx, toothRepo)
 		if err != nil {
 			return "", fmt.Errorf("failed to look up tooth version: %w", err)
 		}
@@ -238,37 +238,37 @@ func installToothArchiveList(ctx contexts.Context,
 		shouldUninstall := false
 
 		if isInstalled && forceReinstall {
-			logging.Info("Reinstalling tooth %s...", archive.Metadata().Tooth())
+			logging.Info("Reinstalling tooth %v...", archive.Metadata().Tooth())
 
 			shouldInstall = true
 			shouldUninstall = true
 
 		} else if isInstalled && upgrade {
-			currentMetadata, err := teeth.FindInstalledToothMetadata(ctx,
+			currentMetadata, err := teeth.GetInstalledToothMetadata(ctx,
 				archive.Metadata().Tooth())
 			if err != nil {
 				return fmt.Errorf("failed to find installed tooth metadata: %w", err)
 			}
 
 			if versions.GreaterThan(archive.Metadata().Version(), currentMetadata.Version()) {
-				logging.Info("Upgrading tooth %s...", archive.Metadata().Tooth())
+				logging.Info("Upgrading tooth %v...", archive.Metadata().Tooth())
 
 				shouldInstall = true
 				shouldUninstall = true
 			} else {
-				logging.Info("Tooth %s is already up-to-date", archive.Metadata().Tooth())
+				logging.Info("Tooth %v is already up-to-date", archive.Metadata().Tooth())
 
 				shouldInstall = false
 				shouldUninstall = false
 			}
 
 		} else if isInstalled {
-			logging.Info("Tooth %s is already installed", archive.Metadata().Tooth())
+			logging.Info("Tooth %v is already installed", archive.Metadata().Tooth())
 
 			shouldInstall = false
 			shouldUninstall = false
 		} else {
-			logging.Info("Installing tooth %s...", archive.Metadata().Tooth())
+			logging.Info("Installing tooth %v...", archive.Metadata().Tooth())
 
 			shouldInstall = true
 			shouldUninstall = false

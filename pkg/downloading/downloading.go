@@ -5,7 +5,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/versions"
 	"github.com/schollz/progressbar/v3"
 )
@@ -120,4 +123,24 @@ func GetContent(url string) ([]byte, error) {
 	}
 
 	return content, nil
+}
+
+// GetContentFromAllGoproxies gets the content from all Go proxies.
+func GetContentFromAllGoproxies(ctx contexts.Context, urlPath string) ([]byte, error) {
+	var errList []error
+
+	for _, goProxy := range ctx.GoProxyList() {
+		url := filepath.Join(strings.TrimSuffix(goProxy, "/"), urlPath)
+
+		content, err := GetContent(url)
+		if err != nil {
+			errList = append(errList, fmt.Errorf("cannot get content from %v: %w",
+				url, err))
+			continue
+		}
+
+		return content, nil
+	}
+
+	return nil, fmt.Errorf("cannot get content from all Go proxies: %v", errList)
 }

@@ -33,7 +33,7 @@ func TestIsAncesterOf(t *testing.T) {
 	for index, test := range testList {
 		var err error
 
-		result, err := IsAncesterOf(test.input.ancestor, test.input.path)
+		result, err := CheckIsAncesterOf(test.input.ancestor, test.input.path)
 		if err != nil {
 			t.Fatalf("error at test %d: %v", index, err.Error())
 		}

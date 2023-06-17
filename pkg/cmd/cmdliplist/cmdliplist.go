@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/pkg/contexts"
-	"github.com/lippkg/lip/pkg/installing"
 	"github.com/lippkg/lip/pkg/logging"
 	"github.com/lippkg/lip/pkg/teeth"
 	"github.com/lippkg/lip/pkg/versions"
@@ -88,7 +87,7 @@ func Run(ctx contexts.Context, args []string) error {
 func listAll(ctx contexts.Context, jsonFlag bool) error {
 	var err error
 
-	metadataList, err := teeth.ListAllInstalledToothMetadata(ctx)
+	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed tooths: %w", err)
 	}
@@ -115,15 +114,13 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 				metadata.Tooth(),
 				metadata.Info().Name,
 				metadata.Version().String(),
-				metadata.Info().Author,
-				metadata.Info().Description,
 			})
 		}
 
 		tableString := &strings.Builder{}
 		table := tablewriter.NewWriter(tableString)
 		table.SetHeader([]string{
-			"Tooth", "Name", "Version", "Author", "Description",
+			"Tooth", "Name", "Version",
 		})
 
 		for _, row := range tableData {
@@ -142,7 +139,7 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 	var err error
 
-	metadataList, err := teeth.ListAllInstalledToothMetadata(ctx)
+	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed tooths: %w", err)
 	}
@@ -152,7 +149,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := installing.LookUpVersion(ctx,
+			latestVersion, err := teeth.GetToothLatestVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(
@@ -176,7 +173,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := installing.LookUpVersion(ctx,
+			latestVersion, err := teeth.GetToothLatestVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(

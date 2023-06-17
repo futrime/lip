@@ -1,9 +1,9 @@
-package cli
+package cmd
 
 import (
 	"os"
 
-	"github.com/lippkg/lip/pkg/cli/cmdlip"
+	"github.com/lippkg/lip/pkg/cmd/cmdlip"
 	"github.com/lippkg/lip/pkg/contexts"
 )
 

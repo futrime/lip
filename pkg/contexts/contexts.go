@@ -105,12 +105,12 @@ func (ctx Context) LipVersion() versions.Version {
 func (ctx Context) MetadataDir() (string, error) {
 	var err error
 
-	globalDotLipDir, err := ctx.GlobalDotLipDir()
+	workspaceDotLipDir, err := ctx.WorkspaceDotLipDir()
 	if err != nil {
-		return "", fmt.Errorf("cannot get global .lip directory: %w", err)
+		return "", fmt.Errorf("cannot get workspace .lip directory: %w", err)
 	}
 
-	path := filepath.Join(globalDotLipDir, "metadata")
+	path := filepath.Join(workspaceDotLipDir, "metadata")
 
 	err = createDirIfNotExist(path)
 	if err != nil {

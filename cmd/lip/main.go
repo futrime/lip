@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/pkg/cli"
+	"github.com/lippkg/lip/pkg/cmd"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 	"github.com/lippkg/lip/pkg/plugins"
@@ -27,17 +27,17 @@ func main() {
 
 	ctx, err := createContext()
 	if err != nil {
-		logging.Error("cannot initialize context: %s", err.Error())
+		logging.Error("cannot initialize context: %v", err.Error())
 		return
 	}
 
 	err = initPlugins(ctx)
 	if err != nil {
-		logging.Error("cannot initialize plugins: %s", err.Error())
+		logging.Error("cannot initialize plugins: %v", err.Error())
 		return
 	}
 
-	err = cli.Run(ctx)
+	err = cmd.Run(ctx)
 	if err != nil {
 		logging.Error(err.Error())
 		return

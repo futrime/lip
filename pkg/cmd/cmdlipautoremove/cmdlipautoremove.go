@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/lippkg/lip/pkg/installing"
-	"github.com/lippkg/lip/pkg/teeth"
 	"github.com/lippkg/lip/pkg/contexts"
+	"github.com/lippkg/lip/pkg/installing"
 	"github.com/lippkg/lip/pkg/logging"
+	"github.com/lippkg/lip/pkg/teeth"
 )
 
 type FlagDict struct {
@@ -92,11 +92,11 @@ func autoremove(ctx contexts.Context, yesFlag bool) error {
 	// 3. Uninstall isolated teeth.
 	logging.Info("Uninstalling isolated teeth...")
 	for _, tooth := range isolatedTeeth {
-		logging.Info("  %s", tooth)
+		logging.Info("  %v", tooth)
 
 		err = installing.Uninstall(ctx, tooth)
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %s: %w", tooth, err)
+			return fmt.Errorf("failed to uninstall tooth %v: %w", tooth, err)
 		}
 	}
 
@@ -122,7 +122,7 @@ func listEssentialTeeth(ctx contexts.Context) ([]string, error) {
 	}
 
 	// Get all installed teeth.
-	metadataList, err := teeth.ListAllInstalledToothMetadata(ctx)
+	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
@@ -166,7 +166,7 @@ func listIsolatedTeeth(ctx contexts.Context) ([]string, error) {
 	var err error
 
 	// Get all installed teeth.
-	metadataList, err := teeth.ListAllInstalledToothMetadata(ctx)
+	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
@@ -198,7 +198,7 @@ func listManuallyInstalledTeeth(ctx contexts.Context) ([]string, error) {
 	var err error
 
 	// Gets all installed teeth.
-	metadataList, err := teeth.ListAllInstalledToothMetadata(ctx)
+	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
@@ -206,7 +206,7 @@ func listManuallyInstalledTeeth(ctx contexts.Context) ([]string, error) {
 	// Marks all manually installed teeth.
 	var manuallyInstalledTeeth []string
 	for _, metadata := range metadataList {
-		isManuallyInstalled, err := installing.CheckIsToothManuallyInstalled(
+		isManuallyInstalled, err := teeth.CheckIsToothManuallyInstalled(
 			ctx, metadata.Tooth())
 		if err != nil {
 			return nil, fmt.Errorf(
@@ -226,7 +226,7 @@ func promptForConfirmation(isolatedTeeth []string) error {
 	// Print isolated teeth.
 	logging.Info("The following teeth will be uninstalled:")
 	for _, tooth := range isolatedTeeth {
-		logging.Info("  %s", tooth)
+		logging.Info("  %v", tooth)
 	}
 
 	// Prompt for confirmation.
