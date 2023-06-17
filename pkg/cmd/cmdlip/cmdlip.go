@@ -12,6 +12,7 @@ import (
 	"github.com/lippkg/lip/pkg/cmd/cmdliplist"
 	"github.com/lippkg/lip/pkg/cmd/cmdlipshow"
 	"github.com/lippkg/lip/pkg/cmd/cmdliptooth"
+	"github.com/lippkg/lip/pkg/cmd/cmdlipuninstall"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 )
@@ -142,6 +143,13 @@ func Run(ctx contexts.Context, args []string) error {
 
 		case "tooth":
 			err = cmdliptooth.Run(ctx, flagSet.Args()[1:])
+			if err != nil {
+				return err
+			}
+			return nil
+
+		case "uninstall":
+			err = cmdlipuninstall.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return err
 			}

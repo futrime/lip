@@ -23,7 +23,7 @@ type FlagDict struct {
 
 const helpMessage = `
 Usage:
-  lip install [options] <specifier> [<specifier> ...]
+  lip install [options] <specifier> [...]
 
 Description:
   Install tooths from:
@@ -106,7 +106,7 @@ func Run(ctx contexts.Context, args []string) error {
 	if !flagDict.yesFlag {
 		err = askForConfirmation(ctx, archiveToInstallList)
 		if err != nil {
-			return fmt.Errorf("failed to ask for confirmation: %w", err)
+			return err
 		}
 	}
 
