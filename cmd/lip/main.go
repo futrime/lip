@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/pkg/cmd"
+	"github.com/lippkg/lip/pkg/cmd/cmdlip"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
 	"github.com/lippkg/lip/pkg/plugins"
@@ -37,7 +37,7 @@ func main() {
 		return
 	}
 
-	err = cmd.Run(ctx)
+	err = cmdlip.Run(ctx, os.Args[1:])
 	if err != nil {
 		logging.Error(err.Error())
 		return

@@ -65,7 +65,7 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.verboseFlag, "v", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "quiet", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
-	err = flagSet.Parse(args[1:])
+	err = flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("cannot parse flags: %w", err)
 	}

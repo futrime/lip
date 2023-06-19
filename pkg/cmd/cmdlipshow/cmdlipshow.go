@@ -45,6 +45,7 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
+	flagSet.BoolVar(&flagDict.availableFlag, "available", false, "")
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
 	err = flagSet.Parse(args)
 	if err != nil {
