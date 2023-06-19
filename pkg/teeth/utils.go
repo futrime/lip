@@ -157,6 +157,7 @@ func GetInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata
 }
 
 // GetToothAvailableVersionList fetches the version list of a tooth repository.
+// The version list is sorted in descending order.
 func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]versions.Version,
 	error) {
 	var err error
@@ -210,10 +211,6 @@ func GetToothLatestStableVersion(ctx contexts.Context,
 		return versions.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)
 	}
-
-	sort.Slice(versionList, func(i, j int) bool {
-		return versions.GreaterThan(versionList[i], versionList[j])
-	})
 
 	for _, version := range versionList {
 		if version.IsStable() {
