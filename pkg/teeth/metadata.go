@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/lippkg/lip/pkg/teeth/migration/v1tov2"
 	"github.com/lippkg/lip/pkg/versionmatches"
@@ -86,7 +87,8 @@ func (m Metadata) Raw() RawMetadata {
 }
 
 func (m Metadata) Tooth() string {
-	return m.rawMetadata.Tooth
+	// To lower case to make it case insensitive.
+	return strings.ToLower(m.rawMetadata.Tooth)
 }
 
 func (m Metadata) Version() versions.Version {
@@ -115,7 +117,8 @@ func (m Metadata) Dependencies() map[string]versionmatches.Group {
 			panic(err)
 		}
 
-		dependencies[toothRepo] = versionMatch
+		// To lower case to make it case insensitive.
+		dependencies[strings.ToLower(toothRepo)] = versionMatch
 	}
 
 	return dependencies

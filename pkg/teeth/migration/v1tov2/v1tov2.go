@@ -3,6 +3,7 @@ package v1tov2
 import (
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
@@ -12,7 +13,6 @@ const v1JSONSchema = `
 {
     "$schema": "https://json-schema.org/draft-07/schema#",
     "type": "object",
-    "additionalProperties": false,
     "required": [
         "format_version",
         "tooth",
@@ -225,8 +225,15 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 			Description: v1RawMetadata.Information.Description,
 			Author:      v1RawMetadata.Information.Author,
 		},
+		Commands: V2RawMetadataCommands{
+			PreInstall:    make([]string, 0),
+			PostInstall:   make([]string, 0),
+			PreUninstall:  make([]string, 0),
+			PostUninstall: make([]string, 0),
+		},
 		Dependencies: make(map[string]string),
 		Files: V2RawMetadataFiles{
+			Place:    make([]V2RawMetadataFilesPlaceItem, 0),
 			Preserve: v1RawMetadata.Possession,
 		},
 		Platforms: make([]V2RawMetadataPlatformsItem, 0),
@@ -244,59 +251,39 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 
 	// Solve commands
 	for _, v1Command := range v1RawMetadata.Commands {
-		if !checkPlatformExists(v2RawMetadata.Platforms, v1Command.GOOS, v1Command.GOARCH) {
-			v2RawMetadata.Platforms = append(v2RawMetadata.Platforms, V2RawMetadataPlatformsItem{
-				GOOS:   v1Command.GOOS,
-				GOARCH: v1Command.GOARCH,
-				Commands: V2RawMetadataCommands{
-					PostInstall:  make([]string, 0),
-					PreUninstall: make([]string, 0),
-				},
-				Files: V2RawMetadataFiles{
-					Place: make([]V2RawMetadataFilesPlaceItem, 0),
-				},
-			})
+		if v1Command.GOOS != "" && runtime.GOOS != v1Command.GOOS {
+			continue
 		}
 
-		for i, platform := range v2RawMetadata.Platforms {
-			if platform.GOOS == v1Command.GOOS && platform.GOARCH == v1Command.GOARCH {
-				switch v1Command.Type {
-				case "install":
-					v2RawMetadata.Platforms[i].Commands.PostInstall = append(
-						v2RawMetadata.Platforms[i].Commands.PostInstall, v1Command.Commands...)
-				case "uninstall":
-					v2RawMetadata.Platforms[i].Commands.PreUninstall = append(
-						v2RawMetadata.Platforms[i].Commands.PreUninstall, v1Command.Commands...)
-				}
-			}
+		if v1Command.GOARCH != "" && runtime.GOARCH != v1Command.GOARCH {
+			continue
+		}
+
+		switch v1Command.Type {
+		case "install":
+			v2RawMetadata.Commands.PostInstall = append(
+				v2RawMetadata.Commands.PostInstall, v1Command.Commands...)
+		case "uninstall":
+			v2RawMetadata.Commands.PreUninstall = append(
+				v2RawMetadata.Commands.PreUninstall, v1Command.Commands...)
 		}
 	}
 
 	// Solve files
 	for _, v1Placement := range v1RawMetadata.Placement {
-		if !checkPlatformExists(v2RawMetadata.Platforms, v1Placement.GOOS, v1Placement.GOARCH) {
-			v2RawMetadata.Platforms = append(v2RawMetadata.Platforms, V2RawMetadataPlatformsItem{
-				GOOS:   v1Placement.GOOS,
-				GOARCH: v1Placement.GOARCH,
-				Commands: V2RawMetadataCommands{
-					PostInstall:  make([]string, 0),
-					PreUninstall: make([]string, 0),
-				},
-				Files: V2RawMetadataFiles{
-					Place: make([]V2RawMetadataFilesPlaceItem, 0),
-				},
-			})
+		if v1Placement.GOOS != "" && runtime.GOOS != v1Placement.GOOS {
+			continue
 		}
 
-		for i, platform := range v2RawMetadata.Platforms {
-			if platform.GOOS == v1Placement.GOOS && platform.GOARCH == v1Placement.GOARCH {
-				v2RawMetadata.Platforms[i].Files.Place = append(
-					v2RawMetadata.Platforms[i].Files.Place, V2RawMetadataFilesPlaceItem{
-						Src:  v1Placement.Source,
-						Dest: v1Placement.Destination,
-					})
-			}
+		if v1Placement.GOARCH != "" && runtime.GOARCH != v1Placement.GOARCH {
+			continue
 		}
+
+		v2RawMetadata.Files.Place = append(
+			v2RawMetadata.Files.Place, V2RawMetadataFilesPlaceItem{
+				Src:  v1Placement.Source,
+				Dest: v1Placement.Destination,
+			})
 	}
 
 	resultJSONBytes, err := json.Marshal(v2RawMetadata)
@@ -305,17 +292,4 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	}
 
 	return resultJSONBytes, nil
-}
-
-// checkPlatformExists checks if a platform exists in a list of platforms.
-func checkPlatformExists(platforms []V2RawMetadataPlatformsItem,
-	goos string, goarch string) bool {
-
-	for _, platform := range platforms {
-		if platform.GOOS == goos && platform.GOARCH == goarch {
-			return true
-		}
-	}
-
-	return false
 }

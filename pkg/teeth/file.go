@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 
 	"github.com/lippkg/lip/pkg/paths"
 )
@@ -109,6 +110,24 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 	rawMetadata := metadata.Raw()
 
 	for _, place := range rawMetadata.Files.Place {
+		// If it's not a pattern, just append it.
+		patternCharList := []rune{'*', '?', '['}
+
+		isPattern := false
+		for _, patternChar := range patternCharList {
+			if !strings.ContainsRune(place.Src, patternChar) {
+				continue
+			}
+
+			isPattern = true
+			break
+		}
+
+		if !isPattern {
+			newPlace = append(newPlace, place)
+			continue
+		}
+
 		for _, filePath := range filePaths {
 			matched, err := filepath.Match(place.Src, filePath)
 			if err != nil {
@@ -119,7 +138,7 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 				fileName := filepath.Base(filePath)
 
 				newPlace = append(newPlace, RawMetadataFilesPlaceItem{
-					Src:  place.Src,
+					Src:  filePath,
 					Dest: filepath.Join(place.Dest, fileName),
 				})
 			}
