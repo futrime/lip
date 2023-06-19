@@ -23,9 +23,17 @@ const (
 
 // CalculateDownloadURLViaGoProxy calculates the download URL of a tooth
 // version via GoProxy.
-func CalculateDownloadURLViaGoProxy(goProxy string, toothRepo string, version versions.Version) (string, error) {
-	// TODO
-	return "", nil
+func CalculateDownloadURLViaGoProxy(goProxy string, toothRepo string, version versions.Version) string {
+	var suffix string
+	if version.Major() == 0 || version.Major() == 1 {
+		suffix = ".zip"
+	} else {
+		suffix = "+incompatible.zip"
+	}
+
+	url := fmt.Sprintf("%v/%v/@v/v%v%v", goProxy, toothRepo, version.String(), suffix)
+
+	return url
 }
 
 // DownloadFile downloads a file from a url and saves it to a local path.

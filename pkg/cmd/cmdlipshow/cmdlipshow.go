@@ -72,7 +72,7 @@ func Run(ctx contexts.Context, args []string) error {
 			return fmt.Errorf("failed to show JSON: %w", err)
 		}
 	} else {
-		showHumanReadable(ctx, toothRepo, flagDict.availableFlag)
+		err = showHumanReadable(ctx, toothRepo, flagDict.availableFlag)
 		if err != nil {
 			return fmt.Errorf("failed to show human-readable: %w", err)
 		}

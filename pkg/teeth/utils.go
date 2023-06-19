@@ -3,6 +3,7 @@ package teeth
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,7 +40,50 @@ func CheckIsToothManuallyInstalled(ctx contexts.Context,
 	toothRepo string) (bool, error) {
 	var err error
 
-	// TODO: Check if the tooth is manually installed.
+	isInstalled, err := CheckIsToothInstalled(ctx, toothRepo)
+	if err != nil {
+		return false, fmt.Errorf("failed to check if tooth is installed: %w",
+			err)
+	}
+
+	if !isInstalled {
+		return false, nil
+	}
+
+	workspaceDotLipDir, err := ctx.WorkspaceDotLipDir()
+	if err != nil {
+		return false, fmt.Errorf("failed to get workspace .lip directory: %w",
+			err)
+	}
+
+	jsonFilePath := filepath.Join(workspaceDotLipDir, "manually_installed.json")
+
+	// Check if the manually installed JSON file exists.
+	if _, err := os.Stat(jsonFilePath); os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, fmt.Errorf("failed to check if manually installed JSON "+
+			"file exists: %w", err)
+	}
+
+	jsonBytes, err := os.ReadFile(jsonFilePath)
+	if err != nil {
+		return false, fmt.Errorf("failed to read manually installed JSON file: "+
+			"%w", err)
+	}
+
+	var manuallyInstalledToothList []string
+	err = json.Unmarshal(jsonBytes, &manuallyInstalledToothList)
+	if err != nil {
+		return false, fmt.Errorf("failed to unmarshal manually installed JSON "+
+			"file: %w", err)
+	}
+
+	for _, manuallyInstalledTooth := range manuallyInstalledToothList {
+		if manuallyInstalledTooth == toothRepo {
+			return true, nil
+		}
+	}
 
 	return false, err
 }
@@ -154,12 +198,30 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]vers
 	return versionList, nil
 }
 
-// GetToothLatestVersion returns the correct version of the tooth specified by the
-// specifier.
-func GetToothLatestVersion(ctx contexts.Context,
+// GetToothLatestStableVersion returns the correct version of the tooth
+// specified by the specifier.
+func GetToothLatestStableVersion(ctx contexts.Context,
 	toothRepo string) (versions.Version, error) {
-	// TODO
-	return versions.Version{}, nil
+
+	var err error
+
+	versionList, err := GetToothAvailableVersionList(ctx, toothRepo)
+	if err != nil {
+		return versions.Version{}, fmt.Errorf(
+			"failed to get available version list: %w", err)
+	}
+
+	sort.Slice(versionList, func(i, j int) bool {
+		return versions.GreaterThan(versionList[i], versionList[j])
+	})
+
+	for _, version := range versionList {
+		if version.IsStable() {
+			return version, nil
+		}
+	}
+
+	return versions.Version{}, fmt.Errorf("cannot find latest stable version")
 }
 
 // ValidateVersion checks if the version of the tooth repository is valid.

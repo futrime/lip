@@ -156,13 +156,8 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 	for _, goProxy := range ctx.GoProxyList() {
 		var err error
 
-		downloadURL, err := downloading.CalculateDownloadURLViaGoProxy(
+		downloadURL := downloading.CalculateDownloadURLViaGoProxy(
 			goProxy, toothRepo, toothVersion)
-		if err != nil {
-			errList = append(errList,
-				fmt.Errorf("failed to calculate download URL: %w", err))
-			continue
-		}
 
 		cachePath, err := ctx.CalculateCachePath(downloadURL)
 		if err != nil {
@@ -203,7 +198,7 @@ func downloadSpecifier(ctx contexts.Context,
 			return "", fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
-		toothVersion, err := teeth.GetToothLatestVersion(ctx, toothRepo)
+		toothVersion, err := teeth.GetToothLatestStableVersion(ctx, toothRepo)
 		if err != nil {
 			return "", fmt.Errorf("failed to look up tooth version: %w", err)
 		}
