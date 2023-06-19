@@ -1,9 +1,11 @@
 package teeth
 
 import (
+	"encoding/json"
 	"fmt"
 	"runtime"
 
+	"github.com/lippkg/lip/pkg/teeth/migration/v1tov2"
 	"github.com/lippkg/lip/pkg/versionmatches"
 	"github.com/lippkg/lip/pkg/versions"
 )
@@ -13,6 +15,21 @@ type Metadata struct {
 }
 
 func NewMetadata(jsonBytes []byte) (Metadata, error) {
+	var err error
+
+	formatVersion, err := getFormatVersion(jsonBytes)
+	if err != nil {
+		return Metadata{}, fmt.Errorf("failed to get format version: %w", err)
+	}
+
+	switch formatVersion {
+	case 1:
+		jsonBytes, err = v1tov2.Migrate(jsonBytes)
+		if err != nil {
+			return Metadata{}, fmt.Errorf("failed to migrate metadata: %w", err)
+		}
+	}
+
 	rawMetadata, err := NewRawMetadata(jsonBytes)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse raw metadata: %w", err)
@@ -106,4 +123,26 @@ func (m Metadata) Dependencies() map[string]versionmatches.Group {
 
 func (m Metadata) Files() RawMetadataFiles {
 	return m.rawMetadata.Files
+}
+
+// ---------------------------------------------------------------------
+
+func getFormatVersion(jsonBytes []byte) (int, error) {
+	var jsonData map[string]interface{}
+	err := json.Unmarshal(jsonBytes, &jsonData)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse json: %w", err)
+	}
+
+	formatVersion, ok := jsonData["format_version"]
+	if !ok {
+		return 0, fmt.Errorf("missing format_version")
+	}
+
+	formatVersionFloat64, ok := formatVersion.(float64)
+	if !ok {
+		return 0, fmt.Errorf("format_version is not an int")
+	}
+
+	return int(formatVersionFloat64), nil
 }

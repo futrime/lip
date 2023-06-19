@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/lippkg/lip/pkg/contexts"
@@ -138,7 +137,7 @@ func GetContentFromAllGoproxies(ctx contexts.Context, urlPath string) ([]byte, e
 	var errList []error
 
 	for _, goProxy := range ctx.GoProxyList() {
-		url := filepath.Join(strings.TrimSuffix(goProxy, "/"), urlPath)
+		url := fmt.Sprintf("%v/%v", strings.TrimSuffix(goProxy, "/"), urlPath)
 
 		content, err := GetContent(url)
 		if err != nil {

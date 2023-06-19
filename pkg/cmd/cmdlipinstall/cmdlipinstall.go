@@ -1,6 +1,7 @@
 package cmdlipinstall
 
 import (
+	"container/list"
 	"flag"
 	"fmt"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"github.com/lippkg/lip/pkg/logging"
 	"github.com/lippkg/lip/pkg/specifiers"
 	"github.com/lippkg/lip/pkg/teeth"
-	"github.com/lippkg/lip/pkg/versionmatches"
 	"github.com/lippkg/lip/pkg/versions"
 )
 
@@ -90,14 +90,11 @@ func Run(ctx contexts.Context, args []string) error {
 	// 2. Resolve dependencies.
 
 	if !flagDict.noDependenciesFlag {
-		var success bool
-		success, archiveToInstallList, err = resolveDependencies(ctx, archiveToInstallList)
+		archiveToInstallList, err = resolveDependencies(ctx, archiveToInstallList, flagDict.upgradeFlag,
+			flagDict.forceReinstallFlag)
+
 		if err != nil {
 			return fmt.Errorf("failed to resolve dependencies: %w", err)
-		}
-
-		if !success {
-			return fmt.Errorf("dependencies cannot match the version constraints")
 		}
 	}
 
@@ -158,6 +155,8 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 	toothVersion versions.Version) (string, error) {
 
 	var errList []error
+
+	logging.Info("Downloading %v@%v...", toothRepo, toothVersion)
 
 	for _, goProxy := range ctx.GoProxyList() {
 		var err error
@@ -339,125 +338,112 @@ func parseAndDownloadSpecifierStringList(ctx contexts.Context,
 // specifier and returns the paths to the downloaded teeth. rootArchiveList
 // contains the root tooth archives to resolve dependencies.
 // The first return value indicates whether the dependencies are resolved.
-func resolveDependencies(ctx contexts.Context,
-	rootArchiveList []teeth.Archive) (bool, []teeth.Archive, error) {
+func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
+	upgradeFlag bool, forceReinstallFlag bool) ([]teeth.Archive, error) {
 
 	var err error
 
-	depMap := make(map[string][]versionmatches.Group)
+	// fixedToothVersionMap records versions of teeth that are already installed
+	// or will be installed.
+	fixedToothVersionMap := make(map[string]versions.Version)
 
-	// List all dependencies.
+	installedToothMetadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all installed tooth metadata: %w", err)
+	}
+
+	for _, installedToothMetadata := range installedToothMetadataList {
+		fixedToothVersionMap[installedToothMetadata.Tooth()] = installedToothMetadata.Version()
+	}
+
 	for _, rootArchive := range rootArchiveList {
-		for toothRepo, matchGroup := range rootArchive.Metadata().Dependencies() {
-			// Create the key if it does not exist.
-			if _, ok := depMap[toothRepo]; !ok {
-				depMap[toothRepo] = make([]versionmatches.Group, 0)
+		if _, ok := fixedToothVersionMap[rootArchive.Metadata().Tooth()]; !ok {
+			// If the tooth is not installed, fix the version to the version of
+			// the root tooth.
+			fixedToothVersionMap[rootArchive.Metadata().Tooth()] = rootArchive.Metadata().Version()
+
+		} else {
+			// If the tooth is installed, check if the tooth should be reinstalled
+			if !forceReinstallFlag && !(upgradeFlag && versions.GreaterThan(rootArchive.Metadata().Version(),
+				fixedToothVersionMap[rootArchive.Metadata().Tooth()])) {
+				continue
+			}
+		}
+	}
+
+	notResolvedArchiveQueue := list.New()
+	for _, rootArchive := range rootArchiveList {
+		notResolvedArchiveQueue.PushBack(rootArchive)
+	}
+
+	resolvedArchiveList := make([]teeth.Archive, 0)
+
+	for notResolvedArchiveQueue.Len() > 0 {
+		archive := notResolvedArchiveQueue.Front().Value.(teeth.Archive)
+		notResolvedArchiveQueue.Remove(notResolvedArchiveQueue.Front())
+
+		depMap := archive.Metadata().Dependencies()
+
+		for dep, match := range depMap {
+			if _, ok := fixedToothVersionMap[dep]; ok {
+				if !match.Match(fixedToothVersionMap[dep]) {
+					return nil, fmt.Errorf("installed tooth %v does not match dependency %v",
+						dep, match.String())
+				}
+
+				// Avoid downloading the same tooth multiple times.
+				continue
 			}
 
-			depMap[toothRepo] = append(depMap[toothRepo], matchGroup)
-		}
-	}
+			versionList, err := teeth.GetToothAvailableVersionList(ctx, dep)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get available version list: %w", err)
+			}
 
-	// Construct exact version matchers for root tooth archives.
-	for _, rootArchive := range rootArchiveList {
-		matchItem, err := versionmatches.NewItem(rootArchive.Metadata().Version(), versionmatches.EqualMatchType)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to create match item: %w", err)
-		}
+			var targetVersion versions.Version
+			isTargetVersionFound := false
 
-		matchGroup := versionmatches.NewGroup([][]versionmatches.Item{{matchItem}})
-
-		// Create the key if it does not exist.
-		if _, ok := depMap[rootArchive.Metadata().Tooth()]; !ok {
-			depMap[rootArchive.Metadata().Tooth()] = make([]versionmatches.Group, 0)
-		}
-
-		depMap[rootArchive.Metadata().Tooth()] = append(depMap[rootArchive.Metadata().Tooth()], matchGroup)
-	}
-
-	// Check if all dependencies are satisfied.
-	for toothRepo, matchGroupList := range depMap {
-		versionList, err := teeth.GetToothAvailableVersionList(ctx, toothRepo)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to get tooth available version list: %w", err)
-		}
-
-		isAnyVersionMatched := false
-		for _, version := range versionList {
-			isCurrentVersionMatched := true
-			for _, matchGroup := range matchGroupList {
-				if !matchGroup.Match(version) {
-					isCurrentVersionMatched = false
+			// First find stable versions
+			for _, version := range versionList {
+				if version.IsStable() && match.Match(version) {
+					targetVersion = version
+					isTargetVersionFound = true
 					break
 				}
 			}
 
-			if isCurrentVersionMatched {
-				isAnyVersionMatched = true
-				break
+			// If no stable version is found, find any version
+			if !isTargetVersionFound {
+				for _, version := range versionList {
+					if match.Match(version) {
+						targetVersion = version
+						isTargetVersionFound = true
+						break
+					}
+				}
 			}
-		}
 
-		if !isAnyVersionMatched {
-			return false, nil, nil
-		}
-	}
-
-	// Try versions of the first dependency not in the root tooth archives.
-	firstDepRepo := ""
-
-	for toothRepo := range depMap {
-		isInRootArchive := false
-		for _, rootArchive := range rootArchiveList {
-			if toothRepo == rootArchive.Metadata().Tooth() {
-				isInRootArchive = true
-				break
+			if !isTargetVersionFound {
+				return nil, fmt.Errorf("no available version found for dependency %v", dep)
 			}
+
+			archivePath, err := downloadFromAllGoProxies(ctx, dep, targetVersion)
+			if err != nil {
+				return nil, fmt.Errorf("failed to download tooth: %w", err)
+			}
+
+			currentArchive, err := teeth.NewArchive(archivePath)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create archive: %w", err)
+			}
+
+			notResolvedArchiveQueue.PushBack(currentArchive)
+
+			fixedToothVersionMap[dep] = targetVersion
 		}
 
-		if isInRootArchive {
-			continue
-		}
-
-		firstDepRepo = toothRepo
-		break
+		resolvedArchiveList = append(resolvedArchiveList, archive)
 	}
 
-	// If there is no dependency, return the root tooth archives.
-	if firstDepRepo == "" {
-		return true, rootArchiveList, nil
-	}
-
-	versionList, err := teeth.GetToothAvailableVersionList(ctx, firstDepRepo)
-	if err != nil {
-		return false, nil, fmt.Errorf("failed to get tooth available version list: %w", err)
-	}
-
-	for _, version := range versionList {
-		filePath, err := downloadFromAllGoProxies(ctx, firstDepRepo, version)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to download tooth: %w", err)
-		}
-
-		archive, err := teeth.NewArchive(filePath)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to create archive: %w", err)
-		}
-
-		newRootArchiveList := make([]teeth.Archive, len(rootArchiveList))
-		copy(newRootArchiveList, rootArchiveList)
-		newRootArchiveList = append(newRootArchiveList, archive)
-
-		isResolved, resolvedArchiveList, err := resolveDependencies(ctx, newRootArchiveList)
-		if err != nil {
-			return false, nil, fmt.Errorf("failed to resolve dependencies: %w", err)
-		}
-
-		if isResolved {
-			return true, resolvedArchiveList, nil
-		}
-	}
-
-	// If no version is matched, fail.
-	return false, nil, nil
+	return resolvedArchiveList, nil
 }
