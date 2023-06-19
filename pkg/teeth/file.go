@@ -128,6 +128,7 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 			continue
 		}
 
+		// TODO: Bug!!!
 		for _, filePath := range filePaths {
 			matched, err := filepath.Match(place.Src, filePath)
 			if err != nil {
