@@ -9,7 +9,6 @@ import (
 	"github.com/lippkg/lip/pkg/cmd/cmdlip"
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
-	"github.com/lippkg/lip/pkg/plugins"
 	"github.com/lippkg/lip/pkg/versions"
 )
 
@@ -28,12 +27,6 @@ func main() {
 	ctx, err := createContext()
 	if err != nil {
 		logging.Error("cannot initialize context: %v", err.Error())
-		return
-	}
-
-	err = initPlugins(ctx)
-	if err != nil {
-		logging.Error("cannot initialize plugins: %v", err.Error())
 		return
 	}
 
@@ -71,60 +64,7 @@ func createContext() (contexts.Context, error) {
 			fmt.Errorf("cannot get current working directory: %w", err)
 	}
 
-	pluginSet, err := listPlugins(filepath.Join(workspaceDir, ".lip", "plugins"))
-	if err != nil {
-		return contexts.Context{},
-			fmt.Errorf("cannot list plugins: %w", err)
-	}
-
-	ctx := contexts.New(globalDotLipDir, goProxyList, lipVersion, pluginSet, workspaceDir)
-	if err != nil {
-		return contexts.Context{},
-			fmt.Errorf("cannot create context: %w", err)
-	}
+	ctx := contexts.New(lipVersion, globalDotLipDir, workspaceDir, goProxyList)
 
 	return ctx, nil
-}
-
-// initPlugins initializes plugins.
-func initPlugins(ctx contexts.Context) error {
-	// TODO: Make the real API Hub.
-	apiHub := struct{}{}
-
-	for pluginName := range ctx.PluginSet() {
-		plug, err := plugins.OpenPlugin(ctx, pluginName)
-		if err != nil {
-			return fmt.Errorf("cannot open plugin %v: %w", pluginName, err)
-		}
-
-		err = plug.Init(ctx, apiHub)
-		if err != nil {
-			return fmt.Errorf("cannot initialize plugin %v: %w", pluginName, err)
-		}
-	}
-
-	return nil
-}
-
-// listPlugins lists all plugins.
-func listPlugins(dir string) (map[string]struct{}, error) {
-	var err error
-
-	dllExtMap := map[string]string{
-		"windows": ".dll",
-		"darwin":  ".dylib",
-		"linux":   ".so",
-	}
-
-	matches, err := filepath.Glob(filepath.Join(dir, "*"+dllExtMap[os.Getenv("GOOS")]))
-	if err != nil {
-		return nil, fmt.Errorf("cannot list plugins: %w", err)
-	}
-
-	pluginSet := make(map[string]struct{})
-	for _, match := range matches {
-		pluginSet[match] = struct{}{}
-	}
-
-	return pluginSet, nil
 }

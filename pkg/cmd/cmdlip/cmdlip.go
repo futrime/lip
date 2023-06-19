@@ -7,7 +7,6 @@ import (
 
 	"github.com/lippkg/lip/pkg/cmd/cmdlipautoremove"
 	"github.com/lippkg/lip/pkg/cmd/cmdlipcache"
-	"github.com/lippkg/lip/pkg/cmd/cmdlipexec"
 	"github.com/lippkg/lip/pkg/cmd/cmdlipinstall"
 	"github.com/lippkg/lip/pkg/cmd/cmdliplist"
 	"github.com/lippkg/lip/pkg/cmd/cmdlipshow"
@@ -31,7 +30,6 @@ Usage:
 Commands:
   autoremove                  Uninstall tooths that are not depended by any other tooths.
   cache                       Inspect and manage Lip's cache.
-  exec                        Execute a Lip tool.
   install                     Install a tooth.
   list                        List installed tooths.
   show                        Show information about installed tooths.
@@ -108,13 +106,6 @@ func Run(ctx contexts.Context, args []string) error {
 
 		case "cache":
 			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
-				return err
-			}
-			return nil
-
-		case "exec":
-			err = cmdlipexec.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return err
 			}

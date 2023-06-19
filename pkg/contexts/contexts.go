@@ -11,22 +11,20 @@ import (
 
 // Context is the context of the application.
 type Context struct {
-	globalDotLipDir string
-	goProxyList     []string
 	lipVersion      versions.Version
-	pluginSet       map[string]struct{}
+	globalDotLipDir string
 	workspaceDir    string
+	goProxyList     []string
 }
 
 // New creates a new context.
-func New(globalDotLipDir string, goProxyList []string, lipVersion versions.Version,
-	pluginSet map[string]struct{}, workspaceDir string) Context {
+func New(lipVersion versions.Version, globalDotLipDir string,
+	workspaceDir string, goProxyList []string) Context {
 	return Context{
-		globalDotLipDir: globalDotLipDir,
-		goProxyList:     goProxyList,
 		lipVersion:      lipVersion,
-		pluginSet:       pluginSet,
+		globalDotLipDir: globalDotLipDir,
 		workspaceDir:    workspaceDir,
+		goProxyList:     goProxyList,
 	}
 }
 
@@ -137,11 +135,6 @@ func (ctx Context) PluginDir() (string, error) {
 	}
 
 	return path, nil
-}
-
-// PluginSet returns the plugin set.
-func (ctx Context) PluginSet() map[string]struct{} {
-	return ctx.pluginSet
 }
 
 // WorkspaceDir returns the workspace directory.
