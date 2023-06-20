@@ -4,8 +4,6 @@
 
 ```shell
 lip uninstall [options] <tooth paths>
-
-aliases: remove, rm, un, r
 ```
 
 ## 功能

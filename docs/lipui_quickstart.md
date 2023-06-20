@@ -1,6 +1,6 @@
 # LipUI Quickstart
 
-To simplify the usage in the maximum extent, LipUI is provided. It is a GUI application that can be used to install, uninstall, and manage Lip tooths. It is also a good way to get started with Lip.
+To simplify the usage in the maximum extent, LipUI is provided. It is a GUI application that can be used to install, uninstall, and manage Lip teeth. It is also a good way to get started with Lip.
 
 ## Prerequisites
 
@@ -16,14 +16,14 @@ LipUI is a portable application. You can download the latest version of LipUI [h
 
 ## Usage
 
-Just run `LipUI.exe` and you will see the main window of LipUI. First, you need to select a workspace. A workspace is a directory that contains all the tooths you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. LipUI will automatically detect the tooths in the workspace.
+Just run `LipUI.exe` and you will see the main window of LipUI. First, you need to select a workspace. A workspace is a directory that contains all the teeth you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. LipUI will automatically detect the teeth in the workspace.
 
 ![LipUI Main Window](img/lipui_main_window.png)
 
-After you select a workspace, you can install, uninstall, and manage tooths. You can also use the search box to search for tooths.
+After you select a workspace, you can install, uninstall, and manage teeth. You can also use the search box to search for teeth.
 
 ![LipUI Registry](img/lipui_registry.png)
 
-For tooths not in the registry, you can install them by clicking the `Install` button. You can also install tooths from a URL or a tooth file.
+For teeth not in the registry, you can install them by clicking the `Install` button. You can also install teeth from a URL or a tooth file.
 
 ![LipUI Install Tooth](img/lipui_install_tooth.png)

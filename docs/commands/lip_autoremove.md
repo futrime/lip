@@ -8,7 +8,7 @@ lip autoremove [options]
 
 ## Description
 
-Uninstall tooths that are not depended by any other tooths.
+Uninstall teeth that are not depended by any other teeth.
 
 ## Options
 
@@ -19,7 +19,3 @@ Uninstall tooths that are not depended by any other tooths.
 - `-y, --yes`
 
   Skip the confirmation prompt.
-
-- `--keep-possession`
-
-  Keep files that the tooth author specified the tooth to occupy. These files are often configuration files, data files, etc.

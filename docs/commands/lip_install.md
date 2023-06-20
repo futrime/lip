@@ -4,9 +4,7 @@
 
 ```shell
 lip install [options] <requirement specifiers>
-lip install [options] <tooth url/files>
-
-aliases: add, i
+lip install [options] <tooth files>
 ```
 
 ## Description
@@ -14,7 +12,7 @@ aliases: add, i
 Install a tooth from:
 
 - tooth repositories via Goproxy.
-- local or remote standalone tooth files (with suffix `.tth`).
+- local standalone tooth files (with suffix `.tth`).
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run Lip without `--upgrade` or `--force-reinstall` flag, Lip will not install the specific version.
 
@@ -27,8 +25,8 @@ If you have set environment variable GOPROXY, Lip will access tooth repositories
 `lip install` has several stages:
 
 1. Identify the base requirements. The user supplied arguments are processed here.
-2. Fetch tooths and resolve dependencies. Dependencies will be resolved as soon as tooths are fetched.
-3. Install the tooths (and uninstall anything being upgraded)
+2. Fetch teeth and resolve dependencies. Dependencies will be resolved as soon as teeth are fetched.
+3. Install the teeth (and uninstall anything being upgraded)
 
 Note that `lip install` prefers to leave the installed version as-is unless `--upgrade` is specified.
 
@@ -36,30 +34,24 @@ Note that `lip install` prefers to leave the installed version as-is unless `--u
 
 When looking at the items to be installed, Lip checks what type of item each is, in the following order:
 
-1. Remote tooth file with suffix `.tth` and prefix `http://` or `https://`.
-2. Local tooth file with suffix `.tth`.
-3. Tooth repository, which can be accessed via Goproxy.
-4. Tooth alias, which can be looked up in Lip registry.
+1. Local tooth file with suffix `.tth`.
+2. Tooth repository, which can be accessed via Goproxy.
 
-In 3 and 4, all letters will be converted to lowercase before processing.
-
-### Lip Registry
-
-Since v0.8.0, Lip supports Lip registry, which enables you to use aliases to install tooths. By default, Lip will use the registry at <https://registry.litebds.com>. You can also use your own registry by setting environment variable `LIP_REGISTRY` to the URL of your registry.
+In 2, all letters will be converted to lowercase before processing.
 
 ### Satisfying Requirements
 
-Once Lip has the set of requirements to satisfy, it chooses which version of each requirement to install using the simple rule that the latest stable version that satisfies the given constraints will be installed.
+Once Lip has the set of requirements to satisfy, it chooses which version of each requirement to install using the simple rule that the latest stable version that satisfies the given constraints will be installed. If no stable version is available, Lip will choose the latest pre-release version.
 
 ### Installation Order
 
-Lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, Lip will refuse to install tooths. All developers should avoid any cycle in the dependency graph.
+Lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, Lip will refuse to install teeth. All developers should avoid any cycle in the dependency graph.
 
 This dependency graph will be maintained by Lip. When uninstalling some packages, Lip will check the graph to ensure that all dependents uninstalled. If not, Lip will ask you whether to uninstall them or cancel the procedure.
 
 ### Pre-release Versions
 
-You can install any pre-release versions by specifying the version. And tooths can declare pre-release versions as their dependencies. However, when tooths use any type of range version match or wildcard, Lip will ignore pre-release versions.
+You can install any pre-release versions by specifying the version. And teeth can declare pre-release versions as their dependencies. However, when teeth use any type of range version match or wildcard, Lip will ignore pre-release versions.
 
 ## Options
 
@@ -79,10 +71,6 @@ You can install any pre-release versions by specifying the version. And tooths c
 
   Assume yes to all prompts and run non-interactively.
 
-- `--numeric-progress`
-
-  Show numeric progress instead of progress bar.
-
 - `--no-dependencies`
 
   Do not install dependencies.
@@ -94,7 +82,6 @@ Install from tooth repositories:
 ```shell
 lip install example.com/some_user/some_tooth         # Latest version
 lip install example.com/some_user/some_tooth@1.0.0   # Specific version
-lip install github.com/LiteLDev/LiteLoaderBDS@2.11.0 # LiteLoderBDS 2.11.0
 ```
 
 Upgrade an already installed tooth:
@@ -109,21 +96,9 @@ Force reinstall a tooth:
 lip install --force-reinstall example.com/some_user/some_tooth
 ```
 
-Install from URL of a tooth:
-
-```shell
-lip install https://example.com/example.tth
-```
-
 Install from a local tooth:
 
 ```shell
 lip install example.tth
 lip install ./example/example.tth
-```
-
-Install with an alias:
-
-```shell
-lip install liteloaderbds
 ```

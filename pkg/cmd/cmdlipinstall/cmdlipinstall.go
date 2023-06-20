@@ -28,7 +28,7 @@ Usage:
   lip install [options] <specifier> [...]
 
 Description:
-  Install tooths from:
+  Install teeth from:
 
   - tooth repositories. (e.g. "github.com/tooth-hub/llbds3@3.1.0")
   - local tooth archives. (e.g. "./foo.tth")
@@ -121,6 +121,8 @@ func Run(ctx contexts.Context, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to install teeth: %w", err)
 	}
+
+	logging.Info("Done.")
 
 	return nil
 }

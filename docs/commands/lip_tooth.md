@@ -8,7 +8,7 @@ lip tooth [options]
 
 ## Description
 
-Manage tooths.
+Manage teeth.
 
 ## Options
 

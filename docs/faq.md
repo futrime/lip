@@ -1,16 +1,12 @@
 # Frequent Asked Questions
 
-## Where can I find online available tooths?
+## Where can I find online available teeth?
 
-You can find them on [registry.litebds.com](https://registry.litebds.com).
-
-## Can I use registries other than `registry.litebds.com` ?
-
-Of course! You can use any registries you want. Just sets the `LIP_REGISTRY` environment variable to the registry you want to use, e.g. `LIP_REGISTRY=https://registry.litebds.com`.
+We are still working on the development of Lip Index, LipWeb and LipUI. Please wait for a while.
 
 ## It downloads so slowly! What can I do?
 
-Lip downloads tooths via GOPROXY. You can set the `LIP_GOPROXY` environment variable to a list of GOPROXY servers seperated by commas, e.g. `LIP_GOPROXY=https://goproxy.cn,https://goproxy.io`. Set a GOPROXY server that is close to you.
+Lip downloads teeth via GOPROXY. You can set the `GOPROXY` environment variable to a list of GOPROXY servers seperated by commas, e.g. `LIP_GOPROXY=https://goproxy.cn,https://goproxy.io`. Set a GOPROXY server that is close to you.
 
 ## It always shows errors when I try to install a tooth!
 
@@ -18,4 +14,4 @@ Probably the cache is corrupted. Try to purge the cache by running `lip cache pu
 
 ## How can I update Lip?
 
-For global installation, you have to download the latest version of Lip and replace the old one. For local installation, you can run `lip install --upgrade lip` to update Lip.
+Remove the current Lip executable and install the latest version.

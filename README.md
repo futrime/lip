@@ -1,11 +1,15 @@
-# Lip - a package installer, not only for LiteLoader BDS
+# Overview
+
+[![Build](https://img.shields.io/github/actions/workflow/status/LipPkg/Lip/build.yml?style=for-the-badge)](https://github.com/LipPkg/Lip/actions)
+[![Latest Tag](https://img.shields.io/github/v/tag/LipPkg/Lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/LipPkg/Lip/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/LipPkg/Lip/latest/total?style=for-the-badge)](https://github.com/LipPkg/Lip/releases/latest)
 
 Lip is a package installer not only for LiteLoaderBDS. You can use Lip to install packages from any Git repository.
 
 Please take a look at our documentation for how to install and use Lip:
 
-- [Installation](https://liteldev.github.io/Lip/en/#/installation)
-- [Usage](https://liteldev.github.io/Lip/en/#/getting_started)
+- [Installation](https://docs.lippkg.com/installation)
+- [Usage](https://docs.lippkg.com/quickstart)
 
 We release updates regularly. Find more details in our changelog:
 

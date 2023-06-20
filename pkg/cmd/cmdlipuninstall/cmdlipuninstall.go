@@ -21,7 +21,7 @@ Usage:
   lip uninstall [options] <tooth repository URL> [...]
 
 Description:
-  Uninstall tooths.
+  Uninstall teeth.
 
 Options:
   -h, --help                  Show help.
@@ -97,6 +97,8 @@ func Run(ctx contexts.Context, args []string) error {
 			return fmt.Errorf("failed to uninstall tooth %q: %w", toothRepo, err)
 		}
 	}
+
+	logging.Info("Done.")
 
 	return nil
 }

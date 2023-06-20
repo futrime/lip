@@ -17,8 +17,15 @@ Lip 0.1.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 
 ```shell
 > lip tooth init
-tooth.json created successfully
-please edit tooth.json and modify the values with "<>"
+What is the tooth path? (e.g. github.com/tooth-hub/llbds3)
+github.com/tooth-hub/example
+What is the name?
+Example
+What is the description?
+An example tooth.
+What is the author? Please input your GitHub username.
+Bob
+Successfully initialized a new tooth.
 ```
 
 Then you can fill in the information in tooth.json to make your work recognized by Lip.

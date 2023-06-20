@@ -17,7 +17,7 @@ import (
 
 const DefaultGoproxy = "https://goproxy.io"
 
-const LipVersionString = "v0.0.0"
+const LipVersionString = "v0.15.0"
 
 //------------------------------------------------------------------------------
 

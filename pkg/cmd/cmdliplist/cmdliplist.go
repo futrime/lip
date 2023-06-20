@@ -24,11 +24,11 @@ Usage:
   lip list [options]
 
 Description:
-  List installed tooths.
+  List installed teeth.
 
 Options:
   -h, --help                  Show help.
-  --upgradable                List upgradable tooths.
+  --upgradable                List upgradable teeth.
   --json                      Output in JSON format.
 `
 
@@ -66,7 +66,7 @@ func Run(ctx contexts.Context, args []string) error {
 	if flagDict.upgradableFlag {
 		err = listUpgradable(ctx, flagDict.jsonFlag)
 		if err != nil {
-			return fmt.Errorf("failed to list upgradable tooths: %w", err)
+			return fmt.Errorf("failed to list upgradable teeth: %w", err)
 		}
 
 		return nil
@@ -74,7 +74,7 @@ func Run(ctx contexts.Context, args []string) error {
 	} else {
 		err = listAll(ctx, flagDict.jsonFlag)
 		if err != nil {
-			return fmt.Errorf("failed to list all tooths: %w", err)
+			return fmt.Errorf("failed to list all teeth: %w", err)
 		}
 
 		return nil
@@ -83,13 +83,13 @@ func Run(ctx contexts.Context, args []string) error {
 
 // ---------------------------------------------------------------------
 
-// listAll lists all installed tooths.
+// listAll lists all installed teeth.
 func listAll(ctx contexts.Context, jsonFlag bool) error {
 	var err error
 
 	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to list all installed tooths: %w", err)
+		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {
@@ -135,13 +135,13 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 	return nil
 }
 
-// listUpgradable lists upgradable tooths.
+// listUpgradable lists upgradable teeth.
 func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 	var err error
 
 	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to list all installed tooths: %w", err)
+		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {

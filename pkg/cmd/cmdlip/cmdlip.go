@@ -28,11 +28,11 @@ Usage:
   lip [options] [<command> [subcommand options]] ...
 
 Commands:
-  autoremove                  Uninstall tooths that are not depended by any other tooths.
+  autoremove                  Uninstall teeth that are not depended by any other teeth.
   cache                       Inspect and manage Lip's cache.
   install                     Install a tooth.
-  list                        List installed tooths.
-  show                        Show information about installed tooths.
+  list                        List installed teeth.
+  show                        Show information about installed teeth.
   tooth                       Maintain a tooth.
   uninstall                   Uninstall a tooth.
 

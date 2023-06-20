@@ -4,15 +4,11 @@
 
 ```shell
 lip show [options] <tooth path>
-
-aliases: view, v, info
 ```
 
 ## Description
 
 Show information about a tooth. If not installed, only version list is shown.
-
-The output is in RFC-compliant mail header format.
 
 ## Options
 
@@ -20,14 +16,10 @@ The output is in RFC-compliant mail header format.
 
   Show help.
 
-- `--files`
-
-  Show the full list of installed files.
-
 - `--available`
 
   Show the full list of available versions.
 
 - `--json`
   
-  Output in JSON format. (cannot be hidden with `--quiet`)
+  Output in JSON format.

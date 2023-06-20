@@ -18,15 +18,12 @@ nav:
 
   - Tutorials:
     - tutorials/create_a_lip_tooth.md
-    - tutorials/create_a_tool.md
-    - tutorials/submit_your_tooth_to_lip_registry.md
 
   - Commands:
     - commands/lip.md
     - commands/lip_autoremove.md
     - commands/lip_cache.md
     - commands/lip_cache_purge.md
-    - commands/lip_exec.md
     - commands/lip_install.md
     - commands/lip_list.md
     - commands/lip_show.md

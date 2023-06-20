@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Tooth file preservation and removal.
+
+### Changed
+
+- Optimize output information format.
+- Change tooth.json format to version 2.
+- Force to specify output path in `lip tooth pack` command.
+- Refactor all code and optimize performance.
+
+### Removed
+
+- `lip exec` command.
+- Tooth file possession (use "preserve" and "remove" instead).
+- Number-only progress bar.
+- Registry support.
+- Placed files display in `lip show` command.
+
 ## [0.14.2] - 2023-04-24
 
 ### Fixed
@@ -47,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Dependency version validation when installing.
-- `lip autoremove` command to remove tooths not required by other tooths.
+- `lip autoremove` command to remove teeth not required by other teeth.
 
 ### Fixed
 
@@ -64,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Showing information about installed tooths in `lip list` command.
+- Showing information about installed teeth in `lip list` command.
 
 ## [0.11.0] - 2023-02-17
 
@@ -137,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Failing to uninstall tooths with uppercase letters in provided tooth path.
+- Failing to uninstall teeth with uppercase letters in provided tooth path.
 
 ## [0.7.1] - 2023-02-05
 

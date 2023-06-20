@@ -19,7 +19,3 @@ lip autoremove [options]
 - `-y, --yes`
 
   跳过所有确认信息
-
-- `--keep-possession`
-
-  保留tooth作者指定的tooth所占用的文件。这些文件通常是配置文件、数据文件等。

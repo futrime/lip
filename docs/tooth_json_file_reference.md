@@ -1,8 +1,6 @@
 # tooth.json File Reference
 
-Each Lip tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other tooths and other information.
-
-The **format_version**, **tooth path** and **version** fields are required. The other properties are optional.
+Each tooth is defined by a tooth.json file that describes the tooth's properties, including its dependencies on other teeth and other information.
 
 You can generate a tooth.json file by running the lip tooth init command. The following example creates a tooth.json file:
 
@@ -10,63 +8,63 @@ You can generate a tooth.json file by running the lip tooth init command. The fo
 lip tooth init
 ```
 
+## Schema
+
+Refer to <https://github.com/LipPkg/Lip/blob/main/assets/json_schemas/tooth.v2.schema.json>.
+
 ## Example
 
 A tooth.json includes directives as shown in the following example. These are described elsewhere in this topic.
 
 ```json
 {
-  "format_version": 1,
-  "tooth": "github.com/liteldev/liteloaderbds",
-  "version": "2.9.0",
-  "dependencies": {
-    "test.test/test/depend": [
-      [
-        ">=1.0.0",
-        "<=1.1.0"
-      ],
-      [
-        "2.0.x"
-      ]
-    ]
-  },
-  "information": {
-    "name": "LiteLoaderBDS",
-    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-    "author": "LiteLDev",
-    "license": "Modified LGPL-3.0",
-    "homepage": "www.litebds.com"
-  },
-  "placement": [
-    {
-      "source": "LiteLoader.dll",
-      "destination": "LiteLoader.dll"
+    "format_version": 2,
+    "tooth": "github.com/tooth-hub/example",
+    "version": "1.0.0",
+    "info": {
+        "name": "LiteLoaderBDS",
+        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+        "author": "LiteLDev"
+    },
+    "commands": {
+        "pre_install": [
+            "echo \"pre_install\""
+        ],
+        "post_install": [
+            "echo \"post_install\""
+        ],
+        "pre_uninstall": [
+            "echo \"pre_uninstall\""
+        ],
+        "post_uninstall": [
+            "echo \"post_uninstall\""
+        ]
+    },
+    "dependencies": {
+        "github.com/tooth-hub/example-deps": ">=1.0.0 <2.0.0 || >=3.0.0 <4.0.0"
+    },
+    "files": {
+        "place": [
+            {
+                "src": "example.js",
+                "dest": "dir/example.js"
+            },
+            {
+                "src": "plug/*",
+                "dest": "dir/plug/"
+            }
+        ],
+        "preserve": [
+            "dir/data.json"
+        ],
+        "remove": [
+            "dir/temp.txt"
+        ]
     }
-  ],
-  "possession": [
-    "plugins/LiteLoader/"
-  ],
-  "commands": [
-    {
-      "type": "install",
-      "commands": [
-        "start LLPeEditor.exe"
-      ],
-      "GOOS": "windows"
-    }
-  ],
-  "confirmation": [
-    {
-      "type": "install",
-      "message": "Do you want to install LiteLoaderBDS?",
-      "GOOS": "windows",
-      "GOARCH": "amd64"
-    }
-  ]
 }
 ```
 
-## format_version
+## `format_version` (required)
 
 Indicates the format of the tooth.json file. Lip will parse tooth.json according to this field.
 
@@ -74,41 +72,41 @@ Indicates the format of the tooth.json file. Lip will parse tooth.json according
 
 ```json
 {
-  "format_version": 1
+    "format_version": 2
 }
 ```
 
 ### Notes
 
-Now only 1 is a legal value.
+You should set the format_version to 2.
 
-## tooth
+## `tooth` (required)
 
-Declares the tooth's tooth path, which is the tooth's unique identifier (when combined with the tooth version number).
+Declares the tooth's tooth repository path, which is the tooth's unique identifier (when combined with the tooth version number).
 
 ### Syntax
 
-Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/liteldev/liteloaderbds).
+Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/tooth-hub/liteloaderbds).
 
-Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+Only letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
 
 ### Examples
 
 ```json
 {
-  "tooth": "example.com/mytooth"
+    "tooth": "github.com/tooth-hub/mytooth"
 }
 ```
 
 ### Notes
 
-The tooth path must uniquely identify your tooth. For most tooths, the path is a URL where Lip can find the code. For tooths that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
+The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
 Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
 
 If you would like to publish your tooth, please make the tooth path a real URL. For example, the first character should be a letter or a digit.
 
-## version
+## `version` (required)
 
 ### Syntax
 
@@ -154,7 +152,7 @@ Example of a production release:
 
 ```json
 {
-  "version": "1.2.3"
+    "version": "1.2.3"
 }
 ```
 
@@ -162,7 +160,7 @@ Example of a pre-release:
 
 ```json
 {
-  "version": "1.2.0-beta.3"
+    "version": "1.2.0-beta.3"
 }
 ```
 
@@ -170,7 +168,7 @@ Example of a early development release:
 
 ```json
 {
-  "version": "0.1.2"
+    "version": "0.1.2"
 }
 ```
 
@@ -180,9 +178,69 @@ When releasing your tooth, you should set the Git tag with prefix "v", e.g. v1.2
 
 Since GOPROXY regards versions with prefix "v0.0.0" as psuedo-versions, you should not set the version beginning with "0.0.0" if you would like to publish your tooth.
 
-## dependencies
+## `info` (required)
+
+Declares necessary information of your tooth.
 
 ### Syntax
+
+Provide the name, description and author of your tooth. Every field is required.
+
+### Examples
+
+```json
+{
+    "info": {
+        "name": "LiteLoaderBDS",
+        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
+        "author": "LiteLDev"
+    }
+}
+```
+
+## `commands` (optional)
+
+Declare commands to run before or after installing or uninstalling the tooth.
+
+### Syntax
+
+This field contains four sub-fields:
+
+- `pre-install`: an array of commands to run before installing the tooth. (optional)
+- `post-install`: an array of commands to run after installing the tooth. (optional)
+- `pre-uninstall`: an array of commands to run before uninstalling the tooth. (optional)
+- `post-uninstall`: an array of commands to run after uninstalling the tooth. (optional)
+
+Each item in the array is a string of the command to run. The command will be run in the workspace.
+
+### Examples
+
+```json
+{
+    "commands": {
+        "pre-install": [
+            "echo Pre-install command"
+        ],
+        "post-install": [
+            "echo Post-install command"
+        ],
+        "pre-uninstall": [
+            "echo Pre-uninstall command"
+        ],
+        "post-uninstall": [
+            "echo Post-uninstall command"
+        ]
+    }
+}
+```
+
+## `dependencies` (optional)
+
+Declare dependencies of your tooth.
+
+### Syntax
+
+The key of each field is the tooth repository path of the dependency. The value is the version matching rule of the dependency.
 
 Lip provides some version matching rules:
 
@@ -194,418 +252,141 @@ Lip provides some version matching rules:
 - **!1.2.0** Must not be 1.2.0
 - **1.2.x** 1.2.0, 1.2.1, etc., but not 1.3.0
 
-All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, test.test/test/depend can match version 1.0.0, 1.0.6, 1.1.0 and 2.0.9 but not 1.2.0 and you can regard its rule as:
+All rules in the outermost list will be calculated with OR, and rules in nested lists will be calculated with AND. In the following example, `github.com/tooth-hub/example-deps` can match version 1.0.0, 1.0.6, 1.1.0 and 2.0.9 but not 1.2.0 and you can regard its rule as:
 
 ```
 (>=1.0.0 AND <=1.1.0) OR 2.0.x
 ```
 
-Multi-level nesting is not allowed.
-
 ### Examples
 
 ```json
 {
-  "dependencies": {
-    "test.test/test/depend": [
-      [
-        ">=1.0.0",
-        "<=1.1.0"
-      ],
-      [
-        "2.0.x"
-      ]
-    ]
-  }
-}
-```
-
-### Notes
-
-Minor version wildcard is not allowed, e.g. you cannot use 1.x.x.
-
-## information
-
-Declares necessary information of your tooth, and add any information as you like.
-
-### Syntax
-
-This field has no syntax restriction. You can write anything following JSON rules.
-
-### Examples
-
-```json
-{
-  "information": {
-    "name": "LiteLoaderBDS",
-    "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-    "author": "LiteLDev",
-    "license": "Modified LGPL-3.0",
-    "homepage": "www.litebds.com",
-    "thanks": "All contributors!"
-  }
-}
-```
-
-### Notes
-
-Some fields are customary and might be shown on the search pages of some registries. These fields are listed below:
-
-- name: the name of the tooth
-- description: a line of brief description of the tooth
-- author: your name
-- license: the license of the tooth, left empty if private
-- homepage: the homepage of the tooth
-
-## placement
-
-Indicates how should Lip handle file placement. When installing, files from "source" will be placed to "destination". When uninstalling, files at "destination" will be removed.
-
-### Syntax
-
-Each placement rule should contain a source field and a destination field. Lip will extract files from the path relative to the root of the tooth specified by source and place them to the path specified by destination.
-
-If both the source and the destination ends with "*", the placement will be regarded as a wildcard. Lip will recursively place all files under the source directory to the destination directory.
-
-You can also specify GOOS and GOARCH to optionally place files for specific platforms. For example, you can specify "windows" and "amd64" to place files only for Windows 64-bit. If you want to place files for all platforms, you can omit the GOOS and GOARCH fields. However, if you have specified GOARCH, you must also specify GOOS.
-
-### Examples
-
-Extract from specific folders and place to specific folders:
-
-```json
-{
-  "placement": [
-    {
-      "source": "build",
-      "destination": "plugins"
-    },
-    {
-      "source": "assets",
-      "destination": "plugins/myplugin",
-      "GOOS": "windows"
-    },
-    {
-      "source": "config",
-      "destination": "plugins/myplugin/config",
-      "GOOS": "windows",
-      "GOARCH": "amd64"
-    }
-  ]
-}
-```
-
-## possession
-
-Declares the which folders or files are in the possession of the tooth. When uninstalling, files in the declared folders will be removed. However, when upgrading or reinstalling, Lip will keep files in both the possession of the previous version and the version to install (but those dedicated in placement will still be removed).
-
-### Syntax
-
-Each item of the list should be a valid path relative to the workspace of Lip. Lip will recursively remove all files and folders under the path.
-
-### Examples
-
-```json
-{
-  "possession": [
-    "plugins/LiteLoader/"
-  ]
-}
-```
-
-### Notes
-
-Do not take the possession of any directory that might be used by other tooth, e.g. public directories like worlds/.
-
-## commands
-
-Declares the commands that will be executed when installing.
-
-### Syntax
-
-Each item of the list should be a valid command. Lip will execute the command in the root of BDS.
-
-type is the type of the command. It can be one of the following:
-
-- install: execute the command when installing
-- uninstall: execute the command when uninstalling
-
-GOOS is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go. If GOARCH is not specified, Lip will execute the command on all platforms.
-
-Available GOOS and GOARCH (in GOOS/GOARCH format):
-
-```
-darwin/amd64
-darwin/arm64
-linux/amd64
-linux/arm64
-openbsd/amd64
-openbsd/arm64
-windows/amd64
-windows/arm64
-```
-
-### Examples
-
-```json
-{
-  "commands": [
-    {
-      "type": "install",
-      "commands": [
-        "start LLPeEditor.exe"
-      ],
-      "GOOS": "windows",
-      "GOARCH": "amd64"
-    }
-  ]
-}
-```
-
-## confirmation
-
-Declares the confirmation message that will be shown when installing.
-
-### Syntax
-
-type is the type of the command. It can be one of the following:
-
-- install: execute the command when installing
-- uninstall: execute the command when uninstalling
-
-GOOS (optional) is the operating system selector, which should match a possible GOOS variable of Go. GOARCH (optional) is the platform selector, which should match a possible GOARCH variable of Go.
-
-### Examples
-
-```json
-{
-  "confirmation": [
-    {
-      "type": "install",
-      "message": "Do you want to install LiteLoaderBDS?",
-      "GOOS": "windows",
-      "GOARCH": "amd64"
-    }
-  ]
-}
-```
-
-## tool
-
-Registers tools that can be used with `lip exec`.
-
-### Syntax
-
-name is the name of the tool. It must only contains lowercase letters, numbers and dashes [a-z0-9-].
-
-description is the description of the tool. It will show up when executing `lip exec --list`.
-
-entrypoints is a list of entrypoints of the tool. Each entrypoint should contain a path field, which is the path of the executable relative to the root of the tooth. It can also contain GOOS and GOARCH fields, which are the operating system and platform selectors, which should match a possible GOOS and GOARCH variable of Go.
-
-### Examples
-
-```json
-{
-  "tool": {
-    "name": "lip",
-    "description": "A tool to edit Bedrock Dedicated Server to load plugins.",
-    "entrypoints": [
-      {
-        "path": ".lip/tools/lip/lip",
-        "GOOS": "linux",
-        "GOARCH": "amd64"
-      },
-      {
-        "path": ".lip/tools/lip/lip.exe",
-        "GOOS": "windows"
-      }
-    ]
-  }
-}
-```
-
-### Notes
-
-Do not put more than one entrypoint for the same GOOS and GOARCH. Lip will use the first entrypoint that matches the current platform.
-
-## Syntax
-
-This is a JSON schema of tooth.json, describing the syntax of tooth.json.
-
-```json
-{
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "format_version",
-    "tooth",
-    "version"
-  ],
-  "properties": {
-    "format_version": {
-      "enum": [1]
-    },
-    "tooth": {
-      "type": "string",
-      "pattern": "^[a-zA-Z\\d-_\\.\\/]*$"
-    },
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.(\\d+|0-[a-z]+(\\.[0-9]+)?)$"
-    },
     "dependencies": {
-      "type": "object",
-      "additionalProperties": false,
-      "patternProperties": {
-        "^[a-zA-Z\\d-_\\.\\/]*$": {
-          "type": "array",
-          "uniqueItems": true,
-          "minItems": 1,
-          "additionalItems": false,
-          "items": {
-            "type": "array",
-            "uniqueItems": true,
-            "minItems": 1,
-            "additionalItems": false,
-            "items": {
-              "type": "string",
-              "pattern": "^((>|>=|<|<=|!)?\\d+\\.\\d+\\.\\d+|\\d+\\.\\d+\\.x)$"
-            }
-          }
-        }
-      }
-    },
-    "information": {
-      "type": "object"
-    },
-    "placement": {
-      "type": "array",
-      "additionalItems": false,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "source",
-          "destination"
-        ],
-        "properties": {
-          "source": {
-            "type": "string"
-          },
-          "destination": {
-            "type": "string"
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "possession": {
-      "type": "array",
-      "additionalItems": false,
-      "items": {
-        "type": "string"
-      }
-    },
-    "commands": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "commands",
-          "GOOS"
-        ],
-        "properties": {
-          "type": {
-            "enum": ["install", "uninstall"]
-          },
-          "commands": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "confirmation": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "message"
-        ],
-        "properties": {
-          "type": {
-            "enum": ["install", "uninstall"]
-          },
-          "message": {
-            "type": "string"
-          },
-          "GOOS": {
-            "type": "string"
-          },
-          "GOARCH": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "tool": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "description",
-        "entrypoints"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "pattern": "^[a-z\\d-]+$"
-        },
-        "description": {
-          "type": "string"
-        },
-        "entrypoints": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "path",
-              "GOOS"
-            ],
-            "properties": {
-              "path": {
-                "type": "string"
-              },
-              "GOOS": {
-                "type": "string"
-              },
-              "GOARCH": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      }
+        "github.com/tooth-hub/example-deps": ">=1.0.0 <=1.1.0 || 2.0.x"
     }
-  }
+}
+```
+
+## `files` (optional)
+
+Describe how the files in your tooth should be handled.
+
+### Syntax
+
+This field contains three sub-fields:
+
+- `place`: an array to specify how files in the tooth should be place to the workspace. Each item is an object with three sub-fields: (optional)
+  - `src`: the source path of the file. It can be a file or a directory with suffix "*" (e.g. `plug/*`). (required)
+  - `dest`: the destination path of the file. It can be a file or a directory. If `src` has suffix "*", `dest` must be a directory. Otherwise, `dest` must be a file. (required)
+- `preserve`: an array to specify which files should be preserved when uninstalling the tooth. Each item is a string of the path of the file. (optional)
+- `remove`: an array to specify which files should be removed when uninstalling the tooth. Each item is a string of the path of the file. Note that files specified in `place` but not in `preserve` will be removed when uninstalling the tooth. Therefore, you don't need to specify them in `remove`. (optional)
+
+### Examples
+
+```json
+{
+    "files": {
+        "place": [
+            {
+                "src": "plug/*",
+                "dest": "plugins"
+            },
+            {
+                "src": "config.yml",
+                "dest": "config.yml"
+            }
+        ],
+        "preserve": [
+            "config.yml"
+        ],
+        "remove": [
+            "plugins/ExamplePlugin.dll"
+        ]
+    }
+}
+```
+
+## `platforms` (optional)
+
+Declare platform-specific configurations.
+
+### Syntax
+
+This field is an array of platform-specific configurations. Each item is an object with these sub-fields:
+
+- `commands`: same as `commands` field. (optional)
+- `dependencies`: same as `dependencies` field. (optional)
+- `files`: same as `files` field. (optional)
+- `goos`: the target operating system. For the values, see [here](https://go.dev/doc/install/source#environment). (required)
+- `goarch`: the target architecture. For the values, see [here](https://go.dev/doc/install/source#environment). Omitting means match all. (optional)
+
+If provided and matched, the platform-specific configuration will override the global configuration. If multiple platform-specific configurations are matched, the last one will override the previous ones.
+
+### Examples
+
+```json
+{
+    "platforms": [
+        {
+            "commands": {
+                "pre-install": [
+                    "echo Pre-install command for Windows"
+                ]
+            },
+            "dependencies": {
+                "github.com/tooth-hub/example-deps": ">=1.0.0 <=1.1.0 || 2.0.x"
+            },
+            "files": {
+                "place": [
+                    {
+                        "src": "plug/*",
+                        "dest": "plugins"
+                    },
+                    {
+                        "src": "config.yml",
+                        "dest": "config.yml"
+                    }
+                ],
+                "preserve": [
+                    "config.yml"
+                ],
+                "remove": [
+                    "plugins/ExamplePlugin.dll"
+                ]
+            },
+            "goos": "windows"
+        },
+        {
+            "commands": {
+                "pre-install": [
+                    "echo Pre-install command for Linux AMD64"
+                ]
+            },
+            "dependencies": {
+                "github.com/tooth-hub/example-deps": ">=1.0.0 <=1.1.0 || 2.0.x"
+            },
+            "files": {
+                "place": [
+                    {
+                        "src": "plug/*",
+                        "dest": "plugins"
+                    },
+                    {
+                        "src": "config.yml",
+                        "dest": "config.yml"
+                    }
+                ],
+                "preserve": [
+                    "config.yml"
+                ],
+                "remove": [
+                    "plugins/ExamplePlugin.dll"
+                ]
+            },
+            "goos": "linux",
+            "goarch": "amd64"
+        }
+    ]
 }
 ```
