@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/lippkg/lip/pkg/paths"
@@ -110,38 +110,29 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 	rawMetadata := metadata.Raw()
 
 	for _, place := range rawMetadata.Files.Place {
-		// If it's not a pattern, just append it.
-		patternCharList := []rune{'*', '?', '['}
-
-		isPattern := false
-		for _, patternChar := range patternCharList {
-			if !strings.ContainsRune(place.Src, patternChar) {
-				continue
-			}
-
-			isPattern = true
-			break
-		}
-
-		if !isPattern {
+		if !strings.HasSuffix(place.Src, "*") {
 			newPlace = append(newPlace, place)
 			continue
 		}
 
+		sourcePrefix := strings.TrimSuffix(place.Src, "*")
+
 		for _, filePath := range filePaths {
-			matched, err := filepath.Match(place.Src, filePath)
-			if err != nil {
-				return Metadata{}, fmt.Errorf("failed to match path: %w", err)
+			// Skip directories.
+			if strings.HasSuffix(filePath, "/") {
+				continue
 			}
 
-			if matched {
-				fileName := filepath.Base(filePath)
-
-				newPlace = append(newPlace, RawMetadataFilesPlaceItem{
-					Src:  filePath,
-					Dest: filepath.ToSlash(filepath.Join(place.Dest, fileName)),
-				})
+			if !strings.HasPrefix(filePath, sourcePrefix) {
+				continue
 			}
+
+			relFilePath := strings.TrimPrefix(filePath, sourcePrefix)
+
+			newPlace = append(newPlace, RawMetadataFilesPlaceItem{
+				Src:  filePath,
+				Dest: path.Join(place.Dest, relFilePath),
+			})
 		}
 	}
 

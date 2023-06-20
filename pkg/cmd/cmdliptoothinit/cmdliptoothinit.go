@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/logging"
@@ -102,6 +103,9 @@ func initTooth(ctx contexts.Context) error {
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Tooth = ans
+
+	// To lower case.
+	rawMetadata.Tooth = strings.ToLower(rawMetadata.Tooth)
 
 	logging.Info("What is the name?")
 	scanner.Scan()

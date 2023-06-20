@@ -65,6 +65,9 @@ func Run(ctx contexts.Context, args []string) error {
 
 	toothRepo := flagSet.Arg(0)
 
+	// To lower case.
+	toothRepo = strings.ToLower(toothRepo)
+
 	if flagDict.jsonFlag {
 		// When not installed, show the available versions.
 		err = showJSON(ctx, toothRepo, flagDict.availableFlag)

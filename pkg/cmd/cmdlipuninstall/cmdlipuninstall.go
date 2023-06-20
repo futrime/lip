@@ -3,6 +3,7 @@ package cmdlipuninstall
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/installing"
@@ -58,10 +59,17 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("at least one specifier is required")
 	}
 
+	toothRepoList := flagSet.Args()
+
+	// To lower case.
+	for i, toothRepo := range toothRepoList {
+		toothRepoList[i] = strings.ToLower(toothRepo)
+	}
+
 	// 1. Check if all teeth are installed.
 
-	toothRepoList := flagSet.Args()
 	for _, toothRepo := range toothRepoList {
+
 		isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)

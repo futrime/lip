@@ -175,6 +175,7 @@ type V2RawMetadataCommands struct {
 type V2RawMetadataFiles struct {
 	Place    []V2RawMetadataFilesPlaceItem `json:"place,omitempty"`
 	Preserve []string                      `json:"preserve,omitempty"`
+	Remove   []string                      `json:"remove,omitempty"`
 }
 
 type V2RawMetadataFilesPlaceItem struct {
@@ -233,8 +234,8 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 		},
 		Dependencies: make(map[string]string),
 		Files: V2RawMetadataFiles{
-			Place:    make([]V2RawMetadataFilesPlaceItem, 0),
-			Preserve: v1RawMetadata.Possession,
+			Place:  make([]V2RawMetadataFilesPlaceItem, 0),
+			Remove: v1RawMetadata.Possession,
 		},
 		Platforms: make([]V2RawMetadataPlatformsItem, 0),
 	}

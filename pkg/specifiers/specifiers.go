@@ -39,7 +39,7 @@ func New(specifierString string) (Specifier, error) {
 		}, nil
 
 	case ToothRepoKind:
-		// Specifier string should be lower case.
+		// tooth repo strings should be lower case.
 		specifierString = strings.ToLower(specifierString)
 
 		reg := regexp.MustCompile(

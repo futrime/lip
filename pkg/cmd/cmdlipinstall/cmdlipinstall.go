@@ -230,6 +230,13 @@ func downloadSpecifier(ctx contexts.Context,
 			return "", fmt.Errorf("failed to download from all Go proxies: %w", err)
 		}
 
+		archive, err := teeth.NewArchive(archivePath)
+		if err != nil {
+			return "", fmt.Errorf("failed to create archive: %w", err)
+		}
+
+		validateArchive(archive, toothRepo, toothVersion)
+
 		return archivePath, nil
 	}
 
@@ -437,6 +444,8 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 				return nil, fmt.Errorf("failed to create archive: %w", err)
 			}
 
+			validateArchive(currentArchive, dep, targetVersion)
+
 			notResolvedArchiveQueue.PushBack(currentArchive)
 
 			fixedToothVersionMap[dep] = targetVersion
@@ -446,4 +455,17 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 	}
 
 	return resolvedArchiveList, nil
+}
+
+// validateArchive validates the archive.
+func validateArchive(archive teeth.Archive, toothRepo string, version versions.Version) error {
+	if archive.Metadata().Tooth() != toothRepo {
+		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().Tooth(), toothRepo)
+	}
+
+	if !versions.Equal(archive.Metadata().Version(), version) {
+		return fmt.Errorf("tooth version mismatch: %v != %v", archive.Metadata().Version(), version)
+	}
+
+	return nil
 }

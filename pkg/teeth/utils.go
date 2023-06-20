@@ -171,9 +171,6 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]vers
 		return nil, fmt.Errorf("failed to join URL path: %w", err)
 	}
 
-	// To lowercases.
-	urlPath = strings.ToLower(urlPath)
-
 	content, err := downloading.GetContentFromAllGoproxies(ctx, urlPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch version list: %w", err)
@@ -243,9 +240,6 @@ func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Ver
 	if err != nil {
 		return fmt.Errorf("failed to join URL path: %w", err)
 	}
-
-	// To lower case.
-	urlPath = strings.ToLower(urlPath)
 
 	_, err = downloading.GetContentFromAllGoproxies(ctx, urlPath)
 	if err != nil {

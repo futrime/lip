@@ -104,5 +104,13 @@ func removeToothFiles(ctx contexts.Context, metadata teeth.Metadata) error {
 		}
 	}
 
+	// Files marked as "remove" will be deleted.
+	for _, removal := range metadata.Files().Remove {
+		err = os.RemoveAll(filepath.Join(workspaceDir, removal))
+		if err != nil {
+			return fmt.Errorf("failed to delete file: %w", err)
+		}
+	}
+
 	return nil
 }
