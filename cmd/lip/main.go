@@ -48,9 +48,9 @@ func createContext() (contexts.Context, error) {
 	globalDotLipDir := filepath.Join(userHomeDir, ".lip")
 
 	goProxyList := []string{DefaultGoproxy}
-	if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
-		goProxyList = strings.Split(goProxyEnvVar, ",")
-	}
+	// if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
+	// 	goProxyList = strings.Split(goProxyEnvVar, ",")
+	// }
 
 	lipVersion, err := versions.NewFromString(strings.TrimPrefix(LipVersionString, "v"))
 	if err != nil {

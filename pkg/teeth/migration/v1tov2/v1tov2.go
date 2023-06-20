@@ -282,7 +282,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 		v2RawMetadata.Files.Place = append(
 			v2RawMetadata.Files.Place, V2RawMetadataFilesPlaceItem{
 				Src:  v1Placement.Source,
-				Dest: v1Placement.Destination,
+				Dest: strings.TrimSuffix(v1Placement.Destination, "*"),
 			})
 	}
 

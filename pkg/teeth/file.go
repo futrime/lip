@@ -128,7 +128,6 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 			continue
 		}
 
-		// TODO: Bug!!!
 		for _, filePath := range filePaths {
 			matched, err := filepath.Match(place.Src, filePath)
 			if err != nil {
@@ -140,7 +139,7 @@ func resolveMetadataFilesPlaceRegex(metadata Metadata, filePaths []string) (Meta
 
 				newPlace = append(newPlace, RawMetadataFilesPlaceItem{
 					Src:  filePath,
-					Dest: filepath.Join(place.Dest, fileName),
+					Dest: filepath.ToSlash(filepath.Join(place.Dest, fileName)),
 				})
 			}
 		}

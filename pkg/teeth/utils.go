@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -165,7 +166,10 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]vers
 		return nil, fmt.Errorf("invalid repository path: %v", repoPath)
 	}
 
-	urlPath := repoPath + "/@v/list"
+	urlPath, err := url.JoinPath(repoPath, "@v", "list")
+	if err != nil {
+		return nil, fmt.Errorf("failed to join URL path: %w", err)
+	}
 
 	// To lowercases.
 	urlPath = strings.ToLower(urlPath)
@@ -223,6 +227,8 @@ func GetToothLatestStableVersion(ctx contexts.Context,
 
 // ValidateVersion checks if the version of the tooth repository is valid.
 func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Version) error {
+	var err error
+
 	if !CheckIsValidToothRepo(repoPath) {
 		return fmt.Errorf("invalid repository path: %v", repoPath)
 	}
@@ -233,12 +239,15 @@ func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Ver
 		version.String(), "1.") {
 		urlPathSuffix = ".info"
 	}
-	urlPath := repoPath + "/@v/v" + version.String() + urlPathSuffix
+	urlPath, err := url.JoinPath(repoPath, "@v", "v"+version.String()+urlPathSuffix)
+	if err != nil {
+		return fmt.Errorf("failed to join URL path: %w", err)
+	}
 
 	// To lower case.
 	urlPath = strings.ToLower(urlPath)
 
-	_, err := downloading.GetContentFromAllGoproxies(ctx, urlPath)
+	_, err = downloading.GetContentFromAllGoproxies(ctx, urlPath)
 	if err != nil {
 		return fmt.Errorf("failed to access version %v of %v: %w", version.String(),
 			repoPath, err)

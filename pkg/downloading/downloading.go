@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
-	"strings"
 
 	"github.com/lippkg/lip/pkg/contexts"
 	"github.com/lippkg/lip/pkg/versions"
@@ -137,12 +137,18 @@ func GetContentFromAllGoproxies(ctx contexts.Context, urlPath string) ([]byte, e
 	var errList []error
 
 	for _, goProxy := range ctx.GoProxyList() {
-		url := fmt.Sprintf("%v/%v", strings.TrimSuffix(goProxy, "/"), urlPath)
+		var err error
 
-		content, err := GetContent(url)
+		contentUrl, err := url.JoinPath(goProxy, urlPath)
+		if err != nil {
+			errList = append(errList, fmt.Errorf("cannot join URL path: %w", err))
+			continue
+		}
+
+		content, err := GetContent(contentUrl)
 		if err != nil {
 			errList = append(errList, fmt.Errorf("cannot get content from %v: %w",
-				url, err))
+				contentUrl, err))
 			continue
 		}
 
