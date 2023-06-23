@@ -1,6 +1,6 @@
 # Quickstart
 
-To get started with using Lip, you should [have Lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [LipUI](lipui_quickstart.md) to manage your tooths.
+To get started with using Lip, you should [have Lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [LipUI](lipui_quickstart.md) to manage your teeth.
 
 ## Ensure you have a working Lip
 
@@ -8,7 +8,7 @@ As a first step, you should check that you have a working Lip installed. This ca
 
 ```shell
 > lip --version
-Lip 0.11.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
+Lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 ```
 
 ## Common Tasks
@@ -16,49 +16,39 @@ Lip 0.11.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 ### Install a tooth
 
 ```shell
-> lip install github.com/liteldev/exampletooth@1.0.0
+> lip install github.com/tooth-hub/bdsdownloader
 [...]
-Successfully installed all tooth files.
+Done.
 ```
 
-By default, Lip will fetch tooths via GOPROXY, a proxy of Git repos.
-
-### Install a tooth from URL
-
-```shell
-> lip install https://example.com/exampletooth.tth
-[...]
-Successfully installed all tooth files.
-```
-
-Lip only supports URLs started with "http://" or "https://". All URLs should ends with ".tth".
+By default, Lip will fetch teeth via GOPROXY, a proxy of Git repos.
 
 ### Install a tooth from a tooth file
 
 ```shell
-> lip install exampletooth.tth
+> lip install ./bdsdownloader.tth
 [...]
-Successfully installed all tooth files.
+Done.
 ```
 
 The tooth file should have ".tth" extension name.
 
-### Install multiple tooths
+### Install multiple teeth
 
 Lip suppports installing multiple files at a time.
 
 ```shell
-> lip install github.com/liteldev/exampletooth@1.0.0 github.com/liteldev/anotherexampletooth@1.0.0
+> lip install github.com/liteldev/bdsdownloader github.com/tooth-hub/crashlogger
 [...]
-Successfully installed all tooth files.
+Done.
 ```
 
 ### Upgrade a tooth
 
 ```shell
-> lip install --upgrade github.com/liteldev/exampletooth
+> lip install --upgrade github.com/liteldev/bdsdownloader
 [...]
-Successfully installed all tooth files.
+Done.
 ```
 
 ### Uninstall a tooth
@@ -66,31 +56,37 @@ Successfully installed all tooth files.
 To uninstall a tooth, you must provide the tooth path of the tooth.
 
 ```shell
-> lip uninstall github.com/liteldev/exampletooth
+> lip uninstall github.com/liteldev/bdsdownloader
 [...]
-Successfully uninstalled all tooths.
+Done.
 ```
 
-### List all tooths
+### List all teeth
 
 ```shell
 > lip list
-Tooth                            Version
--------------------------------- ----------
-github.com/liteldev/exampletooth 1.0.0
++------------------------------------+----------------+---------+
+|               TOOTH                |      NAME      | VERSION |
++------------------------------------+----------------+---------+
+| github.com/tooth-hub/bdsdownloader | BDS Donwloader | 0.3.1   |
+| github.com/tooth-hub/crashlogger   | CrashLogger    | 1.0.1   |
+| github.com/tooth-hub/peeditor      | PeEditor       | 3.2.0   |
++------------------------------------+----------------+---------+
 ```
 
 ### Show information of a tooth
 
 ```shell
 > lip show github.com/liteldev/exampletooth
-Tooth-path: github.com/liteldev/exampletooth
-Version: 1.0.0
-Name: Example Tooth
-Description: An example tooth
-Author: Example User
-License: MIT
-Homepage: www.example.com
++-------------+------------------------------------+
+|     KEY     |               VALUE                |
++-------------+------------------------------------+
+| Tooth Repo  | github.com/tooth-hub/bdsdownloader |
+| Name        | BDS Donwloader                     |
+| Description | A CLI tool to download BDS         |
+| Author      | Jasonzyt                           |
+| Version     | 0.3.1                              |
++-------------+------------------------------------+
 ```
 
 ## Next Steps

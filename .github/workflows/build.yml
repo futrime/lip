@@ -16,17 +16,12 @@ jobs:
       - uses: actions/setup-go@v3
         with:
          cache: true
-         cache-dependency-path: src/go.sum
-         go-version-file: src/go.mod
-
-      - name: Set up workspace
-        run: go work init ./src
 
       - name: Build
         run: |
           export GOOS=${{ matrix.GOOS }}
           export GOARCH=${{ matrix.GOARCH }}
-          go build -ldflags "-X 'github.com/lippkg/lip/context.VersionString=0.0.0' -s -w" -o ./build/ github.com/lippkg/lip
+          go build -ldflags "-s -w" -o ./build/ github.com/lippkg/lip/cmd/lip
 
       - uses: actions/upload-artifact@v3
         with:

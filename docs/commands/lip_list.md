@@ -4,15 +4,13 @@
 
 ```shell
 lip list [options]
-
-alias: ls
 ```
 
 ## Description
 
-List installed tooths.
+List installed teeth.
 
-Tooths are listed in a case-insensitive sorted order.
+teeth are listed in a case-insensitive sorted order.
 
 ## Options
 
@@ -22,8 +20,8 @@ Tooths are listed in a case-insensitive sorted order.
 
 - `--upgradable`
 
-  List upgradable tooths.
+  List upgradable teeth.
 
 - `--json`
 
-  Output in JSON format. (cannot be hidden with `--quiet`)
+  Output in JSON format.

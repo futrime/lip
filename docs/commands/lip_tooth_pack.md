@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-lip tooth pack [options]
+lip tooth pack [options] <output path>
 ```
 
 ## Description
@@ -15,7 +15,3 @@ Initialize and writes a new tooth.json file in the current directory, in effect 
 - `-h, --help`
 
   Show help.
-
-- `-o, --output <file>`
-
-  Path to the output file. If not specified, the file will be written to `tooth.tth` in the current directory.

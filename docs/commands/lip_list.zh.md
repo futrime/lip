@@ -4,8 +4,6 @@
 
 ```shell
 lip list [options]
-
-alias: ls
 ```
 
 ## 功能
@@ -26,4 +24,4 @@ tooth以不区分大小写的排序方式列出。
 
 - `--json`
   
-  以JSON格式输出。(不能用`--quiet`隐藏)
+  以JSON格式输出
