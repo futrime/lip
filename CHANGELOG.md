@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2023-06-23
+
 ### Added
 
 - Tooth file preservation and removal.
@@ -272,7 +274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LipPkg/Lip/compare/v0.14.2...HEAD
+[unreleased]: https://github.com/LipPkg/Lip/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/LipPkg/Lip/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/LipPkg/Lip/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/LipPkg/Lip/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/LipPkg/Lip/compare/v0.13.0...v0.14.0

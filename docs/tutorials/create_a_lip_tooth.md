@@ -44,41 +44,6 @@ exampleplugin/
 
 3. Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">"). 
 
-   ```json
-   {
-       "format_version": 1,
-       "tooth": "example.com/exampleuser/exampleplugin",
-       "version": "1.0.0",
-       "dependencies": {
-           "github.com/liteloaderbds-hub/liteloaderbds": [
-               [
-                   "2.9.x"
-               ]
-           ]
-       },
-       "information": {
-           "name": "Example Plugin",
-           "description": "An example plugin",
-           "author": "Example User",
-           "license": "MIT",
-           "homepage": "example.com"
-       },
-       "placement": [
-           {
-               "source": "exampleplugin.dll",
-               "destination": "plugins/exampleplugin.dll"
-           },
-           {
-               "source": "exampleplugin/*",
-               "destination": "plugins/exampleplugin/*"
-           }
-       ],
-       "possession": [
-           "plugins/exampleplugin/data/"
-       ]
-   }
-   ```
-
    The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
 
    The placement filed indicates how will Lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
@@ -133,26 +98,23 @@ You can create a tooth.json like this:
 
 ```json
 {
-    "format_version": 1,
+    "format_version": 2,
     "tooth": "example.com/exampleuser/exampleworld",
     "version": "1.0.0",
     "dependencies": {},
     "information": {
         "name": "Example World",
         "description": "An example world",
-        "author": "Example User",
-        "license": "MIT",
-        "homepage": "example.com"
+        "author": "Example User"
     },
-    "placement": [
-        {
-            "source": "Bedrock level/*",
-            "destination": "worlds/exampleworld/*"
-        }
-    ],
-    "possession": [
-        "worlds/exampleworld/"
-    ]
+    "files": {
+        "place": [
+            {
+                "src": "Bedrock level/*",
+                "dest": "worlds/Bedrock level/"
+            }
+        ]
+    }
 }
 ```
 

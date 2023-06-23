@@ -17,7 +17,7 @@ import (
 
 const DefaultGoproxy = "https://goproxy.io"
 
-const LipVersionString = "v0.15.0"
+const LipVersionString = "0.15.0"
 
 //------------------------------------------------------------------------------
 
@@ -48,11 +48,11 @@ func createContext() (contexts.Context, error) {
 	globalDotLipDir := filepath.Join(userHomeDir, ".lip")
 
 	goProxyList := []string{DefaultGoproxy}
-	// if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
-	// 	goProxyList = strings.Split(goProxyEnvVar, ",")
-	// }
+	if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
+		goProxyList = strings.Split(goProxyEnvVar, ",")
+	}
 
-	lipVersion, err := versions.NewFromString(strings.TrimPrefix(LipVersionString, "v"))
+	lipVersion, err := versions.NewFromString(LipVersionString)
 	if err != nil {
 		return contexts.Context{},
 			fmt.Errorf("cannot parse lip version: %w", err)
