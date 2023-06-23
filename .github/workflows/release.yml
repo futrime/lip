@@ -1,0 +1,82 @@
+on:
+  release:
+    types: 
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        GOOS: [darwin, linux, windows]
+        GOARCH: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+        with:
+         cache: true
+
+      - name: Build
+        run: |
+          export GOOS=${{ matrix.GOOS }}
+          export GOARCH=${{ matrix.GOARCH }}
+          go build -ldflags "-s -w" -o ./build/ github.com/lippkg/lip/cmd/lip
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          path: build
+
+  upload-to-release:
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        GOOS: [darwin, linux, windows]
+        GOARCH: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          path: artifact
+
+      - name: Copy essential files
+        run: |
+          cp CHANGELOG.md LICENSE README.md artifact/
+
+      - name: Pack artifact (Windows)
+        if: matrix.GOOS == 'windows'
+        run: |
+          cd artifact
+          zip -r ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip *
+          cd ..
+
+      - name: Pack artifact (Others)
+        if: matrix.GOOS != 'windows'
+        run: |
+          cd artifact
+          tar -czvf ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz *
+          cd ..
+
+      - name: Upload artifact to release (Windows)
+        if: matrix.GOOS == 'windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip
+
+      - name: Upload artifact to release (Others)
+        if: matrix.GOOS != 'windows'
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz
