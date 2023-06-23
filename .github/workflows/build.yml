@@ -47,6 +47,9 @@ jobs:
           path: site/
 
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: build-docs
     permissions:
@@ -54,4 +57,5 @@ jobs:
       pages: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/deploy-pages@v1
+      - id: deployment
+        uses: actions/deploy-pages@v1
