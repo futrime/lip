@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Wrong help message for `--json` flag of `lip show` command.
+
 ## [0.15.0] - 2023-06-23
 
 ### Added

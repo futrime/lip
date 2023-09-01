@@ -29,7 +29,7 @@ Description:
 Options:
   -h, --help                  Show help.
   --available                 Show the full list of available versions.
-  --json                      Output in JSON format. (cannot be hidden with "--quiet")
+  --json                      Output in JSON format.
 `
 
 func Run(ctx contexts.Context, args []string) error {
