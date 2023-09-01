@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2023-09-01
+
+### Fixed
+
+- Wrong help message for `--json` flag of `lip show` command.
+- Wrong regex for validating versions.
+
 ## [0.15.0] - 2023-06-23
 
 ### Added
@@ -274,7 +281,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LipPkg/Lip/compare/v0.15.0...HEAD
+[unreleased]: https://github.com/LipPkg/Lip/compare/v0.15.1...HEAD
+[0.15.1]: https://github.com/LipPkg/Lip/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/LipPkg/Lip/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/LipPkg/Lip/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/LipPkg/Lip/compare/v0.14.0...v0.14.1

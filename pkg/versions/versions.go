@@ -161,7 +161,7 @@ func (v Version) String() string {
 // IsValidVersionString returns true if the version string is valid.
 func IsValidVersionString(versionString string) bool {
 	reg := regexp.MustCompile(
-		`^(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(-[a-z]+(\.(0|[0-9]\d*))?)?$`)
+		`^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[a-z]+(\.(0|[1-9]\d*))?)?$`)
 	if !reg.MatchString(versionString) {
 		return false
 	}
