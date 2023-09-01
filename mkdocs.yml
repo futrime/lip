@@ -1,13 +1,11 @@
-site_name: Lip
+site_name: Lip Documentation
 site_url: https://docs.lippkg.com
+repo_name: LipPkg/Lip
+repo_url: https://github.com/LipPkg/Lip/
 
 nav:
-  - Languages:
-    - English: javascript:changeLanguage('en')
-    - 中文: javascript:changeLanguage('zh')
-
+  - Overview: index.md
   - Basics:
-    - index.md
     - installation.md
     - quickstart.md
     - lipui_quickstart.md
@@ -33,24 +31,28 @@ nav:
     - commands/lip_uninstall.md
 
 theme:
-  name: readthedocs
-extra_javascript:
-  - js/script.js
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+  favicon: img/favicon.ico
+  logo: img/logo.webp
+  palette:
+    primary: white
 
 use_directory_urls: false
 
 plugins:
   - i18n:
-      default_language: en
       languages:
-        en:
+        - locale: en
+          default: true
           name: English
-        zh:
+        - locale: zh
           name: 中文
-      nav_translations:
-        zh:
-          Basics: 基础
-          Changelog: 更新日志
-          Commands: 命令
-          Languages: 语言
-          Tutorials: 教程
+          nav_translations:
+            Basics: 基础
+            Changelog: 更新日志
+            Commands: 命令
+            Languages: 语言
+            Tutorials: 教程

@@ -28,4 +28,4 @@ LipUI是一个便携式的应用程序。你可以下载LipUI的最新版本[这
 
 对于不在注册表中的tooth，你可以通过进入 `安装齿包` 页面 输入 URL 或者本地文件路径来安装他们。
 
-![LipUI Install Tooth](/img/lipui_install_tooth.png)
+![LipUI Install Tooth](img/lipui_install_tooth.png)
