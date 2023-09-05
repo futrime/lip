@@ -8,7 +8,7 @@ lip show [options] <tooth path>
 
 ## Description
 
-Show information about a tooth. If not installed, only version list is shown.
+Show information about an installed tooth.
 
 ## Options
 

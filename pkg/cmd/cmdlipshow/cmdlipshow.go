@@ -23,8 +23,7 @@ Usage:
   lip show [options] <tooth repository URL>
 
 Description:
-  Show information about a installed tooth. If not installed and --available is
-  specified, show information about the available versions.
+  Show information about an installed tooth.
 
 Options:
   -h, --help                  Show help.
