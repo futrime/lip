@@ -105,7 +105,10 @@ You can create a tooth.json like this:
     "information": {
         "name": "Example World",
         "description": "An example world",
-        "author": "Example User"
+        "author": "Example User",
+        "tags": [
+            "ll", "llbds", "bds"
+        ]
     },
     "files": {
         "place": [

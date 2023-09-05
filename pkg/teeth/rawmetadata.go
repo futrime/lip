@@ -22,9 +22,10 @@ type RawMetadata struct {
 }
 
 type RawMetadataInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Author      string `json:"author"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
 }
 
 type RawMetadataCommands struct {
