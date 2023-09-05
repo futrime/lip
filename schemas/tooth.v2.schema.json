@@ -1,5 +1,5 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$schema": "https://json-schema.org/draft-07/schema#",
 	"type": "object",
 	"properties": {
 		"format_version": {
@@ -23,12 +23,20 @@
 				},
 				"author": {
 					"type": "string"
+				},
+				"tags": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"pattern": "^[a-zA-Z0-9-]+$"
+					}
 				}
 			},
 			"required": [
 				"name",
 				"description",
-				"author"
+				"author",
+				"tags"
 			]
 		},
 		"commands": {

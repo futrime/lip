@@ -22,9 +22,10 @@ type RawMetadata struct {
 }
 
 type RawMetadataInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Author      string `json:"author"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
 }
 
 type RawMetadataCommands struct {
@@ -56,7 +57,7 @@ type RawMetadataPlatformsItem struct {
 
 const rawMetadataJSONSchema = `
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$schema": "https://json-schema.org/draft-07/schema#",
 	"type": "object",
 	"properties": {
 		"format_version": {
@@ -80,12 +81,20 @@ const rawMetadataJSONSchema = `
 				},
 				"author": {
 					"type": "string"
+				},
+				"tags": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"pattern": "^[a-zA-Z0-9-]+$"
+					}
 				}
 			},
 			"required": [
 				"name",
 				"description",
-				"author"
+				"author",
+				"tags"
 			]
 		},
 		"commands": {
@@ -251,6 +260,7 @@ const rawMetadataJSONSchema = `
 		"info"
 	]
 }
+
 `
 
 func NewRawMetadata(jsonBytes []byte) (RawMetadata, error) {

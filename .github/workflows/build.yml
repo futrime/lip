@@ -21,12 +21,12 @@ jobs:
         run: |
           export GOOS=${{ matrix.GOOS }}
           export GOARCH=${{ matrix.GOARCH }}
-          go build -ldflags "-s -w" -o ./build/ github.com/lippkg/lip/cmd/lip
+          go build -ldflags "-s -w" -o bin/ github.com/lippkg/lip/cmd/lip
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
-          path: build
+          path: bin
 
   build-docs:
     runs-on: ubuntu-latest

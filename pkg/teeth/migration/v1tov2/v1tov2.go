@@ -160,9 +160,10 @@ type V2RawMetadata struct {
 }
 
 type V2RawMetadataInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Author      string `json:"author"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
 }
 
 type V2RawMetadataCommands struct {
@@ -225,6 +226,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 			Name:        v1RawMetadata.Information.Name,
 			Description: v1RawMetadata.Information.Description,
 			Author:      v1RawMetadata.Information.Author,
+			Tags:        make([]string, 0),
 		},
 		Commands: V2RawMetadataCommands{
 			PreInstall:    make([]string, 0),

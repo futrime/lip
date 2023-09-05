@@ -23,8 +23,7 @@ Usage:
   lip show [options] <tooth repository URL>
 
 Description:
-  Show information about a installed tooth. If not installed and --available is
-  specified, show information about the available versions.
+  Show information about an installed tooth.
 
 Options:
   -h, --help                  Show help.
@@ -128,6 +127,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 		{"Name", metadata.Info().Name},
 		{"Description", metadata.Info().Description},
 		{"Author", metadata.Info().Author},
+		{"Tags", strings.Join(metadata.Info().Tags, ", ")},
 		{"Version", metadata.Version().String()},
 	}
 

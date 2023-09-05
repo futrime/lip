@@ -10,7 +10,7 @@ lip tooth init
 
 ## Schema
 
-Refer to <https://github.com/LipPkg/Lip/blob/main/assets/json_schemas/tooth.v2.schema.json>.
+Refer to <https://github.com/LipPkg/Lip/blob/main/schemas/tooth.v2.schema.json>.
 
 ## Example
 
@@ -24,7 +24,10 @@ A tooth.json includes directives as shown in the following example. These are de
     "info": {
         "name": "LiteLoaderBDS",
         "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev"
+        "author": "LiteLDev",
+        "tags": [
+            "ll", "llbds", "bds"
+        ]
     },
     "commands": {
         "pre_install": [
@@ -184,7 +187,7 @@ Declares necessary information of your tooth.
 
 ### Syntax
 
-Provide the name, description and author of your tooth. Every field is required.
+Provide the name, description , author and tags of your tooth. Every field is required.
 
 ### Examples
 
@@ -193,7 +196,10 @@ Provide the name, description and author of your tooth. Every field is required.
     "info": {
         "name": "LiteLoaderBDS",
         "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev"
+        "author": "LiteLDev",
+        "tags": [
+            "ll", "llbds", "bds"
+        ]
     }
 }
 ```
