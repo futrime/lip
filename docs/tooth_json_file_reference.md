@@ -10,7 +10,7 @@ lip tooth init
 
 ## Schema
 
-Refer to <https://github.com/LipPkg/Lip/blob/main/assets/json_schemas/tooth.v2.schema.json>.
+Refer to <https://github.com/LipPkg/Lip/blob/main/schemas/tooth.v2.schema.json>.
 
 ## Example
 

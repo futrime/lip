@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Inconsistent tooth.json schema with LipIndex.
+
 ## [0.15.1] - 2023-09-01
 
 ### Fixed
