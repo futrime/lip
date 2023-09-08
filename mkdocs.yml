@@ -9,7 +9,6 @@ nav:
     - installation.md
     - quickstart.md
     - lipui_quickstart.md
-    - creator_quickstart.md
     - faq.md
     - tooth_json_file_reference.md
     - Changelog: https://github.com/LipPkg/Lip/blob/main/CHANGELOG.md
@@ -58,3 +57,32 @@ plugins:
             Commands: 命令
             Languages: 语言
             Tutorials: 教程
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc
+  - tables
+  - pymdownx.arithmatex
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.highlight:
+      auto_title: true
+      linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist

@@ -2,7 +2,7 @@
 
 ## 我在哪里可以找到在线可用的tooth？
 
-我们仍在努力开发Lip Index、LipWeb和LipUI。请稍等片刻。
+访问[LipWeb](https://www.lippkg.com).
 
 ## 它的下载速度太慢了! 我可以做什么呢？
 

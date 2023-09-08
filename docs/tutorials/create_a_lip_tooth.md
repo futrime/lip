@@ -1,6 +1,6 @@
 # Tutorial: Create a Lip Tooth
 
-This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](../quickstart.md) and [Creator's Guide](../creator_quickstart.md), which introduces the basic commands of Lip.
+This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](../quickstart.md), which introduces the basic commands of Lip.
 
 In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
 
@@ -24,7 +24,7 @@ However, if you are working with binaries (e.g. native plugins, worlds), you mig
 
 In this example, we assume the repository structure as listed below:
 
-```
+```text
 exampleplugin.dll
 exampleplugin/
   config.json
@@ -34,59 +34,59 @@ exampleplugin/
 
 ## Initialize the tooth
 
-1. Open a command prompt and cd to the repository root. If you are using Windows, you can just press *shift* and right click in the file explorer, then click "Open PowerShell window here".
+Open a command prompt and cd to the repository root. If you are using Windows, you can just press *shift* and right click in the file explorer, then click "Open PowerShell window here".
 
-2. Run the command below to initialize the tooth. The command will create a tooth.json under the root of the repository.
+Run the command below to initialize the tooth. The command will create a tooth.json under the root of the repository.
 
-   ```shell
-   lip tooth init
-   ```
+```shell
+lip tooth init
+```
 
-3. Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">"). 
+Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">").
 
-   The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
+- The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
 
-   The placement filed indicates how will Lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
-   
-   The possession field indicates the private directory of this tooth. It will be removed when uninstalling the tooth but will be kept when reinstalling or upgrading the tooth. Note that the path indicated in the possession field bases on the root of BDS. And every item should ends with "/".
+- The placement filed indicates how will Lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
+
+- The possession field indicates the private directory of this tooth. It will be removed when uninstalling the tooth but will be kept when reinstalling or upgrading the tooth. Note that the path indicated in the possession field bases on the root of BDS. And every item should ends with "/".
 
 ## Test the tooth
 
 Before publishing the tooth, you should test it to make sure it works as expected.
 
-1. Zip all files in the repository root, and rename the zip file to "exampleplugin.tth".
+Zip all files in the repository root, and rename the zip file to "exampleplugin.tth".
 
-2. Copy the zip file to a certain directory, and then run the command below to install the tooth.
+Copy the zip file to a certain directory, and then run the command below to install the tooth.
 
-   ```shell
-   lip install exampleplugin.tth
-   ```
+```shell
+lip install exampleplugin.tth
+```
 
-3. Run the command below to uninstall the tooth.
+Run the command below to uninstall the tooth.
 
-   ```shell
-   lip uninstall exampleplugin.tth
-   ```
+```shell
+lip uninstall exampleplugin.tth
+```
 
-4. Run the command below to install the tooth again.
+Run the command below to install the tooth again.
 
-   ```shell
-   lip install exampleplugin.tth
-   ```
+```shell
+lip install exampleplugin.tth
+```
 
-5. Check if the tooth works as expected.
+Check if the tooth works as expected.
 
 ## Publish your tooth
 
-1. Stash and commit the changes, and then push them to the public Git service.
+- Stash and commit the changes, and then push them to the public Git service.
 
-2. Add a tag and publish a release with the version name. The tag name should be the version name added with prefix "v", e.g. "v1.0.0".
+- Add a tag and publish a release with the version name. The tag name should be the version name added with prefix "v", e.g. "v1.0.0".
 
 ## Another example: make a Minecraft world a tooth
 
 Generally, a Minecraft world has the following file structure:
 
-```
+```text
 Bedrock level/
   level.dat
   level.dat_old

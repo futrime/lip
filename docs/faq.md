@@ -2,7 +2,7 @@
 
 ## Where can I find online available teeth?
 
-We are still working on the development of Lip Index, LipWeb and LipUI. Please wait for a while.
+Visit [LipWeb](https://www.lippkg.com).
 
 ## It downloads so slowly! What can I do?
 

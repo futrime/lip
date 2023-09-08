@@ -91,4 +91,4 @@ Done.
 
 ## Next Steps
 
-You can read pages under Commands directory to get more detailed descriptions of Lip commands.
+You can read pages under Commands directory to get more detailed descriptions of Lip commands. If you are a creator and want to publish your tooth, you can read [this tutorial](tutorials/create_a_lip_tooth.md) to learn how to do it.
