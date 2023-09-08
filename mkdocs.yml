@@ -4,8 +4,8 @@ repo_name: LipPkg/Lip
 repo_url: https://github.com/LipPkg/Lip/
 
 nav:
-  - Overview: index.md
   - Basics:
+    - index.md
     - installation.md
     - quickstart.md
     - lipui_quickstart.md
@@ -29,6 +29,8 @@ nav:
     - commands/lip_tooth_init.md
     - commands/lip_tooth_pack.md
     - commands/lip_uninstall.md
+
+  - Packages: https://www.lippkg.com
 
 theme:
   name: material
