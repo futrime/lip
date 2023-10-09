@@ -12,6 +12,7 @@ import (
 	"github.com/lippkg/lip/internal/logging"
 	"github.com/lippkg/lip/internal/specifiers"
 	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/versionmatches"
 	"github.com/lippkg/lip/internal/versions"
 )
 
@@ -97,7 +98,19 @@ func Run(ctx contexts.Context, args []string) error {
 			return fmt.Errorf("failed to resolve dependencies: %w", err)
 		}
 
-		// TODO: check prerequisites.
+		missingPrerequisiteMap, err := findMissingPrerequisites(ctx, archiveToInstallList)
+		if err != nil {
+			return fmt.Errorf("failed to find missing prerequisites: %w", err)
+		}
+
+		if len(missingPrerequisiteMap) > 0 {
+			errorMsg := "\n"
+			for prerequisite, match := range missingPrerequisiteMap {
+				errorMsg += fmt.Sprintf("  %v: %v\n", prerequisite, match.String())
+			}
+
+			return fmt.Errorf("missing prerequisites: %v", errorMsg)
+		}
 	}
 
 	// 3. Sort teeth.
@@ -246,6 +259,50 @@ func downloadSpecifier(ctx contexts.Context,
 
 	// Never reach here.
 	panic("unreachable")
+}
+
+// findMissingPrerequisites finds missing prerequisites of the tooth specified
+// by the specifier and returns the map of missing prerequisites.
+func findMissingPrerequisites(ctx contexts.Context,
+	archiveList []teeth.Archive) (map[string]versionmatches.Group, error) {
+	var missingPrerequisiteMap = make(map[string]versionmatches.Group)
+
+	for _, archive := range archiveList {
+		for prerequisite, match := range archive.Metadata().Prerequisites() {
+			isInstalled, err := teeth.CheckIsToothInstalled(ctx, prerequisite)
+			if err != nil {
+				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
+			}
+
+			if isInstalled {
+				currentMetadata, err := teeth.GetInstalledToothMetadata(ctx, prerequisite)
+				if err != nil {
+					return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
+				}
+
+				if !match.Match(currentMetadata.Version()) {
+					missingPrerequisiteMap[prerequisite] = match
+				}
+
+				break
+			} else {
+				// Check if the tooth is in the archive list.
+				isInArchiveList := false
+				for _, archive := range archiveList {
+					if archive.Metadata().Tooth() == prerequisite && match.Match(archive.Metadata().Version()) {
+						isInArchiveList = true
+						break
+					}
+				}
+
+				if !isInArchiveList {
+					missingPrerequisiteMap[prerequisite] = match
+				}
+			}
+		}
+	}
+
+	return missingPrerequisiteMap, nil
 }
 
 // installToothArchiveList installs the tooth archive list.

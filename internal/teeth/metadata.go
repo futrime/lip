@@ -87,8 +87,8 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 	}, nil
 }
 
-func (m Metadata) JSON() ([]byte, error) {
-	return m.rawMetadata.JSON()
+func (m Metadata) JSON(indent bool) ([]byte, error) {
+	return m.rawMetadata.JSON(indent)
 }
 
 func (m Metadata) Raw() RawMetadata {

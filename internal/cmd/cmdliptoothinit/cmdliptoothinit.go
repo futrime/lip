@@ -123,7 +123,7 @@ func initTooth(ctx contexts.Context) error {
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
 
-	toothJsonBytes, err := rawMetadata.JSON()
+	toothJsonBytes, err := rawMetadata.JSON(true)
 	if err != nil {
 		return errors.New("failed to convert tooth rawMetadata to JSON")
 	}
