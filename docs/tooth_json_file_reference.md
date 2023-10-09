@@ -46,6 +46,9 @@ A tooth.json includes directives as shown in the following example. These are de
     "dependencies": {
         "github.com/tooth-hub/example-deps": ">=1.0.0 <2.0.0 || >=3.0.0 <4.0.0"
     },
+    "prerequisites": {
+        "github.com/tooth-hub/example-pre": ">=1.0.0"
+    },
     "files": {
         "place": [
             {
@@ -273,6 +276,14 @@ All rules in the outermost list will be calculated with OR, and rules in nested 
     }
 }
 ```
+
+## `prerequisites` (optional)
+
+Declare prerequisites of your tooth. The syntax follows the `dependencies` field. The key difference is that prerequisites will not be installed by Lip automatically.
+
+### Notes
+
+Some teeth should not be installed automatically, e.g. bds, liteloaderbds. Automatically installing these teeth may cause severe imcompatibility issues.
 
 ## `files` (optional)
 

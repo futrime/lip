@@ -73,7 +73,7 @@ You can install any pre-release versions by specifying the version. And teeth ca
 
 - `--no-dependencies`
 
-  Do not install dependencies.
+  Do not install dependencies. Also bypass prerequisite checks.
 
 ## Examples
 

@@ -1,3 +1,63 @@
+package teeth
+
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"github.com/xeipuuv/gojsonschema"
+)
+
+type RawMetadata struct {
+	FormatVersion int             `json:"format_version"`
+	Tooth         string          `json:"tooth"`
+	Version       string          `json:"version"`
+	Info          RawMetadataInfo `json:"info"`
+
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
+
+	Platforms []RawMetadataPlatformsItem `json:"platforms,omitempty"`
+}
+
+type RawMetadataInfo struct {
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Author      string   `json:"author"`
+	Tags        []string `json:"tags"`
+}
+
+type RawMetadataCommands struct {
+	PreInstall    []string `json:"pre_install,omitempty"`
+	PostInstall   []string `json:"post_install,omitempty"`
+	PreUninstall  []string `json:"pre_uninstall,omitempty"`
+	PostUninstall []string `json:"post_uninstall,omitempty"`
+}
+
+type RawMetadataFiles struct {
+	Place    []RawMetadataFilesPlaceItem `json:"place,omitempty"`
+	Preserve []string                    `json:"preserve,omitempty"`
+	Remove   []string                    `json:"remove,omitempty"`
+}
+
+type RawMetadataFilesPlaceItem struct {
+	Src  string `json:"src"`
+	Dest string `json:"dest"`
+}
+
+type RawMetadataPlatformsItem struct {
+	GOARCH string `json:"goarch,omitempty"`
+	GOOS   string `json:"goos"`
+
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
+}
+
+const rawMetadataJSONSchema = `
 {
 	"$schema": "https://json-schema.org/draft-07/schema#",
 	"type": "object",
@@ -167,6 +227,14 @@
 							}
 						}
 					},
+					"prerequisites": {
+						"type": "object",
+						"patternProperties": {
+							"^.*$": {
+								"type": "string"
+							}
+						}
+					},
 					"files": {
 						"type": "object",
 						"properties": {
@@ -209,4 +277,54 @@
 		"version",
 		"info"
 	]
+}
+
+`
+
+func NewRawMetadata(jsonBytes []byte) (RawMetadata, error) {
+	var err error
+
+	// Validate JSON against schema
+	schemaLoader := gojsonschema.NewStringLoader(rawMetadataJSONSchema)
+	documentLoader := gojsonschema.NewStringLoader(string(jsonBytes))
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return RawMetadata{}, fmt.Errorf("failed to validate raw metadata: %w", err)
+	}
+
+	if !result.Valid() {
+		var errors []string
+		for _, err := range result.Errors() {
+			errors = append(errors, err.String())
+		}
+		return RawMetadata{}, fmt.Errorf("raw metadata is invalid: %v",
+			strings.Join(errors, ", "))
+	}
+
+	// Unmarshal JSON
+	var rawMetadata RawMetadata
+	err = json.Unmarshal(jsonBytes, &rawMetadata)
+	if err != nil {
+		return RawMetadata{}, fmt.Errorf("failed to unmarshal raw metadata: %w", err)
+	}
+
+	return rawMetadata, nil
+}
+
+func (m RawMetadata) JSON(indent bool) ([]byte, error) {
+	var jsonBytes []byte
+	var err error
+
+	if indent {
+		jsonBytes, err = json.MarshalIndent(m, "", "    ")
+	} else {
+		jsonBytes, err = json.Marshal(m)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal raw metadata: %w", err)
+	}
+
+	return jsonBytes, nil
 }

@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/pkg/cmd/cmdlip"
-	"github.com/lippkg/lip/pkg/contexts"
-	"github.com/lippkg/lip/pkg/logging"
-	"github.com/lippkg/lip/pkg/versions"
+	"github.com/lippkg/lip/internal/cmd/cmdlip"
+	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/internal/versions"
 )
 
 //------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ import (
 
 const DefaultGoproxy = "https://goproxy.io"
 
-const LipVersionString = "0.15.2"
+const LipVersionString = "0.16.0"
 
 //------------------------------------------------------------------------------
 
