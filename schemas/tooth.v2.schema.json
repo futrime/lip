@@ -76,6 +76,14 @@
 				}
 			}
 		},
+		"prerequisites": {
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"type": "string"
+				}
+			}
+		},
 		"files": {
 			"type": "object",
 			"properties": {

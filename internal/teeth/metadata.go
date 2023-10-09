@@ -61,6 +61,7 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 		// Note that if duplicate keys exist, the last one wins.
 		rawMetadata.Commands = platform.Commands
 		rawMetadata.Dependencies = platform.Dependencies
+		rawMetadata.Prerequisites = platform.Prerequisites
 		rawMetadata.Files = platform.Files
 	}
 	rawMetadata.Platforms = nil
@@ -70,6 +71,14 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 		if err != nil {
 			return Metadata{},
 				fmt.Errorf("failed to parse dependency %v: %w", dep, err)
+		}
+	}
+
+	for _, dep := range rawMetadata.Prerequisites {
+		_, err := versionmatches.NewGroupFromString(dep)
+		if err != nil {
+			return Metadata{},
+				fmt.Errorf("failed to parse prerequisite %v: %w", dep, err)
 		}
 	}
 
@@ -122,6 +131,22 @@ func (m Metadata) Dependencies() map[string]versionmatches.Group {
 	}
 
 	return dependencies
+}
+
+func (m Metadata) Prerequisites() map[string]versionmatches.Group {
+	prerequisites := make(map[string]versionmatches.Group)
+
+	for toothRepo, prereq := range m.rawMetadata.Prerequisites {
+		versionMatch, err := versionmatches.NewGroupFromString(prereq)
+		if err != nil {
+			panic(err)
+		}
+
+		// To lower case to make it case insensitive.
+		prerequisites[strings.ToLower(toothRepo)] = versionMatch
+	}
+
+	return prerequisites
 }
 
 func (m Metadata) Files() RawMetadataFiles {

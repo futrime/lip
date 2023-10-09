@@ -14,9 +14,10 @@ type RawMetadata struct {
 	Version       string          `json:"version"`
 	Info          RawMetadataInfo `json:"info"`
 
-	Commands     RawMetadataCommands `json:"commands,omitempty"`
-	Dependencies map[string]string   `json:"dependencies,omitempty"`
-	Files        RawMetadataFiles    `json:"files,omitempty"`
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
 
 	Platforms []RawMetadataPlatformsItem `json:"platforms,omitempty"`
 }
@@ -50,9 +51,10 @@ type RawMetadataPlatformsItem struct {
 	GOARCH string `json:"goarch,omitempty"`
 	GOOS   string `json:"goos"`
 
-	Commands     RawMetadataCommands `json:"commands,omitempty"`
-	Dependencies map[string]string   `json:"dependencies,omitempty"`
-	Files        RawMetadataFiles    `json:"files,omitempty"`
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
 }
 
 const rawMetadataJSONSchema = `
@@ -127,6 +129,14 @@ const rawMetadataJSONSchema = `
 			}
 		},
 		"dependencies": {
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"type": "string"
+				}
+			}
+		},
+		"prerequisites": {
 			"type": "object",
 			"patternProperties": {
 				"^.*$": {
@@ -210,6 +220,14 @@ const rawMetadataJSONSchema = `
 						}
 					},
 					"dependencies": {
+						"type": "object",
+						"patternProperties": {
+							"^.*$": {
+								"type": "string"
+							}
+						}
+					},
+					"prerequisites": {
 						"type": "object",
 						"patternProperties": {
 							"^.*$": {

@@ -38,7 +38,7 @@ Options:
   --upgrade                   Upgrade the specified tooth to the newest available version.
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.
   -y, --yes                   Assume yes to all prompts and run non-interactively.
-  --no-dependencies           Do not install dependencies.
+  --no-dependencies           Do not install dependencies. Also bypass prerequisite checks.
 
 Note:
   Any string ends with .tth is considered as a local tooth archive path.
@@ -87,7 +87,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("failed to parse and download specifier string list: %w", err)
 	}
 
-	// 2. Resolve dependencies.
+	// 2. Resolve dependencies and check prerequisites.
 
 	if !flagDict.noDependenciesFlag {
 		archiveToInstallList, err = resolveDependencies(ctx, archiveToInstallList, flagDict.upgradeFlag,
@@ -96,6 +96,8 @@ func Run(ctx contexts.Context, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to resolve dependencies: %w", err)
 		}
+
+		// TODO: check prerequisites.
 	}
 
 	// 3. Sort teeth.
