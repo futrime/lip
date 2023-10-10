@@ -1,10 +1,10 @@
-# lip - a package installer, not only for LiteLoaderBDS
+# lip
 
 [![Build](https://img.shields.io/github/actions/workflow/status/lippkg/lip/build.yml?style=for-the-badge)](https://github.com/lippkg/lip/actions)
 [![Latest Tag](https://img.shields.io/github/v/tag/lippkg/lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/lippkg/lip/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/lippkg/lip/latest/total?style=for-the-badge)](https://github.com/lippkg/lip/releases/latest)
 
-lip is a package installer not only for LiteLoaderBDS. You can use lip to install packages from any Git repository.
+lip is a general package installer. You can use lip to install packages from any Git repository.
 
 Please take a look at our documentation for how to install and use lip:
 

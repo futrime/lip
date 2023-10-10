@@ -22,11 +22,11 @@ A tooth.json includes directives as shown in the following example. These are de
     "tooth": "github.com/tooth-hub/example",
     "version": "1.0.0",
     "info": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
+        "name": "Example",
+        "description": "An example package",
+        "author": "exmaple",
         "tags": [
-            "ll", "llbds", "bds"
+            "example"
         ]
     },
     "commands": {
@@ -92,7 +92,7 @@ Declares the tooth's tooth repository path, which is the tooth's unique identifi
 
 ### Syntax
 
-Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/tooth-hub/liteloaderbds).
+Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/tooth-hub/corepack).
 
 Only letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
 
@@ -197,11 +197,11 @@ Provide the name, description , author and tags of your tooth. Every field is re
 ```json
 {
     "info": {
-        "name": "LiteLoaderBDS",
-        "description": "Epoch-making and cross-language Bedrock Dedicated Server plugin loader.",
-        "author": "LiteLDev",
+        "name": "Example",
+        "description": "An example package",
+        "author": "example",
         "tags": [
-            "ll", "llbds", "bds"
+            "example"
         ]
     }
 }
@@ -283,7 +283,7 @@ Declare prerequisites of your tooth. The syntax follows the `dependencies` field
 
 ### Notes
 
-Some teeth should not be installed automatically, e.g. bds, liteloaderbds. Automatically installing these teeth may cause severe imcompatibility issues.
+Some teeth should not be installed automatically, e.g. bds. Automatically installing these teeth may cause severe imcompatibility issues.
 
 ## `files` (optional)
 
