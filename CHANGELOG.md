@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Inconsistent tooth.json schema with LipIndex.
+- Inconsistent tooth.json schema with lipIndex.
 - Wrong help messages.
 
 ## [0.15.1] - 2023-09-01
@@ -103,7 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Wrongly showing debug information when redirecting to local Lip.
+- Wrongly showing debug information when redirecting to local lip.
 
 ## [0.11.4514] - 2023-02-17
 
@@ -188,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Failing to hot update or remove Lip in local directory.
+- Failing to hot update or remove lip in local directory.
 
 ## [0.7.0] - 2023-02-01
 
@@ -260,7 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Setup utility to install Lip.
+- Setup utility to install lip.
 
 ## [0.3.0] - 2023-01-20
 
@@ -298,36 +298,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/LipPkg/Lip/compare/v0.16.0...HEAD
-[0.16.0]: https://github.com/LipPkg/Lip/compare/v0.15.2...v0.16.0
-[0.15.2]: https://github.com/LipPkg/Lip/compare/v0.15.1...v0.15.2
-[0.15.1]: https://github.com/LipPkg/Lip/compare/v0.15.0...v0.15.1
-[0.15.0]: https://github.com/LipPkg/Lip/compare/v0.14.2...v0.15.0
-[0.14.2]: https://github.com/LipPkg/Lip/compare/v0.14.1...v0.14.2
-[0.14.1]: https://github.com/LipPkg/Lip/compare/v0.14.0...v0.14.1
-[0.14.0]: https://github.com/LipPkg/Lip/compare/v0.13.0...v0.14.0
-[0.13.0]: https://github.com/LipPkg/Lip/compare/v0.12.0...v0.13.0
-[0.12.0]: https://github.com/LipPkg/Lip/compare/v0.11.45141...v0.12.0
-[0.11.45141]: https://github.com/LipPkg/Lip/compare/v0.11.4514...v0.11.45141
-[0.11.4514]: https://github.com/LipPkg/Lip/compare/v0.11.0...v0.11.4514
-[0.11.0]: https://github.com/LipPkg/Lip/compare/v0.10.0...v0.11.0
-[0.10.0]: https://github.com/LipPkg/Lip/compare/v0.9.0...v0.10.0
-[0.9.0]: https://github.com/LipPkg/Lip/compare/v0.8.3...v0.9.0
-[0.8.3]: https://github.com/LipPkg/Lip/compare/v0.8.2...v0.8.3
-[0.8.2]: https://github.com/LipPkg/Lip/compare/v0.8.1...v0.8.2
-[0.8.1]: https://github.com/LipPkg/Lip/compare/v0.8.0...v0.8.1
-[0.8.0]: https://github.com/LipPkg/Lip/compare/v0.7.1...v0.8.0
-[0.7.1]: https://github.com/LipPkg/Lip/compare/v0.7.0...v0.7.1
-[0.7.0]: https://github.com/LipPkg/Lip/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/LipPkg/Lip/compare/v0.5.1...v0.6.0
-[0.5.1]: https://github.com/LipPkg/Lip/compare/v0.4.0...v0.5.1
-[0.5.0]: https://github.com/LipPkg/Lip/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/LipPkg/Lip/compare/v0.3.4...v0.4.0
-[0.3.4]: https://github.com/LipPkg/Lip/compare/v0.3.3...v0.3.4
-[0.3.3]: https://github.com/LipPkg/Lip/compare/v0.3.2...v0.3.3
-[0.3.2]: https://github.com/LipPkg/Lip/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/LipPkg/Lip/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/LipPkg/Lip/compare/v0.2.1...v0.3.0
-[0.2.1]: https://github.com/LipPkg/Lip/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/LipPkg/Lip/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/LipPkg/Lip/releases/tag/v0.1.0
+[unreleased]: https://github.com/lippkg/lip/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/lippkg/lip/compare/v0.15.2...v0.16.0
+[0.15.2]: https://github.com/lippkg/lip/compare/v0.15.1...v0.15.2
+[0.15.1]: https://github.com/lippkg/lip/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/lippkg/lip/compare/v0.14.2...v0.15.0
+[0.14.2]: https://github.com/lippkg/lip/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/lippkg/lip/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/lippkg/lip/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/lippkg/lip/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/lippkg/lip/compare/v0.11.45141...v0.12.0
+[0.11.45141]: https://github.com/lippkg/lip/compare/v0.11.4514...v0.11.45141
+[0.11.4514]: https://github.com/lippkg/lip/compare/v0.11.0...v0.11.4514
+[0.11.0]: https://github.com/lippkg/lip/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/lippkg/lip/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/lippkg/lip/compare/v0.8.3...v0.9.0
+[0.8.3]: https://github.com/lippkg/lip/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/lippkg/lip/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/lippkg/lip/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/lippkg/lip/compare/v0.7.1...v0.8.0
+[0.7.1]: https://github.com/lippkg/lip/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/lippkg/lip/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/lippkg/lip/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/lippkg/lip/compare/v0.4.0...v0.5.1
+[0.5.0]: https://github.com/lippkg/lip/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/lippkg/lip/compare/v0.3.4...v0.4.0
+[0.3.4]: https://github.com/lippkg/lip/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/lippkg/lip/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/lippkg/lip/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/lippkg/lip/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/lippkg/lip/compare/v0.2.1...v0.3.0
+[0.2.1]: https://github.com/lippkg/lip/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/lippkg/lip/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/lippkg/lip/releases/tag/v0.1.0

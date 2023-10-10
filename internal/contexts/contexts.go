@@ -94,7 +94,7 @@ func (ctx Context) GoProxyList() []string {
 	return ctx.goProxyList
 }
 
-// LipVersion returns the Lip version.
+// LipVersion returns the lip version.
 func (ctx Context) LipVersion() versions.Version {
 	return ctx.lipVersion
 }

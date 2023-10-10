@@ -1,14 +1,14 @@
 # 开始使用
 
-要开始使用Lip你应该先完成[安装](installation.md)。如果你对命令行界面不熟悉，你也可以使用[LipUI](lipui_quickstart.md)来管理你的tooth。
+要开始使用lip你应该先完成[安装](installation.md)。如果你对命令行界面不熟悉，你也可以使用[lipUI](lipui_quickstart.md)来管理你的tooth。
 
-## 确定你的Lip正常工作
+## 确定你的lip正常工作
 
-第一步，你需要检查你的Lip的安装，执行下面的命令，并确保输出看起来相似。
+第一步，你需要检查你的lip的安装，执行下面的命令，并确保输出看起来相似。
 
 ```shell
 > lip --version
-Lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
+lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\lip\lip.exe
 ```
 
 ## 常见任务
@@ -21,7 +21,7 @@ Lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 Done.
 ```
 
-默认情况下，Lip会通过GOPROXY，一个Git仓库的代理来获取tooth。
+默认情况下，lip会通过GOPROXY，一个Git仓库的代理来获取tooth。
 
 ### tooth文件安装tooth
 
@@ -35,7 +35,7 @@ tooth文件需要有`.tth`扩展名。
 
 ### 安装多个tooth
 
-Lip 支持一次安装多个tooth
+lip 支持一次安装多个tooth
 
 ```shell
 > lip install github.com/liteldev/bdsdownloader github.com/tooth-hub/crashlogger
@@ -91,4 +91,4 @@ Done.
 
 ## 下一步
 
-你可以阅读 **命令** 目录下的页面，以获得Lip命令的更详细描述。如果你想要创建一个tooth，你可以阅读[这个教程](tutorials/create_a_lip_tooth.md)。
+你可以阅读 **命令** 目录下的页面，以获得lip命令的更详细描述。如果你想要创建一个tooth，你可以阅读[这个教程](tutorials/create_a_lip_tooth.md)。

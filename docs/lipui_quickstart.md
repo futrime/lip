@@ -1,29 +1,29 @@
-# LipUI Quickstart
+# lipUI Quickstart
 
-To simplify the usage in the maximum extent, LipUI is provided. It is a GUI application that can be used to install, uninstall, and manage Lip teeth. It is also a good way to get started with Lip.
+To simplify the usage in the maximum extent, lipUI is provided. It is a GUI application that can be used to install, uninstall, and manage lip teeth. It is also a good way to get started with lip.
 
 ## Prerequisites
 
-Before you start, you need to install Lip. You can find the installation guide [here](installation.md).
+Before you start, you need to install lip. You can find the installation guide [here](installation.md).
 
-LipUI only runs on Windows. If you are using Linux or macOS, you can use the command-line interface of Lip.
+lipUI only runs on Windows. If you are using Linux or macOS, you can use the command-line interface of lip.
 
-LipUI depends on .NET 7.0 or .NET Framework 4.6.2. For most distributions of Windows 10, Windows 11, Windows Server 2019 and Windows Server 2022, .NET Framework 4.6 is bundled. Therefore, you are likely to be able to run LipUI directly. If you don't have .NET Framework installed, you can download .NET 7.0 [here](https://dotnet.microsoft.com/download/dotnet/7.0).
+lipUI depends on .NET 7.0 or .NET Framework 4.6.2. For most distributions of Windows 10, Windows 11, Windows Server 2019 and Windows Server 2022, .NET Framework 4.6 is bundled. Therefore, you are likely to be able to run lipUI directly. If you don't have .NET Framework installed, you can download .NET 7.0 [here](https://dotnet.microsoft.com/download/dotnet/7.0).
 
 ## Installation
 
-LipUI is a portable application. You can download the latest version of LipUI [here](https://github.com/LipPkg/LipUI/releases/latest). You can put it anywhere you want.
+lipUI is a portable application. You can download the latest version of lipUI [here](https://github.com/lippkg/lipUI/releases/latest). You can put it anywhere you want.
 
 ## Usage
 
-Just run `LipUI.exe` and you will see the main window of LipUI. First, you need to select a workspace. A workspace is a directory that contains all the teeth you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. LipUI will automatically detect the teeth in the workspace.
+Just run `lipUI.exe` and you will see the main window of lipUI. First, you need to select a workspace. A workspace is a directory that contains all the teeth you installed. For Bedrock Server users, the workspace is the directory that contains `bedrock_server.exe`. You can add multiple workspaces. lipUI will automatically detect the teeth in the workspace.
 
-![LipUI Main Window](img/lipui_main_window.png)
+![lipUI Main Window](img/lipui_main_window.png)
 
 After you select a workspace, you can install, uninstall, and manage teeth. You can also use the search box to search for teeth.
 
-![LipUI Registry](img/lipui_registry.png)
+![lipUI Registry](img/lipui_registry.png)
 
 For teeth not in the registry, you can install them by clicking the `Install` button. You can also install teeth from a URL or a tooth file.
 
-![LipUI Install Tooth](img/lipui_install_tooth.png)
+![lipUI Install Tooth](img/lipui_install_tooth.png)

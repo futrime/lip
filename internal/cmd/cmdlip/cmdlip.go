@@ -29,7 +29,7 @@ Usage:
 
 Commands:
   autoremove                  Uninstall teeth that are not depended by any other teeth.
-  cache                       Inspect and manage Lip's cache.
+  cache                       Inspect and manage lip's cache.
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
@@ -85,7 +85,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		logging.Info("Lip %v from %v", ctx.LipVersion().String(), os.Args[0])
+		logging.Info("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 
