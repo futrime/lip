@@ -2,7 +2,7 @@
 
 This is the first part of a tutorial that introduces a few fundamental features of lip. If you're just getting started with lip, be sure to take a look at [Getting Started](../quickstart.md), which introduces the basic commands of lip.
 
-In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
+In this tutorial you'll create a tooth containing a plugin of LeviLamina.
 
 ## Prerequisites
 
