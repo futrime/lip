@@ -1,14 +1,14 @@
 # Quickstart
 
-To get started with using Lip, you should [have Lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [LipUI](lipui_quickstart.md) to manage your teeth.
+To get started with using lip, you should [have lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [lipUI](lipui_quickstart.md) to manage your teeth.
 
-## Ensure you have a working Lip
+## Ensure you have a working lip
 
-As a first step, you should check that you have a working Lip installed. This can be done by running the following commands and making sure that the output looks similar.
+As a first step, you should check that you have a working lip installed. This can be done by running the following commands and making sure that the output looks similar.
 
 ```shell
 > lip --version
-Lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
+lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\lip\lip.exe
 ```
 
 ## Common Tasks
@@ -21,7 +21,7 @@ Lip 0.15.0 from C:\Users\ExampleUser\AppData\Local\Lip\lip.exe
 Done.
 ```
 
-By default, Lip will fetch teeth via GOPROXY, a proxy of Git repos.
+By default, lip will fetch teeth via GOPROXY, a proxy of Git repos.
 
 ### Install a tooth from a tooth file
 
@@ -35,7 +35,7 @@ The tooth file should have ".tth" extension name.
 
 ### Install multiple teeth
 
-Lip suppports installing multiple files at a time.
+lip suppports installing multiple files at a time.
 
 ```shell
 > lip install github.com/liteldev/bdsdownloader github.com/tooth-hub/crashlogger
@@ -91,4 +91,4 @@ Done.
 
 ## Next Steps
 
-You can read pages under Commands directory to get more detailed descriptions of Lip commands. If you are a creator and want to publish your tooth, you can read [this tutorial](tutorials/create_a_lip_tooth.md) to learn how to do it.
+You can read pages under Commands directory to get more detailed descriptions of lip commands. If you are a creator and want to publish your tooth, you can read [this tutorial](tutorials/create_a_lip_tooth.md) to learn how to do it.

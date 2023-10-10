@@ -8,7 +8,7 @@ lip cache [options]
 
 ## Description
 
-Inspect and manage Lip’s tooth cache.
+Inspect and manage lip’s tooth cache.
 
 ## Options
 

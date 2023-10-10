@@ -1,7 +1,7 @@
-site_name: Lip Documentation
+site_name: lip Documentation
 site_url: https://docs.lippkg.com
-repo_name: LipPkg/Lip
-repo_url: https://github.com/LipPkg/Lip/
+repo_name: lippkg/lip
+repo_url: https://github.com/lippkg/lip/
 
 nav:
   - Basics:
@@ -11,7 +11,7 @@ nav:
     - lipui_quickstart.md
     - faq.md
     - tooth_json_file_reference.md
-    - Changelog: https://github.com/LipPkg/Lip/blob/main/CHANGELOG.md
+    - Changelog: https://github.com/lippkg/lip/blob/main/CHANGELOG.md
 
   - Tutorials:
     - tutorials/create_a_lip_tooth.md

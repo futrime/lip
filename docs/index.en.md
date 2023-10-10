@@ -1,23 +1,23 @@
-# Lip
+# lip
 
-[![Build](https://img.shields.io/github/actions/workflow/status/LipPkg/Lip/build.yml?style=for-the-badge)](https://github.com/LipPkg/Lip/actions)
-[![Latest Tag](https://img.shields.io/github/v/tag/LipPkg/Lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/LipPkg/Lip/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/LipPkg/Lip/latest/total?style=for-the-badge)](https://github.com/LipPkg/Lip/releases/latest)
+[![Build](https://img.shields.io/github/actions/workflow/status/lippkg/lip/build.yml?style=for-the-badge)](https://github.com/lippkg/lip/actions)
+[![Latest Tag](https://img.shields.io/github/v/tag/lippkg/lip?label=LATEST%20TAG&style=for-the-badge)](https://github.com/lippkg/lip/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/lippkg/lip/latest/total?style=for-the-badge)](https://github.com/lippkg/lip/releases/latest)
 
-Lip is a package installer not only for LiteLoaderBDS. You can use Lip to install packages from any Git repository.
+lip is a package installer not only for LiteLoaderBDS. You can use lip to install packages from any Git repository.
 
-Please take a look at our documentation for how to install and use Lip:
+Please take a look at our documentation for how to install and use lip:
 
 - [Installation](installation.md)
 - [Usage](quickstart.md)
 
 We release updates regularly. Find more details in our changelog:
 
-- [Changelog](https://github.com/LipPkg/Lip/blob/main/CHANGELOG.md)
+- [Changelog](https://github.com/lippkg/lip/blob/main/CHANGELOG.md)
 
 If you find bugs, need help, or want to talk to the developers, please report with an issue:
 
-- [Open an issue](https://github.com/LipPkg/Lip/issues/new/choose)
+- [Open an issue](https://github.com/lippkg/lip/issues/new/choose)
 
 ## Disclaimer
 

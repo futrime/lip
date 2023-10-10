@@ -1,6 +1,6 @@
-# Tutorial: Create a Lip Tooth
+# Tutorial: Create a lip Tooth
 
-This is the first part of a tutorial that introduces a few fundamental features of Lip. If you're just getting started with Lip, be sure to take a look at [Getting Started](../quickstart.md), which introduces the basic commands of Lip.
+This is the first part of a tutorial that introduces a few fundamental features of lip. If you're just getting started with lip, be sure to take a look at [Getting Started](../quickstart.md), which introduces the basic commands of lip.
 
 In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
 
@@ -10,13 +10,13 @@ In this tutorial you'll create a tooth containing a plugin of LiteLoaderBDS.
 
 - **A tool to edit tooth.json** Any text editor you have will work fine. The most popular are VSCode and Vim.
 
-- **A command terminal** Lip works well with both PowerShell and cmd in Windows.
+- **A command terminal** lip works well with both PowerShell and cmd in Windows.
 
-- **Lip command-line tool** You should install Lip in advance. For more information, refer to [Installation](../installation.md)
+- **lip command-line tool** You should install lip in advance. For more information, refer to [Installation](../installation.md)
 
 ## Prepare plugin distributions
 
-Lip fetches all content of a version of a Git repository for installing. Therefore, you should get all files to be installed ready under the management of Git.
+lip fetches all content of a version of a Git repository for installing. Therefore, you should get all files to be installed ready under the management of Git.
 
 If you just work with text (e.g. script plugins, addons), you could just use the repository for development to create a tooth.
 
@@ -46,7 +46,7 @@ Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">").
 
 - The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
 
-- The placement filed indicates how will Lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
+- The placement filed indicates how will lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
 
 - The possession field indicates the private directory of this tooth. It will be removed when uninstalling the tooth but will be kept when reinstalling or upgrading the tooth. Note that the path indicated in the possession field bases on the root of BDS. And every item should ends with "/".
 

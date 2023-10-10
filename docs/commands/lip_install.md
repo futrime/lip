@@ -14,11 +14,11 @@ Install a tooth from:
 - tooth repositories via Goproxy.
 - local standalone tooth files (with suffix `.tth`).
 
-For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run Lip without `--upgrade` or `--force-reinstall` flag, Lip will not install the specific version.
+For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run lip without `--upgrade` or `--force-reinstall` flag, lip will not install the specific version.
 
 Only lowercase letters, numbers, dashes, underlines, dots, slashes [a-z0-9-_./] and one @ are allowed in requirement specifiers.
 
-If you have set environment variable GOPROXY, Lip will access tooth repositories via it. Otherwise, Lip will choose the default Goproxy <https://goproxy.io>.
+If you have set environment variable GOPROXY, lip will access tooth repositories via it. Otherwise, lip will choose the default Goproxy <https://goproxy.io>.
 
 ### Overview
 
@@ -32,7 +32,7 @@ Note that `lip install` prefers to leave the installed version as-is unless `--u
 
 ### Argument Handling
 
-When looking at the items to be installed, Lip checks what type of item each is, in the following order:
+When looking at the items to be installed, lip checks what type of item each is, in the following order:
 
 1. Local tooth file with suffix `.tth`.
 2. Tooth repository, which can be accessed via Goproxy.
@@ -41,17 +41,17 @@ In 2, all letters will be converted to lowercase before processing.
 
 ### Satisfying Requirements
 
-Once Lip has the set of requirements to satisfy, it chooses which version of each requirement to install using the simple rule that the latest stable version that satisfies the given constraints will be installed. If no stable version is available, Lip will choose the latest pre-release version.
+Once lip has the set of requirements to satisfy, it chooses which version of each requirement to install using the simple rule that the latest stable version that satisfies the given constraints will be installed. If no stable version is available, lip will choose the latest pre-release version.
 
 ### Installation Order
 
-Lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, Lip will refuse to install teeth. All developers should avoid any cycle in the dependency graph.
+lip installs dependencies before their dependents, i.e. in “topological order”. When encountering a cycle in the dependency graph, lip will refuse to install teeth. All developers should avoid any cycle in the dependency graph.
 
-This dependency graph will be maintained by Lip. When uninstalling some packages, Lip will check the graph to ensure that all dependents uninstalled. If not, Lip will ask you whether to uninstall them or cancel the procedure.
+This dependency graph will be maintained by lip. When uninstalling some packages, lip will check the graph to ensure that all dependents uninstalled. If not, lip will ask you whether to uninstall them or cancel the procedure.
 
 ### Pre-release Versions
 
-You can install any pre-release versions by specifying the version. And teeth can declare pre-release versions as their dependencies. However, when teeth use any type of range version match or wildcard, Lip will ignore pre-release versions.
+You can install any pre-release versions by specifying the version. And teeth can declare pre-release versions as their dependencies. However, when teeth use any type of range version match or wildcard, lip will ignore pre-release versions.
 
 ## Options
 
@@ -61,11 +61,11 @@ You can install any pre-release versions by specifying the version. And teeth ca
 
 - `--upgrade`
 
-  Upgrade the specified tooth to the newest available version. If a version is specified and it is newer, upgrade to that version. The handling of dependencies depends on the upgrade-strategy used. When upgrading, Lip will first uninstall the old version and then install the new version.
+  Upgrade the specified tooth to the newest available version. If a version is specified and it is newer, upgrade to that version. The handling of dependencies depends on the upgrade-strategy used. When upgrading, lip will first uninstall the old version and then install the new version.
 
 - `--force-reinstall`
 
-  Reinstall the tooth even if they are already up-to-date. When reinstalling, Lip will first uninstall the tooth and then install it. If version specified, Lip will install the version, otherwise the newest version.
+  Reinstall the tooth even if they are already up-to-date. When reinstalling, lip will first uninstall the tooth and then install it. If version specified, lip will install the version, otherwise the newest version.
 
 - `-y, --yes`
 

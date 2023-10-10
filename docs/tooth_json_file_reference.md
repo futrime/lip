@@ -10,7 +10,7 @@ lip tooth init
 
 ## Schema
 
-Refer to <https://github.com/LipPkg/Lip/blob/main/schemas/tooth.v2.schema.json>.
+Refer to <https://github.com/lippkg/lip/blob/main/schemas/tooth.v2.schema.json>.
 
 ## Example
 
@@ -72,7 +72,7 @@ A tooth.json includes directives as shown in the following example. These are de
 
 ## `format_version` (required)
 
-Indicates the format of the tooth.json file. Lip will parse tooth.json according to this field.
+Indicates the format of the tooth.json file. lip will parse tooth.json according to this field.
 
 ### Examples
 
@@ -106,7 +106,7 @@ Only letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allo
 
 ### Notes
 
-The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where Lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
+The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
 Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
 
@@ -180,7 +180,7 @@ Example of a early development release:
 
 ### Notes
 
-When releasing your tooth, you should set the Git tag with prefix "v", e.g. v1.2.3. Otherwise, Lip will not correctly parse the tags.
+When releasing your tooth, you should set the Git tag with prefix "v", e.g. v1.2.3. Otherwise, lip will not correctly parse the tags.
 
 Since GOPROXY regards versions with prefix "v0.0.0" as psuedo-versions, you should not set the version beginning with "0.0.0" if you would like to publish your tooth.
 
@@ -251,7 +251,7 @@ Declare dependencies of your tooth.
 
 The key of each field is the tooth repository path of the dependency. The value is the version matching rule of the dependency.
 
-Lip provides some version matching rules:
+lip provides some version matching rules:
 
 - **1.2.0** Must match 1.2.0 exactly
 - **>1.2.0** Must be greater than 1.2.0 but keeping the major version, e.g. 1.3.0, 1.4.0, etc., but not 2.0.0
@@ -279,7 +279,7 @@ All rules in the outermost list will be calculated with OR, and rules in nested 
 
 ## `prerequisites` (optional)
 
-Declare prerequisites of your tooth. The syntax follows the `dependencies` field. The key difference is that prerequisites will not be installed by Lip automatically.
+Declare prerequisites of your tooth. The syntax follows the `dependencies` field. The key difference is that prerequisites will not be installed by lip automatically.
 
 ### Notes
 
