@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2023-10-11
+
+### Fixed
+
+- Unable to specify which version to install.
+
 ## [0.16.0] - 2023-10-09
 
 ### Added
@@ -298,7 +304,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/lippkg/lip/compare/v0.16.0...HEAD
+[unreleased]: https://github.com/lippkg/lip/compare/v0.16.1...HEAD
+[0.16.1]: https://github.com/lippkg/lip/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/lippkg/lip/compare/v0.15.2...v0.16.0
 [0.15.2]: https://github.com/lippkg/lip/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/lippkg/lip/compare/v0.15.0...v0.15.1
