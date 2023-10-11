@@ -233,9 +233,17 @@ func downloadSpecifier(ctx contexts.Context,
 			return "", fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
-		toothVersion, err := teeth.GetToothLatestStableVersion(ctx, toothRepo)
-		if err != nil {
-			return "", fmt.Errorf("failed to look up tooth version: %w", err)
+		var toothVersion versions.Version
+		if specifier.IsToothVersionSpecified() {
+			toothVersion, err = specifier.ToothVersion()
+			if err != nil {
+				return "", fmt.Errorf("failed to get tooth version: %w", err)
+			}
+		} else {
+			toothVersion, err = teeth.GetToothLatestStableVersion(ctx, toothRepo)
+			if err != nil {
+				return "", fmt.Errorf("failed to look up tooth version: %w", err)
+			}
 		}
 
 		if err != nil {
