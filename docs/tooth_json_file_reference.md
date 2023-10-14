@@ -338,7 +338,7 @@ This field is an array of platform-specific configurations. Each item is an obje
 - `goos`: the target operating system. For the values, see [here](https://go.dev/doc/install/source#environment). (required)
 - `goarch`: the target architecture. For the values, see [here](https://go.dev/doc/install/source#environment). Omitting means match all. (optional)
 
-If provided and matched, the platform-specific configuration will override the global configuration. If multiple platform-specific configurations are matched, the last one will override the previous ones.
+If provided and matched, the platform-specific configuration will override the global configuration.
 
 ### Examples
 
@@ -407,3 +407,9 @@ If provided and matched, the platform-specific configuration will override the g
     ]
 }
 ```
+
+### Notes
+
+If multiple platform-specific configurations are matched, the last one will override the previous ones. Therefore, you should put the most specific configuration at the end of the array.
+
+If a platform-specific configuration is set, `commands`, `dependencies` and `files` in the global configuration will be ignored, no matter whether they are set or not in the platform-specific configuration. Thus, it is highly recommended not to set any of them in the global configuration if you would like to set platform-specific configurations.
