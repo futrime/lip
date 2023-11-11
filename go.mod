@@ -3,7 +3,7 @@ module github.com/lippkg/lip
 go 1.19
 
 require (
-	github.com/fatih/color v1.15.0
+	github.com/fatih/color v1.16.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/xeipuuv/gojsonschema v1.2.0
