@@ -90,7 +90,8 @@ func removeToothFiles(ctx contexts.Context, metadata teeth.Metadata) error {
 
 			fileList, err := os.ReadDir(dir)
 			if err != nil {
-				return fmt.Errorf("failed to read directory: %w", err)
+				// If the directory does not exist, we can ignore the error.
+				break
 			}
 
 			if len(fileList) != 0 {

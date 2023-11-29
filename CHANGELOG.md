@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Warning for deprecated tooth.json format versions.
+
+### Fixed
+
+- Failed to uninstall a tooth when some of its files are already removed.
+
 ## [0.16.1] - 2023-10-11
 
 ### Fixed
