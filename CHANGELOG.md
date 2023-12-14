@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Warning for deprecated tooth.json format versions.
 
+### Changed
+
+- Check tooth repo validity with Go official module library.
+
 ### Fixed
 
 - Failed to uninstall a tooth when some of its files are already removed.

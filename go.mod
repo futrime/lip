@@ -7,6 +7,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/schollz/progressbar/v3 v3.14.1
 	github.com/xeipuuv/gojsonschema v1.2.0
+	golang.org/x/mod v0.14.0
 )
 
 require (
