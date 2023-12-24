@@ -296,8 +296,8 @@ This field contains three sub-fields:
 - `place`: an array to specify how files in the tooth should be place to the workspace. Each item is an object with three sub-fields: (optional)
   - `src`: the source path of the file. It can be a file or a directory with suffix "*" (e.g. `plug/*`). (required)
   - `dest`: the destination path of the file. It can be a file or a directory. If `src` has suffix "*", `dest` must be a directory. Otherwise, `dest` must be a file. (required)
-- `preserve`: an array to specify which files should be preserved when uninstalling the tooth. Each item is a string of the path of the file. (optional)
-- `remove`: an array to specify which files should be removed when uninstalling the tooth. Each item is a string of the path of the file. Note that files specified in `place` but not in `preserve` will be removed when uninstalling the tooth. Therefore, you don't need to specify them in `remove`. (optional)
+- `preserve`: an array to specify which files in `place` field should be preserved when uninstalling the tooth. Each item is a string of the path of the file. (optional)
+- `remove`: an array to specify which files should be removed when uninstalling the tooth. Each item is a string of the path of the file. (optional)
 
 ### Examples
 
@@ -323,6 +323,12 @@ This field contains three sub-fields:
     }
 }
 ```
+
+### Notes
+
+- Files specified in `place` but not in `preserve` will be removed when uninstalling the tooth. Therefore, you don't need to specify them in `remove`.
+- `remove` field is prior to `preserve` field. If a file is specified in both fields, it will be removed.
+- Only `place` filed support "*" suffix. `preserve` and `remove` fields do not support it.
 
 ## `platforms` (optional)
 
