@@ -24,7 +24,7 @@ func runCommands(commands []string) error {
 		cmd.Stderr = os.Stderr
 		err = cmd.Run()
 		if err != nil {
-			return fmt.Errorf("failed to run pre-uninstall command: %w", err)
+			return fmt.Errorf("failed to run command: %w", err)
 		}
 	}
 
