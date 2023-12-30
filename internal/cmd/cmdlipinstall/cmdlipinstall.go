@@ -217,52 +217,57 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 // downloadSpecifier downloads the tooth specified by the specifier and returns
 // the path to the downloaded tooth.
 func downloadSpecifier(ctx contexts.Context,
-	specifier specifiers.Specifier) (string, error) {
+	specifier specifiers.Specifier) (teeth.Archive, error) {
 	switch specifier.Type() {
 	case specifiers.ToothArchiveKind:
 		archivePath, err := specifier.ToothArchivePath()
 		if err != nil {
-			return "", fmt.Errorf("failed to get tooth archive path: %w", err)
+			return teeth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
 		}
 
-		return archivePath, nil
+		archive, err := teeth.NewArchive(archivePath)
+		if err != nil {
+			return teeth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
+		}
+
+		return archive, nil
 
 	case specifiers.ToothRepoKind:
 		toothRepo, err := specifier.ToothRepo()
 		if err != nil {
-			return "", fmt.Errorf("failed to get tooth repo: %w", err)
+			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
 		var toothVersion versions.Version
 		if specifier.IsToothVersionSpecified() {
 			toothVersion, err = specifier.ToothVersion()
 			if err != nil {
-				return "", fmt.Errorf("failed to get tooth version: %w", err)
+				return teeth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
 			}
 		} else {
 			toothVersion, err = teeth.GetToothLatestStableVersion(ctx, toothRepo)
 			if err != nil {
-				return "", fmt.Errorf("failed to look up tooth version: %w", err)
+				return teeth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
 			}
 		}
 
 		if err != nil {
-			return "", fmt.Errorf("failed to get tooth repo: %w", err)
+			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
 		archivePath, err := downloadFromAllGoProxies(ctx, toothRepo, toothVersion)
 		if err != nil {
-			return "", fmt.Errorf("failed to download from all Go proxies: %w", err)
+			return teeth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
 		}
 
 		archive, err := teeth.NewArchive(archivePath)
 		if err != nil {
-			return "", fmt.Errorf("failed to create archive: %w", err)
+			return teeth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
 		}
 
 		validateArchive(archive, toothRepo, toothVersion)
 
-		return archivePath, nil
+		return archive, nil
 	}
 
 	// Never reach here.
@@ -394,14 +399,9 @@ func parseAndDownloadSpecifierStringList(ctx contexts.Context,
 			return nil, fmt.Errorf("failed to parse specifier: %w", err)
 		}
 
-		archivePath, err := downloadSpecifier(ctx, specifier)
+		archive, err := downloadSpecifier(ctx, specifier)
 		if err != nil {
 			return nil, fmt.Errorf("failed to install specifier: %w", err)
-		}
-
-		archive, err := teeth.NewArchive(archivePath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create archive: %w", err)
 		}
 
 		archiveList = append(archiveList, archive)

@@ -37,6 +37,7 @@ const toothJsonTemplate = `{
 		"name": "",
 		"description": "",
 		"author": "",
+		"source": "",
 		"tags": []
 	}
 }

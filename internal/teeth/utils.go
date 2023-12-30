@@ -8,13 +8,14 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/downloading"
 	"github.com/lippkg/lip/internal/versions"
+
+	"golang.org/x/mod/module"
 )
 
 // CheckIsToothInstalled checks if a tooth is installed.
@@ -91,9 +92,7 @@ func CheckIsToothManuallyInstalled(ctx contexts.Context,
 
 // CheckIsValidToothRepo returns true if the tooth repository is valid.
 func CheckIsValidToothRepo(toothRepo string) bool {
-	reg := regexp.MustCompile(`^[a-z0-9][a-z0-9-_\.\/]*$`)
-
-	return reg.FindString(toothRepo) == toothRepo
+	return module.CheckPath(toothRepo) == nil
 }
 
 // GetAllInstalledToothMetadata lists all installed tooth metadata.

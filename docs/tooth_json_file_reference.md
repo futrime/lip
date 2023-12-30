@@ -25,6 +25,7 @@ A tooth.json includes directives as shown in the following example. These are de
         "name": "Example",
         "description": "An example package",
         "author": "exmaple",
+        "source": "github.com/lippkg/example",
         "tags": [
             "example"
         ]
@@ -146,9 +147,9 @@ We adopted [Semantic Versioning 2.0.0](https://semver.org) and simplified its ru
 
   4. Precedence for two pre-release versions with the same major, minor, and patch version MUST be determined by comparing each dot separated identifier from left to right until a difference is found as follows:
 
-   1. Identifiers consisting of only digits are compared numerically.
+  1. Identifiers consisting of only digits are compared numerically.
 
-   2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
+  2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
 
    Example: 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 
@@ -190,7 +191,7 @@ Declares necessary information of your tooth.
 
 ### Syntax
 
-Provide the name, description , author and tags of your tooth. Every field is required.
+Provide the name, description , author and tags of your tooth. The source field is optional and is for indicating the source code repository of your tooth.
 
 ### Examples
 
@@ -200,6 +201,7 @@ Provide the name, description , author and tags of your tooth. Every field is re
         "name": "Example",
         "description": "An example package",
         "author": "example",
+        "source": "github.com/lippkg/example",
         "tags": [
             "example"
         ]
@@ -296,8 +298,8 @@ This field contains three sub-fields:
 - `place`: an array to specify how files in the tooth should be place to the workspace. Each item is an object with three sub-fields: (optional)
   - `src`: the source path of the file. It can be a file or a directory with suffix "*" (e.g. `plug/*`). (required)
   - `dest`: the destination path of the file. It can be a file or a directory. If `src` has suffix "*", `dest` must be a directory. Otherwise, `dest` must be a file. (required)
-- `preserve`: an array to specify which files should be preserved when uninstalling the tooth. Each item is a string of the path of the file. (optional)
-- `remove`: an array to specify which files should be removed when uninstalling the tooth. Each item is a string of the path of the file. Note that files specified in `place` but not in `preserve` will be removed when uninstalling the tooth. Therefore, you don't need to specify them in `remove`. (optional)
+- `preserve`: an array to specify which files in `place` field should be preserved when uninstalling the tooth. Each item is a string of the path of the file. (optional)
+- `remove`: an array to specify which files should be removed when uninstalling the tooth. Each item is a string of the path of the file. (optional)
 
 ### Examples
 
@@ -323,6 +325,12 @@ This field contains three sub-fields:
     }
 }
 ```
+
+### Notes
+
+- Files specified in `place` but not in `preserve` will be removed when uninstalling the tooth. Therefore, you don't need to specify them in `remove`.
+- `remove` field is prior to `preserve` field. If a file is specified in both fields, it will be removed.
+- Only `place` filed support "*" suffix. `preserve` and `remove` fields do not support it.
 
 ## `platforms` (optional)
 

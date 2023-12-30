@@ -106,6 +106,7 @@ You can create a tooth.json like this:
         "name": "Example World",
         "description": "An example world",
         "author": "Example User",
+        "source": "github.com/lippkg/example",
         "tags": [
             "ll", "llbds", "bds"
         ]

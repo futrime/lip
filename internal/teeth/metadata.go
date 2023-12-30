@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/lippkg/lip/internal/logging"
 	"github.com/lippkg/lip/internal/teeth/migration/v1tov2"
 	"github.com/lippkg/lip/internal/versionmatches"
 	"github.com/lippkg/lip/internal/versions"
@@ -15,6 +16,7 @@ type Metadata struct {
 	rawMetadata RawMetadata
 }
 
+// NewMetadata parses the given jsonBytes and returns a Metadata.
 func NewMetadata(jsonBytes []byte) (Metadata, error) {
 	var err error
 
@@ -23,17 +25,24 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 		return Metadata{}, fmt.Errorf("failed to get format version: %w", err)
 	}
 
+	isMigrationNeeded := false
 	switch formatVersion {
 	case 1:
 		jsonBytes, err = v1tov2.Migrate(jsonBytes)
 		if err != nil {
 			return Metadata{}, fmt.Errorf("failed to migrate metadata: %w", err)
 		}
+
+		isMigrationNeeded = true
 	}
 
 	rawMetadata, err := NewRawMetadata(jsonBytes)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse raw metadata: %w", err)
+	}
+
+	if isMigrationNeeded {
+		logging.Warning("tooth.json format of %s is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
 	}
 
 	return NewMetadataFromRawMetadata(rawMetadata)

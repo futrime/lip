@@ -2,10 +2,10 @@ package specifiers
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/lippkg/lip/internal/versions"
+	"golang.org/x/mod/module"
 )
 
 // SpecifierKind is an enum that represents the type of a specifier.
@@ -42,20 +42,15 @@ func New(specifierString string) (Specifier, error) {
 		// tooth repo strings should be lower case.
 		specifierString = strings.ToLower(specifierString)
 
-		reg := regexp.MustCompile(
-			`^[a-z0-9][a-z0-9-_\.\/]*(@\d+\.\d+\.\d+(-[a-z]+(\.\d+)?)?)?$`)
-
-		// If not matched or the matched string is not the same as the specifier, it is an
-		// invalid requirement specifier.
-		if reg.FindString(specifierString) != specifierString {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
-				specifierString)
-		}
-
 		// Parse the tooth repo and version.
 		splittedSpecifier := strings.Split(specifierString, "@")
 
 		toothRepo := splittedSpecifier[0]
+
+		if err := module.CheckPath(toothRepo); err != nil {
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %v",
+				specifierString, err.Error())
+		}
 
 		var toothVersion versions.Version
 
