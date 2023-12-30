@@ -25,6 +25,7 @@ A tooth.json includes directives as shown in the following example. These are de
         "name": "Example",
         "description": "An example package",
         "author": "exmaple",
+        "source": "github.com/lippkg/example",
         "tags": [
             "example"
         ]
@@ -146,9 +147,9 @@ We adopted [Semantic Versioning 2.0.0](https://semver.org) and simplified its ru
 
   4. Precedence for two pre-release versions with the same major, minor, and patch version MUST be determined by comparing each dot separated identifier from left to right until a difference is found as follows:
 
-   1. Identifiers consisting of only digits are compared numerically.
+  1. Identifiers consisting of only digits are compared numerically.
 
-   2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
+  2. Identifiers with letters or hyphens are compared lexically in ASCII sort order. When one of the two identifiers has reached its end but another has not, it will has a lower precedence.
 
    Example: 1.0.0-alph < 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0-beta.2 < 1.0.0-beta.11 < 1.0.0-rc.1 < 1.0.0.
 
@@ -190,7 +191,7 @@ Declares necessary information of your tooth.
 
 ### Syntax
 
-Provide the name, description , author and tags of your tooth. Every field is required.
+Provide the name, description , author and tags of your tooth. The source field is optional and is for indicating the source code repository of your tooth.
 
 ### Examples
 
@@ -200,6 +201,7 @@ Provide the name, description , author and tags of your tooth. Every field is re
         "name": "Example",
         "description": "An example package",
         "author": "example",
+        "source": "github.com/lippkg/example",
         "tags": [
             "example"
         ]

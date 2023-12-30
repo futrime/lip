@@ -127,6 +127,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 		{"Name", metadata.Info().Name},
 		{"Description", metadata.Info().Description},
 		{"Author", metadata.Info().Author},
+		{"Source", metadata.Info().Source},
 		{"Tags", strings.Join(metadata.Info().Tags, ", ")},
 		{"Version", metadata.Version().String()},
 	}
