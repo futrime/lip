@@ -11,7 +11,8 @@ import (
 	"path/filepath"
 
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/lippkg/lip/internal/teeth"
 )
 
@@ -50,7 +51,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -128,7 +129,7 @@ func packFilesToTemp(fileList []string) (string, error) {
 
 	// Write files to the zip file.
 	for _, file := range fileList {
-		logging.Info("packing " + file + " ...")
+		log.Info("packing " + file + " ...")
 
 		writer, err := zipWriter.Create(filepath.ToSlash(file))
 		if err != nil {

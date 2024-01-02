@@ -9,11 +9,12 @@ import (
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/downloading"
 	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/logging"
+
 	"github.com/lippkg/lip/internal/specifiers"
 	"github.com/lippkg/lip/internal/teeth"
 	"github.com/lippkg/lip/internal/versionmatches"
 	"github.com/lippkg/lip/internal/versions"
+	log "github.com/sirupsen/logrus"
 )
 
 type FlagDict struct {
@@ -70,7 +71,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -79,7 +80,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("at least one specifier is required")
 	}
 
-	logging.Info("Downloading teeth and resolving dependencies...")
+	log.Info("Downloading teeth and resolving dependencies...")
 
 	// 1. Download teeth specified by the user and resolve their dependencies.
 
@@ -137,7 +138,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("failed to install teeth: %w", err)
 	}
 
-	logging.Info("Done.")
+	log.Info("Done.")
 
 	return nil
 }
@@ -149,14 +150,14 @@ func askForConfirmation(ctx contexts.Context,
 	archiveList []teeth.Archive) error {
 
 	// Print the list of teeth to be installed.
-	logging.Info("The following teeth will be installed:")
+	log.Info("The following teeth will be installed:")
 	for _, archive := range archiveList {
-		logging.Info("  %v: %v", archive.Metadata().Tooth(),
+		log.Infof("  %v: %v", archive.Metadata().Tooth(),
 			archive.Metadata().Info().Name)
 	}
 
 	// Ask for confirmation.
-	logging.Info("Do you want to continue? [y/N]")
+	log.Info("Do you want to continue? [y/N]")
 	var ans string
 	fmt.Scanln(&ans)
 	if ans != "y" && ans != "Y" {
@@ -173,7 +174,7 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 
 	var errList []error
 
-	logging.Info("Downloading %v@%v...", toothRepo, toothVersion)
+	log.Infof("Downloading %v@%v...", toothRepo, toothVersion)
 
 	for _, goProxy := range ctx.GoProxyList() {
 		var err error
@@ -197,7 +198,8 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 		}
 
 		pbarStyle := downloading.StyleDefault
-		if logging.LoggingLevel() > logging.InfoLevel {
+		if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
+			log.GetLevel() == log.ErrorLevel || log.GetLevel() == log.WarnLevel {
 			pbarStyle = downloading.StyleNone
 		}
 
@@ -331,7 +333,7 @@ func installToothArchiveList(ctx contexts.Context,
 		shouldUninstall := false
 
 		if isInstalled && forceReinstall {
-			logging.Info("Reinstalling tooth %v...", archive.Metadata().Tooth())
+			log.Infof("Reinstalling tooth %v...", archive.Metadata().Tooth())
 
 			shouldInstall = true
 			shouldUninstall = true
@@ -344,24 +346,24 @@ func installToothArchiveList(ctx contexts.Context,
 			}
 
 			if versions.GreaterThan(archive.Metadata().Version(), currentMetadata.Version()) {
-				logging.Info("Upgrading tooth %v...", archive.Metadata().Tooth())
+				log.Infof("Upgrading tooth %v...", archive.Metadata().Tooth())
 
 				shouldInstall = true
 				shouldUninstall = true
 			} else {
-				logging.Info("Tooth %v is already up-to-date", archive.Metadata().Tooth())
+				log.Infof("Tooth %v is already up-to-date", archive.Metadata().Tooth())
 
 				shouldInstall = false
 				shouldUninstall = false
 			}
 
 		} else if isInstalled {
-			logging.Info("Tooth %v is already installed", archive.Metadata().Tooth())
+			log.Infof("Tooth %v is already installed", archive.Metadata().Tooth())
 
 			shouldInstall = false
 			shouldUninstall = false
 		} else {
-			logging.Info("Installing tooth %v...", archive.Metadata().Tooth())
+			log.Infof("Installing tooth %v...", archive.Metadata().Tooth())
 
 			shouldInstall = true
 			shouldUninstall = false

@@ -7,7 +7,6 @@ import (
 	"github.com/lippkg/lip/internal/cmd/cmdliptoothinit"
 	"github.com/lippkg/lip/internal/cmd/cmdliptoothpack"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
 )
 
 type FlagDict struct {
@@ -47,7 +46,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 

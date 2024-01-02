@@ -7,7 +7,8 @@ import (
 
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/logging"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/lippkg/lip/internal/teeth"
 )
 
@@ -50,7 +51,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -98,7 +99,7 @@ func Run(ctx contexts.Context, args []string) error {
 		}
 	}
 
-	logging.Info("Done.")
+	log.Info("Done.")
 
 	return nil
 }
@@ -110,19 +111,19 @@ func askForConfirmation(ctx contexts.Context,
 	toothRepoList []string) error {
 
 	// Print the list of teeth to be installed.
-	logging.Info("The following teeth will be uninstalled:")
+	log.Info("The following teeth will be uninstalled:")
 	for _, toothRepo := range toothRepoList {
 		metadata, err := teeth.GetInstalledToothMetadata(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
 		}
 
-		logging.Info("  %v: %v", toothRepo,
+		log.Infof("  %v: %v", toothRepo,
 			metadata.Info().Name)
 	}
 
 	// Ask for confirmation.
-	logging.Info("Do you want to continue? [y/N]")
+	log.Info("Do you want to continue? [y/N]")
 	var ans string
 	fmt.Scanln(&ans)
 	if ans != "y" && ans != "Y" {

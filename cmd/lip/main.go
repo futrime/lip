@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+
 	"github.com/lippkg/lip/internal/versions"
+	log "github.com/sirupsen/logrus"
 )
 
 //------------------------------------------------------------------------------
@@ -24,15 +26,17 @@ const LipVersionString = "0.17.0"
 func main() {
 	var err error
 
+	log.SetFormatter(&nested.Formatter{})
+
 	ctx, err := createContext()
 	if err != nil {
-		logging.Error("cannot initialize context: %v", err.Error())
+		log.Errorf("cannot initialize context: %v", err.Error())
 		return
 	}
 
 	err = cmdlip.Run(ctx, os.Args[1:])
 	if err != nil {
-		logging.Error(err.Error())
+		log.Error(err.Error())
 		return
 	}
 }

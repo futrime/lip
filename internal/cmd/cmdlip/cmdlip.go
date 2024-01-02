@@ -13,7 +13,8 @@ import (
 	"github.com/lippkg/lip/internal/cmd/cmdliptooth"
 	"github.com/lippkg/lip/internal/cmd/cmdlipuninstall"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type FlagDict struct {
@@ -70,22 +71,22 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Set logging level.
 	if flagDict.verboseFlag {
-		logging.SetLoggingLevel(logging.DebugLevel)
+		log.SetLevel(log.DebugLevel)
 	} else if flagDict.quietFlag {
-		logging.SetLoggingLevel(logging.ErrorLevel)
+		log.SetLevel(log.ErrorLevel)
 	} else {
-		logging.SetLoggingLevel(logging.InfoLevel)
+		log.SetLevel(log.InfoLevel)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		logging.Info("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
+		fmt.Printf("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 

@@ -10,7 +10,8 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/lippkg/lip/internal/teeth"
 )
 
@@ -63,7 +64,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -101,7 +102,7 @@ func initTooth(ctx contexts.Context) error {
 	var ans string
 	scanner := bufio.NewScanner(os.Stdin)
 
-	logging.Info("What is the tooth path? (e.g. github.com/tooth-hub/llbds3)")
+	log.Info("What is the tooth path? (e.g. github.com/tooth-hub/llbds3)")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Tooth = ans
@@ -109,17 +110,17 @@ func initTooth(ctx contexts.Context) error {
 	// To lower case.
 	rawMetadata.Tooth = strings.ToLower(rawMetadata.Tooth)
 
-	logging.Info("What is the name?")
+	log.Info("What is the name?")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Name = ans
 
-	logging.Info("What is the description?")
+	log.Info("What is the description?")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Description = ans
 
-	logging.Info("What is the author? Please input your GitHub username.")
+	log.Info("What is the author? Please input your GitHub username.")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
@@ -152,7 +153,7 @@ func initTooth(ctx contexts.Context) error {
 		return errors.New("failed to write tooth.json")
 	}
 
-	logging.Info("Successfully initialized a new tooth.")
+	log.Info("Successfully initialized a new tooth.")
 
 	return nil
 }

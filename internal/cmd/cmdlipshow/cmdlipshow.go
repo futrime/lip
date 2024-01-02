@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+
 	"github.com/lippkg/lip/internal/teeth"
 	"github.com/olekukonko/tablewriter"
 )
@@ -53,7 +53,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -157,7 +157,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 
 	table.Render()
 
-	logging.Info(tableString.String())
+	fmt.Print(tableString.String())
 
 	return nil
 }
@@ -197,7 +197,7 @@ func showJSON(ctx contexts.Context, toothRepo string,
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	logging.Info(string(jsonBytes))
+	fmt.Print(string(jsonBytes))
 
 	return nil
 }

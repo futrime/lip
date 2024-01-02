@@ -6,10 +6,11 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/lippkg/lip/internal/logging"
 	"github.com/lippkg/lip/internal/teeth/migration/v1tov2"
 	"github.com/lippkg/lip/internal/versionmatches"
 	"github.com/lippkg/lip/internal/versions"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Metadata struct {
@@ -42,7 +43,7 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 	}
 
 	if isMigrationNeeded {
-		logging.Warning("tooth.json format of %s is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
+		log.Warnf("tooth.json format of %s is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
 	}
 
 	return NewMetadataFromRawMetadata(rawMetadata)

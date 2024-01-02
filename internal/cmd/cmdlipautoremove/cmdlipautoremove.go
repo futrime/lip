@@ -6,7 +6,8 @@ import (
 
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/logging"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/lippkg/lip/internal/teeth"
 )
 
@@ -49,7 +50,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -74,7 +75,7 @@ func autoremove(ctx contexts.Context, yesFlag bool) error {
 	var err error
 
 	// 1. Get all isolated teeth.
-	logging.Info("Discovering isolated teeth...")
+	log.Info("Discovering isolated teeth...")
 
 	isolatedTeeth, err := listIsolatedTeeth(ctx)
 	if err != nil {
@@ -90,9 +91,9 @@ func autoremove(ctx contexts.Context, yesFlag bool) error {
 	}
 
 	// 3. Uninstall isolated teeth.
-	logging.Info("Uninstalling isolated teeth...")
+	log.Info("Uninstalling isolated teeth...")
 	for _, tooth := range isolatedTeeth {
-		logging.Info("  %v", tooth)
+		log.Infof("  %v", tooth)
 
 		err = installing.Uninstall(ctx, tooth)
 		if err != nil {
@@ -100,7 +101,7 @@ func autoremove(ctx contexts.Context, yesFlag bool) error {
 		}
 	}
 
-	logging.Info("All isolated teeth are uninstalled.")
+	log.Info("All isolated teeth are uninstalled.")
 
 	return nil
 }
@@ -224,13 +225,13 @@ func listManuallyInstalledTeeth(ctx contexts.Context) ([]string, error) {
 // promptForConfirmation prompts for confirmation.
 func promptForConfirmation(isolatedTeeth []string) error {
 	// Print isolated teeth.
-	logging.Info("The following teeth will be uninstalled:")
+	log.Info("The following teeth will be uninstalled:")
 	for _, tooth := range isolatedTeeth {
-		logging.Info("  %v", tooth)
+		log.Infof("  %v", tooth)
 	}
 
 	// Prompt for confirmation.
-	logging.Info("Do you want to continue? [y/N]")
+	log.Info("Do you want to continue? [y/N]")
 	var ans string
 	fmt.Scanln(&ans)
 	if ans != "y" && ans != "Y" {

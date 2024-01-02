@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+
 	"github.com/lippkg/lip/internal/teeth"
 	"github.com/lippkg/lip/internal/versions"
 	"github.com/olekukonko/tablewriter"
@@ -54,7 +54,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -106,7 +106,7 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 		}
 
 		jsonString := string(jsonBytes)
-		logging.Info(jsonString)
+		fmt.Print(jsonString)
 	} else {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
@@ -129,7 +129,7 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 
 		table.Render()
 
-		logging.Info(tableString.String())
+		fmt.Print(tableString.String())
 	}
 
 	return nil
@@ -168,7 +168,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 		}
 
 		jsonString := string(jsonBytes)
-		logging.Info(jsonString)
+		fmt.Print(jsonString)
 	} else {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
@@ -202,7 +202,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 
 		table.Render()
 
-		logging.Info(tableString.String())
+		fmt.Print(tableString.String())
 	}
 
 	return nil
