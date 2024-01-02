@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/blang/semver/v4"
 	"golang.org/x/mod/module"
 )
 
@@ -21,7 +21,7 @@ type Specifier struct {
 	specifierKind           SpecifierKind
 	toothArchivePath        string
 	toothRepo               string
-	toothVersion            versions.Version
+	toothVersion            semver.Version
 	isToothVersionSpecified bool
 }
 
@@ -52,10 +52,10 @@ func New(specifierString string) (Specifier, error) {
 				specifierString, err.Error())
 		}
 
-		var toothVersion versions.Version
+		var toothVersion semver.Version
 
 		if len(splittedSpecifier) == 2 {
-			toothVersion, err = versions.NewFromString(splittedSpecifier[1])
+			toothVersion, err = semver.Parse(splittedSpecifier[1])
 			if err != nil {
 				return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
 					specifierString)
@@ -119,13 +119,13 @@ func (s Specifier) ToothRepo() (string, error) {
 }
 
 // ToothVersion returns the version of the tooth.
-func (s Specifier) ToothVersion() (versions.Version, error) {
+func (s Specifier) ToothVersion() (semver.Version, error) {
 	if s.Type() != ToothRepoKind {
-		return versions.Version{}, fmt.Errorf("specifier is not a tooth repo")
+		return semver.Version{}, fmt.Errorf("specifier is not a tooth repo")
 	}
 
 	if !s.isToothVersionSpecified {
-		return versions.Version{}, fmt.Errorf("tooth version is not specified")
+		return semver.Version{}, fmt.Errorf("tooth version is not specified")
 	}
 
 	return s.toothVersion, nil

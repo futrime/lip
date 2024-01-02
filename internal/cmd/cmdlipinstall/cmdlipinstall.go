@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/downloading"
 	"github.com/lippkg/lip/internal/installing"
 
 	"github.com/lippkg/lip/internal/specifiers"
 	"github.com/lippkg/lip/internal/teeth"
-	"github.com/lippkg/lip/internal/versionmatches"
-	"github.com/lippkg/lip/internal/versions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -106,8 +105,8 @@ func Run(ctx contexts.Context, args []string) error {
 
 		if len(missingPrerequisiteMap) > 0 {
 			errorMsg := "\n"
-			for prerequisite, match := range missingPrerequisiteMap {
-				errorMsg += fmt.Sprintf("  %v: %v\n", prerequisite, match.String())
+			for prerequisite := range missingPrerequisiteMap {
+				errorMsg += fmt.Sprintf("  %v\n", prerequisite)
 			}
 
 			return fmt.Errorf("missing prerequisites: %v", errorMsg)
@@ -170,7 +169,7 @@ func askForConfirmation(ctx contexts.Context,
 // downloadFromAllGoProxies downloads the tooth from all Go proxies and returns
 // the path to the downloaded tooth.
 func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
-	toothVersion versions.Version) (string, error) {
+	toothVersion semver.Version) (string, error) {
 
 	var errList []error
 
@@ -240,7 +239,7 @@ func downloadSpecifier(ctx contexts.Context,
 			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
-		var toothVersion versions.Version
+		var toothVersion semver.Version
 		if specifier.IsToothVersionSpecified() {
 			toothVersion, err = specifier.ToothVersion()
 			if err != nil {
@@ -279,11 +278,11 @@ func downloadSpecifier(ctx contexts.Context,
 // findMissingPrerequisites finds missing prerequisites of the tooth specified
 // by the specifier and returns the map of missing prerequisites.
 func findMissingPrerequisites(ctx contexts.Context,
-	archiveList []teeth.Archive) (map[string]versionmatches.Group, error) {
-	var missingPrerequisiteMap = make(map[string]versionmatches.Group)
+	archiveList []teeth.Archive) (map[string]semver.Range, error) {
+	var missingPrerequisiteMap = make(map[string]semver.Range)
 
 	for _, archive := range archiveList {
-		for prerequisite, match := range archive.Metadata().Prerequisites() {
+		for prerequisite, versionRange := range archive.Metadata().Prerequisites() {
 			isInstalled, err := teeth.CheckIsToothInstalled(ctx, prerequisite)
 			if err != nil {
 				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
@@ -295,8 +294,8 @@ func findMissingPrerequisites(ctx contexts.Context,
 					return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
 				}
 
-				if !match.Match(currentMetadata.Version()) {
-					missingPrerequisiteMap[prerequisite] = match
+				if !versionRange(currentMetadata.Version()) {
+					missingPrerequisiteMap[prerequisite] = versionRange
 				}
 
 				break
@@ -304,14 +303,14 @@ func findMissingPrerequisites(ctx contexts.Context,
 				// Check if the tooth is in the archive list.
 				isInArchiveList := false
 				for _, archive := range archiveList {
-					if archive.Metadata().Tooth() == prerequisite && match.Match(archive.Metadata().Version()) {
+					if archive.Metadata().Tooth() == prerequisite && versionRange(archive.Metadata().Version()) {
 						isInArchiveList = true
 						break
 					}
 				}
 
 				if !isInArchiveList {
-					missingPrerequisiteMap[prerequisite] = match
+					missingPrerequisiteMap[prerequisite] = versionRange
 				}
 			}
 		}
@@ -345,7 +344,7 @@ func installToothArchiveList(ctx contexts.Context,
 				return fmt.Errorf("failed to find installed tooth metadata: %w", err)
 			}
 
-			if versions.GreaterThan(archive.Metadata().Version(), currentMetadata.Version()) {
+			if archive.Metadata().Version().GT(currentMetadata.Version()) {
 				log.Infof("Upgrading tooth %v...", archive.Metadata().Tooth())
 
 				shouldInstall = true
@@ -423,7 +422,7 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 
 	// fixedToothVersionMap records versions of teeth that are already installed
 	// or will be installed.
-	fixedToothVersionMap := make(map[string]versions.Version)
+	fixedToothVersionMap := make(map[string]semver.Version)
 
 	installedToothMetadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
@@ -442,7 +441,7 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 
 		} else {
 			// If the tooth is installed, check if the tooth should be reinstalled
-			if !forceReinstallFlag && !(upgradeFlag && versions.GreaterThan(rootArchive.Metadata().Version(),
+			if !forceReinstallFlag && !(upgradeFlag && rootArchive.Metadata().Version().GT(
 				fixedToothVersionMap[rootArchive.Metadata().Tooth()])) {
 				continue
 			}
@@ -462,11 +461,11 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 
 		depMap := archive.Metadata().Dependencies()
 
-		for dep, match := range depMap {
+		for dep, versionRange := range depMap {
 			if _, ok := fixedToothVersionMap[dep]; ok {
-				if !match.Match(fixedToothVersionMap[dep]) {
+				if !versionRange(fixedToothVersionMap[dep]) {
 					return nil, fmt.Errorf("installed tooth %v does not match dependency %v",
-						dep, match.String())
+						dep, dep)
 				}
 
 				// Avoid downloading the same tooth multiple times.
@@ -478,12 +477,12 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 				return nil, fmt.Errorf("failed to get available version list: %w", err)
 			}
 
-			var targetVersion versions.Version
+			var targetVersion semver.Version
 			isTargetVersionFound := false
 
 			// First find stable versions
 			for _, version := range versionList {
-				if version.IsStable() && match.Match(version) {
+				if len(version.Pre) == 0 && versionRange(version) {
 					targetVersion = version
 					isTargetVersionFound = true
 					break
@@ -493,7 +492,7 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 			// If no stable version is found, find any version
 			if !isTargetVersionFound {
 				for _, version := range versionList {
-					if match.Match(version) {
+					if versionRange(version) {
 						targetVersion = version
 						isTargetVersionFound = true
 						break
@@ -529,12 +528,12 @@ func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
 }
 
 // validateArchive validates the archive.
-func validateArchive(archive teeth.Archive, toothRepo string, version versions.Version) error {
+func validateArchive(archive teeth.Archive, toothRepo string, version semver.Version) error {
 	if archive.Metadata().Tooth() != toothRepo {
 		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().Tooth(), toothRepo)
 	}
 
-	if !versions.Equal(archive.Metadata().Version(), version) {
+	if archive.Metadata().Version().NE(version) {
 		return fmt.Errorf("tooth version mismatch: %v != %v", archive.Metadata().Version(), version)
 	}
 

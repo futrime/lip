@@ -6,19 +6,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/blang/semver/v4"
 )
 
 // Context is the context of the application.
 type Context struct {
-	lipVersion      versions.Version
+	lipVersion      semver.Version
 	globalDotLipDir string
 	workspaceDir    string
 	goProxyList     []string
 }
 
 // New creates a new context.
-func New(lipVersion versions.Version, globalDotLipDir string,
+func New(lipVersion semver.Version, globalDotLipDir string,
 	workspaceDir string, goProxyList []string) Context {
 	return Context{
 		lipVersion:      lipVersion,
@@ -95,7 +95,7 @@ func (ctx Context) GoProxyList() []string {
 }
 
 // LipVersion returns the lip version.
-func (ctx Context) LipVersion() versions.Version {
+func (ctx Context) LipVersion() semver.Version {
 	return ctx.lipVersion
 }
 

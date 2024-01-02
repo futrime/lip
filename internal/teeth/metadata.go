@@ -6,9 +6,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/teeth/migration/v1tov2"
-	"github.com/lippkg/lip/internal/versionmatches"
-	"github.com/lippkg/lip/internal/versions"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -50,7 +49,7 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 }
 
 func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
-	_, err := versions.NewFromString(rawMetadata.Version)
+	_, err := semver.Parse(rawMetadata.Version)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse version: %w", err)
 	}
@@ -77,7 +76,7 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 	rawMetadata.Platforms = nil
 
 	for _, dep := range rawMetadata.Dependencies {
-		_, err := versionmatches.NewGroupFromString(dep)
+		_, err := semver.ParseRange(dep)
 		if err != nil {
 			return Metadata{},
 				fmt.Errorf("failed to parse dependency %v: %w", dep, err)
@@ -85,7 +84,7 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 	}
 
 	for _, dep := range rawMetadata.Prerequisites {
-		_, err := versionmatches.NewGroupFromString(dep)
+		_, err := semver.ParseRange(dep)
 		if err != nil {
 			return Metadata{},
 				fmt.Errorf("failed to parse prerequisite %v: %w", dep, err)
@@ -110,8 +109,8 @@ func (m Metadata) Tooth() string {
 	return strings.ToLower(m.rawMetadata.Tooth)
 }
 
-func (m Metadata) Version() versions.Version {
-	version, err := versions.NewFromString(m.rawMetadata.Version)
+func (m Metadata) Version() semver.Version {
+	version, err := semver.Parse(m.rawMetadata.Version)
 	if err != nil {
 		panic(err)
 	}
@@ -127,33 +126,33 @@ func (m Metadata) Commands() RawMetadataCommands {
 	return m.rawMetadata.Commands
 }
 
-func (m Metadata) Dependencies() map[string]versionmatches.Group {
-	dependencies := make(map[string]versionmatches.Group)
+func (m Metadata) Dependencies() map[string]semver.Range {
+	dependencies := make(map[string]semver.Range)
 
 	for toothRepo, dep := range m.rawMetadata.Dependencies {
-		versionMatch, err := versionmatches.NewGroupFromString(dep)
+		versionRange, err := semver.ParseRange(dep)
 		if err != nil {
 			panic(err)
 		}
 
 		// To lower case to make it case insensitive.
-		dependencies[strings.ToLower(toothRepo)] = versionMatch
+		dependencies[strings.ToLower(toothRepo)] = versionRange
 	}
 
 	return dependencies
 }
 
-func (m Metadata) Prerequisites() map[string]versionmatches.Group {
-	prerequisites := make(map[string]versionmatches.Group)
+func (m Metadata) Prerequisites() map[string]semver.Range {
+	prerequisites := make(map[string]semver.Range)
 
 	for toothRepo, prereq := range m.rawMetadata.Prerequisites {
-		versionMatch, err := versionmatches.NewGroupFromString(prereq)
+		versionRange, err := semver.ParseRange(prereq)
 		if err != nil {
 			panic(err)
 		}
 
 		// To lower case to make it case insensitive.
-		prerequisites[strings.ToLower(toothRepo)] = versionMatch
+		prerequisites[strings.ToLower(toothRepo)] = versionRange
 	}
 
 	return prerequisites

@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/versions"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -22,9 +22,9 @@ const (
 
 // CalculateDownloadURLViaGoProxy calculates the download URL of a tooth
 // version via GoProxy.
-func CalculateDownloadURLViaGoProxy(goProxy string, toothRepo string, version versions.Version) string {
+func CalculateDownloadURLViaGoProxy(goProxy string, toothRepo string, version semver.Version) string {
 	var suffix string
-	if version.Major() == 0 || version.Major() == 1 {
+	if version.Major == 0 || version.Major == 1 {
 		suffix = ".zip"
 	} else {
 		suffix = "+incompatible.zip"

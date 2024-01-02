@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
 	"github.com/lippkg/lip/internal/contexts"
 
-	"github.com/lippkg/lip/internal/versions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -56,7 +56,7 @@ func createContext() (contexts.Context, error) {
 		goProxyList = strings.Split(goProxyEnvVar, ",")
 	}
 
-	lipVersion, err := versions.NewFromString(LipVersionString)
+	lipVersion, err := semver.Parse(LipVersionString)
 	if err != nil {
 		return contexts.Context{},
 			fmt.Errorf("cannot parse lip version: %w", err)

@@ -98,7 +98,7 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
-		case "autoreremove":
+		case "autoremove":
 			err = cmdlipautoremove.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return err

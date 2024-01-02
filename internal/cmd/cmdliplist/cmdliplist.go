@@ -9,7 +9,6 @@ import (
 	"github.com/lippkg/lip/internal/contexts"
 
 	"github.com/lippkg/lip/internal/teeth"
-	"github.com/lippkg/lip/internal/versions"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -156,7 +155,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 					"failed to look up latest version: %w", err)
 			}
 
-			if versions.GreaterThan(latestVersion, currentVersion) {
+			if latestVersion.GT(currentVersion) {
 				dataList = append(dataList, metadata.Raw())
 			}
 		}
@@ -180,7 +179,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 					"failed to look up latest version: %w", err)
 			}
 
-			if versions.GreaterThan(latestVersion, currentVersion) {
+			if latestVersion.GT(currentVersion) {
 				tableData = append(tableData, []string{
 					metadata.Tooth(),
 					metadata.Info().Name,

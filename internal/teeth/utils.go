@@ -11,9 +11,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/contexts"
 	"github.com/lippkg/lip/internal/downloading"
-	"github.com/lippkg/lip/internal/versions"
 
 	"golang.org/x/mod/module"
 )
@@ -158,7 +158,7 @@ func GetInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata
 
 // GetToothAvailableVersionList fetches the version list of a tooth repository.
 // The version list is sorted in descending order.
-func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]versions.Version,
+func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) (semver.Versions,
 	error) {
 	var err error
 	if !CheckIsValidToothRepo(repoPath) {
@@ -178,23 +178,25 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]vers
 	reader := bytes.NewReader(content)
 
 	// Each line is a version.
-	var versionList []versions.Version
+	var versionList semver.Versions
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		versionString := scanner.Text()
 		versionString = strings.TrimPrefix(versionString, "v")
 		versionString = strings.TrimSuffix(versionString, "+incompatible")
-		version, err := versions.NewFromString(versionString)
+		version, err := semver.Parse(versionString)
 		if err != nil {
 			continue
 		}
 		versionList = append(versionList, version)
 	}
 
-	// Sort the version list in descending order.
-	sort.Slice(versionList, func(i, j int) bool {
-		return versions.GreaterThan(versionList[i], versionList[j])
-	})
+	semver.Sort(versionList)
+
+	// Reverse the version list.
+	for i, j := 0, len(versionList)-1; i < j; i, j = i+1, j-1 {
+		versionList[i], versionList[j] = versionList[j], versionList[i]
+	}
 
 	return versionList, nil
 }
@@ -202,27 +204,27 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) ([]vers
 // GetToothLatestStableVersion returns the correct version of the tooth
 // specified by the specifier.
 func GetToothLatestStableVersion(ctx contexts.Context,
-	toothRepo string) (versions.Version, error) {
+	toothRepo string) (semver.Version, error) {
 
 	var err error
 
 	versionList, err := GetToothAvailableVersionList(ctx, toothRepo)
 	if err != nil {
-		return versions.Version{}, fmt.Errorf(
+		return semver.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)
 	}
 
 	for _, version := range versionList {
-		if version.IsStable() {
+		if len(version.Pre) == 0 {
 			return version, nil
 		}
 	}
 
-	return versions.Version{}, fmt.Errorf("cannot find latest stable version")
+	return semver.Version{}, fmt.Errorf("cannot find latest stable version")
 }
 
 // ValidateVersion checks if the version of the tooth repository is valid.
-func ValidateVersion(ctx contexts.Context, repoPath string, version versions.Version) error {
+func ValidateVersion(ctx contexts.Context, repoPath string, version semver.Version) error {
 	var err error
 
 	if !CheckIsValidToothRepo(repoPath) {
