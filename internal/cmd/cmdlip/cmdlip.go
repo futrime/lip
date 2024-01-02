@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/cmd/cmdlipautoremove"
 	"github.com/lippkg/lip/internal/cmd/cmdlipcache"
 	"github.com/lippkg/lip/internal/cmd/cmdlipinstall"
 	"github.com/lippkg/lip/internal/cmd/cmdliplist"
@@ -29,7 +28,6 @@ Usage:
   lip [options] [<command> [subcommand options]] ...
 
 Commands:
-  autoremove                  Uninstall teeth that are not depended by any other teeth.
   cache                       Inspect and manage lip's cache.
   install                     Install a tooth.
   list                        List installed teeth.
@@ -98,13 +96,6 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
-		case "autoremove":
-			err = cmdlipautoremove.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
-				return err
-			}
-			return nil
-
 		case "cache":
 			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
 			if err != nil {

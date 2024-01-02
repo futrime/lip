@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Use `github.com/sirupsen/logrus` for logging.
+- Use `github.com/blang/semver/v4` for versioning.
+- Remove `lip autoremove` command.
+
 ## [0.17.0] - 2023-12-30
 
 ### Added
