@@ -196,13 +196,13 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 			continue
 		}
 
-		pbarStyle := downloading.StyleDefault
+		enableProgressBar := true
 		if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
 			log.GetLevel() == log.ErrorLevel || log.GetLevel() == log.WarnLevel {
-			pbarStyle = downloading.StyleNone
+			enableProgressBar = false
 		}
 
-		err = downloading.DownloadFile(downloadURL, cachePath, pbarStyle)
+		err = downloading.DownloadFile(downloadURL, cachePath, enableProgressBar)
 		if err != nil {
 			errList = append(errList,
 				fmt.Errorf("failed to download file: %w", err))

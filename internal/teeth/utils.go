@@ -222,31 +222,3 @@ func GetToothLatestStableVersion(ctx contexts.Context,
 
 	return semver.Version{}, fmt.Errorf("cannot find latest stable version")
 }
-
-// ValidateVersion checks if the version of the tooth repository is valid.
-func ValidateVersion(ctx contexts.Context, repoPath string, version semver.Version) error {
-	var err error
-
-	if !CheckIsValidToothRepo(repoPath) {
-		return fmt.Errorf("invalid repository path: %v", repoPath)
-	}
-
-	// Check if the version is valid.
-	urlPathSuffix := "+incompatible.info"
-	if strings.HasPrefix(version.String(), "0.") || strings.HasPrefix(
-		version.String(), "1.") {
-		urlPathSuffix = ".info"
-	}
-	urlPath, err := url.JoinPath(repoPath, "@v", "v"+version.String()+urlPathSuffix)
-	if err != nil {
-		return fmt.Errorf("failed to join URL path: %w", err)
-	}
-
-	_, err = downloading.GetContentFromAllGoproxies(ctx, urlPath)
-	if err != nil {
-		return fmt.Errorf("failed to access version %v of %v: %w", version.String(),
-			repoPath, err)
-	}
-
-	return nil
-}
