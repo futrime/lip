@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/paths"
 	"github.com/lippkg/lip/internal/teeth"
 )
 
-func Uninstall(ctx contexts.Context, toothRepo string) error {
+func Uninstall(ctx context.Context, toothRepo string) error {
 	var err error
 
 	metadata, err := teeth.GetInstalledToothMetadata(ctx, toothRepo)
@@ -53,7 +53,7 @@ func Uninstall(ctx contexts.Context, toothRepo string) error {
 // ---------------------------------------------------------------------
 
 // removeToothFiles removes the files of the tooth.
-func removeToothFiles(ctx contexts.Context, metadata teeth.Metadata) error {
+func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 	workspaceDir, err := ctx.WorkspaceDir()
 	if err != nil {
 		return err

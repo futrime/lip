@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 )
 
 type FlagDict struct {
@@ -23,7 +23,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("purge", flag.ContinueOnError)
@@ -64,7 +64,7 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // purgeCache removes all items from the cache.
-func purgeCache(ctx contexts.Context) error {
+func purgeCache(ctx context.Context) error {
 	var err error
 
 	cacheDir, err := ctx.CacheDir()

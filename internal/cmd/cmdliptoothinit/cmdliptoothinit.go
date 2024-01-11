@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/teeth"
@@ -44,7 +44,7 @@ const toothJsonTemplate = `{
 }
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("init", flag.ContinueOnError)
@@ -84,7 +84,7 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // initTooth initializes a new tooth in the current directory.
-func initTooth(ctx contexts.Context) error {
+func initTooth(ctx context.Context) error {
 	var err error
 
 	// Check if tooth.json already exists.

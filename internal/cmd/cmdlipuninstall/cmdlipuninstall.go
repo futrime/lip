@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/installing"
 	log "github.com/sirupsen/logrus"
 
@@ -29,7 +29,7 @@ Options:
   -y, --yes                   Skip confirmation.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ContinueOnError)
@@ -107,7 +107,7 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // askForConfirmation asks for confirmation before installing the tooth.
-func askForConfirmation(ctx contexts.Context,
+func askForConfirmation(ctx context.Context,
 	toothRepoList []string) error {
 
 	// Print the list of teeth to be installed.

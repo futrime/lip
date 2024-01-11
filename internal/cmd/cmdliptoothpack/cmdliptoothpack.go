@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/teeth"
@@ -31,7 +31,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("pack", flag.ContinueOnError)
@@ -156,7 +156,7 @@ func packFilesToTemp(fileList []string) (string, error) {
 }
 
 // packTooth packs the tooth into a .tth file.
-func packTooth(ctx contexts.Context, outputPath string) error {
+func packTooth(ctx context.Context, outputPath string) error {
 	var err error
 
 	if filepath.Ext(outputPath) != ".tth" {
@@ -196,7 +196,7 @@ func packTooth(ctx contexts.Context, outputPath string) error {
 }
 
 // validateToothJSON validates tooth.json.
-func validateToothJSON(ctx contexts.Context) error {
+func validateToothJSON(ctx context.Context) error {
 	var err error
 
 	workspaceDir, err := ctx.WorkspaceDir()

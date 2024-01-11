@@ -11,7 +11,7 @@ import (
 	"github.com/lippkg/lip/internal/cmd/cmdlipshow"
 	"github.com/lippkg/lip/internal/cmd/cmdliptooth"
 	"github.com/lippkg/lip/internal/cmd/cmdlipuninstall"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -42,7 +42,7 @@ Options:
   -q, --quiet                 Show only errors.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("lip", flag.ContinueOnError)

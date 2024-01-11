@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 
 	"github.com/lippkg/lip/internal/teeth"
 	"github.com/olekukonko/tablewriter"
@@ -31,7 +31,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("show", flag.ContinueOnError)
@@ -87,7 +87,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 // checkIsInstalledAndGetMetadata checks if the tooth is installed and returns
 // its metadata.
-func checkIsInstalledAndGetMetadata(ctx contexts.Context,
+func checkIsInstalledAndGetMetadata(ctx context.Context,
 	toothRepo string) (bool, teeth.Metadata, error) {
 
 	isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
@@ -109,7 +109,7 @@ func checkIsInstalledAndGetMetadata(ctx contexts.Context,
 }
 
 // showHumanReadable shows the information in a human-readable format.
-func showHumanReadable(ctx contexts.Context, toothRepo string,
+func showHumanReadable(ctx context.Context, toothRepo string,
 	availableFlag bool) error {
 	var err error
 
@@ -163,7 +163,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 }
 
 // showJSON shows the information in JSON format.
-func showJSON(ctx contexts.Context, toothRepo string,
+func showJSON(ctx context.Context, toothRepo string,
 	availableFlag bool) error {
 	var err error
 

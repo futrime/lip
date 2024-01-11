@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/lippkg/lip/internal/cmd/cmdlipcachepurge"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 )
 
 type FlagDict struct {
@@ -24,7 +24,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)

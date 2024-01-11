@@ -11,14 +11,14 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/network"
 
 	"golang.org/x/mod/module"
 )
 
 // CheckIsToothInstalled checks if a tooth is installed.
-func CheckIsToothInstalled(ctx contexts.Context, toothRepo string) (bool, error) {
+func CheckIsToothInstalled(ctx context.Context, toothRepo string) (bool, error) {
 	var err error
 
 	metadataList, err := GetAllInstalledToothMetadata(ctx)
@@ -37,7 +37,7 @@ func CheckIsToothInstalled(ctx contexts.Context, toothRepo string) (bool, error)
 }
 
 // CheckIsToothManuallyInstalled checks if a tooth is manually installed.
-func CheckIsToothManuallyInstalled(ctx contexts.Context,
+func CheckIsToothManuallyInstalled(ctx context.Context,
 	toothRepo string) (bool, error) {
 	var err error
 
@@ -95,7 +95,7 @@ func CheckIsValidToothRepo(toothRepo string) bool {
 }
 
 // GetAllInstalledToothMetadata lists all installed tooth metadata.
-func GetAllInstalledToothMetadata(ctx contexts.Context) ([]Metadata, error) {
+func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 	var err error
 
 	var metadataList []Metadata
@@ -135,7 +135,7 @@ func GetAllInstalledToothMetadata(ctx contexts.Context) ([]Metadata, error) {
 }
 
 // GetInstalledToothMetadata finds the installed tooth metadata.
-func GetInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata,
+func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
 	error) {
 	var err error
 
@@ -157,7 +157,7 @@ func GetInstalledToothMetadata(ctx contexts.Context, toothRepo string) (Metadata
 
 // GetToothAvailableVersionList fetches the version list of a tooth repository.
 // The version list is sorted in descending order.
-func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) (semver.Versions,
+func GetToothAvailableVersionList(ctx context.Context, repoPath string) (semver.Versions,
 	error) {
 	var err error
 	if !CheckIsValidToothRepo(repoPath) {
@@ -198,7 +198,7 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) (semver
 
 // GetToothLatestStableVersion returns the correct version of the tooth
 // specified by the specifier.
-func GetToothLatestStableVersion(ctx contexts.Context,
+func GetToothLatestStableVersion(ctx context.Context,
 	toothRepo string) (semver.Version, error) {
 
 	var err error

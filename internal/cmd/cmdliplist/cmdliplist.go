@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 
 	"github.com/lippkg/lip/internal/teeth"
 	"github.com/olekukonko/tablewriter"
@@ -31,7 +31,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
@@ -83,7 +83,7 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // listAll lists all installed teeth.
-func listAll(ctx contexts.Context, jsonFlag bool) error {
+func listAll(ctx context.Context, jsonFlag bool) error {
 	var err error
 
 	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
@@ -135,7 +135,7 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 }
 
 // listUpgradable lists upgradable teeth.
-func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
+func listUpgradable(ctx context.Context, jsonFlag bool) error {
 	var err error
 
 	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)

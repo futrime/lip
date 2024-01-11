@@ -1,4 +1,4 @@
-package contexts
+package context
 
 import (
 	"fmt"

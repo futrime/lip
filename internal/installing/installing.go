@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/paths"
 	"github.com/lippkg/lip/internal/teeth"
 )
 
 // Install installs a tooth archive.
-func Install(ctx contexts.Context, archive teeth.Archive) error {
+func Install(ctx context.Context, archive teeth.Archive) error {
 	var err error
 
 	// 1. Check if the tooth is already installed.
@@ -71,7 +71,7 @@ func extractAllFilePaths(r *zip.ReadCloser) []string {
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx contexts.Context, archive teeth.Archive) error {
+func placeFiles(ctx context.Context, archive teeth.Archive) error {
 	var err error
 
 	workspaceDir, err := ctx.WorkspaceDir()

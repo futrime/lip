@@ -8,7 +8,7 @@ import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -41,10 +41,10 @@ func main() {
 }
 
 // createContext initializes the context.
-func createContext() (contexts.Context, error) {
+func createContext() (context.Context, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		return contexts.Context{},
+		return context.Context{},
 			fmt.Errorf("cannot get user home directory: %w", err)
 	}
 
@@ -52,17 +52,17 @@ func createContext() (contexts.Context, error) {
 
 	lipVersion, err := semver.Parse(LipVersionString)
 	if err != nil {
-		return contexts.Context{},
+		return context.Context{},
 			fmt.Errorf("cannot parse lip version: %w", err)
 	}
 
 	workspaceDir, err := os.Getwd()
 	if err != nil {
-		return contexts.Context{},
+		return context.Context{},
 			fmt.Errorf("cannot get current working directory: %w", err)
 	}
 
-	ctx := contexts.New(lipVersion, globalDotLipDir, workspaceDir, GoModuleProxyURL)
+	ctx := context.New(lipVersion, globalDotLipDir, workspaceDir, GoModuleProxyURL)
 
 	return ctx, nil
 }

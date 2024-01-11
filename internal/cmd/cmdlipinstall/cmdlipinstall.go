@@ -7,11 +7,11 @@ import (
 	"os"
 
 	"github.com/blang/semver/v4"
-	"github.com/lippkg/lip/internal/contexts"
+	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/installing"
 	"github.com/lippkg/lip/internal/network"
 
-	"github.com/lippkg/lip/internal/specifiers"
+	specifierpkg "github.com/lippkg/lip/internal/specifier"
 	"github.com/lippkg/lip/internal/teeth"
 	log "github.com/sirupsen/logrus"
 )
@@ -45,7 +45,7 @@ Note:
   Any string ends with .tth is considered as a local tooth archive path.
 `
 
-func Run(ctx contexts.Context, args []string) error {
+func Run(ctx context.Context, args []string) error {
 	var err error
 
 	flagSet := flag.NewFlagSet("install", flag.ContinueOnError)
@@ -83,7 +83,7 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// 1. Download teeth specified by the user and resolve their dependencies.
 
-	archiveToInstallList, err := parseAndDownloadSpecifierStringList(ctx, flagSet.Args())
+	archiveToInstallList, err := parseAndDownloadspecifierpkgtringList(ctx, flagSet.Args())
 	if err != nil {
 		return fmt.Errorf("failed to parse and download specifier string list: %w", err)
 	}
@@ -145,7 +145,7 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // askForConfirmation asks for confirmation before installing the tooth.
-func askForConfirmation(ctx contexts.Context,
+func askForConfirmation(ctx context.Context,
 	archiveList []teeth.Archive) error {
 
 	// Print the list of teeth to be installed.
@@ -168,7 +168,7 @@ func askForConfirmation(ctx contexts.Context,
 
 // downloadFromAllGoProxies downloads the tooth from all Go proxies and returns
 // the path to the downloaded tooth.
-func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
+func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 	toothVersion semver.Version) (string, error) {
 
 	var err error
@@ -208,10 +208,10 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 
 // downloadSpecifier downloads the tooth specified by the specifier and returns
 // the path to the downloaded tooth.
-func downloadSpecifier(ctx contexts.Context,
-	specifier specifiers.Specifier) (teeth.Archive, error) {
+func downloadSpecifier(ctx context.Context,
+	specifier specifierpkg.Specifier) (teeth.Archive, error) {
 	switch specifier.Kind() {
-	case specifiers.ToothArchiveKind:
+	case specifierpkg.ToothArchiveKind:
 		archivePath, err := specifier.ToothArchivePath()
 		if err != nil {
 			return teeth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
@@ -224,7 +224,7 @@ func downloadSpecifier(ctx contexts.Context,
 
 		return archive, nil
 
-	case specifiers.ToothRepoKind:
+	case specifierpkg.ToothRepoKind:
 		toothRepo, err := specifier.ToothRepoPath()
 		if err != nil {
 			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
@@ -268,7 +268,7 @@ func downloadSpecifier(ctx contexts.Context,
 
 // findMissingPrerequisites finds missing prerequisites of the tooth specified
 // by the specifier and returns the map of missing prerequisites.
-func findMissingPrerequisites(ctx contexts.Context,
+func findMissingPrerequisites(ctx context.Context,
 	archiveList []teeth.Archive) (map[string]semver.Range, error) {
 	var missingPrerequisiteMap = make(map[string]semver.Range)
 
@@ -311,7 +311,7 @@ func findMissingPrerequisites(ctx contexts.Context,
 }
 
 // installToothArchiveList installs the tooth archive list.
-func installToothArchiveList(ctx contexts.Context,
+func installToothArchiveList(ctx context.Context,
 	archiveToInstallList []teeth.Archive, forceReinstall bool, upgrade bool) error {
 	for _, archive := range archiveToInstallList {
 		isInstalled, err := teeth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth())
@@ -377,16 +377,16 @@ func installToothArchiveList(ctx contexts.Context,
 	return nil
 }
 
-// parseAndDownloadSpecifierStringList parses the specifier string list and
+// parseAndDownloadspecifierpkgtringList parses the specifier string list and
 // downloads the tooth specified by the specifier, and returns the list of
 // downloaded tooth archives.
-func parseAndDownloadSpecifierStringList(ctx contexts.Context,
-	specifierStringList []string) ([]teeth.Archive, error) {
+func parseAndDownloadspecifierpkgtringList(ctx context.Context,
+	specifierpkgtringList []string) ([]teeth.Archive, error) {
 
 	archiveList := make([]teeth.Archive, 0)
 
-	for _, specifierString := range specifierStringList {
-		specifier, err := specifiers.Parse(specifierString)
+	for _, specifierpkgtring := range specifierpkgtringList {
+		specifier, err := specifierpkg.Parse(specifierpkgtring)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse specifier: %w", err)
 		}
@@ -406,7 +406,7 @@ func parseAndDownloadSpecifierStringList(ctx contexts.Context,
 // specifier and returns the paths to the downloaded teeth. rootArchiveList
 // contains the root tooth archives to resolve dependencies.
 // The first return value indicates whether the dependencies are resolved.
-func resolveDependencies(ctx contexts.Context, rootArchiveList []teeth.Archive,
+func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 	upgradeFlag bool, forceReinstallFlag bool) ([]teeth.Archive, error) {
 
 	var err error

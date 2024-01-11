@@ -1,4 +1,4 @@
-package specifiers
+package specifier
 
 import (
 	"fmt"
