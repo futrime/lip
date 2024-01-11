@@ -8,25 +8,26 @@ import (
 	"golang.org/x/mod/module"
 )
 
-// SpecifierKind is an enum that represents the type of a specifier.
-type SpecifierKind int
+// KindType is an enum that represents the type of a specifier.
+type KindType int
 
 const (
-	ToothArchiveKind SpecifierKind = iota
+	ToothArchiveKind KindType = iota
 	ToothRepoKind
 )
 
 // Specifier is a type that can be used to specify a tooth url/file or a requirement.
 type Specifier struct {
-	specifierKind           SpecifierKind
-	toothArchivePath        string
-	toothRepo               string
-	toothVersion            semver.Version
+	kind             KindType
+	toothArchivePath string
+	toothRepoPath    string
+
 	isToothVersionSpecified bool
+	toothVersion            semver.Version
 }
 
-// New creates a new specifier.
-func New(specifierString string) (Specifier, error) {
+// Parse creates a new specifier from the given string.
+func Parse(specifierString string) (Specifier, error) {
 	var err error
 
 	specifierType := getSpecifierType(specifierString)
@@ -34,7 +35,7 @@ func New(specifierString string) (Specifier, error) {
 	switch specifierType {
 	case ToothArchiveKind:
 		return Specifier{
-			specifierKind:    specifierType,
+			kind:             specifierType,
 			toothArchivePath: specifierString,
 		}, nil
 
@@ -62,16 +63,16 @@ func New(specifierString string) (Specifier, error) {
 			}
 
 			return Specifier{
-				specifierKind:           specifierType,
-				toothRepo:               toothRepo,
-				toothVersion:            toothVersion,
+				kind:                    specifierType,
+				toothRepoPath:           toothRepo,
 				isToothVersionSpecified: true,
+				toothVersion:            toothVersion,
 			}, nil
 
 		} else {
 			return Specifier{
-				specifierKind:           specifierType,
-				toothRepo:               toothRepo,
+				kind:                    specifierType,
+				toothRepoPath:           toothRepo,
 				isToothVersionSpecified: false,
 			}, nil
 		}
@@ -81,46 +82,41 @@ func New(specifierString string) (Specifier, error) {
 	panic("unreachable")
 }
 
-// IsToothVersionSpecified returns whether the specifier has a tooth version.
-func (s Specifier) IsToothVersionSpecified() bool {
-	return s.specifierKind == ToothRepoKind && s.isToothVersionSpecified
-}
-
-// String returns the string representation of the specifier.
-func (s Specifier) String() string {
-	switch s.specifierKind {
-	case ToothArchiveKind:
-		return s.toothArchivePath
-
-	case ToothRepoKind:
-		return s.toothRepo + "@" + s.toothVersion.String()
-	}
-
-	// Never reached.
-	panic("unreachable")
+// Kind returns the type of the specifier.
+func (s Specifier) Kind() KindType {
+	return s.kind
 }
 
 // ToothArchivePath returns the path of the tooth archive.
 func (s Specifier) ToothArchivePath() (string, error) {
-	if s.Type() != ToothArchiveKind {
+	if s.Kind() != ToothArchiveKind {
 		return "", fmt.Errorf("specifier is not a tooth archive")
 	}
 
 	return s.toothArchivePath, nil
 }
 
-// ToothRepo returns the tooth repo of the specifier.
-func (s Specifier) ToothRepo() (string, error) {
-	if s.Type() != ToothRepoKind {
+// ToothRepoPath returns the tooth repo of the specifier.
+func (s Specifier) ToothRepoPath() (string, error) {
+	if s.Kind() != ToothRepoKind {
 		return "", fmt.Errorf("specifier is not a tooth repo")
 	}
 
-	return s.toothRepo, nil
+	return s.toothRepoPath, nil
+}
+
+// IsToothVersionSpecified returns whether the specifier has a tooth version.
+func (s Specifier) IsToothVersionSpecified() (bool, error) {
+	if s.Kind() != ToothRepoKind {
+		return false, fmt.Errorf("specifier is not a tooth repo")
+	}
+
+	return s.isToothVersionSpecified, nil
 }
 
 // ToothVersion returns the version of the tooth.
 func (s Specifier) ToothVersion() (semver.Version, error) {
-	if s.Type() != ToothRepoKind {
+	if s.Kind() != ToothRepoKind {
 		return semver.Version{}, fmt.Errorf("specifier is not a tooth repo")
 	}
 
@@ -131,17 +127,27 @@ func (s Specifier) ToothVersion() (semver.Version, error) {
 	return s.toothVersion, nil
 }
 
-// Type returns the type of the specifier.
-func (s Specifier) Type() SpecifierKind {
-	return s.specifierKind
+// String returns the string representation of the specifier.
+func (s Specifier) String() string {
+	switch s.kind {
+	case ToothArchiveKind:
+		return s.toothArchivePath
+
+	case ToothRepoKind:
+		return s.toothRepoPath + "@" + s.toothVersion.String()
+	}
+
+	// Never reached.
+	panic("unreachable")
 }
 
-// ---------------------------------------------------------------------
-
-// getSpecifierType gets the type of the requirement specifier.
-func getSpecifierType(specifier string) SpecifierKind {
-	if strings.HasSuffix(specifier, ".tth") {
+func getSpecifierType(specifier string) KindType {
+	// Prefer tooth repo specifier over tooth archive specifier.
+	// This means that if a specifier is both a tooth repo specifier and a tooth archive
+	// specifier, it will be treated as a tooth repo specifier.
+	if err := module.CheckPath(specifier); err != nil {
 		return ToothArchiveKind
+
 	} else {
 		return ToothRepoKind
 	}

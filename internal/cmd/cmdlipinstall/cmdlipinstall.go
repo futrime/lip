@@ -210,7 +210,7 @@ func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 // the path to the downloaded tooth.
 func downloadSpecifier(ctx contexts.Context,
 	specifier specifiers.Specifier) (teeth.Archive, error) {
-	switch specifier.Type() {
+	switch specifier.Kind() {
 	case specifiers.ToothArchiveKind:
 		archivePath, err := specifier.ToothArchivePath()
 		if err != nil {
@@ -225,13 +225,13 @@ func downloadSpecifier(ctx contexts.Context,
 		return archive, nil
 
 	case specifiers.ToothRepoKind:
-		toothRepo, err := specifier.ToothRepo()
+		toothRepo, err := specifier.ToothRepoPath()
 		if err != nil {
 			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
 		var toothVersion semver.Version
-		if specifier.IsToothVersionSpecified() {
+		if ok, err := specifier.IsToothVersionSpecified(); err == nil && ok {
 			toothVersion, err = specifier.ToothVersion()
 			if err != nil {
 				return teeth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
@@ -386,7 +386,7 @@ func parseAndDownloadSpecifierStringList(ctx contexts.Context,
 	archiveList := make([]teeth.Archive, 0)
 
 	for _, specifierString := range specifierStringList {
-		specifier, err := specifiers.New(specifierString)
+		specifier, err := specifiers.Parse(specifierString)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse specifier: %w", err)
 		}
