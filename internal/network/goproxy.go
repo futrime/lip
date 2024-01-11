@@ -52,8 +52,8 @@ func generateGoModuleZipFileName(version semver.Version) (string, error) {
 
 	// Reference: https://go.dev/ref/mod#non-module-compat
 	if version.Major >= 2 {
-		return fmt.Sprintf("%v+incompatible.zip", version.String()), nil
+		return fmt.Sprintf("v%v+incompatible.zip", version.String()), nil
 	} else {
-		return fmt.Sprintf("%v.zip", version.String()), nil
+		return fmt.Sprintf("v%v.zip", version.String()), nil
 	}
 }

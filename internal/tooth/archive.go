@@ -16,8 +16,8 @@ type Archive struct {
 	metadata Metadata
 }
 
-// NewArchive creates a new archive.
-func NewArchive(archiveFilePathString string) (Archive, error) {
+// MakeArchive creates a new archive.
+func MakeArchive(archiveFilePathString string) (Archive, error) {
 	var err error
 
 	archiveFilePath, err := path.Parse(archiveFilePathString)
@@ -37,6 +37,14 @@ func NewArchive(archiveFilePathString string) (Archive, error) {
 	}
 
 	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
+
+	// If only one file, it must be tooth.json. Then we should use the directory of the file as the root.
+	if len(filePaths) == 1 {
+		filePathRoot, err = filePathRoot.Dir()
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to get directory of tooth.json: %w", err)
+		}
+	}
 
 	// Find tooth.json.
 	toothJSONFilePath := filePathRoot.Join(path.MustParse("tooth.json"))
