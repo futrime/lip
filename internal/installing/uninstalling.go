@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"path/filepath"
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
@@ -44,12 +43,9 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 		return fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
-	metadataPath, err := filepath.Join(metadataDir.String(), metadataFileName), nil
-	if err != nil {
-		return err
-	}
+	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.Remove(metadataPath)
+	err = os.Remove(metadataPath.String())
 	if err != nil {
 		return fmt.Errorf("failed to delete metadata file: %w", err)
 	}
@@ -82,21 +78,21 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 			continue
 		}
 
-		// Delete the file.
-		err = os.RemoveAll(filepath.Join(workspaceDir.String(), place.Dest))
-		if err != nil {
-			return fmt.Errorf("failed to delete file: %w", err)
-		}
-
 		relDest, err := path.Parse(place.Dest)
 		if err != nil {
 			return fmt.Errorf("failed to parse destination path: %w", err)
 		}
 
-		dest := workspaceDir.Concat(relDest)
-		dir := dest
+		dest := workspaceDir.Join(relDest)
+
+		// Delete the file.
+		err = os.RemoveAll(dest.String())
+		if err != nil {
+			return fmt.Errorf("failed to delete file: %w", err)
+		}
 
 		// Delete all ancestor directories if they are empty until the workspace directory.
+		dir := dest
 		for {
 			dir, err = dir.Dir()
 			if err != nil {
@@ -131,7 +127,12 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 
 	// Files marked as "remove" will be deleted.
 	for _, removal := range metadata.Files().Remove {
-		err = os.RemoveAll(filepath.Join(workspaceDir.String(), removal))
+		removalPath, err := path.Parse(removal)
+		if err != nil {
+			return fmt.Errorf("failed to parse removal path: %w", err)
+		}
+
+		err = os.RemoveAll(workspaceDir.Join(removalPath).String())
 		if err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}

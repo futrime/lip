@@ -52,12 +52,9 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 		return fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
-	metadataPath, err := filepath.Join(metadataDir.String(), metadataFileName), nil
-	if err != nil {
-		return err
-	}
+	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.WriteFile(metadataPath, jsonBytes, 0644)
+	err = os.WriteFile(metadataPath.String(), jsonBytes, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to create metadata file: %w", err)
 	}
@@ -104,7 +101,7 @@ func placeFiles(ctx context.Context, archive teeth.Archive) error {
 			return fmt.Errorf("destination %v already exists", relDest.String())
 		}
 
-		dest := workspaceDir.Concat(relDest)
+		dest := workspaceDir.Join(relDest)
 
 		// Create the destination directory.
 		err = os.MkdirAll(filepath.Dir(dest.String()), 0755)
@@ -117,7 +114,7 @@ func placeFiles(ctx context.Context, archive teeth.Archive) error {
 			return fmt.Errorf("failed to parse source path: %w", err)
 		}
 
-		src := filePathRoot.Concat(relSrc)
+		src := filePathRoot.Join(relSrc)
 
 		// Iterate through the files in the archive,
 		// and find the source file.

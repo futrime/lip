@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"path/filepath"
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/installing"
 	"github.com/lippkg/lip/internal/network"
+	"github.com/lippkg/lip/internal/path"
 
 	specifierpkg "github.com/lippkg/lip/internal/specifier"
 	"github.com/lippkg/lip/internal/teeth"
@@ -188,15 +188,16 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 	}
 
 	cacheDir, err := ctx.CacheDir()
-	cacheFileName := url.QueryEscape(downloadURL.String())
-	cachePath, err := filepath.Join(cacheDir.String(), cacheFileName), nil
 	if err != nil {
-		return "", fmt.Errorf("failed to calculate cache path: %w", err)
+		return "", fmt.Errorf("failed to get cache directory: %w", err)
 	}
 
+	cacheFileName := url.QueryEscape(downloadURL.String())
+	cachePath := cacheDir.Join(path.MustParse(cacheFileName))
+
 	// Skip downloading if the tooth is already in the cache.
-	if _, err := os.Stat(cachePath); err == nil {
-		return cachePath, nil
+	if _, err := os.Stat(cachePath.String()); err == nil {
+		return cachePath.String(), nil
 	} else if !os.IsNotExist(err) {
 		return "", fmt.Errorf("failed to check if file exists: %w", err)
 	}
@@ -207,12 +208,12 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 		enableProgressBar = false
 	}
 
-	err = network.DownloadFile(downloadURL, cachePath, enableProgressBar)
+	err = network.DownloadFile(downloadURL, cachePath.String(), enableProgressBar)
 	if err != nil {
 		return "", fmt.Errorf("failed to download file: %w", err)
 	}
 
-	return cachePath, nil
+	return cachePath.String(), nil
 }
 
 // downloadSpecifier downloads the tooth specified by the specifier and returns

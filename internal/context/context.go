@@ -63,7 +63,7 @@ func (ctx Context) GlobalDotLipDir() (path.Path, error) {
 		return path.Path{}, fmt.Errorf("cannot parse user home directory: %w", err)
 	}
 
-	globalDotLipDir := userHomeDir.Concat(path.MustParse(".lip"))
+	globalDotLipDir := userHomeDir.Join(path.MustParse(".lip"))
 
 	return globalDotLipDir, nil
 }
@@ -82,7 +82,7 @@ func (ctx Context) LocalDotLipDir() (path.Path, error) {
 		return path.Path{}, fmt.Errorf("cannot parse workspace directory: %w", err)
 	}
 
-	path := workspaceDir.Concat(path.MustParse(".lip"))
+	path := workspaceDir.Join(path.MustParse(".lip"))
 
 	return path, nil
 }
@@ -96,7 +96,7 @@ func (ctx Context) CacheDir() (path.Path, error) {
 		return path.Path{}, fmt.Errorf("cannot get global .lip directory: %w", err)
 	}
 
-	path := globalDotLipDir.Concat(path.MustParse("cache"))
+	path := globalDotLipDir.Join(path.MustParse("cache"))
 
 	return path, nil
 }
@@ -110,7 +110,7 @@ func (ctx Context) MetadataDir() (path.Path, error) {
 		return path.Path{}, fmt.Errorf("cannot get local .lip directory: %w", err)
 	}
 
-	path := localDotLipDir.Concat(path.MustParse("metadata"))
+	path := localDotLipDir.Join(path.MustParse("metadata"))
 
 	return path, nil
 }
@@ -171,7 +171,7 @@ func (ctx Context) LoadOrCreateConfigFile() error {
 		return fmt.Errorf("cannot get global .lip directory: %w", err)
 	}
 
-	configFilePath := globalDotLipDir.Concat(path.MustParse("config.json"))
+	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
 
 	_, err = os.Stat(configFilePath.String())
 	if os.IsNotExist(err) {

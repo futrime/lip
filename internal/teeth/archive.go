@@ -39,7 +39,7 @@ func NewArchive(archiveFilePathString string) (Archive, error) {
 	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
 
 	// Find tooth.json.
-	toothJSONFilePath := filePathRoot.Concat(path.MustParse("tooth.json"))
+	toothJSONFilePath := filePathRoot.Join(path.MustParse("tooth.json"))
 	var toothJSONFile *gozip.File = nil
 	for _, file := range r.File {
 		if file.Name == toothJSONFilePath.String() {
@@ -137,7 +137,7 @@ func resolveMetadataFilePlaceRegex(metadata Metadata, filePaths []path.Path) (Me
 
 			newPlace = append(newPlace, RawMetadataFilesPlaceItem{
 				Src:  filePath.String(),
-				Dest: destPathPrefix.Concat(relFilePath).String(),
+				Dest: destPathPrefix.Join(relFilePath).String(),
 			})
 		}
 	}

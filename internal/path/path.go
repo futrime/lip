@@ -67,8 +67,8 @@ outerLoop:
 	}
 }
 
-// Concat concatenates two paths.
-func (f Path) Concat(other Path) Path {
+// Join joins two paths.
+func (f Path) Join(other Path) Path {
 	return Path{
 		pathItems: append(f.pathItems, other.pathItems...),
 	}

@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/lippkg/lip/internal/context"
+	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/teeth"
@@ -67,7 +68,11 @@ func Run(ctx context.Context, args []string) error {
 	}
 
 	// Pack the tooth.
-	outputPath := flagSet.Arg(0)
+	outputPath, err := path.Parse(flagSet.Arg(0))
+	if err != nil {
+		return fmt.Errorf("failed to parse output path: %w", err)
+	}
+
 	err = packTooth(ctx, outputPath)
 	if err != nil {
 		return fmt.Errorf("failed to pack tooth: %w", err)
@@ -79,14 +84,14 @@ func Run(ctx context.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // copyFile copies a file from sourcePath to destinationPath.
-func copyFile(sourcePath, destinationPath string) error {
-	source, err := os.Open(sourcePath)
+func copyFile(sourcePath, destinationPath path.Path) error {
+	source, err := os.Open(sourcePath.String())
 	if err != nil {
 		return err
 	}
 	defer source.Close()
 
-	destination, err := os.Create(destinationPath)
+	destination, err := os.Create(destinationPath.String())
 	if err != nil {
 		return err
 	}
@@ -111,13 +116,17 @@ func copyFile(sourcePath, destinationPath string) error {
 }
 
 // packFilesToTemp packs files to a temporary zip file.
-func packFilesToTemp(fileList []string) (string, error) {
+func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 	zipFile, err := os.CreateTemp("", "*")
-	zipFilePath := zipFile.Name()
 	if err != nil {
-		return "", errors.New("failed to create zip file: " + err.Error())
+		return path.Path{}, errors.New("failed to create zip file: " + err.Error())
 	}
 	defer zipFile.Close()
+
+	zipFilePath, err := path.Parse(zipFile.Name())
+	if err != nil {
+		return path.Path{}, errors.New("failed to parse zip file path: " + err.Error())
+	}
 
 	zipWriter := zip.NewWriter(zipFile)
 	defer zipWriter.Close()
@@ -129,26 +138,26 @@ func packFilesToTemp(fileList []string) (string, error) {
 
 	// Write files to the zip file.
 	for _, file := range fileList {
-		log.Info("packing " + file + " ...")
+		log.Infof("packing %v", file.String())
 
-		writer, err := zipWriter.Create(filepath.ToSlash(file))
+		writer, err := zipWriter.Create(file.String())
 		if err != nil {
-			return "", errors.New("failed to create zip writer for " + file + ": " + err.Error())
+			return path.Path{}, fmt.Errorf("failed to create %v: %w", file.String(), err)
 		}
 
-		reader, err := os.Open(file)
+		reader, err := os.Open(file.String())
 		if err != nil {
-			return "", errors.New("failed to open " + file + ": " + err.Error())
+			return path.Path{}, fmt.Errorf("failed to open %v: %w", file.String(), err)
 		}
 
 		_, err = io.Copy(writer, reader)
 		if err != nil {
-			return "", errors.New("failed to copy " + file + ": " + err.Error())
+			return path.Path{}, fmt.Errorf("failed to copy %v: %w", file.String(), err)
 		}
 
 		err = reader.Close()
 		if err != nil {
-			return "", errors.New("failed to close " + file + ": " + err.Error())
+			return path.Path{}, fmt.Errorf("failed to close %v: %w", file.String(), err)
 		}
 	}
 
@@ -156,23 +165,28 @@ func packFilesToTemp(fileList []string) (string, error) {
 }
 
 // packTooth packs the tooth into a .tth file.
-func packTooth(ctx context.Context, outputPath string) error {
+func packTooth(ctx context.Context, outputPath path.Path) error {
 	var err error
 
-	if filepath.Ext(outputPath) != ".tth" {
+	if filepath.Ext(outputPath.String()) != ".tth" {
 		return errors.New("output path must have .tth extension")
 	}
 
-	_, err = os.Stat(outputPath)
+	_, err = os.Stat(outputPath.String())
 	if err == nil {
 		return errors.New("output path already exists")
 	} else if !os.IsNotExist(err) {
 		return errors.New("failed to stat output path: " + err.Error())
 	}
 
-	workspaceDir, err := os.Getwd()
+	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory: " + err.Error())
+	}
+
+	workspaceDir, err := path.Parse(workspaceDirStr)
+	if err != nil {
+		return errors.New("failed to parse workspace directory: " + err.Error())
 	}
 
 	fileList, err := walkDirectory(workspaceDir)
@@ -199,12 +213,17 @@ func packTooth(ctx context.Context, outputPath string) error {
 func validateToothJSON(ctx context.Context) error {
 	var err error
 
-	workspaceDir, err := os.Getwd()
+	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory: " + err.Error())
 	}
 
-	jsonBytes, err := os.ReadFile(filepath.Join(workspaceDir, "tooth.json"))
+	workspaceDir, err := path.Parse(workspaceDirStr)
+	if err != nil {
+		return errors.New("failed to parse workspace directory: " + err.Error())
+	}
+
+	jsonBytes, err := os.ReadFile(workspaceDir.Join(path.MustParse("tooth.json")).String())
 	if err != nil {
 		return errors.New("failed to read tooth.json: " + err.Error())
 	}
@@ -218,28 +237,33 @@ func validateToothJSON(ctx context.Context) error {
 }
 
 // walkDirectory walks the directory and returns a list of files.
-func walkDirectory(dir string) ([]string, error) {
+func walkDirectory(dir path.Path) ([]path.Path, error) {
 	var err error
 
-	var ignoredDirs = []string{
+	var ignoredDirNames = []string{
 		".git",
 		".lip",
 	}
 
-	fileList := make([]string, 0)
-	err = filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
+	fileList := make([]path.Path, 0)
+	err = filepath.WalkDir(".", func(pathStr string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Do not walk through special directories.
-		for _, ignoredDir := range ignoredDirs {
+		for _, ignoredDir := range ignoredDirNames {
 			if d.Name() == ignoredDir {
 				return filepath.SkipDir
 			}
 		}
 
 		if !d.IsDir() {
+			path, err := path.Parse(pathStr)
+			if err != nil {
+				return errors.New("failed to parse path: " + err.Error())
+			}
+
 			fileList = append(fileList, path)
 		}
 

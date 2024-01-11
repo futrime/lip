@@ -6,10 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
+	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/teeth"
@@ -136,12 +136,17 @@ func initTooth(ctx context.Context) error {
 	}
 
 	// Create tooth.json.
-	workspaceDir, err := os.Getwd()
+	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory")
 	}
 
-	file, err := os.Create(filepath.Join(workspaceDir, "tooth.json"))
+	workspaceDir, err := path.Parse(workspaceDirStr)
+	if err != nil {
+		return errors.New("failed to parse workspace directory")
+	}
+
+	file, err := os.Create(workspaceDir.String())
 	if err != nil {
 		return errors.New("failed to create tooth.json")
 	}

@@ -43,8 +43,6 @@ Options:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
-
 	flagSet := flag.NewFlagSet("lip", flag.ContinueOnError)
 
 	// Rewrite the default messages.
@@ -62,8 +60,8 @@ func Run(ctx context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.verboseFlag, "v", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "quiet", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
-	err = flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("cannot parse flags: %w", err)
 	}
 
@@ -97,43 +95,37 @@ func Run(ctx context.Context, args []string) error {
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
 		case "cache":
-			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipcache.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "install":
-			err = cmdlipinstall.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipinstall.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "list":
-			err = cmdliplist.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdliplist.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "show":
-			err = cmdlipshow.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipshow.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "tooth":
-			err = cmdliptooth.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdliptooth.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "uninstall":
-			err = cmdlipuninstall.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipuninstall.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil

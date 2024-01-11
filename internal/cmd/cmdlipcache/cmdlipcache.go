@@ -25,8 +25,6 @@ Options:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
-
 	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -37,8 +35,8 @@ func Run(ctx context.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
@@ -52,8 +50,7 @@ func Run(ctx context.Context, args []string) error {
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
 		case "purge":
-			err = cmdlipcachepurge.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipcachepurge.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
