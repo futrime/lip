@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,7 +45,13 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
-	metadataPath, err := ctx.CalculateMetadataPath(archive.Metadata().Tooth())
+	metadataFileName := url.QueryEscape(archive.Metadata().Tooth()) + ".json"
+	metadataDir, err := ctx.MetadataDir()
+	if err != nil {
+		return fmt.Errorf("failed to get metadata directory: %w", err)
+	}
+
+	metadataPath, err := filepath.Join(metadataDir, metadataFileName), nil
 	if err != nil {
 		return err
 	}
@@ -74,7 +81,7 @@ func extractAllFilePaths(r *zip.ReadCloser) []string {
 func placeFiles(ctx context.Context, archive teeth.Archive) error {
 	var err error
 
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDir, err := os.Getwd()
 	if err != nil {
 		return err
 	}

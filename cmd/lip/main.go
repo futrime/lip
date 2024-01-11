@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
@@ -13,23 +11,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//------------------------------------------------------------------------------
-// Configurations
+var defaultConfig context.Config = context.Config{
+	GitHubMirrorURL:  "https://github.com",
+	GoModuleProxyURL: "https://goproxy.io",
+}
 
-const GoModuleProxyURL = "https://goproxy.io"
-
-const LipVersionString = "0.17.0"
-
-//------------------------------------------------------------------------------
+var lipVersion semver.Version = semver.MustParse("0.18.0")
 
 func main() {
 	var err error
 
 	log.SetFormatter(&nested.Formatter{})
 
-	ctx, err := createContext()
+	ctx := context.Make(defaultConfig, lipVersion)
+
+	err = ctx.CreateDirStructure()
 	if err != nil {
-		log.Errorf("cannot initialize context: %v", err.Error())
+		log.Errorf("cannot create directory structure: %s", err.Error())
+		return
+	}
+
+	err = ctx.LoadOrCreateConfigFile()
+	if err != nil {
+		log.Errorf("cannot load or create config file: %s", err.Error())
 		return
 	}
 
@@ -38,31 +42,4 @@ func main() {
 		log.Error(err.Error())
 		return
 	}
-}
-
-// createContext initializes the context.
-func createContext() (context.Context, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return context.Context{},
-			fmt.Errorf("cannot get user home directory: %w", err)
-	}
-
-	globalDotLipDir := filepath.Join(userHomeDir, ".lip")
-
-	lipVersion, err := semver.Parse(LipVersionString)
-	if err != nil {
-		return context.Context{},
-			fmt.Errorf("cannot parse lip version: %w", err)
-	}
-
-	workspaceDir, err := os.Getwd()
-	if err != nil {
-		return context.Context{},
-			fmt.Errorf("cannot get current working directory: %w", err)
-	}
-
-	ctx := context.New(lipVersion, globalDotLipDir, workspaceDir, GoModuleProxyURL)
-
-	return ctx, nil
 }

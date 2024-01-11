@@ -4,7 +4,9 @@ import (
 	"container/list"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
@@ -175,12 +177,19 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 
 	log.Infof("Downloading %v@%v...", toothRepo, toothVersion)
 
-	downloadURL, err := network.GenerateGoModuleZipFileURL(toothRepo, toothVersion, ctx.GoProxyList())
+	goModuleProxyURL, err := ctx.GoModuleProxyURL()
+	if err != nil {
+		return "", fmt.Errorf("failed to get Go module proxy URL: %w", err)
+	}
+
+	downloadURL, err := network.GenerateGoModuleZipFileURL(toothRepo, toothVersion, goModuleProxyURL)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate Go module zip file URL: %w", err)
 	}
 
-	cachePath, err := ctx.CalculateCachePath(downloadURL.String())
+	cacheDir, err := ctx.CacheDir()
+	cacheFileName := url.QueryEscape(downloadURL.String())
+	cachePath, err := filepath.Join(cacheDir, cacheFileName), nil
 	if err != nil {
 		return "", fmt.Errorf("failed to calculate cache path: %w", err)
 	}

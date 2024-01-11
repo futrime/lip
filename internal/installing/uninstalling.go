@@ -2,6 +2,7 @@ package installing
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -37,7 +38,13 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 	}
 
 	// 4. Delete the metadata file.
-	metadataPath, err := ctx.CalculateMetadataPath(toothRepo)
+	metadataFileName := url.QueryEscape(toothRepo) + ".json"
+	metadataDir, err := ctx.MetadataDir()
+	if err != nil {
+		return fmt.Errorf("failed to get metadata directory: %w", err)
+	}
+
+	metadataPath, err := filepath.Join(metadataDir, metadataFileName), nil
 	if err != nil {
 		return err
 	}
@@ -54,7 +61,7 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 
 // removeToothFiles removes the files of the tooth.
 func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDir, err := os.Getwd()
 	if err != nil {
 		return err
 	}

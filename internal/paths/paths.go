@@ -2,6 +2,7 @@ package paths
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -79,6 +80,21 @@ func CheckIsAncesterOf(ancestor string, path string) (bool, error) {
 	relativePath = filepath.ToSlash(relativePath)
 
 	return !strings.HasPrefix(relativePath, "../") && relativePath != "..", nil
+}
+
+func CreateDirIfNotExist(dir string) error {
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return fmt.Errorf("cannot create directory: %w", err)
+		}
+
+	} else if err != nil {
+		return fmt.Errorf("cannot get directory info: %w", err)
+	}
+
+	return nil
 }
 
 // ---------------------------------------------------------------------

@@ -170,7 +170,7 @@ func packTooth(ctx context.Context, outputPath string) error {
 		return errors.New("failed to stat output path: " + err.Error())
 	}
 
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDir, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory: " + err.Error())
 	}
@@ -199,7 +199,7 @@ func packTooth(ctx context.Context, outputPath string) error {
 func validateToothJSON(ctx context.Context) error {
 	var err error
 
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDir, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory: " + err.Error())
 	}

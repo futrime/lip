@@ -3,7 +3,6 @@ package teeth
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -34,59 +33,6 @@ func CheckIsToothInstalled(ctx context.Context, toothRepo string) (bool, error) 
 	}
 
 	return false, nil
-}
-
-// CheckIsToothManuallyInstalled checks if a tooth is manually installed.
-func CheckIsToothManuallyInstalled(ctx context.Context,
-	toothRepo string) (bool, error) {
-	var err error
-
-	isInstalled, err := CheckIsToothInstalled(ctx, toothRepo)
-	if err != nil {
-		return false, fmt.Errorf("failed to check if tooth is installed: %w",
-			err)
-	}
-
-	if !isInstalled {
-		return false, nil
-	}
-
-	workspaceDotLipDir, err := ctx.WorkspaceDotLipDir()
-	if err != nil {
-		return false, fmt.Errorf("failed to get workspace .lip directory: %w",
-			err)
-	}
-
-	jsonFilePath := filepath.Join(workspaceDotLipDir, "manually_installed.json")
-
-	// Check if the manually installed JSON file exists.
-	if _, err := os.Stat(jsonFilePath); os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, fmt.Errorf("failed to check if manually installed JSON "+
-			"file exists: %w", err)
-	}
-
-	jsonBytes, err := os.ReadFile(jsonFilePath)
-	if err != nil {
-		return false, fmt.Errorf("failed to read manually installed JSON file: "+
-			"%w", err)
-	}
-
-	var manuallyInstalledToothList []string
-	err = json.Unmarshal(jsonBytes, &manuallyInstalledToothList)
-	if err != nil {
-		return false, fmt.Errorf("failed to unmarshal manually installed JSON "+
-			"file: %w", err)
-	}
-
-	for _, manuallyInstalledTooth := range manuallyInstalledToothList {
-		if manuallyInstalledTooth == toothRepo {
-			return true, nil
-		}
-	}
-
-	return false, err
 }
 
 // CheckIsValidToothRepo returns true if the tooth repository is valid.
@@ -164,7 +110,16 @@ func GetToothAvailableVersionList(ctx context.Context, repoPath string) (semver.
 		return nil, fmt.Errorf("invalid repository path: %v", repoPath)
 	}
 
-	versionURL, err := network.GenerateGoModuleVersionListURL(repoPath, ctx.GoProxyList())
+	goModuleProxyURL, err := ctx.GoModuleProxyURL()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get go module proxy URL: %w", err)
+	}
+
+	versionURL, err := network.GenerateGoModuleVersionListURL(repoPath, goModuleProxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate version list URL: %w", err)
+	}
+
 	content, err := network.GetContent(versionURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch version list: %w", err)

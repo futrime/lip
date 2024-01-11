@@ -136,7 +136,7 @@ func initTooth(ctx context.Context) error {
 	}
 
 	// Create tooth.json.
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDir, err := os.Getwd()
 	if err != nil {
 		return errors.New("failed to get workspace directory")
 	}
