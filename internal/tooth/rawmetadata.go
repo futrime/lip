@@ -1,4 +1,4 @@
-package teeth
+package tooth
 
 import (
 	"encoding/json"

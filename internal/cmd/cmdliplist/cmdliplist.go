@@ -8,7 +8,7 @@ import (
 
 	"github.com/lippkg/lip/internal/context"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -86,13 +86,13 @@ func Run(ctx context.Context, args []string) error {
 func listAll(ctx context.Context, jsonFlag bool) error {
 	var err error
 
-	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {
-		dataList := make([]teeth.RawMetadata, 0)
+		dataList := make([]tooth.RawMetadata, 0)
 
 		for _, metadata := range metadataList {
 			dataList = append(dataList, metadata.Raw())
@@ -138,17 +138,17 @@ func listAll(ctx context.Context, jsonFlag bool) error {
 func listUpgradable(ctx context.Context, jsonFlag bool) error {
 	var err error
 
-	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {
-		dataList := make([]teeth.RawMetadata, 0)
+		dataList := make([]tooth.RawMetadata, 0)
 
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := teeth.GetToothLatestStableVersion(ctx,
+			latestVersion, err := tooth.GetToothLatestStableVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(
@@ -172,7 +172,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := teeth.GetToothLatestStableVersion(ctx,
+			latestVersion, err := tooth.GetToothLatestStableVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(

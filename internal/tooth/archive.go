@@ -1,4 +1,4 @@
-package teeth
+package tooth
 
 import (
 	gozip "archive/zip"
@@ -25,13 +25,13 @@ func NewArchive(archiveFilePathString string) (Archive, error) {
 		return Archive{}, fmt.Errorf("failed to parse archive file path: %w", err)
 	}
 
-	r, err := gozip.OpenReader(archiveFilePath.String())
+	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
 	}
 	defer r.Close()
 
-	filePaths, err := zip.ExtractFilePaths(r)
+	filePaths, err := zip.GetFilePaths(r)
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to extract file paths: %w", err)
 	}
@@ -99,7 +99,7 @@ func (ar Archive) Metadata() Metadata {
 
 // OpenReader opens the archive for reading.
 func (ar Archive) OpenReader() (*gozip.ReadCloser, error) {
-	return gozip.OpenReader(ar.filePath.String())
+	return gozip.OpenReader(ar.filePath.LocalString())
 }
 
 // resolveMetadataFilePlaceRegex parses the regexes of field place of field files in the metadata.

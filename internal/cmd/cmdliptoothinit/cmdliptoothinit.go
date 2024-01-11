@@ -2,7 +2,6 @@ package cmdliptoothinit
 
 import (
 	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -11,8 +10,9 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/mod/module"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 type FlagDict struct {
@@ -93,18 +93,23 @@ func initTooth(ctx context.Context) error {
 		return fmt.Errorf("tooth.json already exists")
 	}
 
-	rawMetadata, err := teeth.NewRawMetadata([]byte(toothJSONTemplate))
+	rawMetadata, err := tooth.NewRawMetadata([]byte(toothJSONTemplate))
 	if err != nil {
-		return errors.New("failed to create a new tooth rawMetadata")
+		return fmt.Errorf("failed to create rawMetadata: %w", err)
 	}
 
 	// Ask for information.
 	var ans string
 	scanner := bufio.NewScanner(os.Stdin)
 
-	log.Info("What is the tooth path? (e.g. github.com/tooth-hub/llbds3)")
+	log.Info("What is the tooth repo path? (e.g. github.com/tooth-hub/llbds3)")
 	scanner.Scan()
 	ans = scanner.Text()
+
+	if err := module.CheckPath(ans); err != nil {
+		return fmt.Errorf("invalid tooth repo path: %w", err)
+	}
+
 	rawMetadata.Tooth = ans
 
 	// To lower case.
@@ -127,35 +132,35 @@ func initTooth(ctx context.Context) error {
 
 	toothJSONBytes, err := rawMetadata.JSON(true)
 	if err != nil {
-		return errors.New("failed to convert tooth rawMetadata to JSON")
+		return fmt.Errorf("failed to marshal rawMetadata: %w", err)
 	}
 
-	_, err = teeth.NewMetadata(toothJSONBytes)
+	_, err = tooth.NewMetadata(toothJSONBytes)
 	if err != nil {
-		return errors.New("some information is invalid: " + err.Error())
+		return fmt.Errorf("failed to validate rawMetadata: %w", err)
 	}
 
 	// Create tooth.json.
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
-		return errors.New("failed to get workspace directory")
+		return fmt.Errorf("failed to get workspace directory: %w", err)
 	}
 
 	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
-		return errors.New("failed to parse workspace directory")
+		return fmt.Errorf("failed to parse workspace directory: %w", err)
 	}
 
-	file, err := os.Create(workspaceDir.String())
+	file, err := os.Create(workspaceDir.Join(path.MustParse("tooth.json")).LocalString())
 	if err != nil {
-		return errors.New("failed to create tooth.json")
+		return fmt.Errorf("failed to create tooth.json: %w", err)
 	}
 	defer file.Close()
 
 	// Write default tooth.json content.
-	_, err = file.WriteString(string(toothJSONBytes))
+	_, err = file.Write(toothJSONBytes)
 	if err != nil {
-		return errors.New("failed to write tooth.json")
+		return fmt.Errorf("failed to write tooth.json: %w", err)
 	}
 
 	log.Info("Successfully initialized a new tooth.")

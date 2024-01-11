@@ -1,4 +1,4 @@
-package teeth
+package tooth
 
 import (
 	"bufio"
@@ -51,7 +51,7 @@ func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 		return nil, fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
-	filePaths, err := filepath.Glob(filepath.Join(metadataDir.String(), "*.json"))
+	filePaths, err := filepath.Glob(filepath.Join(metadataDir.LocalString(), "*.json"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list metadata files: %w", err)
 	}

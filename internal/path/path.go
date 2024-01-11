@@ -3,6 +3,8 @@ package path
 import (
 	"fmt"
 	gopath "path"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"golang.org/x/mod/module"
@@ -14,11 +16,26 @@ type Path struct {
 
 // Parse parses a path string into a Path.
 func Parse(path string) (Path, error) {
-	if err := module.CheckFilePath(path); err != nil {
-		return Path{}, fmt.Errorf("invalid path: %w", err)
-	}
+	// Convert to forward slashes.
+	path = gopath.Clean(path)
+	path = filepath.ToSlash(path)
 
 	pathItems := strings.Split(path, "/")
+
+	// Remove the last empty path item if the path ends with a slash.
+	if pathItems[len(pathItems)-1] == "" {
+		pathItems = pathItems[:len(pathItems)-1]
+	}
+
+	for i, pathItem := range pathItems {
+		if i == 0 && (pathItem == "" || regexp.MustCompile(`^[a-zA-Z]:$`).MatchString(pathItem)) {
+			continue
+		}
+
+		if err := module.CheckFilePath(pathItem); err != nil {
+			return Path{}, fmt.Errorf("invalid path item %v in path %v", pathItem, path)
+		}
+	}
 
 	return Path{
 		pathItems: pathItems,
@@ -167,4 +184,9 @@ func (f Path) TrimSuffix(suffix Path) Path {
 // String returns the string representation of a Path.
 func (f Path) String() string {
 	return gopath.Join(f.pathItems...)
+}
+
+// LocalString returns the local string representation of a Path.
+func (f Path) LocalString() string {
+	return filepath.FromSlash(f.String())
 }

@@ -11,17 +11,17 @@ import (
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 	"github.com/lippkg/lip/internal/zip"
 )
 
 // Install installs a tooth archive.
-func Install(ctx context.Context, archive teeth.Archive) error {
+func Install(ctx context.Context, archive tooth.Archive) error {
 	var err error
 
 	// 1. Check if the tooth is already installed.
 
-	if installed, err := teeth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
+	if installed, err := tooth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
 	} else if installed {
 		return fmt.Errorf("tooth %v is already installed", archive.Metadata().Tooth())
@@ -54,7 +54,7 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.WriteFile(metadataPath.String(), jsonBytes, 0644)
+	err = os.WriteFile(metadataPath.LocalString(), jsonBytes, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to create metadata file: %w", err)
 	}
@@ -63,7 +63,7 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx context.Context, archive teeth.Archive) error {
+func placeFiles(ctx context.Context, archive tooth.Archive) error {
 	var err error
 
 	workspaceDirStr, err := os.Getwd()
@@ -77,13 +77,13 @@ func placeFiles(ctx context.Context, archive teeth.Archive) error {
 	}
 
 	// Open the archive.
-	r, err := gozip.OpenReader(archive.FilePath().String())
+	r, err := gozip.OpenReader(archive.FilePath().LocalString())
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
 	}
 	defer r.Close()
 
-	filePaths, err := zip.ExtractFilePaths(r)
+	filePaths, err := zip.GetFilePaths(r)
 	if err != nil {
 		return fmt.Errorf("failed to extract file paths: %w", err)
 	}
@@ -97,14 +97,14 @@ func placeFiles(ctx context.Context, archive teeth.Archive) error {
 		}
 
 		// Check if the destination exists.
-		if _, err := os.Stat(relDest.String()); err == nil {
-			return fmt.Errorf("destination %v already exists", relDest.String())
+		if _, err := os.Stat(relDest.LocalString()); err == nil {
+			return fmt.Errorf("destination %v already exists", relDest.LocalString())
 		}
 
 		dest := workspaceDir.Join(relDest)
 
 		// Create the destination directory.
-		err = os.MkdirAll(filepath.Dir(dest.String()), 0755)
+		err = os.MkdirAll(filepath.Dir(dest.LocalString()), 0755)
 		if err != nil {
 			return fmt.Errorf("failed to create destination directory: %w", err)
 		}
@@ -131,7 +131,7 @@ func placeFiles(ctx context.Context, archive teeth.Archive) error {
 					return fmt.Errorf("failed to open source file: %w", err)
 				}
 
-				fw, err := os.Create(dest.String())
+				fw, err := os.Create(dest.LocalString())
 				if err != nil {
 					return fmt.Errorf("failed to create destination file: %w", err)
 				}

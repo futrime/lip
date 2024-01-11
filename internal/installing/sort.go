@@ -1,9 +1,9 @@
 package installing
 
 import (
-	"errors"
+	"fmt"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 type SortingOrder int
@@ -14,18 +14,18 @@ const (
 )
 
 // SortToothArchives sorts tooth archives by dependence with topological sort.
-func SortToothArchives(archiveList []teeth.Archive) ([]teeth.Archive, error) {
+func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
 	var err error
 
 	// Make a map from tooth path to tooth archive.
-	archiveMap := make(map[string]teeth.Archive)
+	archiveMap := make(map[string]tooth.Archive)
 	for _, archive := range archiveList {
 		archiveMap[archive.Metadata().Tooth()] = archive
 	}
 
 	preVisited := make(map[string]bool)
 	visited := make(map[string]bool)
-	sorted := make([]teeth.Archive, 0)
+	sorted := make([]tooth.Archive, 0)
 	for _, toothArchive := range archiveList {
 		err = visit(toothArchive, archiveMap, preVisited, visited, &sorted)
 
@@ -38,8 +38,8 @@ func SortToothArchives(archiveList []teeth.Archive) ([]teeth.Archive, error) {
 }
 
 // visit visits a tooth archive and its dependencies.
-func visit(archive teeth.Archive, archiveMap map[string]teeth.Archive,
-	preVisited map[string]bool, visited map[string]bool, sorted *[]teeth.Archive) error {
+func visit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
+	preVisited map[string]bool, visited map[string]bool, sorted *[]tooth.Archive) error {
 
 	var err error
 
@@ -48,7 +48,7 @@ func visit(archive teeth.Archive, archiveMap map[string]teeth.Archive,
 	}
 
 	if preVisited[archive.Metadata().Tooth()] && !visited[archive.Metadata().Tooth()] {
-		return errors.New("circular dependency detected")
+		return fmt.Errorf("tooth %s has a circular dependency", archive.Metadata().Tooth())
 	}
 
 	preVisited[archive.Metadata().Tooth()] = true

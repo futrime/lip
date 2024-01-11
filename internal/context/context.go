@@ -124,7 +124,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get global .lip directory: %w", err)
 	}
 
-	err = os.MkdirAll(globalDotLipDir.String(), 0755)
+	err = os.MkdirAll(globalDotLipDir.LocalString(), 0755)
 	if err != nil {
 		return fmt.Errorf("cannot create global .lip directory: %w", err)
 	}
@@ -134,7 +134,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get local .lip directory: %w", err)
 	}
 
-	err = os.MkdirAll(localDotLipDir.String(), 0755)
+	err = os.MkdirAll(localDotLipDir.LocalString(), 0755)
 	if err != nil {
 		return fmt.Errorf("cannot create local .lip directory: %w", err)
 	}
@@ -144,7 +144,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get cache directory: %w", err)
 	}
 
-	err = os.MkdirAll(cacheDir.String(), 0755)
+	err = os.MkdirAll(cacheDir.LocalString(), 0755)
 	if err != nil {
 		return fmt.Errorf("cannot create cache directory: %w", err)
 	}
@@ -154,7 +154,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get metadata directory: %w", err)
 	}
 
-	err = os.MkdirAll(metadataDir.String(), 0755)
+	err = os.MkdirAll(metadataDir.LocalString(), 0755)
 	if err != nil {
 		return fmt.Errorf("cannot create metadata directory: %w", err)
 	}
@@ -173,14 +173,14 @@ func (ctx Context) LoadOrCreateConfigFile() error {
 
 	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
 
-	_, err = os.Stat(configFilePath.String())
+	_, err = os.Stat(configFilePath.LocalString())
 	if os.IsNotExist(err) {
 		jsonBytes, err := json.MarshalIndent(ctx.config, "", "  ")
 		if err != nil {
 			return fmt.Errorf("cannot marshal config: %w", err)
 		}
 
-		err = os.WriteFile(configFilePath.String(), jsonBytes, 0644)
+		err = os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644)
 		if err != nil {
 			return fmt.Errorf("cannot write config file: %w", err)
 		}
@@ -189,7 +189,7 @@ func (ctx Context) LoadOrCreateConfigFile() error {
 		return fmt.Errorf("cannot get config file info: %w", err)
 
 	} else {
-		jsonBytes, err := os.ReadFile(configFilePath.String())
+		jsonBytes, err := os.ReadFile(configFilePath.LocalString())
 		if err != nil {
 			return fmt.Errorf("cannot read config file at %v: %w", configFilePath, err)
 		}

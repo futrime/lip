@@ -14,7 +14,7 @@ import (
 	"github.com/lippkg/lip/internal/path"
 
 	specifierpkg "github.com/lippkg/lip/internal/specifier"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -148,7 +148,7 @@ func Run(ctx context.Context, args []string) error {
 
 // askForConfirmation asks for confirmation before installing the tooth.
 func askForConfirmation(ctx context.Context,
-	archiveList []teeth.Archive) error {
+	archiveList []tooth.Archive) error {
 
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be installed:")
@@ -196,8 +196,8 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 	cachePath := cacheDir.Join(path.MustParse(cacheFileName))
 
 	// Skip downloading if the tooth is already in the cache.
-	if _, err := os.Stat(cachePath.String()); err == nil {
-		return cachePath.String(), nil
+	if _, err := os.Stat(cachePath.LocalString()); err == nil {
+		return cachePath.LocalString(), nil
 	} else if !os.IsNotExist(err) {
 		return "", fmt.Errorf("failed to check if file exists: %w", err)
 	}
@@ -208,28 +208,28 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 		enableProgressBar = false
 	}
 
-	err = network.DownloadFile(downloadURL, cachePath.String(), enableProgressBar)
+	err = network.DownloadFile(downloadURL, cachePath, enableProgressBar)
 	if err != nil {
 		return "", fmt.Errorf("failed to download file: %w", err)
 	}
 
-	return cachePath.String(), nil
+	return cachePath.LocalString(), nil
 }
 
 // downloadSpecifier downloads the tooth specified by the specifier and returns
 // the path to the downloaded tooth.
 func downloadSpecifier(ctx context.Context,
-	specifier specifierpkg.Specifier) (teeth.Archive, error) {
+	specifier specifierpkg.Specifier) (tooth.Archive, error) {
 	switch specifier.Kind() {
 	case specifierpkg.ToothArchiveKind:
 		archivePath, err := specifier.ToothArchivePath()
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
 		}
 
-		archive, err := teeth.NewArchive(archivePath)
+		archive, err := tooth.NewArchive(archivePath)
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
 		}
 
 		return archive, nil
@@ -237,34 +237,34 @@ func downloadSpecifier(ctx context.Context,
 	case specifierpkg.ToothRepoKind:
 		toothRepo, err := specifier.ToothRepoPath()
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
 		var toothVersion semver.Version
 		if ok, err := specifier.IsToothVersionSpecified(); err == nil && ok {
 			toothVersion, err = specifier.ToothVersion()
 			if err != nil {
-				return teeth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
+				return tooth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
 			}
 		} else {
-			toothVersion, err = teeth.GetToothLatestStableVersion(ctx, toothRepo)
+			toothVersion, err = tooth.GetToothLatestStableVersion(ctx, toothRepo)
 			if err != nil {
-				return teeth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
+				return tooth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
 			}
 		}
 
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
 		archivePath, err := downloadFromAllGoProxies(ctx, toothRepo, toothVersion)
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
 		}
 
-		archive, err := teeth.NewArchive(archivePath)
+		archive, err := tooth.NewArchive(archivePath)
 		if err != nil {
-			return teeth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to create archive: %w", err)
 		}
 
 		validateArchive(archive, toothRepo, toothVersion)
@@ -279,18 +279,18 @@ func downloadSpecifier(ctx context.Context,
 // findMissingPrerequisites finds missing prerequisites of the tooth specified
 // by the specifier and returns the map of missing prerequisites.
 func findMissingPrerequisites(ctx context.Context,
-	archiveList []teeth.Archive) (map[string]semver.Range, error) {
+	archiveList []tooth.Archive) (map[string]semver.Range, error) {
 	var missingPrerequisiteMap = make(map[string]semver.Range)
 
 	for _, archive := range archiveList {
 		for prerequisite, versionRange := range archive.Metadata().Prerequisites() {
-			isInstalled, err := teeth.CheckIsToothInstalled(ctx, prerequisite)
+			isInstalled, err := tooth.CheckIsToothInstalled(ctx, prerequisite)
 			if err != nil {
 				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
 			}
 
 			if isInstalled {
-				currentMetadata, err := teeth.GetInstalledToothMetadata(ctx, prerequisite)
+				currentMetadata, err := tooth.GetInstalledToothMetadata(ctx, prerequisite)
 				if err != nil {
 					return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
 				}
@@ -322,9 +322,9 @@ func findMissingPrerequisites(ctx context.Context,
 
 // installToothArchiveList installs the tooth archive list.
 func installToothArchiveList(ctx context.Context,
-	archiveToInstallList []teeth.Archive, forceReinstall bool, upgrade bool) error {
+	archiveToInstallList []tooth.Archive, forceReinstall bool, upgrade bool) error {
 	for _, archive := range archiveToInstallList {
-		isInstalled, err := teeth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth())
+		isInstalled, err := tooth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth())
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -339,7 +339,7 @@ func installToothArchiveList(ctx context.Context,
 			shouldUninstall = true
 
 		} else if isInstalled && upgrade {
-			currentMetadata, err := teeth.GetInstalledToothMetadata(ctx,
+			currentMetadata, err := tooth.GetInstalledToothMetadata(ctx,
 				archive.Metadata().Tooth())
 			if err != nil {
 				return fmt.Errorf("failed to find installed tooth metadata: %w", err)
@@ -391,9 +391,9 @@ func installToothArchiveList(ctx context.Context,
 // downloads the tooth specified by the specifier, and returns the list of
 // downloaded tooth archives.
 func parseAndDownloadspecifierpkgtringList(ctx context.Context,
-	specifierpkgtringList []string) ([]teeth.Archive, error) {
+	specifierpkgtringList []string) ([]tooth.Archive, error) {
 
-	archiveList := make([]teeth.Archive, 0)
+	archiveList := make([]tooth.Archive, 0)
 
 	for _, specifierpkgtring := range specifierpkgtringList {
 		specifier, err := specifierpkg.Parse(specifierpkgtring)
@@ -416,8 +416,8 @@ func parseAndDownloadspecifierpkgtringList(ctx context.Context,
 // specifier and returns the paths to the downloaded teeth. rootArchiveList
 // contains the root tooth archives to resolve dependencies.
 // The first return value indicates whether the dependencies are resolved.
-func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
-	upgradeFlag bool, forceReinstallFlag bool) ([]teeth.Archive, error) {
+func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
+	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
 
 	var err error
 
@@ -425,7 +425,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 	// or will be installed.
 	fixedToothVersionMap := make(map[string]semver.Version)
 
-	installedToothMetadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	installedToothMetadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all installed tooth metadata: %w", err)
 	}
@@ -454,10 +454,10 @@ func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 		notResolvedArchiveQueue.PushBack(rootArchive)
 	}
 
-	resolvedArchiveList := make([]teeth.Archive, 0)
+	resolvedArchiveList := make([]tooth.Archive, 0)
 
 	for notResolvedArchiveQueue.Len() > 0 {
-		archive := notResolvedArchiveQueue.Front().Value.(teeth.Archive)
+		archive := notResolvedArchiveQueue.Front().Value.(tooth.Archive)
 		notResolvedArchiveQueue.Remove(notResolvedArchiveQueue.Front())
 
 		depMap := archive.Metadata().Dependencies()
@@ -473,7 +473,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 				continue
 			}
 
-			versionList, err := teeth.GetToothAvailableVersionList(ctx, dep)
+			versionList, err := tooth.GetToothAvailableVersionList(ctx, dep)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get available version list: %w", err)
 			}
@@ -510,7 +510,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 				return nil, fmt.Errorf("failed to download tooth: %w", err)
 			}
 
-			currentArchive, err := teeth.NewArchive(archivePath)
+			currentArchive, err := tooth.NewArchive(archivePath)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create archive: %w", err)
 			}
@@ -529,7 +529,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []teeth.Archive,
 }
 
 // validateArchive validates the archive.
-func validateArchive(archive teeth.Archive, toothRepo string, version semver.Version) error {
+func validateArchive(archive tooth.Archive, toothRepo string, version semver.Version) error {
 	if archive.Metadata().Tooth() != toothRepo {
 		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().Tooth(), toothRepo)
 	}

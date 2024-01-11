@@ -7,7 +7,7 @@ import (
 	"github.com/lippkg/lip/internal/path"
 )
 
-func ExtractFilePaths(r *gozip.ReadCloser) ([]path.Path, error) {
+func GetFilePaths(r *gozip.ReadCloser) ([]path.Path, error) {
 	filePaths := make([]path.Path, 0)
 
 	for _, file := range r.File {

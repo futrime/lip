@@ -1,4 +1,4 @@
-package teeth
+package tooth
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
-	"github.com/lippkg/lip/internal/teeth/migration/v1tov2"
+	"github.com/lippkg/lip/internal/tooth/migration/v1tov2"
 
 	log "github.com/sirupsen/logrus"
 )

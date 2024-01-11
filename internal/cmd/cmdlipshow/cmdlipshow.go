@@ -8,7 +8,7 @@ import (
 
 	"github.com/lippkg/lip/internal/context"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -88,19 +88,19 @@ func Run(ctx context.Context, args []string) error {
 // checkIsInstalledAndGetMetadata checks if the tooth is installed and returns
 // its metadata.
 func checkIsInstalledAndGetMetadata(ctx context.Context,
-	toothRepo string) (bool, teeth.Metadata, error) {
+	toothRepo string) (bool, tooth.Metadata, error) {
 
-	isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
+	isInstalled, err := tooth.CheckIsToothInstalled(ctx, toothRepo)
 	if err != nil {
-		return false, teeth.Metadata{},
+		return false, tooth.Metadata{},
 			fmt.Errorf("failed to check if tooth is installed: %w", err)
 	}
 
-	var metadata teeth.Metadata
+	var metadata tooth.Metadata
 	if isInstalled {
-		metadata, err = teeth.GetInstalledToothMetadata(ctx, toothRepo)
+		metadata, err = tooth.GetInstalledToothMetadata(ctx, toothRepo)
 		if err != nil {
-			return false, teeth.Metadata{},
+			return false, tooth.Metadata{},
 				fmt.Errorf("failed to find installed tooth metadata: %w", err)
 		}
 	}
@@ -133,7 +133,7 @@ func showHumanReadable(ctx context.Context, toothRepo string,
 	}
 
 	if availableFlag {
-		versionList, err := teeth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetToothAvailableVersionList(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}
@@ -179,7 +179,7 @@ func showJSON(ctx context.Context, toothRepo string,
 	}
 
 	if availableFlag {
-		versionList, err := teeth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetToothAvailableVersionList(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}

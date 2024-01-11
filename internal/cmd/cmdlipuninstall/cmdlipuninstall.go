@@ -9,7 +9,7 @@ import (
 	"github.com/lippkg/lip/internal/installing"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 type FlagDict struct {
@@ -71,7 +71,7 @@ func Run(ctx context.Context, args []string) error {
 
 	for _, toothRepo := range toothRepoList {
 
-		isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
+		isInstalled, err := tooth.CheckIsToothInstalled(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -113,7 +113,7 @@ func askForConfirmation(ctx context.Context,
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be uninstalled:")
 	for _, toothRepo := range toothRepoList {
-		metadata, err := teeth.GetInstalledToothMetadata(ctx, toothRepo)
+		metadata, err := tooth.GetInstalledToothMetadata(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
 		}

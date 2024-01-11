@@ -7,13 +7,13 @@ import (
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 func Uninstall(ctx context.Context, toothRepo string) error {
 	var err error
 
-	metadata, err := teeth.GetInstalledToothMetadata(ctx, toothRepo)
+	metadata, err := tooth.GetInstalledToothMetadata(ctx, toothRepo)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.Remove(metadataPath.String())
+	err = os.Remove(metadataPath.LocalString())
 	if err != nil {
 		return fmt.Errorf("failed to delete metadata file: %w", err)
 	}
@@ -54,7 +54,7 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 }
 
 // removeToothFiles removes the files of the tooth.
-func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
+func removeToothFiles(ctx context.Context, metadata tooth.Metadata) error {
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 		dest := workspaceDir.Join(relDest)
 
 		// Delete the file.
-		err = os.RemoveAll(dest.String())
+		err = os.RemoveAll(dest.LocalString())
 		if err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
@@ -108,7 +108,7 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 				break
 			}
 
-			fileList, err := os.ReadDir(dir.String())
+			fileList, err := os.ReadDir(dir.LocalString())
 			if err != nil {
 				// If the directory does not exist, we can ignore the error.
 				break
@@ -118,7 +118,7 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 				break
 			}
 
-			err = os.Remove(dir.String())
+			err = os.Remove(dir.LocalString())
 			if err != nil {
 				return fmt.Errorf("failed to delete directory: %w", err)
 			}
@@ -132,7 +132,7 @@ func removeToothFiles(ctx context.Context, metadata teeth.Metadata) error {
 			return fmt.Errorf("failed to parse removal path: %w", err)
 		}
 
-		err = os.RemoveAll(workspaceDir.Join(removalPath).String())
+		err = os.RemoveAll(workspaceDir.Join(removalPath).LocalString())
 		if err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}

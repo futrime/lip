@@ -7,11 +7,12 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/lippkg/lip/internal/path"
 	"github.com/schollz/progressbar/v3"
 )
 
 // DownloadFile downloads a file from a url and saves it to a local path.
-func DownloadFile(url *url.URL, filePath string, enableProgressBar bool) error {
+func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) error {
 	var err error
 
 	resp, err := http.Get(url.String())
@@ -25,7 +26,7 @@ func DownloadFile(url *url.URL, filePath string, enableProgressBar bool) error {
 	}
 
 	// Create the file
-	file, err := os.Create(filePath)
+	file, err := os.Create(filePath.LocalString())
 	if err != nil {
 		return fmt.Errorf("cannot create file: %w", err)
 	}
