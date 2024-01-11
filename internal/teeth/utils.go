@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,7 +12,7 @@ import (
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/downloading"
+	"github.com/lippkg/lip/internal/network"
 
 	"golang.org/x/mod/module"
 )
@@ -165,12 +164,8 @@ func GetToothAvailableVersionList(ctx contexts.Context, repoPath string) (semver
 		return nil, fmt.Errorf("invalid repository path: %v", repoPath)
 	}
 
-	urlPath, err := url.JoinPath(repoPath, "@v", "list")
-	if err != nil {
-		return nil, fmt.Errorf("failed to join URL path: %w", err)
-	}
-
-	content, err := downloading.GetContentFromAllGoproxies(ctx, urlPath)
+	versionURL, err := network.GenerateGoModuleVersionListURL(repoPath, ctx.GoProxyList())
+	content, err := network.GetContent(versionURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch version list: %w", err)
 	}

@@ -42,7 +42,7 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 	}
 
 	if isMigrationNeeded {
-		log.Warnf("tooth.json format of %s is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
+		log.Warnf("tooth.json format of %v is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
 	}
 
 	return NewMetadataFromRawMetadata(rawMetadata)

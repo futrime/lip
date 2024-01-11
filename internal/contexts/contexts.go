@@ -14,17 +14,22 @@ type Context struct {
 	lipVersion      semver.Version
 	globalDotLipDir string
 	workspaceDir    string
-	goProxyList     []string
+	goProxy         *url.URL
 }
 
 // New creates a new context.
 func New(lipVersion semver.Version, globalDotLipDir string,
-	workspaceDir string, goProxyList []string) Context {
+	workspaceDir string, goProxy string) Context {
+	goProxyURL, err := url.Parse(goProxy)
+	if err != nil {
+		panic(fmt.Errorf("cannot parse Go proxy URL: %w", err))
+	}
+
 	return Context{
 		lipVersion:      lipVersion,
 		globalDotLipDir: globalDotLipDir,
 		workspaceDir:    workspaceDir,
-		goProxyList:     goProxyList,
+		goProxy:         goProxyURL,
 	}
 }
 
@@ -90,8 +95,8 @@ func (ctx Context) GlobalDotLipDir() (string, error) {
 }
 
 // GoProxyList returns the Go Proxy URL.
-func (ctx Context) GoProxyList() []string {
-	return ctx.goProxyList
+func (ctx Context) GoProxyList() *url.URL {
+	return ctx.goProxy
 }
 
 // LipVersion returns the lip version.

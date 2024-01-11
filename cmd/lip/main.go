@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
@@ -17,7 +16,7 @@ import (
 //------------------------------------------------------------------------------
 // Configurations
 
-const DefaultGoproxy = "https://goproxy.io"
+const GoModuleProxyURL = "https://goproxy.io"
 
 const LipVersionString = "0.17.0"
 
@@ -51,11 +50,6 @@ func createContext() (contexts.Context, error) {
 
 	globalDotLipDir := filepath.Join(userHomeDir, ".lip")
 
-	goProxyList := []string{DefaultGoproxy}
-	if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
-		goProxyList = strings.Split(goProxyEnvVar, ",")
-	}
-
 	lipVersion, err := semver.Parse(LipVersionString)
 	if err != nil {
 		return contexts.Context{},
@@ -68,7 +62,7 @@ func createContext() (contexts.Context, error) {
 			fmt.Errorf("cannot get current working directory: %w", err)
 	}
 
-	ctx := contexts.New(lipVersion, globalDotLipDir, workspaceDir, goProxyList)
+	ctx := contexts.New(lipVersion, globalDotLipDir, workspaceDir, GoModuleProxyURL)
 
 	return ctx, nil
 }

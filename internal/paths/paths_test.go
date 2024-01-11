@@ -35,11 +35,11 @@ func TestIsAncesterOf(t *testing.T) {
 
 		result, err := CheckIsAncesterOf(test.input.ancestor, test.input.path)
 		if err != nil {
-			t.Fatalf("error at test %d: %v", index, err.Error())
+			t.Fatalf("error at test %v: %v", index, err.Error())
 		}
 
 		if result != test.output {
-			t.Errorf("wrong output at test %d: %t != %t", index, result, test.output)
+			t.Errorf("wrong output at test %v: %v != %v", index, result, test.output)
 		}
 	}
 }
@@ -77,11 +77,11 @@ func TestEqual(t *testing.T) {
 
 		result, err := Equal(test.input.path1, test.input.path2)
 		if err != nil {
-			t.Fatalf("error at test %d: %v", index, err.Error())
+			t.Fatalf("error at test %v: %v", index, err.Error())
 		}
 
 		if result != test.output {
-			t.Errorf("wrong output at test %d: %t != %t", index, result, test.output)
+			t.Errorf("wrong output at test %v: %v != %v", index, result, test.output)
 		}
 	}
 }

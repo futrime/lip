@@ -22,7 +22,7 @@ func Install(ctx contexts.Context, archive teeth.Archive) error {
 	if installed, err := teeth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
 	} else if installed {
-		return fmt.Errorf("tooth %s is already installed", archive.Metadata().Tooth())
+		return fmt.Errorf("tooth %v is already installed", archive.Metadata().Tooth())
 	}
 
 	// 2. Run pre-install commands.
@@ -91,7 +91,7 @@ func placeFiles(ctx contexts.Context, archive teeth.Archive) error {
 	for _, place := range archive.Metadata().Files().Place {
 		// Check if the destination exists.
 		if _, err := os.Stat(place.Dest); err == nil {
-			return fmt.Errorf("destination %s already exists", place.Dest)
+			return fmt.Errorf("destination %v already exists", place.Dest)
 		}
 
 		fullDest := filepath.Join(workspaceDir, place.Dest)

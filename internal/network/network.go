@@ -1,24 +1,20 @@
-package downloading
+package network
 
 import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/schollz/progressbar/v3"
 )
 
 // DownloadFile downloads a file from a url and saves it to a local path.
-func DownloadFile(url string, filePath string, enableProgressBar bool) error {
+func DownloadFile(url *url.URL, filePath string, enableProgressBar bool) error {
 	var err error
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("cannot create HTTP request: %w", err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.Get(url.String())
 	if err != nil {
 		return fmt.Errorf("cannot send HTTP request: %w", err)
 	}
@@ -35,6 +31,8 @@ func DownloadFile(url string, filePath string, enableProgressBar bool) error {
 	}
 	defer file.Close()
 
+	var writer io.Writer = file
+
 	if enableProgressBar {
 		bar := progressbar.NewOptions64(
 			resp.ContentLength,
@@ -42,31 +40,21 @@ func DownloadFile(url string, filePath string, enableProgressBar bool) error {
 			progressbar.OptionShowBytes(true),
 			progressbar.OptionShowCount(),
 		)
-		_, err = io.Copy(io.MultiWriter(file, bar), resp.Body)
-		if err != nil {
-			return fmt.Errorf("cannot download file from %v: %w", url, err)
-		}
-
-		return nil
-	} else {
-		_, err = io.Copy(file, resp.Body)
-		if err != nil {
-			return fmt.Errorf("cannot download file from %v: %w", url, err)
-		}
-		return nil
+		writer = io.MultiWriter(file, bar)
 	}
+
+	_, err = io.Copy(writer, resp.Body)
+	if err != nil {
+		return fmt.Errorf("cannot download file from %v: %w", url, err)
+	}
+	return nil
 }
 
 // GetContent gets the content at once of a URL.
-func GetContent(url string) ([]byte, error) {
+func GetContent(url *url.URL) ([]byte, error) {
 	var err error
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create HTTP request: %w", err)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.Get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("cannot send HTTP request: %w", err)
 	}

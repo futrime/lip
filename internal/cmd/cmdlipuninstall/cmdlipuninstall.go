@@ -77,7 +77,7 @@ func Run(ctx contexts.Context, args []string) error {
 		}
 
 		if !isInstalled {
-			return fmt.Errorf("tooth %q is not installed", toothRepo)
+			return fmt.Errorf("tooth %v is not installed", toothRepo)
 		}
 	}
 
@@ -95,7 +95,7 @@ func Run(ctx contexts.Context, args []string) error {
 	for _, toothRepo := range toothRepoList {
 		err = installing.Uninstall(ctx, toothRepo)
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %q: %w", toothRepo, err)
+			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepo, err)
 		}
 	}
 

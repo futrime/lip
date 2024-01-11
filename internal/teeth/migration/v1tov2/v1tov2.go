@@ -208,7 +208,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	}
 
 	if !result.Valid() {
-		return nil, fmt.Errorf("JSON is not valid against schema: %s", result.Errors())
+		return nil, fmt.Errorf("JSON is not valid against schema: %v", result.Errors())
 	}
 
 	// Unmarshal JSON into struct.

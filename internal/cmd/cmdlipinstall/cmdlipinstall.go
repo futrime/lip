@@ -8,8 +8,8 @@ import (
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/downloading"
 	"github.com/lippkg/lip/internal/installing"
+	"github.com/lippkg/lip/internal/network"
 
 	"github.com/lippkg/lip/internal/specifiers"
 	"github.com/lippkg/lip/internal/teeth"
@@ -104,12 +104,12 @@ func Run(ctx contexts.Context, args []string) error {
 		}
 
 		if len(missingPrerequisiteMap) > 0 {
-			errorMsg := "\n"
+			missingPrerequisiteMsg := "\n"
 			for prerequisite := range missingPrerequisiteMap {
-				errorMsg += fmt.Sprintf("  %v\n", prerequisite)
+				missingPrerequisiteMsg += fmt.Sprintf("  %v\n", prerequisite)
 			}
 
-			return fmt.Errorf("missing prerequisites: %v", errorMsg)
+			return fmt.Errorf("missing prerequisites: %v", missingPrerequisiteMsg)
 		}
 	}
 
@@ -171,48 +171,39 @@ func askForConfirmation(ctx contexts.Context,
 func downloadFromAllGoProxies(ctx contexts.Context, toothRepo string,
 	toothVersion semver.Version) (string, error) {
 
-	var errList []error
+	var err error
 
 	log.Infof("Downloading %v@%v...", toothRepo, toothVersion)
 
-	for _, goProxy := range ctx.GoProxyList() {
-		var err error
-
-		downloadURL := downloading.CalculateDownloadURLViaGoProxy(
-			goProxy, toothRepo, toothVersion)
-
-		cachePath, err := ctx.CalculateCachePath(downloadURL)
-		if err != nil {
-			errList = append(errList,
-				fmt.Errorf("failed to calculate cache path: %w", err))
-		}
-
-		// Skip downloading if the tooth is already in the cache.
-		if _, err := os.Stat(cachePath); err == nil {
-			return cachePath, nil
-		} else if !os.IsNotExist(err) {
-			errList = append(errList,
-				fmt.Errorf("failed to check if the tooth is in the cache: %w", err))
-			continue
-		}
-
-		enableProgressBar := true
-		if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
-			log.GetLevel() == log.ErrorLevel || log.GetLevel() == log.WarnLevel {
-			enableProgressBar = false
-		}
-
-		err = downloading.DownloadFile(downloadURL, cachePath, enableProgressBar)
-		if err != nil {
-			errList = append(errList,
-				fmt.Errorf("failed to download file: %w", err))
-			continue
-		}
-
-		return cachePath, nil
+	downloadURL, err := network.GenerateGoModuleZipFileURL(toothRepo, toothVersion, ctx.GoProxyList())
+	if err != nil {
+		return "", fmt.Errorf("failed to generate Go module zip file URL: %w", err)
 	}
 
-	return "", fmt.Errorf("failed to download from all Go proxies: %v", errList)
+	cachePath, err := ctx.CalculateCachePath(downloadURL.String())
+	if err != nil {
+		return "", fmt.Errorf("failed to calculate cache path: %w", err)
+	}
+
+	// Skip downloading if the tooth is already in the cache.
+	if _, err := os.Stat(cachePath); err == nil {
+		return cachePath, nil
+	} else if !os.IsNotExist(err) {
+		return "", fmt.Errorf("failed to check if file exists: %w", err)
+	}
+
+	enableProgressBar := true
+	if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
+		log.GetLevel() == log.ErrorLevel || log.GetLevel() == log.WarnLevel {
+		enableProgressBar = false
+	}
+
+	err = network.DownloadFile(downloadURL, cachePath, enableProgressBar)
+	if err != nil {
+		return "", fmt.Errorf("failed to download file: %w", err)
+	}
+
+	return cachePath, nil
 }
 
 // downloadSpecifier downloads the tooth specified by the specifier and returns
