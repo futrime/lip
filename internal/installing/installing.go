@@ -1,7 +1,7 @@
 package installing
 
 import (
-	"archive/zip"
+	gozip "archive/zip"
 	"fmt"
 	"io"
 	"net/url"
@@ -10,8 +10,9 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
-	"github.com/lippkg/lip/internal/paths"
+	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/zip"
 )
 
 // Install installs a tooth archive.
@@ -51,7 +52,7 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 		return fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
-	metadataPath, err := filepath.Join(metadataDir, metadataFileName), nil
+	metadataPath, err := filepath.Join(metadataDir.String(), metadataFileName), nil
 	if err != nil {
 		return err
 	}
@@ -64,67 +65,76 @@ func Install(ctx context.Context, archive teeth.Archive) error {
 	return nil
 }
 
-// ---------------------------------------------------------------------
-
-// extractAllFilePaths extracts all file paths from a zip archive.
-func extractAllFilePaths(r *zip.ReadCloser) []string {
-	filePathList := make([]string, len(r.File))
-
-	for i, file := range r.File {
-		filePathList[i] = file.Name
-	}
-
-	return filePathList
-}
-
 // placeFiles places the files of the tooth.
 func placeFiles(ctx context.Context, archive teeth.Archive) error {
 	var err error
 
-	workspaceDir, err := os.Getwd()
+	workspaceDirStr, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
 		return err
 	}
 
 	// Open the archive.
-	r, err := zip.OpenReader(archive.Path())
+	r, err := gozip.OpenReader(archive.FilePath().String())
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
 	}
 	defer r.Close()
 
-	prefix := paths.ExtractCommonAncestor(extractAllFilePaths(r))
+	filePaths, err := zip.ExtractFilePaths(r)
+	if err != nil {
+		return fmt.Errorf("failed to extract file paths: %w", err)
+	}
+
+	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
 
 	for _, place := range archive.Metadata().Files().Place {
-		// Check if the destination exists.
-		if _, err := os.Stat(place.Dest); err == nil {
-			return fmt.Errorf("destination %v already exists", place.Dest)
+		relDest, err := path.Parse(place.Dest)
+		if err != nil {
+			return fmt.Errorf("failed to parse destination path: %w", err)
 		}
 
-		fullDest := filepath.Join(workspaceDir, place.Dest)
+		// Check if the destination exists.
+		if _, err := os.Stat(relDest.String()); err == nil {
+			return fmt.Errorf("destination %v already exists", relDest.String())
+		}
+
+		dest := workspaceDir.Concat(relDest)
 
 		// Create the destination directory.
-		err = os.MkdirAll(filepath.Dir(fullDest), 0755)
+		err = os.MkdirAll(filepath.Dir(dest.String()), 0755)
 		if err != nil {
 			return fmt.Errorf("failed to create destination directory: %w", err)
 		}
 
+		relSrc, err := path.Parse(place.Src)
+		if err != nil {
+			return fmt.Errorf("failed to parse source path: %w", err)
+		}
+
+		src := filePathRoot.Concat(relSrc)
+
 		// Iterate through the files in the archive,
 		// and find the source file.
 		for _, f := range r.File {
-			// Do not copy directories.
+			// Skip directories.
 			if strings.HasSuffix(f.Name, "/") {
 				continue
 			}
 
-			if f.Name == prefix+place.Src {
+			if f.Name == src.String() {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {
 					return fmt.Errorf("failed to open source file: %w", err)
 				}
 
-				fw, err := os.Create(fullDest)
+				fw, err := os.Create(dest.String())
 				if err != nil {
 					return fmt.Errorf("failed to create destination file: %w", err)
 				}

@@ -30,7 +30,7 @@ Options:
   -h, --help                  Show help.
 `
 
-const toothJsonTemplate = `{
+const toothJSONTemplate = `{
 	"format_version": 2,
 	"tooth": "",
 	"version": "0.0.0",
@@ -93,7 +93,7 @@ func initTooth(ctx context.Context) error {
 		return fmt.Errorf("tooth.json already exists")
 	}
 
-	rawMetadata, err := teeth.NewRawMetadata([]byte(toothJsonTemplate))
+	rawMetadata, err := teeth.NewRawMetadata([]byte(toothJSONTemplate))
 	if err != nil {
 		return errors.New("failed to create a new tooth rawMetadata")
 	}
@@ -125,12 +125,12 @@ func initTooth(ctx context.Context) error {
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
 
-	toothJsonBytes, err := rawMetadata.JSON(true)
+	toothJSONBytes, err := rawMetadata.JSON(true)
 	if err != nil {
 		return errors.New("failed to convert tooth rawMetadata to JSON")
 	}
 
-	_, err = teeth.NewMetadata(toothJsonBytes)
+	_, err = teeth.NewMetadata(toothJSONBytes)
 	if err != nil {
 		return errors.New("some information is invalid: " + err.Error())
 	}
@@ -148,7 +148,7 @@ func initTooth(ctx context.Context) error {
 	defer file.Close()
 
 	// Write default tooth.json content.
-	_, err = file.WriteString(string(toothJsonBytes))
+	_, err = file.WriteString(string(toothJSONBytes))
 	if err != nil {
 		return errors.New("failed to write tooth.json")
 	}

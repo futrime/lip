@@ -189,7 +189,7 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepo string,
 
 	cacheDir, err := ctx.CacheDir()
 	cacheFileName := url.QueryEscape(downloadURL.String())
-	cachePath, err := filepath.Join(cacheDir, cacheFileName), nil
+	cachePath, err := filepath.Join(cacheDir.String(), cacheFileName), nil
 	if err != nil {
 		return "", fmt.Errorf("failed to calculate cache path: %w", err)
 	}

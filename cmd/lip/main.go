@@ -19,26 +19,21 @@ var defaultConfig context.Config = context.Config{
 var lipVersion semver.Version = semver.MustParse("0.18.0")
 
 func main() {
-	var err error
-
 	log.SetFormatter(&nested.Formatter{})
 
 	ctx := context.Make(defaultConfig, lipVersion)
 
-	err = ctx.CreateDirStructure()
-	if err != nil {
+	if err := ctx.CreateDirStructure(); err != nil {
 		log.Errorf("cannot create directory structure: %s", err.Error())
 		return
 	}
 
-	err = ctx.LoadOrCreateConfigFile()
-	if err != nil {
+	if err := ctx.LoadOrCreateConfigFile(); err != nil {
 		log.Errorf("cannot load or create config file: %s", err.Error())
 		return
 	}
 
-	err = cmdlip.Run(ctx, os.Args[1:])
-	if err != nil {
+	if err := cmdlip.Run(ctx, os.Args[1:]); err != nil {
 		log.Error(err.Error())
 		return
 	}

@@ -73,13 +73,13 @@ func purgeCache(ctx context.Context) error {
 	}
 
 	// Remove the cache directory.
-	err = os.RemoveAll(cacheDir)
+	err = os.RemoveAll(cacheDir.String())
 	if err != nil {
 		return fmt.Errorf("failed to remove the cache directory: %w", err)
 	}
 
 	// Recreate the cache directory.
-	err = os.MkdirAll(cacheDir, 0755)
+	err = os.MkdirAll(cacheDir.String(), 0755)
 	if err != nil {
 		return fmt.Errorf("failed to recreate the cache directory: %w", err)
 	}
