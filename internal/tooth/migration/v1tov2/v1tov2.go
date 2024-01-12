@@ -111,55 +111,55 @@ const v1JSONSchema = `
 }
 `
 
-type V1RawMetadata struct {
+type v1RawMetadata struct {
 	FormatVersion int               `json:"format_version"`
 	Tooth         string            `json:"tooth"`
 	Version       string            `json:"version"`
-	Dependencies  V1Dependencies    `json:"dependencies,omitempty"`
-	Information   V1Information     `json:"information,omitempty"`
-	Placement     []V1PlacementItem `json:"placement,omitempty"`
+	Dependencies  v1Dependencies    `json:"dependencies,omitempty"`
+	Information   v1Information     `json:"information,omitempty"`
+	Placement     []v1PlacementItem `json:"placement,omitempty"`
 	Possession    []string          `json:"possession,omitempty"`
-	Commands      []V1CommandsItem  `json:"commands,omitempty"`
+	Commands      []v1CommandsItem  `json:"commands,omitempty"`
 }
 
-type V1Dependencies map[string]V1DependenciesItem
+type v1Dependencies map[string]v1DependenciesItem
 
-type V1DependenciesItem [][]string
+type v1DependenciesItem [][]string
 
-type V1Information struct {
+type v1Information struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Author      string `json:"author,omitempty"`
 }
 
-type V1PlacementItem struct {
+type v1PlacementItem struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
 	GOOS        string `json:"GOOS,omitempty"`
 	GOARCH      string `json:"GOARCH,omitempty"`
 }
 
-type V1CommandsItem struct {
+type v1CommandsItem struct {
 	Type     string   `json:"type"`
 	Commands []string `json:"commands"`
 	GOOS     string   `json:"GOOS"`
 	GOARCH   string   `json:"GOARCH,omitempty"`
 }
 
-type V2RawMetadata struct {
+type v2RawMetadata struct {
 	FormatVersion int               `json:"format_version"`
 	Tooth         string            `json:"tooth"`
 	Version       string            `json:"version"`
-	Info          V2RawMetadataInfo `json:"info"`
+	Info          v2RawMetadataInfo `json:"info"`
 
-	Commands     V2RawMetadataCommands `json:"commands,omitempty"`
+	Commands     v2RawMetadataCommands `json:"commands,omitempty"`
 	Dependencies map[string]string     `json:"dependencies,omitempty"`
-	Files        V2RawMetadataFiles    `json:"files,omitempty"`
+	Files        v2RawMetadataFiles    `json:"files,omitempty"`
 
-	Platforms []V2RawMetadataPlatformsItem `json:"platforms,omitempty"`
+	Platforms []v2RawMetadataPlatformsItem `json:"platforms,omitempty"`
 }
 
-type V2RawMetadataInfo struct {
+type v2RawMetadataInfo struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Author      string   `json:"author"`
@@ -167,31 +167,31 @@ type V2RawMetadataInfo struct {
 	Source      string   `json:"source,omitempty"`
 }
 
-type V2RawMetadataCommands struct {
+type v2RawMetadataCommands struct {
 	PreInstall    []string `json:"pre_install,omitempty"`
 	PostInstall   []string `json:"post_install,omitempty"`
 	PreUninstall  []string `json:"pre_uninstall,omitempty"`
 	PostUninstall []string `json:"post_uninstall,omitempty"`
 }
 
-type V2RawMetadataFiles struct {
-	Place    []V2RawMetadataFilesPlaceItem `json:"place,omitempty"`
+type v2RawMetadataFiles struct {
+	Place    []v2RawMetadataFilesPlaceItem `json:"place,omitempty"`
 	Preserve []string                      `json:"preserve,omitempty"`
 	Remove   []string                      `json:"remove,omitempty"`
 }
 
-type V2RawMetadataFilesPlaceItem struct {
+type v2RawMetadataFilesPlaceItem struct {
 	Src  string `json:"src"`
 	Dest string `json:"dest"`
 }
 
-type V2RawMetadataPlatformsItem struct {
+type v2RawMetadataPlatformsItem struct {
 	GOARCH string `json:"goarch,omitempty"`
 	GOOS   string `json:"goos"`
 
-	Commands     V2RawMetadataCommands `json:"commands,omitempty"`
+	Commands     v2RawMetadataCommands `json:"commands,omitempty"`
 	Dependencies map[string]string     `json:"dependencies,omitempty"`
-	Files        V2RawMetadataFiles    `json:"files,omitempty"`
+	Files        v2RawMetadataFiles    `json:"files,omitempty"`
 }
 
 // Migrate migrates the metadata from v1 to v2.
@@ -212,36 +212,36 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	}
 
 	// Unmarshal JSON into struct.
-	var v1RawMetadata V1RawMetadata
+	var v1RawMetadata v1RawMetadata
 	err = json.Unmarshal(jsonBytes, &v1RawMetadata)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling JSON into struct: %w", err)
 	}
 
 	// Migrate struct.
-	v2RawMetadata := V2RawMetadata{
+	v2RawMetadata := v2RawMetadata{
 		FormatVersion: 2,
 		Tooth:         v1RawMetadata.Tooth,
 		Version:       v1RawMetadata.Version,
-		Info: V2RawMetadataInfo{
+		Info: v2RawMetadataInfo{
 			Name:        v1RawMetadata.Information.Name,
 			Description: v1RawMetadata.Information.Description,
 			Author:      v1RawMetadata.Information.Author,
 			Source:      "",
 			Tags:        make([]string, 0),
 		},
-		Commands: V2RawMetadataCommands{
+		Commands: v2RawMetadataCommands{
 			PreInstall:    make([]string, 0),
 			PostInstall:   make([]string, 0),
 			PreUninstall:  make([]string, 0),
 			PostUninstall: make([]string, 0),
 		},
 		Dependencies: make(map[string]string),
-		Files: V2RawMetadataFiles{
-			Place:  make([]V2RawMetadataFilesPlaceItem, 0),
+		Files: v2RawMetadataFiles{
+			Place:  make([]v2RawMetadataFilesPlaceItem, 0),
 			Remove: v1RawMetadata.Possession,
 		},
-		Platforms: make([]V2RawMetadataPlatformsItem, 0),
+		Platforms: make([]v2RawMetadataPlatformsItem, 0),
 	}
 
 	// Solve dependencies.
@@ -285,7 +285,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 		}
 
 		v2RawMetadata.Files.Place = append(
-			v2RawMetadata.Files.Place, V2RawMetadataFilesPlaceItem{
+			v2RawMetadata.Files.Place, v2RawMetadataFilesPlaceItem{
 				Src:  v1Placement.Source,
 				Dest: strings.TrimSuffix(v1Placement.Destination, "*"),
 			})
