@@ -12,7 +12,7 @@ import (
 )
 
 var defaultConfig context.Config = context.Config{
-	GitHubMirrorURL:  "https://github.com",
+	GitHubMirrorURL:  "",
 	GoModuleProxyURL: "https://goproxy.io",
 }
 

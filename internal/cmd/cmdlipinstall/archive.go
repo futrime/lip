@@ -11,6 +11,37 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func filterInstalledToothArchives(ctx context.Context, archives []tooth.Archive, upgradeFlag bool,
+	forceReinstallFlag bool) ([]tooth.Archive, error) {
+
+	if forceReinstallFlag {
+		return archives, nil
+	}
+
+	filteredArchives := make([]tooth.Archive, 0)
+	for _, archive := range archives {
+		isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
+		if err != nil {
+			return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
+		}
+
+		if !isInstalled {
+			filteredArchives = append(filteredArchives, archive)
+		} else if upgradeFlag {
+			currentMetadata, err := tooth.GetMetadata(ctx, archive.Metadata().ToothRepoPath())
+			if err != nil {
+				return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
+			}
+
+			if archive.Metadata().Version().GT(currentMetadata.Version()) {
+				filteredArchives = append(filteredArchives, archive)
+			}
+		}
+	}
+
+	return filteredArchives, nil
+}
+
 // installToothArchive installs the tooth archive.
 func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
 	isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
@@ -67,21 +98,23 @@ func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinst
 	}
 
 	if shouldInstall {
-		err := install.Install(ctx, archive, path.MakeEmpty())
+		assetURL, err := archive.Metadata().AssetURL()
 		if err != nil {
-			return fmt.Errorf("failed to install tooth: %w", err)
+			return fmt.Errorf("failed to get asset URL: %w", err)
 		}
-	}
 
-	return nil
-}
+		assetArchiveFilePath := path.MakeEmpty()
+		if assetURL.String() != "" {
+			cachePath, err := getCachePath(ctx, assetURL)
+			if err != nil {
+				return fmt.Errorf("failed to get cache path: %w", err)
+			}
 
-// installToothArchives installs the tooth archive list.
-func installToothArchives(ctx context.Context,
-	archives []tooth.Archive, forceReinstall bool, upgrade bool) error {
-	for _, archive := range archives {
-		if err := installToothArchive(ctx, archive, forceReinstall, upgrade); err != nil {
-			return err
+			assetArchiveFilePath = cachePath
+		}
+
+		if err := install.Install(ctx, archive, assetArchiveFilePath); err != nil {
+			return fmt.Errorf("failed to install tooth: %w", err)
 		}
 	}
 

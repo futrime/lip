@@ -6,7 +6,7 @@ import (
 )
 
 // GenerateGitHubMirrorURL generates a GitHub mirror URL from a GitHub URL.
-func GenerateGitHubMirrorURL(url *url.URL, gitHubMirrorURL url.URL) (*url.URL, error) {
+func GenerateGitHubMirrorURL(url *url.URL, gitHubMirrorURL *url.URL) (*url.URL, error) {
 	if !IsGitHubURL(url) {
 		return nil, fmt.Errorf("not a GitHub URL: %v", url)
 	}

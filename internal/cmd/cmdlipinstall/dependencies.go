@@ -37,7 +37,7 @@ func getFixedToothAndVersionMap(ctx context.Context, specifiedArchives []tooth.A
 			// If to upgrade and the version is newer, fix it.
 			fixedTeethAndVersions[archive.Metadata().ToothRepoPath()] = archive.Metadata().Version()
 
-		} else {
+		} else if fixedVersion.NE(archive.Metadata().Version()) {
 			return nil, fmt.Errorf(
 				"trying to fix tooth %v@%v, but found %v@%v fixed",
 				archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.Metadata().ToothRepoPath(),

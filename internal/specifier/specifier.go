@@ -70,12 +70,15 @@ func Parse(specifierString string) (Specifier, error) {
 				toothVersion:            toothVersion,
 			}, nil
 
-		} else {
+		} else if len(splittedSpecifier) == 1 {
 			return Specifier{
 				kind:                    specifierType,
 				toothRepoPath:           toothRepoPath,
 				isToothVersionSpecified: false,
 			}, nil
+		} else {
+			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
+				specifierString)
 		}
 	}
 
@@ -146,10 +149,12 @@ func getSpecifierType(specifier string) KindType {
 	// Prefer tooth repo specifier over tooth archive specifier.
 	// This means that if a specifier is both a tooth repo specifier and a tooth archive
 	// specifier, it will be treated as a tooth repo specifier.
-	if !tooth.IsValidToothRepoPath(specifier) {
-		return ToothArchiveKind
-
-	} else {
+	splittedSpecifier := strings.Split(specifier, "@")
+	if len(splittedSpecifier) == 1 && tooth.IsValidToothRepoPath(specifier) {
+		return ToothRepoKind
+	} else if len(splittedSpecifier) == 2 && tooth.IsValidToothRepoPath(splittedSpecifier[0]) {
 		return ToothRepoKind
 	}
+
+	return ToothArchiveKind
 }

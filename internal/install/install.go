@@ -34,8 +34,13 @@ func Install(ctx context.Context, archive tooth.Archive, assetArchiveFilePath pa
 
 	// 3. Extract and place files.
 
-	if (assetArchiveFilePath.IsEmpty() && (archive.Metadata().AssetURL() != "")) ||
-		(!assetArchiveFilePath.IsEmpty() && (archive.Metadata().AssetURL() == "")) {
+	assetURL, err := archive.Metadata().AssetURL()
+	if err != nil {
+		return fmt.Errorf("failed to get asset URL: %w", err)
+	}
+
+	if (assetArchiveFilePath.IsEmpty() && (assetURL.String() != "")) ||
+		(!assetArchiveFilePath.IsEmpty() && (assetURL.String() == "")) {
 		return fmt.Errorf("asset archive file path and asset URL must be both specified or both empty")
 	}
 

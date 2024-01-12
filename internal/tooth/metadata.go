@@ -3,6 +3,7 @@ package tooth
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/blang/semver/v4"
@@ -116,8 +117,8 @@ func (m Metadata) Info() RawMetadataInfo {
 	return m.rawMetadata.Info
 }
 
-func (m Metadata) AssetURL() string {
-	return m.rawMetadata.AssetURL
+func (m Metadata) AssetURL() (*url.URL, error) {
+	return url.Parse(m.rawMetadata.AssetURL)
 }
 
 func (m Metadata) Commands() RawMetadataCommands {

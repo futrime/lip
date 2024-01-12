@@ -30,6 +30,7 @@ A tooth.json includes directives as shown in the following example. These are de
             "example"
         ]
     },
+    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.tth",
     "commands": {
         "pre_install": [
             "echo \"pre_install\""
@@ -175,6 +176,26 @@ Provide the name, description , author and tags of your tooth. The source field 
 }
 ```
 
+## `asset_url` (optional)
+
+Declares the URL of the tooth asset. If this field is set, lip will download the asset and use files in the asset archive instead of files in the tooth repository. This helps when releasing large binary files.
+
+### Syntax
+
+The URL should be a direct link to the asset file. The asset file should be a zip archive file.
+
+### Examples
+
+```json
+{
+    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.tth"
+}
+```
+
+### Notes
+
+For GitHub links, the configured GitHub mirror will be used to download the asset. If the mirror is not configured, the official GitHub will be used.
+
 ## `commands` (optional)
 
 Declare commands to run before or after installing or uninstalling the tooth.
@@ -290,8 +311,10 @@ Declare platform-specific configurations.
 
 This field is an array of platform-specific configurations. Each item is an object with these sub-fields:
 
+- `asset_url`: same as `asset_url` field. (optional)
 - `commands`: same as `commands` field. (optional)
 - `dependencies`: same as `dependencies` field. (optional)
+- `prerequisites`: same as `prerequisites` field. (optional)
 - `files`: same as `files` field. (optional)
 - `goos`: the target operating system. For the values, see [here](https://go.dev/doc/install/source#environment). (required)
 - `goarch`: the target architecture. For the values, see [here](https://go.dev/doc/install/source#environment). Omitting means match all. (optional)

@@ -106,7 +106,7 @@ func Run(ctx context.Context, args []string) error {
 		archivesToInstall = archives
 
 		// Check prerequisites.
-		_, missingPrerequisites, err := findMissingPrerequisites(ctx, archivesToInstall)
+		_, missingPrerequisites, err := getMissingPrerequisites(ctx, archivesToInstall)
 		if err != nil {
 			return fmt.Errorf("failed to find missing prerequisites: %w", err)
 		}
@@ -120,14 +120,25 @@ func Run(ctx context.Context, args []string) error {
 		}
 	}
 
+	// Filter installed teeth.
+	filteredArchives, err := filterInstalledToothArchives(ctx, archivesToInstall, flagDict.upgradeFlag,
+		flagDict.forceReinstallFlag)
+	if err != nil {
+		return fmt.Errorf("failed to filter installed teeth: %w", err)
+	}
+
 	// Download tooth assets if necessary.
 
-	// TODO: Download tooth assets.
+	for _, archive := range filteredArchives {
+		if err := downloadToothAssetArchiveIfNotCached(ctx, archive); err != nil {
+			return fmt.Errorf("failed to download tooth assets: %w", err)
+		}
+	}
 
 	// Ask for confirmation.
 
 	if !flagDict.yesFlag {
-		err := askForConfirmation(ctx, archivesToInstall)
+		err := askForConfirmation(ctx, filteredArchives)
 		if err != nil {
 			return err
 		}
@@ -135,9 +146,10 @@ func Run(ctx context.Context, args []string) error {
 
 	// Install teeth.
 
-	if err := installToothArchives(ctx, archivesToInstall, flagDict.forceReinstallFlag,
-		flagDict.upgradeFlag); err != nil {
-		return fmt.Errorf("failed to install teeth: %w", err)
+	for _, archive := range filteredArchives {
+		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag); err != nil {
+			return fmt.Errorf("failed to install tooth: %w", err)
+		}
 	}
 
 	log.Info("Done.")
