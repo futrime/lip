@@ -36,8 +36,8 @@ func Parse(specifierString string) (Specifier, error) {
 	case ToothArchiveKind:
 		toothArchivePath, err := path.Parse(specifierString)
 		if err != nil {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier %v",
-				specifierString)
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %w",
+				specifierString, err)
 		}
 
 		return Specifier{
@@ -52,15 +52,15 @@ func Parse(specifierString string) (Specifier, error) {
 		toothRepoPath := splittedSpecifier[0]
 
 		if !tooth.IsValidToothRepoPath(toothRepoPath) {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier %v",
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: invalid tooth repo path",
 				specifierString)
 		}
 
 		if len(splittedSpecifier) == 2 {
 			toothVersion, err := semver.Parse(splittedSpecifier[1])
 			if err != nil {
-				return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
-					specifierString)
+				return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %w",
+					specifierString, err)
 			}
 
 			return Specifier{
@@ -77,7 +77,7 @@ func Parse(specifierString string) (Specifier, error) {
 				isToothVersionSpecified: false,
 			}, nil
 		} else {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
+			return Specifier{}, fmt.Errorf("invalid requirement specifier: %v: too many \"@\"s",
 				specifierString)
 		}
 	}

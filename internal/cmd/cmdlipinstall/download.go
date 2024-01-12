@@ -13,10 +13,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL) (path.Path, error) {
-	cachePath, err := getCachePath(ctx, downloadURL)
-	if err != nil {
-		return path.Path{}, fmt.Errorf("failed to get cache path: %w", err)
+func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explicitCachePath path.Path) (path.Path, error) {
+	var cachePath path.Path
+
+	if explicitCachePath.IsEmpty() {
+		p, err := getCachePath(ctx, downloadURL)
+		if err != nil {
+			return path.Path{}, fmt.Errorf("failed to get cache path: %w", err)
+		}
+
+		cachePath = p
+
+	} else {
+		cachePath = explicitCachePath
 	}
 
 	// Skip downloading if the file is already in the cache.
@@ -57,7 +66,7 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 		return tooth.Archive{}, fmt.Errorf("failed to generate Go module zip file URL: %w", err)
 	}
 
-	cachePath, err := downloadFileIfNotCached(ctx, downloadURL)
+	cachePath, err := downloadFileIfNotCached(ctx, downloadURL, path.MakeEmpty())
 	if err != nil {
 		return tooth.Archive{}, fmt.Errorf("failed to download file: %w", err)
 	}
@@ -100,11 +109,19 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 
 		log.Infof("GitHub URL detected. Rewrite URL to %v", gitHubMirrorURL)
 
-		assetURL = mirroredURL
-	}
+		cachePath, err := getCachePath(ctx, assetURL)
+		if err != nil {
+			return fmt.Errorf("failed to get cache path: %w", err)
+		}
 
-	if _, err := downloadFileIfNotCached(ctx, assetURL); err != nil {
-		return fmt.Errorf("failed to download file: %w", err)
+		if _, err := downloadFileIfNotCached(ctx, mirroredURL, cachePath); err != nil {
+			return fmt.Errorf("failed to download file: %w", err)
+		}
+
+	} else {
+		if _, err := downloadFileIfNotCached(ctx, assetURL, path.MakeEmpty()); err != nil {
+			return fmt.Errorf("failed to download file: %w", err)
+		}
 	}
 
 	return nil
