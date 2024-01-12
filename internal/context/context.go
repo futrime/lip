@@ -24,6 +24,11 @@ func New(config Config, version semver.Version) *Context {
 	}
 }
 
+// Config returns the config.
+func (ctx *Context) Config() *Config {
+	return &ctx.config
+}
+
 // GitHubMirrorURL returns the GitHub mirror URL.
 func (ctx *Context) GitHubMirrorURL() (*url.URL, error) {
 	gitHubMirrorURL, err := url.Parse(ctx.config.GitHubMirrorURL)
@@ -164,14 +169,7 @@ func (ctx *Context) LoadOrCreateConfigFile() error {
 	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
 
 	if _, err := os.Stat(configFilePath.LocalString()); os.IsNotExist(err) {
-		jsonBytes, err := json.MarshalIndent(ctx.config, "", "  ")
-		if err != nil {
-			return fmt.Errorf("cannot marshal config: %w", err)
-		}
-
-		if err := os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644); err != nil {
-			return fmt.Errorf("cannot write config file: %w", err)
-		}
+		ctx.SaveConfigFile()
 
 	} else if err != nil {
 		return fmt.Errorf("cannot get config file info: %w", err)
@@ -185,6 +183,28 @@ func (ctx *Context) LoadOrCreateConfigFile() error {
 		if err := json.Unmarshal(jsonBytes, &ctx.config); err != nil {
 			return fmt.Errorf("cannot unmarshal config at %v: %w", configFilePath, err)
 		}
+	}
+
+	return nil
+}
+
+// SaveConfigFile saves the config file.
+func (ctx *Context) SaveConfigFile() error {
+
+	globalDotLipDir, err := ctx.GlobalDotLipDir()
+	if err != nil {
+		return fmt.Errorf("cannot get global .lip directory: %w", err)
+	}
+
+	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
+
+	jsonBytes, err := json.MarshalIndent(ctx.config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("cannot marshal config: %w", err)
+	}
+
+	if err := os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644); err != nil {
+		return fmt.Errorf("cannot write config file: %w", err)
 	}
 
 	return nil

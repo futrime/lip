@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/lippkg/lip/internal/cmd/cmdlipcache"
+	"github.com/lippkg/lip/internal/cmd/cmdlipconfig"
 	"github.com/lippkg/lip/internal/cmd/cmdlipinstall"
 	"github.com/lippkg/lip/internal/cmd/cmdliplist"
 	"github.com/lippkg/lip/internal/cmd/cmdlipshow"
@@ -29,6 +30,7 @@ Usage:
 
 Commands:
   cache                       Inspect and manage lip's cache.
+  config					  Manage configuration.
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
@@ -96,6 +98,12 @@ func Run(ctx *context.Context, args []string) error {
 		switch flagSet.Arg(0) {
 		case "cache":
 			if err := cmdlipcache.Run(ctx, flagSet.Args()[1:]); err != nil {
+				return err
+			}
+			return nil
+
+		case "config":
+			if err := cmdlipconfig.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil

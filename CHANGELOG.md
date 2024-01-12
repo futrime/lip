@@ -7,11 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2024-01-12
+
+### Added
+
+- Config support.
+- GitHub mirror support.
+
 ### Changed
 
 - Use `github.com/sirupsen/logrus` for logging.
 - Use `github.com/blang/semver/v4` for versioning.
+- Refactor most of the code.
+
+### Fixed
+
+- Some bugs.
+
+### Removed
+
 - Remove `lip autoremove` command.
+- Percentage progress bar.
 
 ## [0.17.0] - 2023-12-30
 
@@ -325,7 +341,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/lippkg/lip/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/lippkg/lip/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/lippkg/lip/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/lippkg/lip/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/lippkg/lip/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/lippkg/lip/compare/v0.15.2...v0.16.0
