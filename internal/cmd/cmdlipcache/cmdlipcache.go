@@ -24,7 +24,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
 
 	// Rewrite the default usage message.

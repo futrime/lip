@@ -26,7 +26,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("tooth", flag.ContinueOnError)
 

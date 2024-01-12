@@ -9,7 +9,7 @@ import (
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-func getFixedToothAndVersionMap(ctx context.Context, specifiedArchives []tooth.Archive, upgradeFlag bool,
+func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.Archive, upgradeFlag bool,
 	forceReinstallFlag bool) (map[string]semver.Version, error) {
 
 	fixedTeethAndVersions := make(map[string]semver.Version)
@@ -52,7 +52,7 @@ func getFixedToothAndVersionMap(ctx context.Context, specifiedArchives []tooth.A
 // specifier and returns the paths to the downloaded teeth. rootArchiveList
 // contains the root tooth archives to resolve dependencies.
 // The first return value indicates whether the dependencies are resolved.
-func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
+func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
 
 	fixedToothAndVersionMap, err := getFixedToothAndVersionMap(ctx, rootArchiveList, upgradeFlag,

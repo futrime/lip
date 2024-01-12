@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func downloadFileIfNotCached(ctx context.Context, downloadURL *url.URL) (path.Path, error) {
+func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL) (path.Path, error) {
 	cachePath, err := getCachePath(ctx, downloadURL)
 	if err != nil {
 		return path.Path{}, fmt.Errorf("failed to get cache path: %w", err)
@@ -21,7 +21,7 @@ func downloadFileIfNotCached(ctx context.Context, downloadURL *url.URL) (path.Pa
 
 	// Skip downloading if the file is already in the cache.
 	if _, err := os.Stat(cachePath.LocalString()); os.IsNotExist(err) {
-		log.Infof("Downloading %v...", downloadURL)
+		log.Infof("Downloading %v", downloadURL)
 
 		var enableProgressBar bool
 		if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
@@ -44,7 +44,7 @@ func downloadFileIfNotCached(ctx context.Context, downloadURL *url.URL) (path.Pa
 
 // downloadToothArchiveIfNotCached downloads the tooth archive from the Go module proxy
 // if it is not cached, and returns the path to the downloaded tooth archive.
-func downloadToothArchiveIfNotCached(ctx context.Context, toothRepoPath string,
+func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 	toothVersion semver.Version) (tooth.Archive, error) {
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
@@ -74,7 +74,7 @@ func downloadToothArchiveIfNotCached(ctx context.Context, toothRepoPath string,
 	return archive, nil
 }
 
-func downloadToothAssetArchiveIfNotCached(ctx context.Context, archive tooth.Archive) error {
+func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Archive) error {
 	metadata := archive.Metadata()
 	assetURL, err := metadata.AssetURL()
 	if err != nil {
@@ -110,7 +110,7 @@ func downloadToothAssetArchiveIfNotCached(ctx context.Context, archive tooth.Arc
 	return nil
 }
 
-func getCachePath(ctx context.Context, u *url.URL) (path.Path, error) {
+func getCachePath(ctx *context.Context, u *url.URL) (path.Path, error) {
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
 		return path.Path{}, fmt.Errorf("failed to get cache directory: %w", err)

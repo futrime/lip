@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
@@ -31,7 +32,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
 
@@ -82,7 +83,7 @@ func Run(ctx context.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // listAll lists all installed teeth.
-func listAll(ctx context.Context, jsonFlag bool) error {
+func listAll(ctx *context.Context, jsonFlag bool) error {
 
 	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
@@ -127,7 +128,7 @@ func listAll(ctx context.Context, jsonFlag bool) error {
 }
 
 // listUpgradable lists upgradable teeth.
-func listUpgradable(ctx context.Context, jsonFlag bool) error {
+func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 
 	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
@@ -142,8 +143,9 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 			latestVersion, err := tooth.GetLatestVersion(ctx,
 				metadata.ToothRepoPath())
 			if err != nil {
-				return fmt.Errorf(
-					"failed to look up latest version: %w", err)
+				log.Errorf(
+					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+				continue
 			}
 
 			if latestVersion.GT(currentVersion) {
@@ -159,6 +161,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 
 		jsonString := string(jsonBytes)
 		fmt.Print(jsonString)
+
 	} else {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
@@ -166,8 +169,9 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 			latestVersion, err := tooth.GetLatestVersion(ctx,
 				metadata.ToothRepoPath())
 			if err != nil {
-				return fmt.Errorf(
-					"failed to look up latest version: %w", err)
+				log.Errorf(
+					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+				continue
 			}
 
 			if latestVersion.GT(currentVersion) {

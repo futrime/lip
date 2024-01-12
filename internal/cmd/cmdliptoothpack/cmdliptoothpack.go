@@ -31,7 +31,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("pack", flag.ContinueOnError)
 
@@ -159,7 +159,7 @@ func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 }
 
 // packTooth packs the tooth into a .tth file.
-func packTooth(ctx context.Context, outputPath path.Path) error {
+func packTooth(ctx *context.Context, outputPath path.Path) error {
 
 	if filepath.Ext(outputPath.LocalString()) != ".tth" {
 		return fmt.Errorf("output path must have .tth extension")
@@ -203,7 +203,7 @@ func packTooth(ctx context.Context, outputPath path.Path) error {
 }
 
 // validateToothJSON validates tooth.json.
-func validateToothJSON(ctx context.Context) error {
+func validateToothJSON(ctx *context.Context) error {
 
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {

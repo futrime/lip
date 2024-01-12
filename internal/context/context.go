@@ -16,16 +16,16 @@ type Context struct {
 	lipVersion semver.Version
 }
 
-// Make creates a new context.
-func Make(config Config, version semver.Version) Context {
-	return Context{
+// New creates a new context.
+func New(config Config, version semver.Version) *Context {
+	return &Context{
 		config:     config,
 		lipVersion: version,
 	}
 }
 
 // GitHubMirrorURL returns the GitHub mirror URL.
-func (ctx Context) GitHubMirrorURL() (*url.URL, error) {
+func (ctx *Context) GitHubMirrorURL() (*url.URL, error) {
 	gitHubMirrorURL, err := url.Parse(ctx.config.GitHubMirrorURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse GitHub mirror URL: %w", err)
@@ -35,7 +35,7 @@ func (ctx Context) GitHubMirrorURL() (*url.URL, error) {
 }
 
 // GoModuleProxyURL returns the go module proxy URL.
-func (ctx Context) GoModuleProxyURL() (*url.URL, error) {
+func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 	goModuleProxyURL, err := url.Parse(ctx.config.GoModuleProxyURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse go module proxy URL: %w", err)
@@ -45,12 +45,12 @@ func (ctx Context) GoModuleProxyURL() (*url.URL, error) {
 }
 
 // LipVersion returns the lip version.
-func (ctx Context) LipVersion() semver.Version {
+func (ctx *Context) LipVersion() semver.Version {
 	return ctx.lipVersion
 }
 
 // GlobalDotLipDir returns the global .lip directory.
-func (ctx Context) GlobalDotLipDir() (path.Path, error) {
+func (ctx *Context) GlobalDotLipDir() (path.Path, error) {
 
 	userHomeDirStr, err := os.UserHomeDir()
 	if err != nil {
@@ -68,7 +68,7 @@ func (ctx Context) GlobalDotLipDir() (path.Path, error) {
 }
 
 // LocalDotLipDir returns the local .lip directory.
-func (ctx Context) LocalDotLipDir() (path.Path, error) {
+func (ctx *Context) LocalDotLipDir() (path.Path, error) {
 
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
@@ -86,7 +86,7 @@ func (ctx Context) LocalDotLipDir() (path.Path, error) {
 }
 
 // CacheDir returns the cache directory.
-func (ctx Context) CacheDir() (path.Path, error) {
+func (ctx *Context) CacheDir() (path.Path, error) {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
@@ -99,7 +99,7 @@ func (ctx Context) CacheDir() (path.Path, error) {
 }
 
 // MetadataDir returns the metadata directory.
-func (ctx Context) MetadataDir() (path.Path, error) {
+func (ctx *Context) MetadataDir() (path.Path, error) {
 
 	localDotLipDir, err := ctx.LocalDotLipDir()
 	if err != nil {
@@ -112,7 +112,7 @@ func (ctx Context) MetadataDir() (path.Path, error) {
 }
 
 // CreateDirStructure creates the directory structure.
-func (ctx Context) CreateDirStructure() error {
+func (ctx *Context) CreateDirStructure() error {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
@@ -154,7 +154,7 @@ func (ctx Context) CreateDirStructure() error {
 }
 
 // LoadOrCreateConfigFile loads or creates the config file.
-func (ctx Context) LoadOrCreateConfigFile() error {
+func (ctx *Context) LoadOrCreateConfigFile() error {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {

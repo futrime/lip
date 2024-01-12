@@ -41,7 +41,7 @@ var metadataTemplate = tooth.RawMetadata{
 	},
 }
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("init", flag.ContinueOnError)
 
@@ -79,7 +79,7 @@ func Run(ctx context.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // initTooth initializes a new tooth in the current directory.
-func initTooth(ctx context.Context) error {
+func initTooth(ctx *context.Context) error {
 
 	// Check if tooth.json already exists.
 	_, err := os.Stat("tooth.json")

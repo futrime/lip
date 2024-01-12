@@ -21,7 +21,7 @@ var lipVersion semver.Version = semver.MustParse("0.18.0")
 func main() {
 	log.SetFormatter(&nested.Formatter{})
 
-	ctx := context.Make(defaultConfig, lipVersion)
+	ctx := context.New(defaultConfig, lipVersion)
 
 	if err := ctx.CreateDirStructure(); err != nil {
 		log.Errorf("cannot create directory structure: %s", err.Error())

@@ -31,7 +31,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("show", flag.ContinueOnError)
 
@@ -83,7 +83,7 @@ func Run(ctx context.Context, args []string) error {
 
 // checkIsInstalledAndGetMetadata checks if the tooth is installed and returns
 // its metadata.
-func checkIsInstalledAndGetMetadata(ctx context.Context,
+func checkIsInstalledAndGetMetadata(ctx *context.Context,
 	toothRepoPath string) (bool, tooth.Metadata, error) {
 
 	isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
@@ -106,7 +106,7 @@ func checkIsInstalledAndGetMetadata(ctx context.Context,
 }
 
 // showHumanReadable shows the information in a human-readable format.
-func showHumanReadable(ctx context.Context, toothRepoPath string,
+func showHumanReadable(ctx *context.Context, toothRepoPath string,
 	availableFlag bool) error {
 
 	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepoPath)
@@ -159,7 +159,7 @@ func showHumanReadable(ctx context.Context, toothRepoPath string,
 }
 
 // showJSON shows the information in JSON format.
-func showJSON(ctx context.Context, toothRepoPath string,
+func showJSON(ctx *context.Context, toothRepoPath string,
 	availableFlag bool) error {
 
 	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepoPath)

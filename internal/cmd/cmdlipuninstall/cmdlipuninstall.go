@@ -28,7 +28,7 @@ Options:
   -y, --yes                   Skip confirmation.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ContinueOnError)
 
@@ -100,7 +100,7 @@ func Run(ctx context.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // askForConfirmation asks for confirmation before installing the tooth.
-func askForConfirmation(ctx context.Context,
+func askForConfirmation(ctx *context.Context,
 	toothRepoPathList []string) error {
 
 	// Print the list of teeth to be installed.

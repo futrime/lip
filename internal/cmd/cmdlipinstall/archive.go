@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func filterInstalledToothArchives(ctx context.Context, archives []tooth.Archive, upgradeFlag bool,
+func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive, upgradeFlag bool,
 	forceReinstallFlag bool) ([]tooth.Archive, error) {
 
 	if forceReinstallFlag {
@@ -43,7 +43,7 @@ func filterInstalledToothArchives(ctx context.Context, archives []tooth.Archive,
 }
 
 // installToothArchive installs the tooth archive.
-func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
+func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
 	isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 	if err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
@@ -53,7 +53,7 @@ func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinst
 	shouldUninstall := false
 
 	if isInstalled && forceReinstall {
-		log.Infof("Reinstalling tooth %v...", archive.Metadata().ToothRepoPath())
+		log.Infof("Reinstalling tooth %v", archive.Metadata().ToothRepoPath())
 
 		shouldInstall = true
 		shouldUninstall = true
@@ -66,7 +66,7 @@ func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinst
 		}
 
 		if archive.Metadata().Version().GT(currentMetadata.Version()) {
-			log.Infof("Upgrading tooth %v...", archive.Metadata().ToothRepoPath())
+			log.Infof("Upgrading tooth %v", archive.Metadata().ToothRepoPath())
 
 			shouldInstall = true
 			shouldUninstall = true
@@ -84,7 +84,7 @@ func installToothArchive(ctx context.Context, archive tooth.Archive, forceReinst
 		shouldUninstall = false
 
 	} else {
-		log.Infof("Installing tooth %v...", archive.Metadata().ToothRepoPath())
+		log.Infof("Installing tooth %v", archive.Metadata().ToothRepoPath())
 
 		shouldInstall = true
 		shouldUninstall = false

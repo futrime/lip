@@ -10,7 +10,7 @@ import (
 
 // getMissingPrerequisites finds missing prerequisites of the tooth specified
 // by the specifier and returns the map of missing prerequisites.
-func getMissingPrerequisites(ctx context.Context,
+func getMissingPrerequisites(ctx *context.Context,
 	archiveList []tooth.Archive) (map[string]semver.Range, map[string]string, error) {
 	missingPrerequisiteMap := make(map[string]semver.Range)
 	missingPrerequisitesAsStrings := make(map[string]string)

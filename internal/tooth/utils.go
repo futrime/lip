@@ -18,7 +18,7 @@ import (
 )
 
 // GetAllMetadata lists all installed tooth metadata.
-func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
+func GetAllMetadata(ctx *context.Context) ([]Metadata, error) {
 	metadataList := make([]Metadata, 0)
 
 	metadataDir, err := ctx.MetadataDir()
@@ -60,7 +60,7 @@ func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
 }
 
 // GetAvailableVersions fetches the version list of a tooth repository.
-func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Versions,
+func GetAvailableVersions(ctx *context.Context, toothRepoPath string) (semver.Versions,
 	error) {
 
 	if !IsValidToothRepoPath(toothRepoPath) {
@@ -102,7 +102,7 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 }
 
 // GetLatestVersion returns the latest =version of a tooth repository.
-func GetLatestVersion(ctx context.Context,
+func GetLatestVersion(ctx *context.Context,
 	toothRepoPath string) (semver.Version, error) {
 
 	versionRange := semver.Range(func(version semver.Version) bool {
@@ -112,7 +112,7 @@ func GetLatestVersion(ctx context.Context,
 }
 
 // GetLatestVersionInVersionRange returns the latest version in a version range.
-func GetLatestVersionInVersionRange(ctx context.Context,
+func GetLatestVersionInVersionRange(ctx *context.Context,
 	toothRepoPath string, versionRange semver.Range) (semver.Version, error) {
 
 	availableVersions, err := GetAvailableVersions(ctx, toothRepoPath)
@@ -152,7 +152,7 @@ func GetLatestVersionInVersionRange(ctx context.Context,
 }
 
 // GetMetadata finds the installed tooth metadata.
-func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
+func GetMetadata(ctx *context.Context, toothRepoPath string) (Metadata,
 	error) {
 
 	metadataList, err := GetAllMetadata(ctx)
@@ -172,7 +172,7 @@ func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
 }
 
 // IsInstalled checks if a tooth is installed.
-func IsInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
+func IsInstalled(ctx *context.Context, toothRepoPath string) (bool, error) {
 
 	metadataList, err := GetAllMetadata(ctx)
 	if err != nil {

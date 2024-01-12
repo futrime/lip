@@ -40,7 +40,7 @@ Note:
   Any string ends with .tth is considered as a local tooth archive path.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("install", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -158,7 +158,7 @@ func Run(ctx context.Context, args []string) error {
 }
 
 // askForConfirmation asks for confirmation before installing the tooth.
-func askForConfirmation(ctx context.Context,
+func askForConfirmation(ctx *context.Context,
 	archiveList []tooth.Archive) error {
 
 	// Print the list of teeth to be installed.

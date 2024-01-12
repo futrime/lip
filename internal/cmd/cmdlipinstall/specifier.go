@@ -12,7 +12,7 @@ import (
 
 // downloadToothRepoSpecifier downloads the tooth specified by the specifier and returns
 // the path to the downloaded tooth.
-func downloadToothRepoSpecifier(ctx context.Context,
+func downloadToothRepoSpecifier(ctx *context.Context,
 	specifier specifierpkg.Specifier) (tooth.Archive, error) {
 	if specifier.Kind() != specifierpkg.ToothRepoKind {
 		return tooth.Archive{}, fmt.Errorf("invalid specifier kind %v", specifier.Kind())
@@ -55,7 +55,7 @@ func downloadToothRepoSpecifier(ctx context.Context,
 // resolveSpecifiers parses the specifier string list and
 // downloads the tooth specified by the specifier, and returns the list of
 // downloaded tooth archives.
-func resolveSpecifiers(ctx context.Context,
+func resolveSpecifiers(ctx *context.Context,
 	specifiers []specifierpkg.Specifier) ([]tooth.Archive, error) {
 
 	archiveList := make([]tooth.Archive, 0)

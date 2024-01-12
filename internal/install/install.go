@@ -16,7 +16,7 @@ import (
 
 // Install installs a tooth archive with an asset archive. If assetArchiveFilePath is empty,
 // will use the tooth archive as the asset archive.
-func Install(ctx context.Context, archive tooth.Archive, assetArchiveFilePath path.Path) error {
+func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath path.Path) error {
 
 	// 1. Check if the tooth is already installed.
 
@@ -80,7 +80,7 @@ func Install(ctx context.Context, archive tooth.Archive, assetArchiveFilePath pa
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, assetContentFilePathRoot path.Path) error {
+func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, assetContentFilePathRoot path.Path) error {
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err

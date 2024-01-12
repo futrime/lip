@@ -42,7 +42,7 @@ Options:
   -q, --quiet                 Show only errors.
 `
 
-func Run(ctx context.Context, args []string) error {
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("lip", flag.ContinueOnError)
 
 	// Rewrite the default messages.
