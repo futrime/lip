@@ -285,7 +285,7 @@ const rawMetadataJSONSchema = `
 
 `
 
-func NewRawMetadata(jsonBytes []byte) (RawMetadata, error) {
+func MakeRawMetadata(jsonBytes []byte) (RawMetadata, error) {
 	var err error
 
 	// Validate JSON against schema
@@ -316,15 +316,11 @@ func NewRawMetadata(jsonBytes []byte) (RawMetadata, error) {
 	return rawMetadata, nil
 }
 
-func (m RawMetadata) JSON(indent bool) ([]byte, error) {
+func (m RawMetadata) MarshalJSON() ([]byte, error) {
 	var jsonBytes []byte
 	var err error
 
-	if indent {
-		jsonBytes, err = json.MarshalIndent(m, "", "    ")
-	} else {
-		jsonBytes, err = json.Marshal(m)
-	}
+	jsonBytes, err = json.MarshalIndent(m, "", "    ")
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal raw metadata: %w", err)

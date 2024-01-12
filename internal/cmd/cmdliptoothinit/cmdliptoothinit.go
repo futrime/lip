@@ -93,7 +93,7 @@ func initTooth(ctx context.Context) error {
 		return fmt.Errorf("tooth.json already exists")
 	}
 
-	rawMetadata, err := tooth.NewRawMetadata([]byte(toothJSONTemplate))
+	rawMetadata, err := tooth.MakeRawMetadata([]byte(toothJSONTemplate))
 	if err != nil {
 		return fmt.Errorf("failed to create rawMetadata: %w", err)
 	}
@@ -130,12 +130,12 @@ func initTooth(ctx context.Context) error {
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
 
-	toothJSONBytes, err := rawMetadata.JSON(true)
+	toothJSONBytes, err := rawMetadata.MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal rawMetadata: %w", err)
 	}
 
-	_, err = tooth.NewMetadata(toothJSONBytes)
+	_, err = tooth.MakeMetadata(toothJSONBytes)
 	if err != nil {
 		return fmt.Errorf("failed to validate rawMetadata: %w", err)
 	}

@@ -72,7 +72,7 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 	}
 
 	// Parse tooth.json.
-	metadata, err := NewMetadata(toothJSONBytes)
+	metadata, err := MakeMetadata(toothJSONBytes)
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to parse tooth.json: %w", err)
 	}
@@ -83,7 +83,7 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
 	}
 
-	metadata, err = resolveMetadataFilePlaceRegex(metadata, filePathsTrimmed)
+	metadata, err = parseMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
 	if err != nil {
 		return Archive{}, fmt.Errorf(
 			"failed to resolve metadata files place regular expressions: %w", err)
@@ -110,9 +110,9 @@ func (ar Archive) OpenReader() (*gozip.ReadCloser, error) {
 	return gozip.OpenReader(ar.filePath.LocalString())
 }
 
-// resolveMetadataFilePlaceRegex parses the regexes of field place of field files in the metadata.
-// filePaths should have the common prefix removed.
-func resolveMetadataFilePlaceRegex(metadata Metadata, filePaths []path.Path) (Metadata, error) {
+// parseMetadataFilePlaceWildcards parses the wildcards of field place of field files in the metadata.
+// filePaths should be relative to the directory of tooth.json.
+func parseMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path) (Metadata, error) {
 	var err error
 
 	newPlace := make([]RawMetadataFilesPlaceItem, 0)
@@ -152,7 +152,7 @@ func resolveMetadataFilePlaceRegex(metadata Metadata, filePaths []path.Path) (Me
 
 	rawMetadata.Files.Place = newPlace
 
-	metadata, err = NewMetadataFromRawMetadata(rawMetadata)
+	metadata, err = MakeMetadataFromRawMetadata(rawMetadata)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to create new metadata: %w", err)
 	}

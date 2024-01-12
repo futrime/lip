@@ -62,7 +62,7 @@ func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 			return nil, fmt.Errorf("failed to read metadata file: %w", err)
 		}
 
-		metadata, err := NewMetadata(jsonBytes)
+		metadata, err := MakeMetadata(jsonBytes)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse metadata file: %w", err)
 		}
@@ -101,9 +101,9 @@ func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
 		toothRepo)
 }
 
-// GetToothAvailableVersionList fetches the version list of a tooth repository.
+// GetToothAvailableVersions fetches the version list of a tooth repository.
 // The version list is sorted in descending order.
-func GetToothAvailableVersionList(ctx context.Context, repoPath string) (semver.Versions,
+func GetToothAvailableVersions(ctx context.Context, repoPath string) (semver.Versions,
 	error) {
 	var err error
 	if !CheckIsValidToothRepo(repoPath) {
@@ -158,7 +158,7 @@ func GetToothLatestStableVersion(ctx context.Context,
 
 	var err error
 
-	versionList, err := GetToothAvailableVersionList(ctx, toothRepo)
+	versionList, err := GetToothAvailableVersions(ctx, toothRepo)
 	if err != nil {
 		return semver.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)

@@ -41,7 +41,7 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 5. Create metadata file.
 
-	jsonBytes, err := archive.Metadata().JSON(true)
+	jsonBytes, err := archive.Metadata().MarshalJSON()
 	if err != nil {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}

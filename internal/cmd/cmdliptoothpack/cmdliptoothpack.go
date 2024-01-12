@@ -227,7 +227,7 @@ func validateToothJSON(ctx context.Context) error {
 		return fmt.Errorf("failed to read tooth.json: %w", err)
 	}
 
-	_, err = tooth.NewMetadata(jsonBytes)
+	_, err = tooth.MakeMetadata(jsonBytes)
 	if err != nil {
 		return fmt.Errorf("failed to parse tooth.json: %w", err)
 	}

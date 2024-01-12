@@ -133,7 +133,7 @@ func showHumanReadable(ctx context.Context, toothRepo string,
 	}
 
 	if availableFlag {
-		versionList, err := tooth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetToothAvailableVersions(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}
@@ -179,7 +179,7 @@ func showJSON(ctx context.Context, toothRepo string,
 	}
 
 	if availableFlag {
-		versionList, err := tooth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetToothAvailableVersions(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}

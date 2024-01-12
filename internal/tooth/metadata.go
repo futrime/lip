@@ -16,8 +16,8 @@ type Metadata struct {
 	rawMetadata RawMetadata
 }
 
-// NewMetadata parses the given jsonBytes and returns a Metadata.
-func NewMetadata(jsonBytes []byte) (Metadata, error) {
+// MakeMetadata parses the given jsonBytes and returns a Metadata.
+func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	var err error
 
 	formatVersion, err := getFormatVersion(jsonBytes)
@@ -36,7 +36,7 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 		isMigrationNeeded = true
 	}
 
-	rawMetadata, err := NewRawMetadata(jsonBytes)
+	rawMetadata, err := MakeRawMetadata(jsonBytes)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse raw metadata: %w", err)
 	}
@@ -45,10 +45,10 @@ func NewMetadata(jsonBytes []byte) (Metadata, error) {
 		log.Warnf("tooth.json format of %v is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
 	}
 
-	return NewMetadataFromRawMetadata(rawMetadata)
+	return MakeMetadataFromRawMetadata(rawMetadata)
 }
 
-func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
+func MakeMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 	_, err := semver.Parse(rawMetadata.Version)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse version: %w", err)
@@ -96,8 +96,8 @@ func NewMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
 	}, nil
 }
 
-func (m Metadata) JSON(indent bool) ([]byte, error) {
-	return m.rawMetadata.JSON(indent)
+func (m Metadata) MarshalJSON() ([]byte, error) {
+	return m.rawMetadata.MarshalJSON()
 }
 
 func (m Metadata) Raw() RawMetadata {

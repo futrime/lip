@@ -473,7 +473,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 				continue
 			}
 
-			versionList, err := tooth.GetToothAvailableVersionList(ctx, dep)
+			versionList, err := tooth.GetToothAvailableVersions(ctx, dep)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get available version list: %w", err)
 			}
