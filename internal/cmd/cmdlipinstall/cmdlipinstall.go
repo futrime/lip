@@ -9,7 +9,7 @@ import (
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
-	"github.com/lippkg/lip/internal/installing"
+	"github.com/lippkg/lip/internal/install"
 	"github.com/lippkg/lip/internal/network"
 	"github.com/lippkg/lip/internal/path"
 
@@ -117,7 +117,7 @@ func Run(ctx context.Context, args []string) error {
 
 	// 3. Sort teeth.
 
-	archiveToInstallList, err = installing.SortToothArchives(archiveToInstallList)
+	archiveToInstallList, err = install.SortToothArchives(archiveToInstallList)
 	if err != nil {
 		return fmt.Errorf("failed to sort teeth: %w", err)
 	}
@@ -370,14 +370,14 @@ func installToothArchiveList(ctx context.Context,
 		}
 
 		if shouldUninstall {
-			err = installing.Uninstall(ctx, archive.Metadata().Tooth())
+			err = install.Uninstall(ctx, archive.Metadata().Tooth())
 			if err != nil {
 				return fmt.Errorf("failed to uninstall tooth: %w", err)
 			}
 		}
 
 		if shouldInstall {
-			err = installing.Install(ctx, archive)
+			err = install.Install(ctx, archive)
 			if err != nil {
 				return fmt.Errorf("failed to install tooth: %w", err)
 			}

@@ -1,4 +1,4 @@
-package installing
+package install
 
 import (
 	gozip "archive/zip"

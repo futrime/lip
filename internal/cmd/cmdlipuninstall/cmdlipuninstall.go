@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
-	"github.com/lippkg/lip/internal/installing"
+	"github.com/lippkg/lip/internal/install"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/lippkg/lip/internal/tooth"
@@ -93,7 +93,7 @@ func Run(ctx context.Context, args []string) error {
 	// 3. Uninstall all teeth.
 
 	for _, toothRepo := range toothRepoList {
-		err = installing.Uninstall(ctx, toothRepo)
+		err = install.Uninstall(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepo, err)
 		}
