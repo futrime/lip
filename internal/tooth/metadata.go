@@ -189,6 +189,49 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 	return jsonBytes, nil
 }
 
+func (m Metadata) ToPlatformSpecific(goos string, goarch string) (Metadata, error) {
+	raw := m.rawMetadata
+
+	if raw.Dependencies == nil {
+		raw.Dependencies = make(map[string]string)
+	}
+	if raw.Prerequisites == nil {
+		raw.Prerequisites = make(map[string]string)
+	}
+	raw.Platforms = nil
+
+	for _, platformItem := range m.rawMetadata.Platforms {
+		if platformItem.GOOS != goos {
+			continue
+		}
+
+		if platformItem.GOARCH != "" && platformItem.GOARCH != goarch {
+			continue
+		}
+
+		raw.AssetURL = platformItem.AssetURL
+
+		raw.Commands.PreInstall = append(raw.Commands.PreInstall, platformItem.Commands.PreInstall...)
+		raw.Commands.PostInstall = append(raw.Commands.PostInstall, platformItem.Commands.PostInstall...)
+		raw.Commands.PreUninstall = append(raw.Commands.PreUninstall, platformItem.Commands.PreUninstall...)
+		raw.Commands.PostUninstall = append(raw.Commands.PostUninstall, platformItem.Commands.PostUninstall...)
+
+		for toothRepoPath, dep := range platformItem.Dependencies {
+			raw.Dependencies[toothRepoPath] = dep
+		}
+
+		for toothRepoPath, prereq := range platformItem.Prerequisites {
+			raw.Prerequisites[toothRepoPath] = prereq
+		}
+
+		raw.Files.Place = append(raw.Files.Place, platformItem.Files.Place...)
+		raw.Files.Preserve = append(raw.Files.Preserve, platformItem.Files.Preserve...)
+		raw.Files.Remove = append(raw.Files.Remove, platformItem.Files.Remove...)
+	}
+
+	return MakeMetadataFromRaw(raw)
+}
+
 func parseFormatVersion(jsonBytes []byte) (int, error) {
 	jsonData := make(map[string]interface{})
 	err := json.Unmarshal(jsonBytes, &jsonData)
