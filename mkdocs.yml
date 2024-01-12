@@ -18,7 +18,6 @@ nav:
 
   - Commands:
     - commands/lip.md
-    - commands/lip_autoremove.md
     - commands/lip_cache.md
     - commands/lip_cache_purge.md
     - commands/lip_install.md

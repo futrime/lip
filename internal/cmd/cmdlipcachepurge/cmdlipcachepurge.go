@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/internal/context"
 )
 
 type FlagDict struct {
@@ -24,9 +23,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
-
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("purge", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -37,14 +34,14 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -54,8 +51,8 @@ func Run(ctx contexts.Context, args []string) error {
 	}
 
 	// Purge the cache.
-	err = purgeCache(ctx)
-	if err != nil {
+
+	if err := purgeCache(ctx); err != nil {
 		return fmt.Errorf("failed to purge the cache: %w", err)
 	}
 
@@ -65,23 +62,19 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // purgeCache removes all items from the cache.
-func purgeCache(ctx contexts.Context) error {
-	var err error
-
+func purgeCache(ctx *context.Context) error {
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
 		return fmt.Errorf("failed to get the cache directory: %w", err)
 	}
 
 	// Remove the cache directory.
-	err = os.RemoveAll(cacheDir)
-	if err != nil {
+	if err := os.RemoveAll(cacheDir.LocalString()); err != nil {
 		return fmt.Errorf("failed to remove the cache directory: %w", err)
 	}
 
 	// Recreate the cache directory.
-	err = os.MkdirAll(cacheDir, 0755)
-	if err != nil {
+	if err := os.MkdirAll(cacheDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("failed to recreate the cache directory: %w", err)
 	}
 

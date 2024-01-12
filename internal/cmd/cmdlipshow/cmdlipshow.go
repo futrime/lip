@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/context"
+
+	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -31,8 +31,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("show", flag.ContinueOnError)
 
@@ -46,14 +45,14 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.availableFlag, "available", false, "")
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -62,19 +61,16 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("invalid number of arguments")
 	}
 
-	toothRepo := flagSet.Arg(0)
-
-	// To lower case.
-	toothRepo = strings.ToLower(toothRepo)
+	toothRepoPath := flagSet.Arg(0)
 
 	if flagDict.jsonFlag {
 		// When not installed, show the available versions.
-		err = showJSON(ctx, toothRepo, flagDict.availableFlag)
+		err := showJSON(ctx, toothRepoPath, flagDict.availableFlag)
 		if err != nil {
 			return fmt.Errorf("failed to show JSON: %w", err)
 		}
 	} else {
-		err = showHumanReadable(ctx, toothRepo, flagDict.availableFlag)
+		err := showHumanReadable(ctx, toothRepoPath, flagDict.availableFlag)
 		if err != nil {
 			return fmt.Errorf("failed to show human-readable: %w", err)
 		}
@@ -87,33 +83,33 @@ func Run(ctx contexts.Context, args []string) error {
 
 // checkIsInstalledAndGetMetadata checks if the tooth is installed and returns
 // its metadata.
-func checkIsInstalledAndGetMetadata(ctx contexts.Context,
-	toothRepo string) (bool, teeth.Metadata, error) {
+func checkIsInstalledAndGetMetadata(ctx *context.Context,
+	toothRepoPath string) (bool, tooth.Metadata, error) {
 
-	isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
+	isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
 	if err != nil {
-		return false, teeth.Metadata{},
+		return false, tooth.Metadata{},
 			fmt.Errorf("failed to check if tooth is installed: %w", err)
 	}
 
-	var metadata teeth.Metadata
 	if isInstalled {
-		metadata, err = teeth.GetInstalledToothMetadata(ctx, toothRepo)
+		metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 		if err != nil {
-			return false, teeth.Metadata{},
+			return false, tooth.Metadata{},
 				fmt.Errorf("failed to find installed tooth metadata: %w", err)
 		}
-	}
 
-	return isInstalled, metadata, nil
+		return true, metadata, nil
+	} else {
+		return false, tooth.Metadata{}, nil
+	}
 }
 
 // showHumanReadable shows the information in a human-readable format.
-func showHumanReadable(ctx contexts.Context, toothRepo string,
+func showHumanReadable(ctx *context.Context, toothRepoPath string,
 	availableFlag bool) error {
-	var err error
 
-	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepo)
+	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
 	}
@@ -123,7 +119,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 	}
 
 	tableData := [][]string{
-		{"Tooth Repo", metadata.Tooth()},
+		{"Tooth Repo", metadata.ToothRepoPath()},
 		{"Name", metadata.Info().Name},
 		{"Description", metadata.Info().Description},
 		{"Author", metadata.Info().Author},
@@ -133,7 +129,7 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 	}
 
 	if availableFlag {
-		versionList, err := teeth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetAvailableVersions(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}
@@ -157,17 +153,16 @@ func showHumanReadable(ctx contexts.Context, toothRepo string,
 
 	table.Render()
 
-	logging.Info(tableString.String())
+	fmt.Print(tableString.String())
 
 	return nil
 }
 
 // showJSON shows the information in JSON format.
-func showJSON(ctx contexts.Context, toothRepo string,
+func showJSON(ctx *context.Context, toothRepoPath string,
 	availableFlag bool) error {
-	var err error
 
-	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepo)
+	isInstalled, metadata, err := checkIsInstalledAndGetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
 	}
@@ -175,11 +170,11 @@ func showJSON(ctx contexts.Context, toothRepo string,
 	jsonData := make(map[string]interface{})
 
 	if isInstalled {
-		jsonData["metadata"] = metadata.Raw()
+		jsonData["metadata"] = metadata
 	}
 
 	if availableFlag {
-		versionList, err := teeth.GetToothAvailableVersionList(ctx, toothRepo)
+		versionList, err := tooth.GetAvailableVersions(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to get tooth version list: %w", err)
 		}
@@ -197,7 +192,7 @@ func showJSON(ctx contexts.Context, toothRepo string,
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	logging.Info(string(jsonBytes))
+	fmt.Print(string(jsonBytes))
 
 	return nil
 }

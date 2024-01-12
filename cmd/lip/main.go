@@ -1,70 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
+	nested "github.com/antonfisher/nested-logrus-formatter"
+	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/internal/context"
+
+	log "github.com/sirupsen/logrus"
 )
 
-//------------------------------------------------------------------------------
-// Configurations
-
-const DefaultGoproxy = "https://goproxy.io"
-
-const LipVersionString = "0.17.0"
-
-//------------------------------------------------------------------------------
-
-func main() {
-	var err error
-
-	ctx, err := createContext()
-	if err != nil {
-		logging.Error("cannot initialize context: %v", err.Error())
-		return
-	}
-
-	err = cmdlip.Run(ctx, os.Args[1:])
-	if err != nil {
-		logging.Error(err.Error())
-		return
-	}
+var defaultConfig context.Config = context.Config{
+	GitHubMirrorURL:  "",
+	GoModuleProxyURL: "https://goproxy.io",
 }
 
-// createContext initializes the context.
-func createContext() (contexts.Context, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return contexts.Context{},
-			fmt.Errorf("cannot get user home directory: %w", err)
+var lipVersion semver.Version = semver.MustParse("0.18.0")
+
+func main() {
+	log.SetFormatter(&nested.Formatter{})
+
+	ctx := context.New(defaultConfig, lipVersion)
+
+	if err := ctx.CreateDirStructure(); err != nil {
+		log.Errorf("cannot create directory structure: %s", err.Error())
+		return
 	}
 
-	globalDotLipDir := filepath.Join(userHomeDir, ".lip")
-
-	goProxyList := []string{DefaultGoproxy}
-	if goProxyEnvVar := os.Getenv("GOPROXY"); goProxyEnvVar != "" {
-		goProxyList = strings.Split(goProxyEnvVar, ",")
+	if err := ctx.LoadOrCreateConfigFile(); err != nil {
+		log.Errorf("cannot load or create config file: %s", err.Error())
+		return
 	}
 
-	lipVersion, err := versions.NewFromString(LipVersionString)
-	if err != nil {
-		return contexts.Context{},
-			fmt.Errorf("cannot parse lip version: %w", err)
+	if err := cmdlip.Run(ctx, os.Args[1:]); err != nil {
+		log.Error(err.Error())
+		return
 	}
-
-	workspaceDir, err := os.Getwd()
-	if err != nil {
-		return contexts.Context{},
-			fmt.Errorf("cannot get current working directory: %w", err)
-	}
-
-	ctx := contexts.New(lipVersion, globalDotLipDir, workspaceDir, goProxyList)
-
-	return ctx, nil
 }

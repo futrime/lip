@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/teeth"
-	"github.com/lippkg/lip/internal/versions"
+	"github.com/lippkg/lip/internal/context"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -32,8 +32,7 @@ Options:
   --json                      Output in JSON format.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
 
@@ -47,14 +46,14 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.upgradableFlag, "upgradable", false, "")
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -64,7 +63,7 @@ func Run(ctx contexts.Context, args []string) error {
 	}
 
 	if flagDict.upgradableFlag {
-		err = listUpgradable(ctx, flagDict.jsonFlag)
+		err := listUpgradable(ctx, flagDict.jsonFlag)
 		if err != nil {
 			return fmt.Errorf("failed to list upgradable teeth: %w", err)
 		}
@@ -72,7 +71,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return nil
 
 	} else {
-		err = listAll(ctx, flagDict.jsonFlag)
+		err := listAll(ctx, flagDict.jsonFlag)
 		if err != nil {
 			return fmt.Errorf("failed to list all teeth: %w", err)
 		}
@@ -84,34 +83,27 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // listAll lists all installed teeth.
-func listAll(ctx contexts.Context, jsonFlag bool) error {
-	var err error
+func listAll(ctx *context.Context, jsonFlag bool) error {
 
-	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {
-		dataList := make([]teeth.RawMetadata, 0)
-
-		for _, metadata := range metadataList {
-			dataList = append(dataList, metadata.Raw())
-		}
-
 		// Marshal the data.
-		jsonBytes, err := json.Marshal(dataList)
+		jsonBytes, err := json.Marshal(metadataList)
 		if err != nil {
 			return fmt.Errorf("failed to marshal JSON: %w", err)
 		}
 
 		jsonString := string(jsonBytes)
-		logging.Info(jsonString)
+		fmt.Print(jsonString)
 	} else {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			tableData = append(tableData, []string{
-				metadata.Tooth(),
+				metadata.ToothRepoPath(),
 				metadata.Info().Name,
 				metadata.Version().String(),
 			})
@@ -129,35 +121,35 @@ func listAll(ctx contexts.Context, jsonFlag bool) error {
 
 		table.Render()
 
-		logging.Info(tableString.String())
+		fmt.Print(tableString.String())
 	}
 
 	return nil
 }
 
 // listUpgradable lists upgradable teeth.
-func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
-	var err error
+func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 
-	metadataList, err := teeth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
 
 	if jsonFlag {
-		dataList := make([]teeth.RawMetadata, 0)
+		dataList := make([]tooth.Metadata, 0)
 
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := teeth.GetToothLatestStableVersion(ctx,
-				metadata.Tooth())
+			latestVersion, err := tooth.GetLatestVersion(ctx,
+				metadata.ToothRepoPath())
 			if err != nil {
-				return fmt.Errorf(
-					"failed to look up latest version: %w", err)
+				log.Errorf(
+					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+				continue
 			}
 
-			if versions.GreaterThan(latestVersion, currentVersion) {
-				dataList = append(dataList, metadata.Raw())
+			if latestVersion.GT(currentVersion) {
+				dataList = append(dataList, metadata)
 			}
 		}
 
@@ -168,21 +160,23 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 		}
 
 		jsonString := string(jsonBytes)
-		logging.Info(jsonString)
+		fmt.Print(jsonString)
+
 	} else {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := teeth.GetToothLatestStableVersion(ctx,
-				metadata.Tooth())
+			latestVersion, err := tooth.GetLatestVersion(ctx,
+				metadata.ToothRepoPath())
 			if err != nil {
-				return fmt.Errorf(
-					"failed to look up latest version: %w", err)
+				log.Errorf(
+					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+				continue
 			}
 
-			if versions.GreaterThan(latestVersion, currentVersion) {
+			if latestVersion.GT(currentVersion) {
 				tableData = append(tableData, []string{
-					metadata.Tooth(),
+					metadata.ToothRepoPath(),
 					metadata.Info().Name,
 					metadata.Version().String(),
 					latestVersion.String(),
@@ -190,8 +184,8 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 			}
 		}
 
-		tableString := &strings.Builder{}
-		table := tablewriter.NewWriter(tableString)
+		tableStringBuilder := &strings.Builder{}
+		table := tablewriter.NewWriter(tableStringBuilder)
 		table.SetHeader([]string{
 			"Tooth", "Name", "Version", "Latest",
 		})
@@ -202,7 +196,7 @@ func listUpgradable(ctx contexts.Context, jsonFlag bool) error {
 
 		table.Render()
 
-		logging.Info(tableString.String())
+		fmt.Print(tableStringBuilder.String())
 	}
 
 	return nil

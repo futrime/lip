@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"github.com/lippkg/lip/internal/cmd/cmdlipcachepurge"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/internal/context"
 )
 
 type FlagDict struct {
@@ -25,9 +24,7 @@ Options:
   -h, --help                  Show help.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
-
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -38,14 +35,14 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -53,8 +50,7 @@ func Run(ctx contexts.Context, args []string) error {
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
 		case "purge":
-			err = cmdlipcachepurge.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipcachepurge.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil

@@ -3,12 +3,12 @@ package cmdlipuninstall
 import (
 	"flag"
 	"fmt"
-	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/installing"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/context"
+	"github.com/lippkg/lip/internal/install"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 type FlagDict struct {
@@ -28,8 +28,7 @@ Options:
   -y, --yes                   Skip confirmation.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ContinueOnError)
 
@@ -43,14 +42,14 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -59,31 +58,26 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("at least one specifier is required")
 	}
 
-	toothRepoList := flagSet.Args()
-
-	// To lower case.
-	for i, toothRepo := range toothRepoList {
-		toothRepoList[i] = strings.ToLower(toothRepo)
-	}
+	toothRepoPathList := flagSet.Args()
 
 	// 1. Check if all teeth are installed.
 
-	for _, toothRepo := range toothRepoList {
+	for _, toothRepoPath := range toothRepoPathList {
 
-		isInstalled, err := teeth.CheckIsToothInstalled(ctx, toothRepo)
+		isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
 
 		if !isInstalled {
-			return fmt.Errorf("tooth %q is not installed", toothRepo)
+			return fmt.Errorf("tooth %v is not installed", toothRepoPath)
 		}
 	}
 
 	// 2. Prompt for confirmation.
 
 	if !flagDict.yesFlag {
-		err = askForConfirmation(ctx, toothRepoList)
+		err := askForConfirmation(ctx, toothRepoPathList)
 		if err != nil {
 			return err
 		}
@@ -91,14 +85,14 @@ func Run(ctx contexts.Context, args []string) error {
 
 	// 3. Uninstall all teeth.
 
-	for _, toothRepo := range toothRepoList {
-		err = installing.Uninstall(ctx, toothRepo)
+	for _, toothRepoPath := range toothRepoPathList {
+		err := install.Uninstall(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %q: %w", toothRepo, err)
+			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepoPath, err)
 		}
 	}
 
-	logging.Info("Done.")
+	log.Info("Done.")
 
 	return nil
 }
@@ -106,23 +100,23 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // askForConfirmation asks for confirmation before installing the tooth.
-func askForConfirmation(ctx contexts.Context,
-	toothRepoList []string) error {
+func askForConfirmation(ctx *context.Context,
+	toothRepoPathList []string) error {
 
 	// Print the list of teeth to be installed.
-	logging.Info("The following teeth will be uninstalled:")
-	for _, toothRepo := range toothRepoList {
-		metadata, err := teeth.GetInstalledToothMetadata(ctx, toothRepo)
+	log.Info("The following teeth will be uninstalled:")
+	for _, toothRepoPath := range toothRepoPathList {
+		metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
 		}
 
-		logging.Info("  %v: %v", toothRepo,
+		log.Infof("  %v: %v", toothRepoPath,
 			metadata.Info().Name)
 	}
 
 	// Ask for confirmation.
-	logging.Info("Do you want to continue? [y/N]")
+	log.Info("Do you want to continue? [y/N]")
 	var ans string
 	fmt.Scanln(&ans)
 	if ans != "y" && ans != "Y" {

@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lippkg/lip/internal/cmd/cmdlipautoremove"
 	"github.com/lippkg/lip/internal/cmd/cmdlipcache"
+	"github.com/lippkg/lip/internal/cmd/cmdlipconfig"
 	"github.com/lippkg/lip/internal/cmd/cmdlipinstall"
 	"github.com/lippkg/lip/internal/cmd/cmdliplist"
 	"github.com/lippkg/lip/internal/cmd/cmdlipshow"
 	"github.com/lippkg/lip/internal/cmd/cmdliptooth"
 	"github.com/lippkg/lip/internal/cmd/cmdlipuninstall"
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
+	"github.com/lippkg/lip/internal/context"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type FlagDict struct {
@@ -28,8 +29,8 @@ Usage:
   lip [options] [<command> [subcommand options]] ...
 
 Commands:
-  autoremove                  Uninstall teeth that are not depended by any other teeth.
   cache                       Inspect and manage lip's cache.
+  config					  Manage configuration.
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
@@ -43,9 +44,7 @@ Options:
   -q, --quiet                 Show only errors.
 `
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
-
+func Run(ctx *context.Context, args []string) error {
 	flagSet := flag.NewFlagSet("lip", flag.ContinueOnError)
 
 	// Rewrite the default messages.
@@ -63,29 +62,29 @@ func Run(ctx contexts.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.verboseFlag, "v", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "quiet", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
-	err = flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("cannot parse flags: %w", err)
 	}
 
 	// Set logging level.
 	if flagDict.verboseFlag {
-		logging.SetLoggingLevel(logging.DebugLevel)
+		log.SetLevel(log.DebugLevel)
 	} else if flagDict.quietFlag {
-		logging.SetLoggingLevel(logging.ErrorLevel)
+		log.SetLevel(log.ErrorLevel)
 	} else {
-		logging.SetLoggingLevel(logging.InfoLevel)
+		log.SetLevel(log.InfoLevel)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		logging.Info("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
+		fmt.Printf("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 
@@ -97,51 +96,44 @@ func Run(ctx contexts.Context, args []string) error {
 	// If there is a subcommand, run it and exit.
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
-		case "autoreremove":
-			err = cmdlipautoremove.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+		case "cache":
+			if err := cmdlipcache.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
-		case "cache":
-			err = cmdlipcache.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+		case "config":
+			if err := cmdlipconfig.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "install":
-			err = cmdlipinstall.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipinstall.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "list":
-			err = cmdliplist.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdliplist.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "show":
-			err = cmdlipshow.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipshow.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "tooth":
-			err = cmdliptooth.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdliptooth.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil
 
 		case "uninstall":
-			err = cmdlipuninstall.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
+			if err := cmdlipuninstall.Run(ctx, flagSet.Args()[1:]); err != nil {
 				return err
 			}
 			return nil

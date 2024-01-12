@@ -10,8 +10,6 @@ lip list [options]
 
 List installed teeth.
 
-teeth are listed in a case-insensitive sorted order.
-
 ## Options
 
 - `-h, --help`

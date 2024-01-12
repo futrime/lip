@@ -1,4 +1,6 @@
-{
+package tooth
+
+const metadataJSONSchema = `{
 	"$schema": "https://json-schema.org/draft-07/schema#",
 	"type": "object",
 	"properties": {
@@ -226,4 +228,4 @@
 		"version",
 		"info"
 	]
-}
+}`

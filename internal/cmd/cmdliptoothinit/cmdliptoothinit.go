@@ -2,16 +2,15 @@ package cmdliptoothinit
 
 import (
 	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
-	"github.com/lippkg/lip/internal/contexts"
-	"github.com/lippkg/lip/internal/logging"
-	"github.com/lippkg/lip/internal/teeth"
+	"github.com/lippkg/lip/internal/context"
+	"github.com/lippkg/lip/internal/path"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 type FlagDict struct {
@@ -29,22 +28,20 @@ Options:
   -h, --help                  Show help.
 `
 
-const toothJsonTemplate = `{
-	"format_version": 2,
-	"tooth": "",
-	"version": "0.0.0",
-	"info": {
-		"name": "",
-		"description": "",
-		"author": "",
-		"source": "",
-		"tags": []
-	}
+var metadataTemplate = tooth.RawMetadata{
+	FormatVersion: 2,
+	Tooth:         "",
+	Version:       "0.0.0",
+	Info: tooth.RawMetadataInfo{
+		Name:        "",
+		Description: "",
+		Author:      "",
+		Source:      "",
+		Tags:        []string{},
+	},
 }
-`
 
-func Run(ctx contexts.Context, args []string) error {
-	var err error
+func Run(ctx *context.Context, args []string) error {
 
 	flagSet := flag.NewFlagSet("init", flag.ContinueOnError)
 
@@ -56,14 +53,14 @@ func Run(ctx contexts.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
 	// Help flag has the highest priority.
 	if flagDict.helpFlag {
-		logging.Info(helpMessage)
+		fmt.Print(helpMessage)
 		return nil
 	}
 
@@ -72,8 +69,7 @@ func Run(ctx contexts.Context, args []string) error {
 		return fmt.Errorf("unexpected arguments: %v", flagSet.Args())
 	}
 
-	err = initTooth(ctx)
-	if err != nil {
+	if err := initTooth(ctx); err != nil {
 		return fmt.Errorf("failed to initialize the tooth: %w", err)
 	}
 
@@ -83,76 +79,83 @@ func Run(ctx contexts.Context, args []string) error {
 // ---------------------------------------------------------------------
 
 // initTooth initializes a new tooth in the current directory.
-func initTooth(ctx contexts.Context) error {
-	var err error
+func initTooth(ctx *context.Context) error {
 
 	// Check if tooth.json already exists.
-	_, err = os.Stat("tooth.json")
+	_, err := os.Stat("tooth.json")
 	if err == nil {
 		return fmt.Errorf("tooth.json already exists")
 	}
 
-	rawMetadata, err := teeth.NewRawMetadata([]byte(toothJsonTemplate))
-	if err != nil {
-		return errors.New("failed to create a new tooth rawMetadata")
-	}
+	rawMetadata := metadataTemplate
 
 	// Ask for information.
 	var ans string
 	scanner := bufio.NewScanner(os.Stdin)
 
-	logging.Info("What is the tooth path? (e.g. github.com/tooth-hub/llbds3)")
+	log.Info("What is the tooth repo path? (e.g. github.com/tooth-hub/llbds3)")
 	scanner.Scan()
 	ans = scanner.Text()
+
+	if !tooth.IsValidToothRepoPath(ans) {
+		return fmt.Errorf("invalid tooth repo path: %w", err)
+	}
+
 	rawMetadata.Tooth = ans
 
-	// To lower case.
-	rawMetadata.Tooth = strings.ToLower(rawMetadata.Tooth)
-
-	logging.Info("What is the name?")
+	log.Info("What is the name?")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Name = ans
 
-	logging.Info("What is the description?")
+	log.Info("What is the description?")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Description = ans
 
-	logging.Info("What is the author? Please input your GitHub username.")
+	log.Info("What is the author? Please input your GitHub username.")
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
 
-	toothJsonBytes, err := rawMetadata.JSON(true)
+	log.Info("What is the source code repo path (leave empty if identical to tooth repo path)?")
+	scanner.Scan()
+	ans = scanner.Text()
+	rawMetadata.Info.Source = ans
+
+	metadata, err := tooth.MakeMetadataFromRaw(rawMetadata)
 	if err != nil {
-		return errors.New("failed to convert tooth rawMetadata to JSON")
+		return fmt.Errorf("failed to make metadata: %w", err)
 	}
 
-	_, err = teeth.NewMetadata(toothJsonBytes)
+	jsonBytes, err := metadata.MarshalJSON()
 	if err != nil {
-		return errors.New("some information is invalid: " + err.Error())
+		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
 	// Create tooth.json.
-	workspaceDir, err := ctx.WorkspaceDir()
+	workspaceDirStr, err := os.Getwd()
 	if err != nil {
-		return errors.New("failed to get workspace directory")
+		return fmt.Errorf("failed to get workspace directory: %w", err)
 	}
 
-	file, err := os.Create(filepath.Join(workspaceDir, "tooth.json"))
+	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
-		return errors.New("failed to create tooth.json")
+		return fmt.Errorf("failed to parse workspace directory: %w", err)
+	}
+
+	file, err := os.Create(workspaceDir.Join(path.MustParse("tooth.json")).LocalString())
+	if err != nil {
+		return fmt.Errorf("failed to create tooth.json: %w", err)
 	}
 	defer file.Close()
 
 	// Write default tooth.json content.
-	_, err = file.WriteString(string(toothJsonBytes))
-	if err != nil {
-		return errors.New("failed to write tooth.json")
+	if _, err := file.Write(jsonBytes); err != nil {
+		return fmt.Errorf("failed to write tooth.json: %w", err)
 	}
 
-	logging.Info("Successfully initialized a new tooth.")
+	log.Info("Successfully initialized a new tooth.")
 
 	return nil
 }
