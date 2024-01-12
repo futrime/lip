@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,6 +45,12 @@ func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
 		metadata, err := MakeMetadata(jsonBytes)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse metadata file: %w", err)
+		}
+
+		// Check if the metadata file name matches the tooth repo path in the metadata.
+		expectedFileName := fmt.Sprintf("%v.json", url.QueryEscape(metadata.ToothRepoPath()))
+		if filePath.Base() != expectedFileName {
+			return nil, fmt.Errorf("metadata file name does not match: %v", filePath)
 		}
 
 		metadataList = append(metadataList, metadata)

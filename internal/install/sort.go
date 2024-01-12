@@ -6,13 +6,6 @@ import (
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-type SortingOrder int
-
-const (
-	AscendingOrder SortingOrder = iota
-	DescendingOrder
-)
-
 // SortToothArchives sorts tooth archives by dependence with topological sort.
 func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
 

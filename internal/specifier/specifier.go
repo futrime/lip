@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
+	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
 )
 
@@ -19,7 +20,7 @@ const (
 // Specifier is a type that can be used to specify a tooth url/file or a requirement.
 type Specifier struct {
 	kind             KindType
-	toothArchivePath string
+	toothArchivePath path.Path
 	toothRepoPath    string
 
 	isToothVersionSpecified bool
@@ -33,9 +34,15 @@ func Parse(specifierString string) (Specifier, error) {
 
 	switch specifierType {
 	case ToothArchiveKind:
+		toothArchivePath, err := path.Parse(specifierString)
+		if err != nil {
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v",
+				specifierString)
+		}
+
 		return Specifier{
 			kind:             specifierType,
-			toothArchivePath: specifierString,
+			toothArchivePath: toothArchivePath,
 		}, nil
 
 	case ToothRepoKind:
@@ -82,9 +89,9 @@ func (s Specifier) Kind() KindType {
 }
 
 // ToothArchivePath returns the path of the tooth archive.
-func (s Specifier) ToothArchivePath() (string, error) {
+func (s Specifier) ToothArchivePath() (path.Path, error) {
 	if s.Kind() != ToothArchiveKind {
-		return "", fmt.Errorf("specifier is not a tooth archive")
+		return path.Path{}, fmt.Errorf("specifier is not a tooth archive")
 	}
 
 	return s.toothArchivePath, nil
@@ -125,7 +132,7 @@ func (s Specifier) ToothVersion() (semver.Version, error) {
 func (s Specifier) String() string {
 	switch s.kind {
 	case ToothArchiveKind:
-		return s.toothArchivePath
+		return s.toothArchivePath.LocalString()
 
 	case ToothRepoKind:
 		return s.toothRepoPath + "@" + s.toothVersion.String()

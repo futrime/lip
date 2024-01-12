@@ -138,7 +138,7 @@ func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 
 		writer, err := zipWriter.Create(file.String())
 		if err != nil {
-			return path.Path{}, fmt.Errorf("failed to create %v: %w", file.String(), err)
+			return path.Path{}, fmt.Errorf("failed to create %v in zip file: %w", file.String(), err)
 		}
 
 		reader, err := os.Open(file.LocalString())

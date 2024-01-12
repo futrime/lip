@@ -180,8 +180,8 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 			}
 		}
 
-		tableString := &strings.Builder{}
-		table := tablewriter.NewWriter(tableString)
+		tableStringBuilder := &strings.Builder{}
+		table := tablewriter.NewWriter(tableStringBuilder)
 		table.SetHeader([]string{
 			"Tooth", "Name", "Version", "Latest",
 		})
@@ -192,7 +192,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 
 		table.Render()
 
-		fmt.Print(tableString.String())
+		fmt.Print(tableStringBuilder.String())
 	}
 
 	return nil

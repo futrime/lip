@@ -11,7 +11,6 @@ import (
 )
 
 func Uninstall(ctx context.Context, toothRepoPath string) error {
-
 	metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
@@ -36,12 +35,13 @@ func Uninstall(ctx context.Context, toothRepoPath string) error {
 	}
 
 	// 4. Delete the metadata file.
-	metadataFileName := url.QueryEscape(toothRepoPath) + ".json"
+
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
 		return fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
+	metadataFileName := fmt.Sprintf("%v.json", url.QueryEscape(toothRepoPath))
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
 	if err := os.Remove(metadataPath.LocalString()); err != nil {
@@ -121,7 +121,7 @@ func removeToothFiles(ctx context.Context, metadata tooth.Metadata) error {
 		}
 	}
 
-	// Files marked as "remove" will be deleted.
+	// Files marked as "remove" will be deleted regardless of whether they are marked as "preserve".
 	for _, removal := range metadata.Files().Remove {
 		removalPath, err := path.Parse(removal)
 		if err != nil {

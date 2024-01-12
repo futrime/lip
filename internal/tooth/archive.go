@@ -12,18 +12,14 @@ import (
 
 // Archive is an archive containing a tooth.
 type Archive struct {
-	filePath path.Path
 	metadata Metadata
+
+	assetArchiveFilePath     path.Path
+	assetArchiveFilePathRoot path.Path
 }
 
 // MakeArchive creates a new archive.
-func MakeArchive(archiveFilePathString string) (Archive, error) {
-
-	archiveFilePath, err := path.Parse(archiveFilePathString)
-	if err != nil {
-		return Archive{}, fmt.Errorf("failed to parse archive file path: %w", err)
-	}
-
+func MakeArchive(archiveFilePath path.Path, assetArchiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
@@ -39,8 +35,7 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 
 	// If only one file, it must be tooth.json. Then we should use the directory of the file as the root.
 	if len(filePaths) == 1 {
-		filePathRoot, err = filePathRoot.Dir()
-		if err != nil {
+		if filePathRoot, err = filePathRoot.Dir(); err != nil {
 			return Archive{}, fmt.Errorf("failed to get directory of tooth.json: %w", err)
 		}
 	}
@@ -76,37 +71,60 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 		return Archive{}, fmt.Errorf("failed to parse tooth.json: %w", err)
 	}
 
-	// Extract all file paths and remove the common prefix.
-	filePathsTrimmed := make([]path.Path, 0)
-	for _, filePath := range filePaths {
-		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
+	if (metadata.AssetURL() == "" && !assetArchiveFilePath.IsEmpty()) ||
+		(metadata.AssetURL() != "" && assetArchiveFilePath.IsEmpty()) {
+		return Archive{}, fmt.Errorf("asset URL and archive file path must be both specified or both empty")
 	}
 
-	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
-	if err != nil {
-		return Archive{}, fmt.Errorf(
-			"failed to resolve metadata files place regular expressions: %w", err)
-	}
+	if assetArchiveFilePath.IsEmpty() {
+		// If no external asset URL, use the archive file path as the asset URL.
 
-	return Archive{
-		filePath: archiveFilePath,
-		metadata: metadataWithoutWildcards,
-	}, nil
+		// Extract all file paths and remove the common prefix.
+		filePathsTrimmed := make([]path.Path, 0)
+		for _, filePath := range filePaths {
+			filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
+		}
+
+		metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
+		if err != nil {
+			return Archive{}, fmt.Errorf(
+				"failed to resolve metadata files place regular expressions: %w", err)
+		}
+
+		return Archive{
+			metadata:                 metadataWithoutWildcards,
+			assetArchiveFilePath:     archiveFilePath,
+			assetArchiveFilePathRoot: filePathRoot,
+		}, nil
+
+	} else {
+		metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePaths)
+		if err != nil {
+			return Archive{}, fmt.Errorf(
+				"failed to resolve metadata files place regular expressions: %w", err)
+		}
+
+		return Archive{
+			metadata:                 metadataWithoutWildcards,
+			assetArchiveFilePath:     assetArchiveFilePath,
+			assetArchiveFilePathRoot: path.MakeEmpty(),
+		}, nil
+	}
 }
 
-// FilePath returns the path of the archive.
-func (ar Archive) FilePath() path.Path {
-	return ar.filePath
+// AssetArchiveFilePath returns the path of the asset archive.
+func (ar Archive) AssetArchiveFilePath() path.Path {
+	return ar.assetArchiveFilePath
+}
+
+// AssetArchiveFilePathRoot returns the directory of tooth.json in the archive.
+func (ar Archive) AssetArchiveFilePathRoot() path.Path {
+	return ar.assetArchiveFilePathRoot
 }
 
 // Metadata returns the metadata of the archive.
 func (ar Archive) Metadata() Metadata {
 	return ar.metadata
-}
-
-// OpenReader opens the archive for reading.
-func (ar Archive) OpenReader() (*gozip.ReadCloser, error) {
-	return gozip.OpenReader(ar.filePath.LocalString())
 }
 
 // populateMetadataFilePlaceWildcards populates wildcards in files.place field of metadata.

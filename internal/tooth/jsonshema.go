@@ -1,7 +1,6 @@
 package tooth
 
-const metadataJSONSchema = `
-{
+const metadataJSONSchema = `{
 	"$schema": "https://json-schema.org/draft-07/schema#",
 	"type": "object",
 	"properties": {
@@ -44,6 +43,9 @@ const metadataJSONSchema = `
 				"author",
 				"tags"
 			]
+		},
+		"asset_url": {
+			"type": "string"
 		},
 		"commands": {
 			"type": "object",
@@ -136,6 +138,9 @@ const metadataJSONSchema = `
 					"goos": {
 						"type": "string"
 					},
+					"asset_url": {
+						"type": "string"
+					},
 					"commands": {
 						"type": "object",
 						"properties": {
@@ -223,6 +228,4 @@ const metadataJSONSchema = `
 		"version",
 		"info"
 	]
-}
-
-`
+}`

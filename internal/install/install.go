@@ -1,7 +1,7 @@
 package install
 
 import (
-	gozip "archive/zip"
+	"archive/zip"
 	"fmt"
 	"io"
 	"net/url"
@@ -12,7 +12,6 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
-	"github.com/lippkg/lip/internal/zip"
 )
 
 // Install installs a tooth archive.
@@ -28,7 +27,9 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 2. Run pre-install commands.
 
-	runCommands(archive.Metadata().Commands().PreInstall)
+	if err := runCommands(archive.Metadata().Commands().PreInstall); err != nil {
+		return fmt.Errorf("failed to run pre-install commands: %w", err)
+	}
 
 	// 3. Extract and place files.
 
@@ -36,7 +37,9 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 4. Run post-install commands.
 
-	runCommands(archive.Metadata().Commands().PostInstall)
+	if err := runCommands(archive.Metadata().Commands().PostInstall); err != nil {
+		return fmt.Errorf("failed to run post-install commands: %w", err)
+	}
 
 	// 5. Create metadata file.
 
@@ -62,7 +65,6 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 // placeFiles places the files of the tooth.
 func placeFiles(ctx context.Context, archive tooth.Archive) error {
-
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err
@@ -74,18 +76,13 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 	}
 
 	// Open the archive.
-	r, err := gozip.OpenReader(archive.FilePath().LocalString())
+	r, err := zip.OpenReader(archive.AssetArchiveFilePath().LocalString())
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
 	}
 	defer r.Close()
 
-	filePaths, err := zip.GetFilePaths(r)
-	if err != nil {
-		return fmt.Errorf("failed to extract file paths: %w", err)
-	}
-
-	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
+	filePathRoot := archive.AssetArchiveFilePathRoot()
 
 	for _, place := range archive.Metadata().Files().Place {
 		relDest, err := path.Parse(place.Dest)
@@ -120,7 +117,12 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 				continue
 			}
 
-			if f.Name == src.String() {
+			filePath, err := path.Parse(f.Name)
+			if err != nil {
+				return fmt.Errorf("failed to parse file path: %w", err)
+			}
+
+			if filePath.Equal(src) {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {

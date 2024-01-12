@@ -115,6 +115,10 @@ func (m Metadata) Info() RawMetadataInfo {
 	return m.rawMetadata.Info
 }
 
+func (m Metadata) AssetURL() string {
+	return m.rawMetadata.AssetURL
+}
+
 func (m Metadata) Commands() RawMetadataCommands {
 	return m.rawMetadata.Commands
 }

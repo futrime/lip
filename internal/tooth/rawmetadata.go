@@ -8,6 +8,7 @@ type RawMetadata struct {
 	Version       string          `json:"version"`
 	Info          RawMetadataInfo `json:"info"`
 
+	AssetURL      string              `json:"asset_url,omitempty"`
 	Commands      RawMetadataCommands `json:"commands,omitempty"`
 	Dependencies  map[string]string   `json:"dependencies,omitempty"`
 	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
@@ -46,6 +47,7 @@ type RawMetadataPlatformsItem struct {
 	GOARCH string `json:"goarch,omitempty"`
 	GOOS   string `json:"goos"`
 
+	AssetURL      string              `json:"asset_url,omitempty"`
 	Commands      RawMetadataCommands `json:"commands,omitempty"`
 	Dependencies  map[string]string   `json:"dependencies,omitempty"`
 	Prerequisites map[string]string   `json:"prerequisites,omitempty"`

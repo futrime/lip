@@ -7,6 +7,7 @@ import (
 	"github.com/lippkg/lip/internal/path"
 )
 
+// GetFilePaths returns a list of file paths in a zip archive. Directories are skipped.
 func GetFilePaths(r *gozip.ReadCloser) ([]path.Path, error) {
 	filePaths := make([]path.Path, 0)
 

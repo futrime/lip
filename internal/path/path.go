@@ -14,6 +14,13 @@ type Path struct {
 	pathItems []string
 }
 
+// MakeEmpty creates an empty path.
+func MakeEmpty() Path {
+	return Path{
+		pathItems: []string{},
+	}
+}
+
 // Parse parses a path string into a Path.
 func Parse(path string) (Path, error) {
 	// Convert to forward slashes.

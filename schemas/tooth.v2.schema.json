@@ -42,6 +42,9 @@
 				"tags"
 			]
 		},
+		"asset_url": {
+			"type": "string"
+		},
 		"commands": {
 			"type": "object",
 			"properties": {
@@ -133,6 +136,9 @@
 					"goos": {
 						"type": "string"
 					},
+					"asset_url": {
+						"type": "string"
+					},
 					"commands": {
 						"type": "object",
 						"properties": {
@@ -163,6 +169,14 @@
 						}
 					},
 					"dependencies": {
+						"type": "object",
+						"patternProperties": {
+							"^.*$": {
+								"type": "string"
+							}
+						}
+					},
+					"prerequisites": {
 						"type": "object",
 						"patternProperties": {
 							"^.*$": {

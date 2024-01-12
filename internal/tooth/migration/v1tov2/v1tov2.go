@@ -146,20 +146,22 @@ type v1CommandsItem struct {
 	GOARCH   string   `json:"GOARCH,omitempty"`
 }
 
-type v2RawMetadata struct {
-	FormatVersion int               `json:"format_version"`
-	Tooth         string            `json:"tooth"`
-	Version       string            `json:"version"`
-	Info          v2RawMetadataInfo `json:"info"`
+type RawMetadata struct {
+	FormatVersion int             `json:"format_version"`
+	Tooth         string          `json:"tooth"`
+	Version       string          `json:"version"`
+	Info          RawMetadataInfo `json:"info"`
 
-	Commands     v2RawMetadataCommands `json:"commands,omitempty"`
-	Dependencies map[string]string     `json:"dependencies,omitempty"`
-	Files        v2RawMetadataFiles    `json:"files,omitempty"`
+	AssetURL      string              `json:"asset_url,omitempty"`
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
 
-	Platforms []v2RawMetadataPlatformsItem `json:"platforms,omitempty"`
+	Platforms []RawMetadataPlatformsItem `json:"platforms,omitempty"`
 }
 
-type v2RawMetadataInfo struct {
+type RawMetadataInfo struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Author      string   `json:"author"`
@@ -167,31 +169,33 @@ type v2RawMetadataInfo struct {
 	Source      string   `json:"source,omitempty"`
 }
 
-type v2RawMetadataCommands struct {
+type RawMetadataCommands struct {
 	PreInstall    []string `json:"pre_install,omitempty"`
 	PostInstall   []string `json:"post_install,omitempty"`
 	PreUninstall  []string `json:"pre_uninstall,omitempty"`
 	PostUninstall []string `json:"post_uninstall,omitempty"`
 }
 
-type v2RawMetadataFiles struct {
-	Place    []v2RawMetadataFilesPlaceItem `json:"place,omitempty"`
-	Preserve []string                      `json:"preserve,omitempty"`
-	Remove   []string                      `json:"remove,omitempty"`
+type RawMetadataFiles struct {
+	Place    []RawMetadataFilesPlaceItem `json:"place,omitempty"`
+	Preserve []string                    `json:"preserve,omitempty"`
+	Remove   []string                    `json:"remove,omitempty"`
 }
 
-type v2RawMetadataFilesPlaceItem struct {
+type RawMetadataFilesPlaceItem struct {
 	Src  string `json:"src"`
 	Dest string `json:"dest"`
 }
 
-type v2RawMetadataPlatformsItem struct {
+type RawMetadataPlatformsItem struct {
 	GOARCH string `json:"goarch,omitempty"`
 	GOOS   string `json:"goos"`
 
-	Commands     v2RawMetadataCommands `json:"commands,omitempty"`
-	Dependencies map[string]string     `json:"dependencies,omitempty"`
-	Files        v2RawMetadataFiles    `json:"files,omitempty"`
+	AssetURL      string              `json:"asset_url,omitempty"`
+	Commands      RawMetadataCommands `json:"commands,omitempty"`
+	Dependencies  map[string]string   `json:"dependencies,omitempty"`
+	Prerequisites map[string]string   `json:"prerequisites,omitempty"`
+	Files         RawMetadataFiles    `json:"files,omitempty"`
 }
 
 // Migrate migrates the metadata from v1 to v2.
@@ -216,29 +220,29 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	}
 
 	// Migrate struct.
-	v2RawMetadata := v2RawMetadata{
+	v2RawMetadata := RawMetadata{
 		FormatVersion: 2,
 		Tooth:         v1RawMetadata.Tooth,
 		Version:       v1RawMetadata.Version,
-		Info: v2RawMetadataInfo{
+		Info: RawMetadataInfo{
 			Name:        v1RawMetadata.Information.Name,
 			Description: v1RawMetadata.Information.Description,
 			Author:      v1RawMetadata.Information.Author,
 			Source:      "",
 			Tags:        make([]string, 0),
 		},
-		Commands: v2RawMetadataCommands{
+		Commands: RawMetadataCommands{
 			PreInstall:    make([]string, 0),
 			PostInstall:   make([]string, 0),
 			PreUninstall:  make([]string, 0),
 			PostUninstall: make([]string, 0),
 		},
 		Dependencies: make(map[string]string),
-		Files: v2RawMetadataFiles{
-			Place:  make([]v2RawMetadataFilesPlaceItem, 0),
+		Files: RawMetadataFiles{
+			Place:  make([]RawMetadataFilesPlaceItem, 0),
 			Remove: v1RawMetadata.Possession,
 		},
-		Platforms: make([]v2RawMetadataPlatformsItem, 0),
+		Platforms: make([]RawMetadataPlatformsItem, 0),
 	}
 
 	// Solve dependencies.
@@ -282,7 +286,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 		}
 
 		v2RawMetadata.Files.Place = append(
-			v2RawMetadata.Files.Place, v2RawMetadataFilesPlaceItem{
+			v2RawMetadata.Files.Place, RawMetadataFilesPlaceItem{
 				Src:  v1Placement.Source,
 				Dest: strings.TrimSuffix(v1Placement.Destination, "*"),
 			})

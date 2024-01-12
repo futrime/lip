@@ -222,7 +222,7 @@ func downloadSpecifier(ctx context.Context,
 			return tooth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
 		}
 
-		archive, err := tooth.MakeArchive(archivePath)
+		archive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
 		if err != nil {
 			return tooth.Archive{}, fmt.Errorf("failed to create archive%v: %w", archivePath, err)
 		}
@@ -252,12 +252,17 @@ func downloadSpecifier(ctx context.Context,
 			return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
 		}
 
-		archivePath, err := downloadFromAllGoProxies(ctx, toothRepoPath, toothVersion)
+		archivePathStr, err := downloadFromAllGoProxies(ctx, toothRepoPath, toothVersion)
 		if err != nil {
 			return tooth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
 		}
 
-		archive, err := tooth.MakeArchive(archivePath)
+		archivePath, err := path.Parse(archivePathStr)
+		if err != nil {
+			return tooth.Archive{}, fmt.Errorf("failed to parse archive path: %w", err)
+		}
+
+		archive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
 		if err != nil {
 			return tooth.Archive{}, fmt.Errorf("failed to create archive %v: %w", archivePath, err)
 		}
@@ -498,12 +503,17 @@ func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 				return nil, fmt.Errorf("no available version found for dependency %v", dep)
 			}
 
-			archivePath, err := downloadFromAllGoProxies(ctx, dep, targetVersion)
+			archivePathString, err := downloadFromAllGoProxies(ctx, dep, targetVersion)
 			if err != nil {
 				return nil, fmt.Errorf("failed to download tooth: %w", err)
 			}
 
-			currentArchive, err := tooth.MakeArchive(archivePath)
+			archivePath, err := path.Parse(archivePathString)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse archive path: %w", err)
+			}
+
+			currentArchive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
 			if err != nil {
 				return nil, fmt.Errorf("failed to create archive %v: %w", archivePath, err)
 			}
