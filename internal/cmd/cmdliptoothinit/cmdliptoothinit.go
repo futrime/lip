@@ -43,7 +43,6 @@ var metadataTemplate = tooth.RawMetadata{
 }
 
 func Run(ctx context.Context, args []string) error {
-	var err error
 
 	flagSet := flag.NewFlagSet("init", flag.ContinueOnError)
 
@@ -55,7 +54,7 @@ func Run(ctx context.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -71,8 +70,7 @@ func Run(ctx context.Context, args []string) error {
 		return fmt.Errorf("unexpected arguments: %v", flagSet.Args())
 	}
 
-	err = initTooth(ctx)
-	if err != nil {
+	if err := initTooth(ctx); err != nil {
 		return fmt.Errorf("failed to initialize the tooth: %w", err)
 	}
 
@@ -83,10 +81,9 @@ func Run(ctx context.Context, args []string) error {
 
 // initTooth initializes a new tooth in the current directory.
 func initTooth(ctx context.Context) error {
-	var err error
 
 	// Check if tooth.json already exists.
-	_, err = os.Stat("tooth.json")
+	_, err := os.Stat("tooth.json")
 	if err == nil {
 		return fmt.Errorf("tooth.json already exists")
 	}
@@ -155,8 +152,7 @@ func initTooth(ctx context.Context) error {
 	defer file.Close()
 
 	// Write default tooth.json content.
-	_, err = file.Write(jsonBytes)
-	if err != nil {
+	if _, err := file.Write(jsonBytes); err != nil {
 		return fmt.Errorf("failed to write tooth.json: %w", err)
 	}
 

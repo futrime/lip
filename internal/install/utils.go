@@ -9,7 +9,6 @@ import (
 
 // runCommands runs the given commands.
 func runCommands(commands []string) error {
-	var err error
 
 	for _, command := range commands {
 		var cmd *exec.Cmd
@@ -19,11 +18,12 @@ func runCommands(commands []string) error {
 		default:
 			cmd = exec.Command("sh", "-c", command)
 		}
+
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		err = cmd.Run()
-		if err != nil {
+
+		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("failed to run command: %w", err)
 		}
 	}

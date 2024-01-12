@@ -11,7 +11,6 @@ import (
 )
 
 func Uninstall(ctx context.Context, toothRepoPath string) error {
-	var err error
 
 	metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 	if err != nil {
@@ -19,20 +18,20 @@ func Uninstall(ctx context.Context, toothRepoPath string) error {
 	}
 
 	// 1. Run pre-uninstall commands.
-	err = runCommands(metadata.Commands().PreUninstall)
-	if err != nil {
+
+	if err := runCommands(metadata.Commands().PreUninstall); err != nil {
 		return fmt.Errorf("failed to run pre-uninstall commands: %w", err)
 	}
 
 	// 2. Delete files.
-	err = removeToothFiles(ctx, metadata)
-	if err != nil {
+
+	if err := removeToothFiles(ctx, metadata); err != nil {
 		return fmt.Errorf("failed to delete files: %w", err)
 	}
 
 	// 3. Run post-uninstall commands.
-	err = runCommands(metadata.Commands().PostUninstall)
-	if err != nil {
+
+	if err := runCommands(metadata.Commands().PostUninstall); err != nil {
 		return fmt.Errorf("failed to run post-uninstall commands: %w", err)
 	}
 
@@ -45,8 +44,7 @@ func Uninstall(ctx context.Context, toothRepoPath string) error {
 
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.Remove(metadataPath.LocalString())
-	if err != nil {
+	if err := os.Remove(metadataPath.LocalString()); err != nil {
 		return fmt.Errorf("failed to delete metadata file: %w", err)
 	}
 
@@ -86,15 +84,14 @@ func removeToothFiles(ctx context.Context, metadata tooth.Metadata) error {
 		dest := workspaceDir.Join(relDest)
 
 		// Delete the file.
-		err = os.RemoveAll(dest.LocalString())
-		if err != nil {
+		if err := os.RemoveAll(dest.LocalString()); err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
 
 		// Delete all ancestor directories if they are empty until the workspace directory.
 		dir := dest
 		for {
-			dir, err = dir.Dir()
+			dir, err := dir.Dir()
 			if err != nil {
 				return fmt.Errorf("failed to parse directory: %w", err)
 			}
@@ -118,8 +115,7 @@ func removeToothFiles(ctx context.Context, metadata tooth.Metadata) error {
 				break
 			}
 
-			err = os.Remove(dir.LocalString())
-			if err != nil {
+			if err := os.Remove(dir.LocalString()); err != nil {
 				return fmt.Errorf("failed to delete directory: %w", err)
 			}
 		}
@@ -132,8 +128,7 @@ func removeToothFiles(ctx context.Context, metadata tooth.Metadata) error {
 			return fmt.Errorf("failed to parse removal path: %w", err)
 		}
 
-		err = os.RemoveAll(workspaceDir.Join(removalPath).LocalString())
-		if err != nil {
+		if err := os.RemoveAll(workspaceDir.Join(removalPath).LocalString()); err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
 	}

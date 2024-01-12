@@ -17,11 +17,10 @@ import (
 
 // Install installs a tooth archive.
 func Install(ctx context.Context, archive tooth.Archive) error {
-	var err error
 
 	// 1. Check if the tooth is already installed.
 
-	if installed, err := tooth.IsToothInstalled(ctx, archive.Metadata().ToothRepoPath()); err != nil {
+	if installed, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath()); err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
 	} else if installed {
 		return fmt.Errorf("tooth %v is already installed", archive.Metadata().ToothRepoPath())
@@ -54,8 +53,7 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
-	err = os.WriteFile(metadataPath.LocalString(), jsonBytes, 0644)
-	if err != nil {
+	if err := os.WriteFile(metadataPath.LocalString(), jsonBytes, 0644); err != nil {
 		return fmt.Errorf("failed to create metadata file: %w", err)
 	}
 
@@ -64,7 +62,6 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 // placeFiles places the files of the tooth.
 func placeFiles(ctx context.Context, archive tooth.Archive) error {
-	var err error
 
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
@@ -104,8 +101,7 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 		dest := workspaceDir.Join(relDest)
 
 		// Create the destination directory.
-		err = os.MkdirAll(filepath.Dir(dest.LocalString()), 0755)
-		if err != nil {
+		if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
 			return fmt.Errorf("failed to create destination directory: %w", err)
 		}
 
@@ -137,8 +133,7 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 				}
 
 				// Copy the file.
-				_, err = io.Copy(fw, rc)
-				if err != nil {
+				if _, err := io.Copy(fw, rc); err != nil {
 					return fmt.Errorf("failed to copy file: %w", err)
 				}
 

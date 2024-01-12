@@ -32,7 +32,6 @@ Options:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
 
 	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
 
@@ -46,7 +45,7 @@ func Run(ctx context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.upgradableFlag, "upgradable", false, "")
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -63,7 +62,7 @@ func Run(ctx context.Context, args []string) error {
 	}
 
 	if flagDict.upgradableFlag {
-		err = listUpgradable(ctx, flagDict.jsonFlag)
+		err := listUpgradable(ctx, flagDict.jsonFlag)
 		if err != nil {
 			return fmt.Errorf("failed to list upgradable teeth: %w", err)
 		}
@@ -71,7 +70,7 @@ func Run(ctx context.Context, args []string) error {
 		return nil
 
 	} else {
-		err = listAll(ctx, flagDict.jsonFlag)
+		err := listAll(ctx, flagDict.jsonFlag)
 		if err != nil {
 			return fmt.Errorf("failed to list all teeth: %w", err)
 		}
@@ -84,9 +83,8 @@ func Run(ctx context.Context, args []string) error {
 
 // listAll lists all installed teeth.
 func listAll(ctx context.Context, jsonFlag bool) error {
-	var err error
 
-	metadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}
@@ -130,9 +128,8 @@ func listAll(ctx context.Context, jsonFlag bool) error {
 
 // listUpgradable lists upgradable teeth.
 func listUpgradable(ctx context.Context, jsonFlag bool) error {
-	var err error
 
-	metadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
+	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to list all installed teeth: %w", err)
 	}

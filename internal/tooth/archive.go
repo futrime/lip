@@ -18,7 +18,6 @@ type Archive struct {
 
 // MakeArchive creates a new archive.
 func MakeArchive(archiveFilePathString string) (Archive, error) {
-	var err error
 
 	archiveFilePath, err := path.Parse(archiveFilePathString)
 	if err != nil {
@@ -83,7 +82,7 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
 	}
 
-	metadata, err = populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
+	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
 	if err != nil {
 		return Archive{}, fmt.Errorf(
 			"failed to resolve metadata files place regular expressions: %w", err)
@@ -91,7 +90,7 @@ func MakeArchive(archiveFilePathString string) (Archive, error) {
 
 	return Archive{
 		filePath: archiveFilePath,
-		metadata: metadata,
+		metadata: metadataWithoutWildcards,
 	}, nil
 }
 

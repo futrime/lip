@@ -63,22 +63,18 @@ func Run(ctx context.Context, args []string) error {
 
 // purgeCache removes all items from the cache.
 func purgeCache(ctx context.Context) error {
-	var err error
-
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
 		return fmt.Errorf("failed to get the cache directory: %w", err)
 	}
 
 	// Remove the cache directory.
-	err = os.RemoveAll(cacheDir.LocalString())
-	if err != nil {
+	if err := os.RemoveAll(cacheDir.LocalString()); err != nil {
 		return fmt.Errorf("failed to remove the cache directory: %w", err)
 	}
 
 	// Recreate the cache directory.
-	err = os.MkdirAll(cacheDir.LocalString(), 0755)
-	if err != nil {
+	if err := os.MkdirAll(cacheDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("failed to recreate the cache directory: %w", err)
 	}
 

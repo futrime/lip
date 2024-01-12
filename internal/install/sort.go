@@ -15,7 +15,6 @@ const (
 
 // SortToothArchives sorts tooth archives by dependence with topological sort.
 func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
-	var err error
 
 	// Make a map from tooth path to tooth archive.
 	archiveMap := make(map[string]tooth.Archive)
@@ -27,7 +26,7 @@ func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
 	visited := make(map[string]bool)
 	sorted := make([]tooth.Archive, 0)
 	for _, toothArchive := range archiveList {
-		err = visit(toothArchive, archiveMap, preVisited, visited, &sorted)
+		err := visit(toothArchive, archiveMap, preVisited, visited, &sorted)
 
 		if err != nil {
 			return nil, err
@@ -40,8 +39,6 @@ func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
 // visit visits a tooth archive and its dependencies.
 func visit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 	preVisited map[string]bool, visited map[string]bool, sorted *[]tooth.Archive) error {
-
-	var err error
 
 	if visited[archive.Metadata().ToothRepoPath()] {
 		return nil
@@ -61,7 +58,7 @@ func visit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 			continue
 		}
 
-		err = visit(dep, archiveMap, preVisited, visited, sorted)
+		err := visit(dep, archiveMap, preVisited, visited, sorted)
 
 		if err != nil {
 			return err

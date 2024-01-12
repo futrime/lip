@@ -28,7 +28,6 @@ type Specifier struct {
 
 // Parse creates a new specifier from the given string.
 func Parse(specifierString string) (Specifier, error) {
-	var err error
 
 	specifierType := getSpecifierType(specifierString)
 
@@ -50,10 +49,8 @@ func Parse(specifierString string) (Specifier, error) {
 				specifierString, err.Error())
 		}
 
-		var toothVersion semver.Version
-
 		if len(splittedSpecifier) == 2 {
-			toothVersion, err = semver.Parse(splittedSpecifier[1])
+			toothVersion, err := semver.Parse(splittedSpecifier[1])
 			if err != nil {
 				return Specifier{}, fmt.Errorf("invalid requirement specifier: %v",
 					specifierString)

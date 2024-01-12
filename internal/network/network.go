@@ -13,7 +13,6 @@ import (
 
 // DownloadFile downloads a file from a url and saves it to a local path.
 func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) error {
-	var err error
 
 	resp, err := http.Get(url.String())
 	if err != nil {
@@ -44,8 +43,7 @@ func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) erro
 		writer = io.MultiWriter(file, bar)
 	}
 
-	_, err = io.Copy(writer, resp.Body)
-	if err != nil {
+	if _, err := io.Copy(writer, resp.Body); err != nil {
 		return fmt.Errorf("cannot download file from %v: %w", url, err)
 	}
 	return nil
@@ -53,7 +51,6 @@ func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) erro
 
 // GetContent gets the content at once of a URL.
 func GetContent(url *url.URL) ([]byte, error) {
-	var err error
 
 	resp, err := http.Get(url.String())
 	if err != nil {

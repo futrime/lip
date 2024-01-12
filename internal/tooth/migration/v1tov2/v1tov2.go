@@ -211,7 +211,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 
 	// Unmarshal JSON into struct.
 	var v1RawMetadata v1RawMetadata
-	if err = json.Unmarshal(jsonBytes, &v1RawMetadata); err != nil {
+	if err := json.Unmarshal(jsonBytes, &v1RawMetadata); err != nil {
 		return nil, fmt.Errorf("error unmarshaling JSON into struct: %w", err)
 	}
 

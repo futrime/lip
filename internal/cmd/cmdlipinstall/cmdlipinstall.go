@@ -48,7 +48,6 @@ Note:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
 
 	flagSet := flag.NewFlagSet("install", flag.ContinueOnError)
 
@@ -65,7 +64,7 @@ func Run(ctx context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 	flagSet.BoolVar(&flagDict.noDependenciesFlag, "no-dependencies", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -93,7 +92,7 @@ func Run(ctx context.Context, args []string) error {
 	// 2. Resolve dependencies and check prerequisites.
 
 	if !flagDict.noDependenciesFlag {
-		archiveToInstallList, err = resolveDependencies(ctx, archiveToInstallList, flagDict.upgradeFlag,
+		archiveToInstallList, err := resolveDependencies(ctx, archiveToInstallList, flagDict.upgradeFlag,
 			flagDict.forceReinstallFlag)
 
 		if err != nil {
@@ -125,7 +124,7 @@ func Run(ctx context.Context, args []string) error {
 	// 4. Ask for confirmation.
 
 	if !flagDict.yesFlag {
-		err = askForConfirmation(ctx, archiveToInstallList)
+		err := askForConfirmation(ctx, archiveToInstallList)
 		if err != nil {
 			return err
 		}
@@ -133,9 +132,8 @@ func Run(ctx context.Context, args []string) error {
 
 	// 5. Install teeth.
 
-	err = installToothArchiveList(ctx, archiveToInstallList, flagDict.forceReinstallFlag,
-		flagDict.upgradeFlag)
-	if err != nil {
+	if err := installToothArchiveList(ctx, archiveToInstallList, flagDict.forceReinstallFlag,
+		flagDict.upgradeFlag); err != nil {
 		return fmt.Errorf("failed to install teeth: %w", err)
 	}
 
@@ -173,8 +171,6 @@ func askForConfirmation(ctx context.Context,
 func downloadFromAllGoProxies(ctx context.Context, toothRepoPath string,
 	toothVersion semver.Version) (string, error) {
 
-	var err error
-
 	log.Infof("Downloading %v@%v...", toothRepoPath, toothVersion)
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
@@ -208,8 +204,7 @@ func downloadFromAllGoProxies(ctx context.Context, toothRepoPath string,
 		enableProgressBar = false
 	}
 
-	err = network.DownloadFile(downloadURL, cachePath, enableProgressBar)
-	if err != nil {
+	if err := network.DownloadFile(downloadURL, cachePath, enableProgressBar); err != nil {
 		return "", fmt.Errorf("failed to download file: %w", err)
 	}
 
@@ -280,11 +275,11 @@ func downloadSpecifier(ctx context.Context,
 // by the specifier and returns the map of missing prerequisites.
 func findMissingPrerequisites(ctx context.Context,
 	archiveList []tooth.Archive) (map[string]semver.Range, error) {
-	var missingPrerequisiteMap = make(map[string]semver.Range)
+	missingPrerequisiteMap := make(map[string]semver.Range)
 
 	for _, archive := range archiveList {
 		for prerequisite, versionRange := range archive.Metadata().Prerequisites() {
-			isInstalled, err := tooth.IsToothInstalled(ctx, prerequisite)
+			isInstalled, err := tooth.IsInstalled(ctx, prerequisite)
 			if err != nil {
 				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
 			}
@@ -324,7 +319,7 @@ func findMissingPrerequisites(ctx context.Context,
 func installToothArchiveList(ctx context.Context,
 	archiveToInstallList []tooth.Archive, forceReinstall bool, upgrade bool) error {
 	for _, archive := range archiveToInstallList {
-		isInstalled, err := tooth.IsToothInstalled(ctx, archive.Metadata().ToothRepoPath())
+		isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -370,14 +365,14 @@ func installToothArchiveList(ctx context.Context,
 		}
 
 		if shouldUninstall {
-			err = install.Uninstall(ctx, archive.Metadata().ToothRepoPath())
+			err := install.Uninstall(ctx, archive.Metadata().ToothRepoPath())
 			if err != nil {
 				return fmt.Errorf("failed to uninstall tooth: %w", err)
 			}
 		}
 
 		if shouldInstall {
-			err = install.Install(ctx, archive)
+			err := install.Install(ctx, archive)
 			if err != nil {
 				return fmt.Errorf("failed to install tooth: %w", err)
 			}
@@ -419,13 +414,11 @@ func parseAndDownloadspecifierpkgtringList(ctx context.Context,
 func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
 
-	var err error
-
 	// fixedToothVersionMap records versions of teeth that are already installed
 	// or will be installed.
 	fixedToothVersionMap := make(map[string]semver.Version)
 
-	installedToothMetadataList, err := tooth.GetAllInstalledToothMetadata(ctx)
+	installedToothMetadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all installed tooth metadata: %w", err)
 	}

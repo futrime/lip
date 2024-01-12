@@ -55,7 +55,7 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	}
 
 	if !validationResult.Valid() {
-		var errors []string
+		errors := make([]string, 0)
 		for _, err := range validationResult.Errors() {
 			errors = append(errors, err.String())
 		}
@@ -65,7 +65,7 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 
 	// Unmarshal JSON
 	var rawMetadata RawMetadata
-	if err = json.Unmarshal(jsonBytes, &rawMetadata); err != nil {
+	if err := json.Unmarshal(jsonBytes, &rawMetadata); err != nil {
 		return Metadata{}, fmt.Errorf("failed to unmarshal raw metadata: %w", err)
 	}
 
@@ -155,10 +155,7 @@ func (m Metadata) Files() RawMetadataFiles {
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
-	var jsonBytes []byte
-	var err error
-
-	jsonBytes, err = json.MarshalIndent(m.rawMetadata, "", "    ")
+	jsonBytes, err := json.MarshalIndent(m.rawMetadata, "", "    ")
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal raw metadata: %w", err)
@@ -168,7 +165,7 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 }
 
 func parseFormatVersion(jsonBytes []byte) (int, error) {
-	var jsonData map[string]interface{}
+	jsonData := make(map[string]interface{})
 	err := json.Unmarshal(jsonBytes, &jsonData)
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse json: %w", err)

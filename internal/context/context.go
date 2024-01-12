@@ -51,7 +51,6 @@ func (ctx Context) LipVersion() semver.Version {
 
 // GlobalDotLipDir returns the global .lip directory.
 func (ctx Context) GlobalDotLipDir() (path.Path, error) {
-	var err error
 
 	userHomeDirStr, err := os.UserHomeDir()
 	if err != nil {
@@ -70,7 +69,6 @@ func (ctx Context) GlobalDotLipDir() (path.Path, error) {
 
 // LocalDotLipDir returns the local .lip directory.
 func (ctx Context) LocalDotLipDir() (path.Path, error) {
-	var err error
 
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
@@ -89,7 +87,6 @@ func (ctx Context) LocalDotLipDir() (path.Path, error) {
 
 // CacheDir returns the cache directory.
 func (ctx Context) CacheDir() (path.Path, error) {
-	var err error
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
@@ -103,7 +100,6 @@ func (ctx Context) CacheDir() (path.Path, error) {
 
 // MetadataDir returns the metadata directory.
 func (ctx Context) MetadataDir() (path.Path, error) {
-	var err error
 
 	localDotLipDir, err := ctx.LocalDotLipDir()
 	if err != nil {
@@ -117,15 +113,13 @@ func (ctx Context) MetadataDir() (path.Path, error) {
 
 // CreateDirStructure creates the directory structure.
 func (ctx Context) CreateDirStructure() error {
-	var err error
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
 		return fmt.Errorf("cannot get global .lip directory: %w", err)
 	}
 
-	err = os.MkdirAll(globalDotLipDir.LocalString(), 0755)
-	if err != nil {
+	if err := os.MkdirAll(globalDotLipDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("cannot create global .lip directory: %w", err)
 	}
 
@@ -134,8 +128,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get local .lip directory: %w", err)
 	}
 
-	err = os.MkdirAll(localDotLipDir.LocalString(), 0755)
-	if err != nil {
+	if err := os.MkdirAll(localDotLipDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("cannot create local .lip directory: %w", err)
 	}
 
@@ -144,8 +137,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get cache directory: %w", err)
 	}
 
-	err = os.MkdirAll(cacheDir.LocalString(), 0755)
-	if err != nil {
+	if err := os.MkdirAll(cacheDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("cannot create cache directory: %w", err)
 	}
 
@@ -154,8 +146,7 @@ func (ctx Context) CreateDirStructure() error {
 		return fmt.Errorf("cannot get metadata directory: %w", err)
 	}
 
-	err = os.MkdirAll(metadataDir.LocalString(), 0755)
-	if err != nil {
+	if err := os.MkdirAll(metadataDir.LocalString(), 0755); err != nil {
 		return fmt.Errorf("cannot create metadata directory: %w", err)
 	}
 
@@ -164,7 +155,6 @@ func (ctx Context) CreateDirStructure() error {
 
 // LoadOrCreateConfigFile loads or creates the config file.
 func (ctx Context) LoadOrCreateConfigFile() error {
-	var err error
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
@@ -173,15 +163,13 @@ func (ctx Context) LoadOrCreateConfigFile() error {
 
 	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
 
-	_, err = os.Stat(configFilePath.LocalString())
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(configFilePath.LocalString()); os.IsNotExist(err) {
 		jsonBytes, err := json.MarshalIndent(ctx.config, "", "  ")
 		if err != nil {
 			return fmt.Errorf("cannot marshal config: %w", err)
 		}
 
-		err = os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644)
-		if err != nil {
+		if err := os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644); err != nil {
 			return fmt.Errorf("cannot write config file: %w", err)
 		}
 
@@ -194,8 +182,7 @@ func (ctx Context) LoadOrCreateConfigFile() error {
 			return fmt.Errorf("cannot read config file at %v: %w", configFilePath, err)
 		}
 
-		err = json.Unmarshal(jsonBytes, &ctx.config)
-		if err != nil {
+		if err := json.Unmarshal(jsonBytes, &ctx.config); err != nil {
 			return fmt.Errorf("cannot unmarshal config at %v: %w", configFilePath, err)
 		}
 	}

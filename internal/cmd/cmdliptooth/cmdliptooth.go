@@ -27,7 +27,6 @@ Options:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
 
 	flagSet := flag.NewFlagSet("tooth", flag.ContinueOnError)
 
@@ -39,7 +38,7 @@ func Run(ctx context.Context, args []string) error {
 	var flagDict FlagDict
 	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -54,14 +53,14 @@ func Run(ctx context.Context, args []string) error {
 	if flagSet.NArg() >= 1 {
 		switch flagSet.Arg(0) {
 		case "init":
-			err = cmdliptoothinit.Run(ctx, flagSet.Args()[1:])
+			err := cmdliptoothinit.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return err
 			}
 			return nil
 
 		case "pack":
-			err = cmdliptoothpack.Run(ctx, flagSet.Args()[1:])
+			err := cmdliptoothpack.Run(ctx, flagSet.Args()[1:])
 			if err != nil {
 				return err
 			}

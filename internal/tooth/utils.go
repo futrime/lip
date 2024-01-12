@@ -16,11 +16,10 @@ import (
 	"golang.org/x/mod/module"
 )
 
-// IsToothInstalled checks if a tooth is installed.
-func IsToothInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
-	var err error
+// IsInstalled checks if a tooth is installed.
+func IsInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
 
-	metadataList, err := GetAllInstalledToothMetadata(ctx)
+	metadataList, err := GetAllMetadata(ctx)
 	if err != nil {
 		return false, fmt.Errorf(
 			"failed to list all installed tooth metadata: %w", err)
@@ -35,11 +34,9 @@ func IsToothInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
 	return false, nil
 }
 
-// GetAllInstalledToothMetadata lists all installed tooth metadata.
-func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
-	var err error
-
-	var metadataList []Metadata
+// GetAllMetadata lists all installed tooth metadata.
+func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
+	metadataList := make([]Metadata, 0)
 
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
@@ -78,9 +75,8 @@ func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 // GetMetadata finds the installed tooth metadata.
 func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
 	error) {
-	var err error
 
-	metadataList, err := GetAllInstalledToothMetadata(ctx)
+	metadataList, err := GetAllMetadata(ctx)
 	if err != nil {
 		return Metadata{}, fmt.Errorf(
 			"failed to list all installed tooth metadata: %w", err)
@@ -100,7 +96,6 @@ func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
 // The version list is sorted in descending order.
 func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Versions,
 	error) {
-	var err error
 
 	if err := module.CheckPath(toothRepoPath); err != nil {
 		return nil, fmt.Errorf("invalid repository path: %v", toothRepoPath)
@@ -124,7 +119,7 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 	reader := bytes.NewReader(content)
 
 	// Each line is a version.
-	var versionList semver.Versions
+	versionList := make(semver.Versions, 0)
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		versionString := scanner.Text()
@@ -151,8 +146,6 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 // specified by the specifier.
 func GetLatestStableVersion(ctx context.Context,
 	toothRepoPath string) (semver.Version, error) {
-
-	var err error
 
 	versionList, err := GetAvailableVersions(ctx, toothRepoPath)
 	if err != nil {

@@ -29,7 +29,6 @@ Options:
 `
 
 func Run(ctx context.Context, args []string) error {
-	var err error
 
 	flagSet := flag.NewFlagSet("uninstall", flag.ContinueOnError)
 
@@ -43,7 +42,7 @@ func Run(ctx context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
-	err = flagSet.Parse(args)
+	err := flagSet.Parse(args)
 	if err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
@@ -65,7 +64,7 @@ func Run(ctx context.Context, args []string) error {
 
 	for _, toothRepoPath := range toothRepoPathList {
 
-		isInstalled, err := tooth.IsToothInstalled(ctx, toothRepoPath)
+		isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -78,7 +77,7 @@ func Run(ctx context.Context, args []string) error {
 	// 2. Prompt for confirmation.
 
 	if !flagDict.yesFlag {
-		err = askForConfirmation(ctx, toothRepoPathList)
+		err := askForConfirmation(ctx, toothRepoPathList)
 		if err != nil {
 			return err
 		}
@@ -87,7 +86,7 @@ func Run(ctx context.Context, args []string) error {
 	// 3. Uninstall all teeth.
 
 	for _, toothRepoPath := range toothRepoPathList {
-		err = install.Uninstall(ctx, toothRepoPath)
+		err := install.Uninstall(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepoPath, err)
 		}
