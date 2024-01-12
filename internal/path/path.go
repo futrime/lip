@@ -24,8 +24,8 @@ func MakeEmpty() Path {
 // Parse parses a path string into a Path.
 func Parse(path string) (Path, error) {
 	// Convert to forward slashes.
-	path = gopath.Clean(path)
 	path = filepath.ToSlash(path)
+	path = gopath.Clean(path)
 
 	pathItems := strings.Split(path, "/")
 
