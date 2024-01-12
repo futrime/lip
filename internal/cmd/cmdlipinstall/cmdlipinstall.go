@@ -164,7 +164,7 @@ func askForConfirmation(ctx *context.Context,
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be installed:")
 	for _, archive := range archiveList {
-		log.Infof("  %v: %v", archive.Metadata().ToothRepoPath(),
+		log.Infof("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version().String(),
 			archive.Metadata().Info().Name)
 	}
 

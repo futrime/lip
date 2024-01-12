@@ -4,6 +4,7 @@ import (
 	gozip "archive/zip"
 	"fmt"
 	"io"
+	"runtime"
 	"strings"
 
 	"github.com/lippkg/lip/internal/path"
@@ -17,7 +18,7 @@ type Archive struct {
 	contentPathRoot path.Path
 }
 
-// MakeArchive creates a new archive.
+// MakeArchive creates a new archive. It will automatically convert metadata to platform-specific.
 func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
@@ -71,6 +72,12 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	metadata, err := MakeMetadata(toothJSONBytes)
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to parse tooth.json: %w", err)
+	}
+
+	// Convert to platform-specific metadata.
+	metadata, err = metadata.ToPlatformSpecific(runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return Archive{}, fmt.Errorf("failed to convert to platform-specific metadata: %w", err)
 	}
 
 	// Extract all file paths and remove the common prefix.
