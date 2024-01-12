@@ -10,10 +10,10 @@ import (
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-func Uninstall(ctx context.Context, toothRepo string) error {
+func Uninstall(ctx context.Context, toothRepoPath string) error {
 	var err error
 
-	metadata, err := tooth.GetInstalledToothMetadata(ctx, toothRepo)
+	metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func Uninstall(ctx context.Context, toothRepo string) error {
 	}
 
 	// 4. Delete the metadata file.
-	metadataFileName := url.QueryEscape(toothRepo) + ".json"
+	metadataFileName := url.QueryEscape(toothRepoPath) + ".json"
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
 		return fmt.Errorf("failed to get metadata directory: %w", err)

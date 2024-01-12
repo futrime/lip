@@ -75,8 +75,8 @@ func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 	return metadataList, nil
 }
 
-// GetInstalledToothMetadata finds the installed tooth metadata.
-func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
+// GetMetadata finds the installed tooth metadata.
+func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
 	error) {
 	var err error
 
@@ -87,13 +87,13 @@ func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
 	}
 
 	for _, metadata := range metadataList {
-		if metadata.ToothRepoPath() == toothRepo {
+		if metadata.ToothRepoPath() == toothRepoPath {
 			return metadata, nil
 		}
 	}
 
 	return Metadata{}, fmt.Errorf("cannot find installed tooth metadata: %v",
-		toothRepo)
+		toothRepoPath)
 }
 
 // GetAvailableVersions fetches the version list of a tooth repository.
@@ -150,11 +150,11 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 // GetLatestStableVersion returns the correct version of the tooth
 // specified by the specifier.
 func GetLatestStableVersion(ctx context.Context,
-	toothRepo string) (semver.Version, error) {
+	toothRepoPath string) (semver.Version, error) {
 
 	var err error
 
-	versionList, err := GetAvailableVersions(ctx, toothRepo)
+	versionList, err := GetAvailableVersions(ctx, toothRepoPath)
 	if err != nil {
 		return semver.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)

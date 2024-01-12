@@ -43,9 +43,9 @@ func Parse(specifierString string) (Specifier, error) {
 		// Parse the tooth repo and version.
 		splittedSpecifier := strings.Split(specifierString, "@")
 
-		toothRepo := splittedSpecifier[0]
+		toothRepoPath := splittedSpecifier[0]
 
-		if err := module.CheckPath(toothRepo); err != nil {
+		if err := module.CheckPath(toothRepoPath); err != nil {
 			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %v",
 				specifierString, err.Error())
 		}
@@ -61,7 +61,7 @@ func Parse(specifierString string) (Specifier, error) {
 
 			return Specifier{
 				kind:                    specifierType,
-				toothRepoPath:           toothRepo,
+				toothRepoPath:           toothRepoPath,
 				isToothVersionSpecified: true,
 				toothVersion:            toothVersion,
 			}, nil
@@ -69,7 +69,7 @@ func Parse(specifierString string) (Specifier, error) {
 		} else {
 			return Specifier{
 				kind:                    specifierType,
-				toothRepoPath:           toothRepo,
+				toothRepoPath:           toothRepoPath,
 				isToothVersionSpecified: false,
 			}, nil
 		}

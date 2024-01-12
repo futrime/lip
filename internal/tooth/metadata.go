@@ -123,14 +123,13 @@ func (m Metadata) Commands() RawMetadataCommands {
 func (m Metadata) Dependencies() map[string]semver.Range {
 	dependencies := make(map[string]semver.Range)
 
-	for toothRepo, dep := range m.rawMetadata.Dependencies {
+	for toothRepoPath, dep := range m.rawMetadata.Dependencies {
 		versionRange, err := semver.ParseRange(dep)
 		if err != nil {
 			panic(err)
 		}
 
-		// To lower case to make it case insensitive.
-		dependencies[toothRepo] = versionRange
+		dependencies[toothRepoPath] = versionRange
 	}
 
 	return dependencies
@@ -139,14 +138,13 @@ func (m Metadata) Dependencies() map[string]semver.Range {
 func (m Metadata) Prerequisites() map[string]semver.Range {
 	prerequisites := make(map[string]semver.Range)
 
-	for toothRepo, prereq := range m.rawMetadata.Prerequisites {
+	for toothRepoPath, prereq := range m.rawMetadata.Prerequisites {
 		versionRange, err := semver.ParseRange(prereq)
 		if err != nil {
 			panic(err)
 		}
 
-		// To lower case to make it case insensitive.
-		prerequisites[toothRepo] = versionRange
+		prerequisites[toothRepoPath] = versionRange
 	}
 
 	return prerequisites

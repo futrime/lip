@@ -59,26 +59,26 @@ func Run(ctx context.Context, args []string) error {
 		return fmt.Errorf("at least one specifier is required")
 	}
 
-	toothRepoList := flagSet.Args()
+	toothRepoPathList := flagSet.Args()
 
 	// 1. Check if all teeth are installed.
 
-	for _, toothRepo := range toothRepoList {
+	for _, toothRepoPath := range toothRepoPathList {
 
-		isInstalled, err := tooth.IsToothInstalled(ctx, toothRepo)
+		isInstalled, err := tooth.IsToothInstalled(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
 
 		if !isInstalled {
-			return fmt.Errorf("tooth %v is not installed", toothRepo)
+			return fmt.Errorf("tooth %v is not installed", toothRepoPath)
 		}
 	}
 
 	// 2. Prompt for confirmation.
 
 	if !flagDict.yesFlag {
-		err = askForConfirmation(ctx, toothRepoList)
+		err = askForConfirmation(ctx, toothRepoPathList)
 		if err != nil {
 			return err
 		}
@@ -86,10 +86,10 @@ func Run(ctx context.Context, args []string) error {
 
 	// 3. Uninstall all teeth.
 
-	for _, toothRepo := range toothRepoList {
-		err = install.Uninstall(ctx, toothRepo)
+	for _, toothRepoPath := range toothRepoPathList {
+		err = install.Uninstall(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepo, err)
+			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepoPath, err)
 		}
 	}
 
@@ -102,17 +102,17 @@ func Run(ctx context.Context, args []string) error {
 
 // askForConfirmation asks for confirmation before installing the tooth.
 func askForConfirmation(ctx context.Context,
-	toothRepoList []string) error {
+	toothRepoPathList []string) error {
 
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be uninstalled:")
-	for _, toothRepo := range toothRepoList {
-		metadata, err := tooth.GetInstalledToothMetadata(ctx, toothRepo)
+	for _, toothRepoPath := range toothRepoPathList {
+		metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 		if err != nil {
 			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
 		}
 
-		log.Infof("  %v: %v", toothRepo,
+		log.Infof("  %v: %v", toothRepoPath,
 			metadata.Info().Name)
 	}
 
