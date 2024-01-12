@@ -21,7 +21,7 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 1. Check if the tooth is already installed.
 
-	if installed, err := tooth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
+	if installed, err := tooth.IsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
 	} else if installed {
 		return fmt.Errorf("tooth %v is already installed", archive.Metadata().Tooth())

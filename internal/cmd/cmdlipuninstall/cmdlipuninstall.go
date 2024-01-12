@@ -71,7 +71,7 @@ func Run(ctx context.Context, args []string) error {
 
 	for _, toothRepo := range toothRepoList {
 
-		isInstalled, err := tooth.CheckIsToothInstalled(ctx, toothRepo)
+		isInstalled, err := tooth.IsToothInstalled(ctx, toothRepo)
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}

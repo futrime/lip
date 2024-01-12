@@ -247,7 +247,7 @@ func downloadSpecifier(ctx context.Context,
 				return tooth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
 			}
 		} else {
-			toothVersion, err = tooth.GetToothLatestStableVersion(ctx, toothRepo)
+			toothVersion, err = tooth.GetLatestStableVersion(ctx, toothRepo)
 			if err != nil {
 				return tooth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
 			}
@@ -284,7 +284,7 @@ func findMissingPrerequisites(ctx context.Context,
 
 	for _, archive := range archiveList {
 		for prerequisite, versionRange := range archive.Metadata().Prerequisites() {
-			isInstalled, err := tooth.CheckIsToothInstalled(ctx, prerequisite)
+			isInstalled, err := tooth.IsToothInstalled(ctx, prerequisite)
 			if err != nil {
 				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
 			}
@@ -324,7 +324,7 @@ func findMissingPrerequisites(ctx context.Context,
 func installToothArchiveList(ctx context.Context,
 	archiveToInstallList []tooth.Archive, forceReinstall bool, upgrade bool) error {
 	for _, archive := range archiveToInstallList {
-		isInstalled, err := tooth.CheckIsToothInstalled(ctx, archive.Metadata().Tooth())
+		isInstalled, err := tooth.IsToothInstalled(ctx, archive.Metadata().Tooth())
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -473,7 +473,7 @@ func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 				continue
 			}
 
-			versionList, err := tooth.GetToothAvailableVersions(ctx, dep)
+			versionList, err := tooth.GetAvailableVersions(ctx, dep)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get available version list: %w", err)
 			}

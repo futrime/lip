@@ -16,8 +16,8 @@ import (
 	"golang.org/x/mod/module"
 )
 
-// CheckIsToothInstalled checks if a tooth is installed.
-func CheckIsToothInstalled(ctx context.Context, toothRepo string) (bool, error) {
+// IsToothInstalled checks if a tooth is installed.
+func IsToothInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
 	var err error
 
 	metadataList, err := GetAllInstalledToothMetadata(ctx)
@@ -27,17 +27,12 @@ func CheckIsToothInstalled(ctx context.Context, toothRepo string) (bool, error) 
 	}
 
 	for _, metadata := range metadataList {
-		if metadata.Tooth() == toothRepo {
+		if metadata.Tooth() == toothRepoPath {
 			return true, nil
 		}
 	}
 
 	return false, nil
-}
-
-// CheckIsValidToothRepo returns true if the tooth repository is valid.
-func CheckIsValidToothRepo(toothRepo string) bool {
-	return module.CheckPath(toothRepo) == nil
 }
 
 // GetAllInstalledToothMetadata lists all installed tooth metadata.
@@ -101,13 +96,14 @@ func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
 		toothRepo)
 }
 
-// GetToothAvailableVersions fetches the version list of a tooth repository.
+// GetAvailableVersions fetches the version list of a tooth repository.
 // The version list is sorted in descending order.
-func GetToothAvailableVersions(ctx context.Context, repoPath string) (semver.Versions,
+func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Versions,
 	error) {
 	var err error
-	if !CheckIsValidToothRepo(repoPath) {
-		return nil, fmt.Errorf("invalid repository path: %v", repoPath)
+
+	if err := module.CheckPath(toothRepoPath); err != nil {
+		return nil, fmt.Errorf("invalid repository path: %v", toothRepoPath)
 	}
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
@@ -115,7 +111,7 @@ func GetToothAvailableVersions(ctx context.Context, repoPath string) (semver.Ver
 		return nil, fmt.Errorf("failed to get go module proxy URL: %w", err)
 	}
 
-	versionURL, err := network.GenerateGoModuleVersionListURL(repoPath, goModuleProxyURL)
+	versionURL, err := network.GenerateGoModuleVersionListURL(toothRepoPath, goModuleProxyURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate version list URL: %w", err)
 	}
@@ -151,14 +147,14 @@ func GetToothAvailableVersions(ctx context.Context, repoPath string) (semver.Ver
 	return versionList, nil
 }
 
-// GetToothLatestStableVersion returns the correct version of the tooth
+// GetLatestStableVersion returns the correct version of the tooth
 // specified by the specifier.
-func GetToothLatestStableVersion(ctx context.Context,
+func GetLatestStableVersion(ctx context.Context,
 	toothRepo string) (semver.Version, error) {
 
 	var err error
 
-	versionList, err := GetToothAvailableVersions(ctx, toothRepo)
+	versionList, err := GetAvailableVersions(ctx, toothRepo)
 	if err != nil {
 		return semver.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)

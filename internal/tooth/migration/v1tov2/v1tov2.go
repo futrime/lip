@@ -245,13 +245,13 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	}
 
 	// Solve dependencies.
-	for toothRepo, depMatrix := range v1RawMetadata.Dependencies {
+	for toothRepoPath, depMatrix := range v1RawMetadata.Dependencies {
 		depInnerStringList := make([]string, 0)
 		for _, andDepList := range depMatrix {
 			depInnerStringList = append(depInnerStringList, strings.Join(andDepList, " "))
 		}
 
-		v2RawMetadata.Dependencies[toothRepo] = strings.Join(depInnerStringList, " || ")
+		v2RawMetadata.Dependencies[toothRepoPath] = strings.Join(depInnerStringList, " || ")
 	}
 
 	// Solve commands

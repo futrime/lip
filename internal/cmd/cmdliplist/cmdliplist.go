@@ -148,7 +148,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := tooth.GetToothLatestStableVersion(ctx,
+			latestVersion, err := tooth.GetLatestStableVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(
@@ -172,7 +172,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
-			latestVersion, err := tooth.GetToothLatestStableVersion(ctx,
+			latestVersion, err := tooth.GetLatestStableVersion(ctx,
 				metadata.Tooth())
 			if err != nil {
 				return fmt.Errorf(
