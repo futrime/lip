@@ -27,7 +27,7 @@ func IsToothInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
 	}
 
 	for _, metadata := range metadataList {
-		if metadata.Tooth() == toothRepoPath {
+		if metadata.ToothRepoPath() == toothRepoPath {
 			return true, nil
 		}
 	}
@@ -68,8 +68,8 @@ func GetAllInstalledToothMetadata(ctx context.Context) ([]Metadata, error) {
 	// Sort the metadata list in case-insensitive ascending order of the tooth
 	// repository.
 	sort.Slice(metadataList, func(i, j int) bool {
-		return strings.ToLower(metadataList[i].Tooth()) < strings.ToLower(
-			metadataList[j].Tooth())
+		return strings.ToLower(metadataList[i].ToothRepoPath()) < strings.ToLower(
+			metadataList[j].ToothRepoPath())
 	})
 
 	return metadataList, nil
@@ -87,7 +87,7 @@ func GetInstalledToothMetadata(ctx context.Context, toothRepo string) (Metadata,
 	}
 
 	for _, metadata := range metadataList {
-		if metadata.Tooth() == toothRepo {
+		if metadata.ToothRepoPath() == toothRepo {
 			return metadata, nil
 		}
 	}

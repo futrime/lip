@@ -20,7 +20,7 @@ func SortToothArchives(archiveList []tooth.Archive) ([]tooth.Archive, error) {
 	// Make a map from tooth path to tooth archive.
 	archiveMap := make(map[string]tooth.Archive)
 	for _, archive := range archiveList {
-		archiveMap[archive.Metadata().Tooth()] = archive
+		archiveMap[archive.Metadata().ToothRepoPath()] = archive
 	}
 
 	preVisited := make(map[string]bool)
@@ -43,15 +43,15 @@ func visit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 
 	var err error
 
-	if visited[archive.Metadata().Tooth()] {
+	if visited[archive.Metadata().ToothRepoPath()] {
 		return nil
 	}
 
-	if preVisited[archive.Metadata().Tooth()] && !visited[archive.Metadata().Tooth()] {
-		return fmt.Errorf("tooth %s has a circular dependency", archive.Metadata().Tooth())
+	if preVisited[archive.Metadata().ToothRepoPath()] && !visited[archive.Metadata().ToothRepoPath()] {
+		return fmt.Errorf("tooth %s has a circular dependency", archive.Metadata().ToothRepoPath())
 	}
 
-	preVisited[archive.Metadata().Tooth()] = true
+	preVisited[archive.Metadata().ToothRepoPath()] = true
 	for depToothPath := range archive.Metadata().Dependencies() {
 		// Find the tooth archive of the dependency.
 		dep, ok := archiveMap[depToothPath]
@@ -68,6 +68,6 @@ func visit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 		}
 	}
 	*sorted = append(*sorted, archive)
-	visited[archive.Metadata().Tooth()] = true
+	visited[archive.Metadata().ToothRepoPath()] = true
 	return nil
 }

@@ -40,9 +40,6 @@ func Parse(specifierString string) (Specifier, error) {
 		}, nil
 
 	case ToothRepoKind:
-		// tooth repo strings should be lower case.
-		specifierString = strings.ToLower(specifierString)
-
 		// Parse the tooth repo and version.
 		splittedSpecifier := strings.Split(specifierString, "@")
 

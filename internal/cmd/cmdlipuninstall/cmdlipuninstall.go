@@ -3,7 +3,6 @@ package cmdlipuninstall
 import (
 	"flag"
 	"fmt"
-	"strings"
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/install"
@@ -61,11 +60,6 @@ func Run(ctx context.Context, args []string) error {
 	}
 
 	toothRepoList := flagSet.Args()
-
-	// To lower case.
-	for i, toothRepo := range toothRepoList {
-		toothRepoList[i] = strings.ToLower(toothRepo)
-	}
 
 	// 1. Check if all teeth are installed.
 

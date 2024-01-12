@@ -196,8 +196,6 @@ type v2RawMetadataPlatformsItem struct {
 
 // Migrate migrates the metadata from v1 to v2.
 func Migrate(jsonBytes []byte) ([]byte, error) {
-	var err error
-
 	// Validate JSON against schema.
 	v1SchemaLoader := gojsonschema.NewStringLoader(v1JSONSchema)
 	v1DocumentLoader := gojsonschema.NewBytesLoader(jsonBytes)
@@ -213,8 +211,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 
 	// Unmarshal JSON into struct.
 	var v1RawMetadata v1RawMetadata
-	err = json.Unmarshal(jsonBytes, &v1RawMetadata)
-	if err != nil {
+	if err = json.Unmarshal(jsonBytes, &v1RawMetadata); err != nil {
 		return nil, fmt.Errorf("error unmarshaling JSON into struct: %w", err)
 	}
 

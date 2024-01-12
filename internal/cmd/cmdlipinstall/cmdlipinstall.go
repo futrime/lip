@@ -153,7 +153,7 @@ func askForConfirmation(ctx context.Context,
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be installed:")
 	for _, archive := range archiveList {
-		log.Infof("  %v: %v", archive.Metadata().Tooth(),
+		log.Infof("  %v: %v", archive.Metadata().ToothRepoPath(),
 			archive.Metadata().Info().Name)
 	}
 
@@ -304,7 +304,7 @@ func findMissingPrerequisites(ctx context.Context,
 				// Check if the tooth is in the archive list.
 				isInArchiveList := false
 				for _, archive := range archiveList {
-					if archive.Metadata().Tooth() == prerequisite && versionRange(archive.Metadata().Version()) {
+					if archive.Metadata().ToothRepoPath() == prerequisite && versionRange(archive.Metadata().Version()) {
 						isInArchiveList = true
 						break
 					}
@@ -324,7 +324,7 @@ func findMissingPrerequisites(ctx context.Context,
 func installToothArchiveList(ctx context.Context,
 	archiveToInstallList []tooth.Archive, forceReinstall bool, upgrade bool) error {
 	for _, archive := range archiveToInstallList {
-		isInstalled, err := tooth.IsToothInstalled(ctx, archive.Metadata().Tooth())
+		isInstalled, err := tooth.IsToothInstalled(ctx, archive.Metadata().ToothRepoPath())
 		if err != nil {
 			return fmt.Errorf("failed to check if tooth is installed: %w", err)
 		}
@@ -333,44 +333,44 @@ func installToothArchiveList(ctx context.Context,
 		shouldUninstall := false
 
 		if isInstalled && forceReinstall {
-			log.Infof("Reinstalling tooth %v...", archive.Metadata().Tooth())
+			log.Infof("Reinstalling tooth %v...", archive.Metadata().ToothRepoPath())
 
 			shouldInstall = true
 			shouldUninstall = true
 
 		} else if isInstalled && upgrade {
 			currentMetadata, err := tooth.GetInstalledToothMetadata(ctx,
-				archive.Metadata().Tooth())
+				archive.Metadata().ToothRepoPath())
 			if err != nil {
 				return fmt.Errorf("failed to find installed tooth metadata: %w", err)
 			}
 
 			if archive.Metadata().Version().GT(currentMetadata.Version()) {
-				log.Infof("Upgrading tooth %v...", archive.Metadata().Tooth())
+				log.Infof("Upgrading tooth %v...", archive.Metadata().ToothRepoPath())
 
 				shouldInstall = true
 				shouldUninstall = true
 			} else {
-				log.Infof("Tooth %v is already up-to-date", archive.Metadata().Tooth())
+				log.Infof("Tooth %v is already up-to-date", archive.Metadata().ToothRepoPath())
 
 				shouldInstall = false
 				shouldUninstall = false
 			}
 
 		} else if isInstalled {
-			log.Infof("Tooth %v is already installed", archive.Metadata().Tooth())
+			log.Infof("Tooth %v is already installed", archive.Metadata().ToothRepoPath())
 
 			shouldInstall = false
 			shouldUninstall = false
 		} else {
-			log.Infof("Installing tooth %v...", archive.Metadata().Tooth())
+			log.Infof("Installing tooth %v...", archive.Metadata().ToothRepoPath())
 
 			shouldInstall = true
 			shouldUninstall = false
 		}
 
 		if shouldUninstall {
-			err = install.Uninstall(ctx, archive.Metadata().Tooth())
+			err = install.Uninstall(ctx, archive.Metadata().ToothRepoPath())
 			if err != nil {
 				return fmt.Errorf("failed to uninstall tooth: %w", err)
 			}
@@ -431,19 +431,19 @@ func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 	}
 
 	for _, installedToothMetadata := range installedToothMetadataList {
-		fixedToothVersionMap[installedToothMetadata.Tooth()] = installedToothMetadata.Version()
+		fixedToothVersionMap[installedToothMetadata.ToothRepoPath()] = installedToothMetadata.Version()
 	}
 
 	for _, rootArchive := range rootArchiveList {
-		if _, ok := fixedToothVersionMap[rootArchive.Metadata().Tooth()]; !ok {
+		if _, ok := fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()]; !ok {
 			// If the tooth is not installed, fix the version to the version of
 			// the root tooth.
-			fixedToothVersionMap[rootArchive.Metadata().Tooth()] = rootArchive.Metadata().Version()
+			fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()] = rootArchive.Metadata().Version()
 
 		} else {
 			// If the tooth is installed, check if the tooth should be reinstalled
 			if !forceReinstallFlag && !(upgradeFlag && rootArchive.Metadata().Version().GT(
-				fixedToothVersionMap[rootArchive.Metadata().Tooth()])) {
+				fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()])) {
 				continue
 			}
 		}
@@ -530,8 +530,8 @@ func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
 
 // validateArchive validates the archive.
 func validateArchive(archive tooth.Archive, toothRepo string, version semver.Version) error {
-	if archive.Metadata().Tooth() != toothRepo {
-		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().Tooth(), toothRepo)
+	if archive.Metadata().ToothRepoPath() != toothRepo {
+		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().ToothRepoPath(), toothRepo)
 	}
 
 	if archive.Metadata().Version().NE(version) {

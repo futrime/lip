@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
@@ -30,19 +29,18 @@ Options:
   -h, --help                  Show help.
 `
 
-const toothJSONTemplate = `{
-	"format_version": 2,
-	"tooth": "",
-	"version": "0.0.0",
-	"info": {
-		"name": "",
-		"description": "",
-		"author": "",
-		"source": "",
-		"tags": []
-	}
+var metadataTemplate = tooth.RawMetadata{
+	FormatVersion: 2,
+	Tooth:         "",
+	Version:       "0.0.0",
+	Info: tooth.RawMetadataInfo{
+		Name:        "",
+		Description: "",
+		Author:      "",
+		Source:      "",
+		Tags:        []string{},
+	},
 }
-`
 
 func Run(ctx context.Context, args []string) error {
 	var err error
@@ -93,10 +91,7 @@ func initTooth(ctx context.Context) error {
 		return fmt.Errorf("tooth.json already exists")
 	}
 
-	rawMetadata, err := tooth.MakeRawMetadata([]byte(toothJSONTemplate))
-	if err != nil {
-		return fmt.Errorf("failed to create rawMetadata: %w", err)
-	}
+	rawMetadata := metadataTemplate
 
 	// Ask for information.
 	var ans string
@@ -111,9 +106,6 @@ func initTooth(ctx context.Context) error {
 	}
 
 	rawMetadata.Tooth = ans
-
-	// To lower case.
-	rawMetadata.Tooth = strings.ToLower(rawMetadata.Tooth)
 
 	log.Info("What is the name?")
 	scanner.Scan()
@@ -130,14 +122,19 @@ func initTooth(ctx context.Context) error {
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
 
-	toothJSONBytes, err := rawMetadata.MarshalJSON()
+	log.Info("What is the source code repo path (leave empty if identical to tooth repo path)?")
+	scanner.Scan()
+	ans = scanner.Text()
+	rawMetadata.Info.Source = ans
+
+	metadata, err := tooth.MakeMetadataFromRaw(rawMetadata)
 	if err != nil {
-		return fmt.Errorf("failed to marshal rawMetadata: %w", err)
+		return fmt.Errorf("failed to make metadata: %w", err)
 	}
 
-	_, err = tooth.MakeMetadata(toothJSONBytes)
+	jsonBytes, err := metadata.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to validate rawMetadata: %w", err)
+		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
 	// Create tooth.json.
@@ -158,7 +155,7 @@ func initTooth(ctx context.Context) error {
 	defer file.Close()
 
 	// Write default tooth.json content.
-	_, err = file.Write(toothJSONBytes)
+	_, err = file.Write(jsonBytes)
 	if err != nil {
 		return fmt.Errorf("failed to write tooth.json: %w", err)
 	}

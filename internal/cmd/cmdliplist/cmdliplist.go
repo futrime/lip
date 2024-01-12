@@ -92,14 +92,8 @@ func listAll(ctx context.Context, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		dataList := make([]tooth.RawMetadata, 0)
-
-		for _, metadata := range metadataList {
-			dataList = append(dataList, metadata.Raw())
-		}
-
 		// Marshal the data.
-		jsonBytes, err := json.Marshal(dataList)
+		jsonBytes, err := json.Marshal(metadataList)
 		if err != nil {
 			return fmt.Errorf("failed to marshal JSON: %w", err)
 		}
@@ -110,7 +104,7 @@ func listAll(ctx context.Context, jsonFlag bool) error {
 		tableData := make([][]string, 0)
 		for _, metadata := range metadataList {
 			tableData = append(tableData, []string{
-				metadata.Tooth(),
+				metadata.ToothRepoPath(),
 				metadata.Info().Name,
 				metadata.Version().String(),
 			})
@@ -144,19 +138,19 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		dataList := make([]tooth.RawMetadata, 0)
+		dataList := make([]tooth.Metadata, 0)
 
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
 			latestVersion, err := tooth.GetLatestStableVersion(ctx,
-				metadata.Tooth())
+				metadata.ToothRepoPath())
 			if err != nil {
 				return fmt.Errorf(
 					"failed to look up latest version: %w", err)
 			}
 
 			if latestVersion.GT(currentVersion) {
-				dataList = append(dataList, metadata.Raw())
+				dataList = append(dataList, metadata)
 			}
 		}
 
@@ -173,7 +167,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 		for _, metadata := range metadataList {
 			currentVersion := metadata.Version()
 			latestVersion, err := tooth.GetLatestStableVersion(ctx,
-				metadata.Tooth())
+				metadata.ToothRepoPath())
 			if err != nil {
 				return fmt.Errorf(
 					"failed to look up latest version: %w", err)
@@ -181,7 +175,7 @@ func listUpgradable(ctx context.Context, jsonFlag bool) error {
 
 			if latestVersion.GT(currentVersion) {
 				tableData = append(tableData, []string{
-					metadata.Tooth(),
+					metadata.ToothRepoPath(),
 					metadata.Info().Name,
 					metadata.Version().String(),
 					latestVersion.String(),

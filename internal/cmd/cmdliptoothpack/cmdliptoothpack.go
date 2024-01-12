@@ -137,7 +137,7 @@ func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 
 	// Write files to the zip file.
 	for _, file := range fileList {
-		log.Infof("packing %v", file.LocalString())
+		log.Infof("Packing %v...", file.LocalString())
 
 		writer, err := zipWriter.Create(file.String())
 		if err != nil {

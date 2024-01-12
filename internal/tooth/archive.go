@@ -113,8 +113,6 @@ func (ar Archive) OpenReader() (*gozip.ReadCloser, error) {
 // populateMetadataFilePlaceWildcards populates wildcards in files.place field of metadata.
 // filePaths should be relative to the directory of tooth.json.
 func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path) (Metadata, error) {
-	var err error
-
 	newPlace := make([]RawMetadataFilesPlaceItem, 0)
 
 	rawMetadata := metadata.Raw()
@@ -152,10 +150,7 @@ func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path
 
 	rawMetadata.Files.Place = newPlace
 
-	metadata, err = MakeMetadataFromRawMetadata(rawMetadata)
-	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to create new metadata: %w", err)
-	}
+	metadata = Metadata{rawMetadata}
 
 	return metadata, nil
 }

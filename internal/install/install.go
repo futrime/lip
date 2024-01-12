@@ -21,10 +21,10 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 1. Check if the tooth is already installed.
 
-	if installed, err := tooth.IsToothInstalled(ctx, archive.Metadata().Tooth()); err != nil {
+	if installed, err := tooth.IsToothInstalled(ctx, archive.Metadata().ToothRepoPath()); err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
 	} else if installed {
-		return fmt.Errorf("tooth %v is already installed", archive.Metadata().Tooth())
+		return fmt.Errorf("tooth %v is already installed", archive.Metadata().ToothRepoPath())
 	}
 
 	// 2. Run pre-install commands.
@@ -46,7 +46,7 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
 
-	metadataFileName := url.QueryEscape(archive.Metadata().Tooth()) + ".json"
+	metadataFileName := url.QueryEscape(archive.Metadata().ToothRepoPath()) + ".json"
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
 		return fmt.Errorf("failed to get metadata directory: %w", err)

@@ -3,11 +3,12 @@ package tooth
 import (
 	"encoding/json"
 	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/tooth/migration/v1tov2"
+	"github.com/xeipuuv/gojsonschema"
+	"golang.org/x/mod/module"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,11 +17,12 @@ type Metadata struct {
 	rawMetadata RawMetadata
 }
 
+const expectedFormatVersion = 2
+
 // MakeMetadata parses the given jsonBytes and returns a Metadata.
 func MakeMetadata(jsonBytes []byte) (Metadata, error) {
-	var err error
-
-	formatVersion, err := getFormatVersion(jsonBytes)
+	// Migrate if needed.
+	formatVersion, err := parseFormatVersion(jsonBytes)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed to get format version: %w", err)
 	}
@@ -34,88 +36,80 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 		}
 
 		isMigrationNeeded = true
+		fallthrough
+
+	case expectedFormatVersion:
+		// Do nothing.
+
+	default:
+		return Metadata{}, fmt.Errorf("unsupported format version: %v", formatVersion)
 	}
 
-	rawMetadata, err := MakeRawMetadata(jsonBytes)
+	// Validate JSON against schema
+	schemaLoader := gojsonschema.NewStringLoader(metadataJSONSchema)
+	documentLoader := gojsonschema.NewBytesLoader(jsonBytes)
+
+	validationResult, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to parse raw metadata: %w", err)
+		return Metadata{}, fmt.Errorf("failed to validate raw metadata: %w", err)
 	}
 
+	if !validationResult.Valid() {
+		var errors []string
+		for _, err := range validationResult.Errors() {
+			errors = append(errors, err.String())
+		}
+		return Metadata{}, fmt.Errorf("raw metadata is invalid: %v",
+			strings.Join(errors, ", "))
+	}
+
+	// Unmarshal JSON
+	var rawMetadata RawMetadata
+	if err = json.Unmarshal(jsonBytes, &rawMetadata); err != nil {
+		return Metadata{}, fmt.Errorf("failed to unmarshal raw metadata: %w", err)
+	}
+
+	metadata, err := MakeMetadataFromRaw(rawMetadata)
+	if err != nil {
+		return Metadata{}, fmt.Errorf("failed to make metadata: %w", err)
+	}
+
+	// Warn for obsolete tooth.json.
 	if isMigrationNeeded {
 		log.Warnf("tooth.json format of %v is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
 	}
 
-	return MakeMetadataFromRawMetadata(rawMetadata)
+	return metadata, nil
 }
 
-func MakeMetadataFromRawMetadata(rawMetadata RawMetadata) (Metadata, error) {
-	_, err := semver.Parse(rawMetadata.Version)
-	if err != nil {
+// MakeMetadataFromRaw returns a Metadata from the given RawMetadata.
+func MakeMetadataFromRaw(rawMetadata RawMetadata) (Metadata, error) {
+	// Validate metadata.
+	if rawMetadata.FormatVersion != expectedFormatVersion {
+		return Metadata{}, fmt.Errorf("unsupported format version: %v", rawMetadata.FormatVersion)
+	}
+
+	if err := module.CheckPath(rawMetadata.Tooth); err != nil {
+		return Metadata{}, fmt.Errorf("invalid tooth repo path: %w", err)
+	}
+
+	if _, err := semver.Parse(rawMetadata.Version); err != nil {
 		return Metadata{}, fmt.Errorf("failed to parse version: %w", err)
 	}
 
-	for _, platform := range rawMetadata.Platforms {
-		// If the platform is not the same as the current platform, skip it.
-		// However, if the platform is empty, we want to include it.
-		if platform.GOARCH != "" && platform.GOARCH != runtime.GOARCH {
-			continue
-		}
-
-		// If the platform is not the same as the current platform, skip it.
-		if platform.GOOS != runtime.GOOS {
-			continue
-		}
-
-		// If the platform is the same as the current platform, replace the content.
-		// Note that if duplicate keys exist, the last one wins.
-		rawMetadata.Commands = platform.Commands
-		rawMetadata.Dependencies = platform.Dependencies
-		rawMetadata.Prerequisites = platform.Prerequisites
-		rawMetadata.Files = platform.Files
-	}
-	rawMetadata.Platforms = nil
-
-	for _, dep := range rawMetadata.Dependencies {
-		_, err := semver.ParseRange(dep)
-		if err != nil {
-			return Metadata{},
-				fmt.Errorf("failed to parse dependency %v: %w", dep, err)
-		}
-	}
-
-	for _, dep := range rawMetadata.Prerequisites {
-		_, err := semver.ParseRange(dep)
-		if err != nil {
-			return Metadata{},
-				fmt.Errorf("failed to parse prerequisite %v: %w", dep, err)
-		}
-	}
-
-	return Metadata{
-		rawMetadata: rawMetadata,
-	}, nil
-}
-
-func (m Metadata) MarshalJSON() ([]byte, error) {
-	return m.rawMetadata.MarshalJSON()
+	return Metadata{rawMetadata}, nil
 }
 
 func (m Metadata) Raw() RawMetadata {
 	return m.rawMetadata
 }
 
-func (m Metadata) Tooth() string {
-	// To lower case to make it case insensitive.
-	return strings.ToLower(m.rawMetadata.Tooth)
+func (m Metadata) ToothRepoPath() string {
+	return m.rawMetadata.Tooth
 }
 
 func (m Metadata) Version() semver.Version {
-	version, err := semver.Parse(m.rawMetadata.Version)
-	if err != nil {
-		panic(err)
-	}
-
-	return version
+	return semver.MustParse(m.rawMetadata.Version)
 }
 
 func (m Metadata) Info() RawMetadataInfo {
@@ -136,7 +130,7 @@ func (m Metadata) Dependencies() map[string]semver.Range {
 		}
 
 		// To lower case to make it case insensitive.
-		dependencies[strings.ToLower(toothRepo)] = versionRange
+		dependencies[toothRepo] = versionRange
 	}
 
 	return dependencies
@@ -152,7 +146,7 @@ func (m Metadata) Prerequisites() map[string]semver.Range {
 		}
 
 		// To lower case to make it case insensitive.
-		prerequisites[strings.ToLower(toothRepo)] = versionRange
+		prerequisites[toothRepo] = versionRange
 	}
 
 	return prerequisites
@@ -162,9 +156,20 @@ func (m Metadata) Files() RawMetadataFiles {
 	return m.rawMetadata.Files
 }
 
-// ---------------------------------------------------------------------
+func (m Metadata) MarshalJSON() ([]byte, error) {
+	var jsonBytes []byte
+	var err error
 
-func getFormatVersion(jsonBytes []byte) (int, error) {
+	jsonBytes, err = json.MarshalIndent(m.rawMetadata, "", "    ")
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal raw metadata: %w", err)
+	}
+
+	return jsonBytes, nil
+}
+
+func parseFormatVersion(jsonBytes []byte) (int, error) {
 	var jsonData map[string]interface{}
 	err := json.Unmarshal(jsonBytes, &jsonData)
 	if err != nil {

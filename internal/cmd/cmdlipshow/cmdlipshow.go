@@ -64,9 +64,6 @@ func Run(ctx context.Context, args []string) error {
 
 	toothRepo := flagSet.Arg(0)
 
-	// To lower case.
-	toothRepo = strings.ToLower(toothRepo)
-
 	if flagDict.jsonFlag {
 		// When not installed, show the available versions.
 		err = showJSON(ctx, toothRepo, flagDict.availableFlag)
@@ -123,7 +120,7 @@ func showHumanReadable(ctx context.Context, toothRepo string,
 	}
 
 	tableData := [][]string{
-		{"Tooth Repo", metadata.Tooth()},
+		{"Tooth Repo", metadata.ToothRepoPath()},
 		{"Name", metadata.Info().Name},
 		{"Description", metadata.Info().Description},
 		{"Author", metadata.Info().Author},
@@ -175,7 +172,7 @@ func showJSON(ctx context.Context, toothRepo string,
 	jsonData := make(map[string]interface{})
 
 	if isInstalled {
-		jsonData["metadata"] = metadata.Raw()
+		jsonData["metadata"] = metadata
 	}
 
 	if availableFlag {
