@@ -8,7 +8,6 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/tooth/migration/v1tov2"
 	"github.com/xeipuuv/gojsonschema"
-	"golang.org/x/mod/module"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -89,8 +88,8 @@ func MakeMetadataFromRaw(rawMetadata RawMetadata) (Metadata, error) {
 		return Metadata{}, fmt.Errorf("unsupported format version: %v", rawMetadata.FormatVersion)
 	}
 
-	if err := module.CheckPath(rawMetadata.Tooth); err != nil {
-		return Metadata{}, fmt.Errorf("invalid tooth repo path: %w", err)
+	if !IsValidToothRepoPath(rawMetadata.Tooth) {
+		return Metadata{}, fmt.Errorf("invalid tooth repo path %v", rawMetadata.Tooth)
 	}
 
 	if _, err := semver.Parse(rawMetadata.Version); err != nil {

@@ -6,33 +6,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/network"
+	"github.com/lippkg/lip/internal/path"
 
 	"golang.org/x/mod/module"
 )
-
-// IsInstalled checks if a tooth is installed.
-func IsInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
-
-	metadataList, err := GetAllMetadata(ctx)
-	if err != nil {
-		return false, fmt.Errorf(
-			"failed to list all installed tooth metadata: %w", err)
-	}
-
-	for _, metadata := range metadataList {
-		if metadata.ToothRepoPath() == toothRepoPath {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
 
 // GetAllMetadata lists all installed tooth metadata.
 func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
@@ -43,13 +25,18 @@ func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
 		return nil, fmt.Errorf("failed to get metadata directory: %w", err)
 	}
 
-	filePaths, err := filepath.Glob(filepath.Join(metadataDir.LocalString(), "*.json"))
+	filePathStrings, err := filepath.Glob(filepath.Join(metadataDir.LocalString(), "*.json"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list metadata files: %w", err)
 	}
 
-	for _, filePath := range filePaths {
-		jsonBytes, err := os.ReadFile(filePath)
+	for _, filePathString := range filePathStrings {
+		filePath, err := path.Parse(filePathString)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse metadata file path: %w", err)
+		}
+
+		jsonBytes, err := os.ReadFile(filePath.LocalString())
 		if err != nil {
 			return nil, fmt.Errorf("failed to read metadata file: %w", err)
 		}
@@ -62,43 +49,15 @@ func GetAllMetadata(ctx context.Context) ([]Metadata, error) {
 		metadataList = append(metadataList, metadata)
 	}
 
-	// Sort the metadata list in case-insensitive ascending order of the tooth
-	// repository.
-	sort.Slice(metadataList, func(i, j int) bool {
-		return strings.ToLower(metadataList[i].ToothRepoPath()) < strings.ToLower(
-			metadataList[j].ToothRepoPath())
-	})
-
 	return metadataList, nil
 }
 
-// GetMetadata finds the installed tooth metadata.
-func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
-	error) {
-
-	metadataList, err := GetAllMetadata(ctx)
-	if err != nil {
-		return Metadata{}, fmt.Errorf(
-			"failed to list all installed tooth metadata: %w", err)
-	}
-
-	for _, metadata := range metadataList {
-		if metadata.ToothRepoPath() == toothRepoPath {
-			return metadata, nil
-		}
-	}
-
-	return Metadata{}, fmt.Errorf("cannot find installed tooth metadata: %v",
-		toothRepoPath)
-}
-
 // GetAvailableVersions fetches the version list of a tooth repository.
-// The version list is sorted in descending order.
 func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Versions,
 	error) {
 
-	if err := module.CheckPath(toothRepoPath); err != nil {
-		return nil, fmt.Errorf("invalid repository path: %v", toothRepoPath)
+	if !IsValidToothRepoPath(toothRepoPath) {
+		return nil, fmt.Errorf("invalid repository path %v", toothRepoPath)
 	}
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
@@ -132,19 +91,11 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 		versionList = append(versionList, version)
 	}
 
-	semver.Sort(versionList)
-
-	// Reverse the version list.
-	for i, j := 0, len(versionList)-1; i < j; i, j = i+1, j-1 {
-		versionList[i], versionList[j] = versionList[j], versionList[i]
-	}
-
 	return versionList, nil
 }
 
-// GetLatestStableVersion returns the correct version of the tooth
-// specified by the specifier.
-func GetLatestStableVersion(ctx context.Context,
+// GetLatestVersion returns the latest =version of a tooth repository.
+func GetLatestVersion(ctx context.Context,
 	toothRepoPath string) (semver.Version, error) {
 
 	versionList, err := GetAvailableVersions(ctx, toothRepoPath)
@@ -153,11 +104,70 @@ func GetLatestStableVersion(ctx context.Context,
 			"failed to get available version list: %w", err)
 	}
 
+	stableVersionList := make(semver.Versions, 0)
 	for _, version := range versionList {
 		if len(version.Pre) == 0 {
-			return version, nil
+			stableVersionList = append(stableVersionList, version)
 		}
 	}
 
-	return semver.Version{}, fmt.Errorf("cannot find latest stable version")
+	semver.Sort(stableVersionList)
+
+	if len(stableVersionList) >= 1 {
+		return stableVersionList[len(stableVersionList)-1], nil
+	}
+
+	semver.Sort(versionList)
+
+	if len(versionList) >= 1 {
+		return versionList[len(versionList)-1], nil
+	}
+
+	return semver.Version{}, fmt.Errorf("no available version found")
+}
+
+// GetMetadata finds the installed tooth metadata.
+func GetMetadata(ctx context.Context, toothRepoPath string) (Metadata,
+	error) {
+
+	metadataList, err := GetAllMetadata(ctx)
+	if err != nil {
+		return Metadata{}, fmt.Errorf(
+			"failed to list all installed tooth metadata: %w", err)
+	}
+
+	for _, metadata := range metadataList {
+		if metadata.ToothRepoPath() == toothRepoPath {
+			return metadata, nil
+		}
+	}
+
+	return Metadata{}, fmt.Errorf("cannot find installed tooth metadata: %v",
+		toothRepoPath)
+}
+
+// IsInstalled checks if a tooth is installed.
+func IsInstalled(ctx context.Context, toothRepoPath string) (bool, error) {
+
+	metadataList, err := GetAllMetadata(ctx)
+	if err != nil {
+		return false, fmt.Errorf(
+			"failed to list all installed tooth metadata: %w", err)
+	}
+
+	for _, metadata := range metadataList {
+		if metadata.ToothRepoPath() == toothRepoPath {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// IsValidToothRepoPath checks if the tooth repository path is valid.
+func IsValidToothRepoPath(toothRepoPath string) bool {
+	if err := module.CheckPath(toothRepoPath); err != nil {
+		return false
+	}
+	return true
 }

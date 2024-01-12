@@ -84,11 +84,13 @@ outerLoop:
 	}
 }
 
-// Join joins two paths.
-func (f Path) Join(other Path) Path {
-	return Path{
-		pathItems: append(f.pathItems, other.pathItems...),
+// Base returns the base of the path.
+func (f Path) Base() string {
+	if len(f.pathItems) == 0 {
+		return ""
 	}
+
+	return f.pathItems[len(f.pathItems)-1]
 }
 
 // Dir returns the directory of the path.
@@ -157,6 +159,13 @@ func (f Path) IsAncestorOf(path Path) bool {
 // IsEmpty returns true if the path is empty.
 func (f Path) IsEmpty() bool {
 	return len(f.pathItems) == 0
+}
+
+// Join joins two paths.
+func (f Path) Join(other Path) Path {
+	return Path{
+		pathItems: append(f.pathItems, other.pathItems...),
+	}
 }
 
 // TrimPrefix trims the prefix from the path.

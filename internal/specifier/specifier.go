@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
-	"golang.org/x/mod/module"
+	"github.com/lippkg/lip/internal/tooth"
 )
 
 // KindType is an enum that represents the type of a specifier.
@@ -44,9 +44,9 @@ func Parse(specifierString string) (Specifier, error) {
 
 		toothRepoPath := splittedSpecifier[0]
 
-		if err := module.CheckPath(toothRepoPath); err != nil {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %v",
-				specifierString, err.Error())
+		if !tooth.IsValidToothRepoPath(toothRepoPath) {
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v",
+				specifierString)
 		}
 
 		if len(splittedSpecifier) == 2 {
@@ -139,7 +139,7 @@ func getSpecifierType(specifier string) KindType {
 	// Prefer tooth repo specifier over tooth archive specifier.
 	// This means that if a specifier is both a tooth repo specifier and a tooth archive
 	// specifier, it will be treated as a tooth repo specifier.
-	if err := module.CheckPath(specifier); err != nil {
+	if !tooth.IsValidToothRepoPath(specifier) {
 		return ToothArchiveKind
 
 	} else {

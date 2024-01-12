@@ -9,7 +9,6 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/mod/module"
 
 	"github.com/lippkg/lip/internal/tooth"
 )
@@ -98,7 +97,7 @@ func initTooth(ctx context.Context) error {
 	scanner.Scan()
 	ans = scanner.Text()
 
-	if err := module.CheckPath(ans); err != nil {
+	if !tooth.IsValidToothRepoPath(ans) {
 		return fmt.Errorf("invalid tooth repo path: %w", err)
 	}
 

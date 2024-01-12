@@ -114,7 +114,7 @@ func Run(ctx context.Context, args []string) error {
 		}
 	}
 
-	// 3. Sort teeth.
+	// 3. Sort teeth topologically.
 
 	archiveToInstallList, err = install.SortToothArchives(archiveToInstallList)
 	if err != nil {
@@ -242,7 +242,7 @@ func downloadSpecifier(ctx context.Context,
 				return tooth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
 			}
 		} else {
-			toothVersion, err = tooth.GetLatestStableVersion(ctx, toothRepoPath)
+			toothVersion, err = tooth.GetLatestVersion(ctx, toothRepoPath)
 			if err != nil {
 				return tooth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
 			}
