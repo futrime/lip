@@ -29,12 +29,13 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	isMigrationNeeded := false
 	switch formatVersion {
 	case 1:
-		jsonBytes, err = v1tov2.Migrate(jsonBytes)
+		migratedJSONBytes, err := v1tov2.Migrate(jsonBytes)
 		if err != nil {
 			return Metadata{}, fmt.Errorf("failed to migrate metadata: %w", err)
 		}
 
 		isMigrationNeeded = true
+		jsonBytes = migratedJSONBytes
 		fallthrough
 
 	case expectedFormatVersion:
@@ -138,6 +139,16 @@ func (m Metadata) Dependencies() map[string]semver.Range {
 	return dependencies
 }
 
+func (m Metadata) DependenciesAsStrings() map[string]string {
+	dependencies := make(map[string]string)
+
+	for toothRepoPath, dep := range m.rawMetadata.Dependencies {
+		dependencies[toothRepoPath] = dep
+	}
+
+	return dependencies
+}
+
 func (m Metadata) Prerequisites() map[string]semver.Range {
 	prerequisites := make(map[string]semver.Range)
 
@@ -148,6 +159,16 @@ func (m Metadata) Prerequisites() map[string]semver.Range {
 		}
 
 		prerequisites[toothRepoPath] = versionRange
+	}
+
+	return prerequisites
+}
+
+func (m Metadata) PrerequisitesAsStrings() map[string]string {
+	prerequisites := make(map[string]string)
+
+	for toothRepoPath, prereq := range m.rawMetadata.Prerequisites {
+		prerequisites[toothRepoPath] = prereq
 	}
 
 	return prerequisites

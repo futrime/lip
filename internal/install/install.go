@@ -14,8 +14,9 @@ import (
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-// Install installs a tooth archive.
-func Install(ctx context.Context, archive tooth.Archive) error {
+// Install installs a tooth archive with an asset archive. If assetArchiveFilePath is empty,
+// will use the tooth archive as the asset archive.
+func Install(ctx context.Context, archive tooth.Archive, assetArchiveFilePath path.Path) error {
 
 	// 1. Check if the tooth is already installed.
 
@@ -33,7 +34,17 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 
 	// 3. Extract and place files.
 
-	placeFiles(ctx, archive)
+	if (assetArchiveFilePath.IsEmpty() && (archive.Metadata().AssetURL() != "")) ||
+		(!assetArchiveFilePath.IsEmpty() && (archive.Metadata().AssetURL() == "")) {
+		return fmt.Errorf("asset archive file path and asset URL must be both specified or both empty")
+	}
+
+	if assetArchiveFilePath.IsEmpty() {
+		placeFiles(ctx, archive.Metadata(), archive.FilePath(), archive.ContentFilePathRoot())
+
+	} else {
+		placeFiles(ctx, archive.Metadata(), assetArchiveFilePath, path.MakeEmpty())
+	}
 
 	// 4. Run post-install commands.
 
@@ -64,7 +75,7 @@ func Install(ctx context.Context, archive tooth.Archive) error {
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx context.Context, archive tooth.Archive) error {
+func placeFiles(ctx context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, assetContentFilePathRoot path.Path) error {
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err
@@ -76,15 +87,13 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 	}
 
 	// Open the archive.
-	r, err := zip.OpenReader(archive.AssetArchiveFilePath().LocalString())
+	r, err := zip.OpenReader(assetArchiveFilePath.LocalString())
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
 	}
 	defer r.Close()
 
-	filePathRoot := archive.AssetArchiveFilePathRoot()
-
-	for _, place := range archive.Metadata().Files().Place {
+	for _, place := range metadata.Files().Place {
 		relDest, err := path.Parse(place.Dest)
 		if err != nil {
 			return fmt.Errorf("failed to parse destination path: %w", err)
@@ -107,7 +116,7 @@ func placeFiles(ctx context.Context, archive tooth.Archive) error {
 			return fmt.Errorf("failed to parse source path: %w", err)
 		}
 
-		src := filePathRoot.Join(relSrc)
+		src := assetContentFilePathRoot.Join(relSrc)
 
 		// Iterate through the files in the archive,
 		// and find the source file.

@@ -1,19 +1,12 @@
 package cmdlipinstall
 
 import (
-	"container/list"
 	"flag"
 	"fmt"
-	"net/url"
-	"os"
 
-	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
-	"github.com/lippkg/lip/internal/install"
-	"github.com/lippkg/lip/internal/network"
-	"github.com/lippkg/lip/internal/path"
+	"github.com/lippkg/lip/internal/specifier"
 
-	specifierpkg "github.com/lippkg/lip/internal/specifier"
 	"github.com/lippkg/lip/internal/tooth"
 	log "github.com/sirupsen/logrus"
 )
@@ -48,7 +41,6 @@ Note:
 `
 
 func Run(ctx context.Context, args []string) error {
-
 	flagSet := flag.NewFlagSet("install", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -64,8 +56,8 @@ func Run(ctx context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 	flagSet.BoolVar(&flagDict.noDependenciesFlag, "no-dependencies", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
+
+	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
@@ -82,57 +74,68 @@ func Run(ctx context.Context, args []string) error {
 
 	log.Info("Downloading teeth and resolving dependencies...")
 
-	// 1. Download teeth specified by the user and resolve their dependencies.
+	// Parse specifiers.
 
-	archiveToInstallList, err := parseAndDownloadspecifierpkgtringList(ctx, flagSet.Args())
+	specifiers := make([]specifier.Specifier, 0)
+	for _, specifierString := range flagSet.Args() {
+		specifier, err := specifier.Parse(specifierString)
+		if err != nil {
+			return fmt.Errorf("failed to parse specifier: %w", err)
+		}
+
+		specifiers = append(specifiers, specifier)
+	}
+
+	// Download remote tooth archives. Then open all specified tooth archives.
+
+	specifiedArchives, err := resolveSpecifiers(ctx, specifiers)
 	if err != nil {
 		return fmt.Errorf("failed to parse and download specifier string list: %w", err)
 	}
 
-	// 2. Resolve dependencies and check prerequisites.
+	// Resolve dependencies and check prerequisites.
 
+	archivesToInstall := specifiedArchives
 	if !flagDict.noDependenciesFlag {
-		archiveToInstallList, err := resolveDependencies(ctx, archiveToInstallList, flagDict.upgradeFlag,
+		archives, err := resolveDependencies(ctx, specifiedArchives, flagDict.upgradeFlag,
 			flagDict.forceReinstallFlag)
-
 		if err != nil {
 			return fmt.Errorf("failed to resolve dependencies: %w", err)
 		}
 
-		missingPrerequisiteMap, err := findMissingPrerequisites(ctx, archiveToInstallList)
+		archivesToInstall = archives
+
+		// Check prerequisites.
+		_, missingPrerequisites, err := findMissingPrerequisites(ctx, archivesToInstall)
 		if err != nil {
 			return fmt.Errorf("failed to find missing prerequisites: %w", err)
 		}
 
-		if len(missingPrerequisiteMap) > 0 {
-			missingPrerequisiteMsg := "\n"
-			for prerequisite := range missingPrerequisiteMap {
-				missingPrerequisiteMsg += fmt.Sprintf("  %v\n", prerequisite)
+		if len(missingPrerequisites) != 0 {
+			message := "Missing prerequisites:\n"
+			for prerequisite, versionRangeString := range missingPrerequisites {
+				message += fmt.Sprintf("  %v: %v\n", prerequisite, versionRangeString)
 			}
-
-			return fmt.Errorf("missing prerequisites: %v", missingPrerequisiteMsg)
+			return fmt.Errorf(message)
 		}
 	}
 
-	// 3. Sort teeth topologically.
+	// Download tooth assets if necessary.
 
-	archiveToInstallList, err = install.SortToothArchives(archiveToInstallList)
-	if err != nil {
-		return fmt.Errorf("failed to sort teeth: %w", err)
-	}
+	// TODO: Download tooth assets.
 
-	// 4. Ask for confirmation.
+	// Ask for confirmation.
 
 	if !flagDict.yesFlag {
-		err := askForConfirmation(ctx, archiveToInstallList)
+		err := askForConfirmation(ctx, archivesToInstall)
 		if err != nil {
 			return err
 		}
 	}
 
-	// 5. Install teeth.
+	// Install teeth.
 
-	if err := installToothArchiveList(ctx, archiveToInstallList, flagDict.forceReinstallFlag,
+	if err := installToothArchives(ctx, archivesToInstall, flagDict.forceReinstallFlag,
 		flagDict.upgradeFlag); err != nil {
 		return fmt.Errorf("failed to install teeth: %w", err)
 	}
@@ -141,8 +144,6 @@ func Run(ctx context.Context, args []string) error {
 
 	return nil
 }
-
-// ---------------------------------------------------------------------
 
 // askForConfirmation asks for confirmation before installing the tooth.
 func askForConfirmation(ctx context.Context,
@@ -161,384 +162,6 @@ func askForConfirmation(ctx context.Context,
 	fmt.Scanln(&ans)
 	if ans != "y" && ans != "Y" {
 		return fmt.Errorf("aborted")
-	}
-
-	return nil
-}
-
-// downloadFromAllGoProxies downloads the tooth from all Go proxies and returns
-// the path to the downloaded tooth.
-func downloadFromAllGoProxies(ctx context.Context, toothRepoPath string,
-	toothVersion semver.Version) (string, error) {
-
-	log.Infof("Downloading %v@%v...", toothRepoPath, toothVersion)
-
-	goModuleProxyURL, err := ctx.GoModuleProxyURL()
-	if err != nil {
-		return "", fmt.Errorf("failed to get Go module proxy URL: %w", err)
-	}
-
-	downloadURL, err := network.GenerateGoModuleZipFileURL(toothRepoPath, toothVersion, goModuleProxyURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate Go module zip file URL: %w", err)
-	}
-
-	cacheDir, err := ctx.CacheDir()
-	if err != nil {
-		return "", fmt.Errorf("failed to get cache directory: %w", err)
-	}
-
-	cacheFileName := url.QueryEscape(downloadURL.String())
-	cachePath := cacheDir.Join(path.MustParse(cacheFileName))
-
-	// Skip downloading if the tooth is already in the cache.
-	if _, err := os.Stat(cachePath.LocalString()); err == nil {
-		return cachePath.LocalString(), nil
-	} else if !os.IsNotExist(err) {
-		return "", fmt.Errorf("failed to check if file exists: %w", err)
-	}
-
-	enableProgressBar := true
-	if log.GetLevel() == log.PanicLevel || log.GetLevel() == log.FatalLevel ||
-		log.GetLevel() == log.ErrorLevel || log.GetLevel() == log.WarnLevel {
-		enableProgressBar = false
-	}
-
-	if err := network.DownloadFile(downloadURL, cachePath, enableProgressBar); err != nil {
-		return "", fmt.Errorf("failed to download file: %w", err)
-	}
-
-	return cachePath.LocalString(), nil
-}
-
-// downloadSpecifier downloads the tooth specified by the specifier and returns
-// the path to the downloaded tooth.
-func downloadSpecifier(ctx context.Context,
-	specifier specifierpkg.Specifier) (tooth.Archive, error) {
-	switch specifier.Kind() {
-	case specifierpkg.ToothArchiveKind:
-		archivePath, err := specifier.ToothArchivePath()
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to get tooth archive path: %w", err)
-		}
-
-		archive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to create archive%v: %w", archivePath, err)
-		}
-
-		return archive, nil
-
-	case specifierpkg.ToothRepoKind:
-		toothRepoPath, err := specifier.ToothRepoPath()
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
-		}
-
-		var toothVersion semver.Version
-		if ok, err := specifier.IsToothVersionSpecified(); err == nil && ok {
-			toothVersion, err = specifier.ToothVersion()
-			if err != nil {
-				return tooth.Archive{}, fmt.Errorf("failed to get tooth version: %w", err)
-			}
-		} else {
-			toothVersion, err = tooth.GetLatestVersion(ctx, toothRepoPath)
-			if err != nil {
-				return tooth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
-			}
-		}
-
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
-		}
-
-		archivePathStr, err := downloadFromAllGoProxies(ctx, toothRepoPath, toothVersion)
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
-		}
-
-		archivePath, err := path.Parse(archivePathStr)
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to parse archive path: %w", err)
-		}
-
-		archive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
-		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to create archive %v: %w", archivePath, err)
-		}
-
-		validateArchive(archive, toothRepoPath, toothVersion)
-
-		return archive, nil
-	}
-
-	// Never reach here.
-	panic("unreachable")
-}
-
-// findMissingPrerequisites finds missing prerequisites of the tooth specified
-// by the specifier and returns the map of missing prerequisites.
-func findMissingPrerequisites(ctx context.Context,
-	archiveList []tooth.Archive) (map[string]semver.Range, error) {
-	missingPrerequisiteMap := make(map[string]semver.Range)
-
-	for _, archive := range archiveList {
-		for prerequisite, versionRange := range archive.Metadata().Prerequisites() {
-			isInstalled, err := tooth.IsInstalled(ctx, prerequisite)
-			if err != nil {
-				return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
-			}
-
-			if isInstalled {
-				currentMetadata, err := tooth.GetMetadata(ctx, prerequisite)
-				if err != nil {
-					return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
-				}
-
-				if !versionRange(currentMetadata.Version()) {
-					missingPrerequisiteMap[prerequisite] = versionRange
-				}
-
-				break
-			} else {
-				// Check if the tooth is in the archive list.
-				isInArchiveList := false
-				for _, archive := range archiveList {
-					if archive.Metadata().ToothRepoPath() == prerequisite && versionRange(archive.Metadata().Version()) {
-						isInArchiveList = true
-						break
-					}
-				}
-
-				if !isInArchiveList {
-					missingPrerequisiteMap[prerequisite] = versionRange
-				}
-			}
-		}
-	}
-
-	return missingPrerequisiteMap, nil
-}
-
-// installToothArchiveList installs the tooth archive list.
-func installToothArchiveList(ctx context.Context,
-	archiveToInstallList []tooth.Archive, forceReinstall bool, upgrade bool) error {
-	for _, archive := range archiveToInstallList {
-		isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
-		if err != nil {
-			return fmt.Errorf("failed to check if tooth is installed: %w", err)
-		}
-
-		shouldInstall := false
-		shouldUninstall := false
-
-		if isInstalled && forceReinstall {
-			log.Infof("Reinstalling tooth %v...", archive.Metadata().ToothRepoPath())
-
-			shouldInstall = true
-			shouldUninstall = true
-
-		} else if isInstalled && upgrade {
-			currentMetadata, err := tooth.GetMetadata(ctx,
-				archive.Metadata().ToothRepoPath())
-			if err != nil {
-				return fmt.Errorf("failed to find installed tooth metadata: %w", err)
-			}
-
-			if archive.Metadata().Version().GT(currentMetadata.Version()) {
-				log.Infof("Upgrading tooth %v...", archive.Metadata().ToothRepoPath())
-
-				shouldInstall = true
-				shouldUninstall = true
-			} else {
-				log.Infof("Tooth %v is already up-to-date", archive.Metadata().ToothRepoPath())
-
-				shouldInstall = false
-				shouldUninstall = false
-			}
-
-		} else if isInstalled {
-			log.Infof("Tooth %v is already installed", archive.Metadata().ToothRepoPath())
-
-			shouldInstall = false
-			shouldUninstall = false
-		} else {
-			log.Infof("Installing tooth %v...", archive.Metadata().ToothRepoPath())
-
-			shouldInstall = true
-			shouldUninstall = false
-		}
-
-		if shouldUninstall {
-			err := install.Uninstall(ctx, archive.Metadata().ToothRepoPath())
-			if err != nil {
-				return fmt.Errorf("failed to uninstall tooth: %w", err)
-			}
-		}
-
-		if shouldInstall {
-			err := install.Install(ctx, archive)
-			if err != nil {
-				return fmt.Errorf("failed to install tooth: %w", err)
-			}
-		}
-	}
-
-	return nil
-}
-
-// parseAndDownloadspecifierpkgtringList parses the specifier string list and
-// downloads the tooth specified by the specifier, and returns the list of
-// downloaded tooth archives.
-func parseAndDownloadspecifierpkgtringList(ctx context.Context,
-	specifierpkgtringList []string) ([]tooth.Archive, error) {
-
-	archiveList := make([]tooth.Archive, 0)
-
-	for _, specifierpkgtring := range specifierpkgtringList {
-		specifier, err := specifierpkg.Parse(specifierpkgtring)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse specifier: %w", err)
-		}
-
-		archive, err := downloadSpecifier(ctx, specifier)
-		if err != nil {
-			return nil, fmt.Errorf("failed to install specifier: %w", err)
-		}
-
-		archiveList = append(archiveList, archive)
-	}
-
-	return archiveList, nil
-}
-
-// resolveDependencies resolves the dependencies of the tooth specified by the
-// specifier and returns the paths to the downloaded teeth. rootArchiveList
-// contains the root tooth archives to resolve dependencies.
-// The first return value indicates whether the dependencies are resolved.
-func resolveDependencies(ctx context.Context, rootArchiveList []tooth.Archive,
-	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
-
-	// fixedToothVersionMap records versions of teeth that are already installed
-	// or will be installed.
-	fixedToothVersionMap := make(map[string]semver.Version)
-
-	installedToothMetadataList, err := tooth.GetAllMetadata(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get all installed tooth metadata: %w", err)
-	}
-
-	for _, installedToothMetadata := range installedToothMetadataList {
-		fixedToothVersionMap[installedToothMetadata.ToothRepoPath()] = installedToothMetadata.Version()
-	}
-
-	for _, rootArchive := range rootArchiveList {
-		if _, ok := fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()]; !ok {
-			// If the tooth is not installed, fix the version to the version of
-			// the root tooth.
-			fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()] = rootArchive.Metadata().Version()
-
-		} else {
-			// If the tooth is installed, check if the tooth should be reinstalled
-			if !forceReinstallFlag && !(upgradeFlag && rootArchive.Metadata().Version().GT(
-				fixedToothVersionMap[rootArchive.Metadata().ToothRepoPath()])) {
-				continue
-			}
-		}
-	}
-
-	notResolvedArchiveQueue := list.New()
-	for _, rootArchive := range rootArchiveList {
-		notResolvedArchiveQueue.PushBack(rootArchive)
-	}
-
-	resolvedArchiveList := make([]tooth.Archive, 0)
-
-	for notResolvedArchiveQueue.Len() > 0 {
-		archive := notResolvedArchiveQueue.Front().Value.(tooth.Archive)
-		notResolvedArchiveQueue.Remove(notResolvedArchiveQueue.Front())
-
-		depMap := archive.Metadata().Dependencies()
-
-		for dep, versionRange := range depMap {
-			if _, ok := fixedToothVersionMap[dep]; ok {
-				if !versionRange(fixedToothVersionMap[dep]) {
-					return nil, fmt.Errorf("installed tooth %v does not match dependency %v",
-						dep, dep)
-				}
-
-				// Avoid downloading the same tooth multiple times.
-				continue
-			}
-
-			versionList, err := tooth.GetAvailableVersions(ctx, dep)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get available version list: %w", err)
-			}
-
-			var targetVersion semver.Version
-			isTargetVersionFound := false
-
-			// First find stable versions
-			for _, version := range versionList {
-				if len(version.Pre) == 0 && versionRange(version) {
-					targetVersion = version
-					isTargetVersionFound = true
-					break
-				}
-			}
-
-			// If no stable version is found, find any version
-			if !isTargetVersionFound {
-				for _, version := range versionList {
-					if versionRange(version) {
-						targetVersion = version
-						isTargetVersionFound = true
-						break
-					}
-				}
-			}
-
-			if !isTargetVersionFound {
-				return nil, fmt.Errorf("no available version found for dependency %v", dep)
-			}
-
-			archivePathString, err := downloadFromAllGoProxies(ctx, dep, targetVersion)
-			if err != nil {
-				return nil, fmt.Errorf("failed to download tooth: %w", err)
-			}
-
-			archivePath, err := path.Parse(archivePathString)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse archive path: %w", err)
-			}
-
-			currentArchive, err := tooth.MakeArchive(archivePath, path.MakeEmpty())
-			if err != nil {
-				return nil, fmt.Errorf("failed to create archive %v: %w", archivePath, err)
-			}
-
-			validateArchive(currentArchive, dep, targetVersion)
-
-			notResolvedArchiveQueue.PushBack(currentArchive)
-
-			fixedToothVersionMap[dep] = targetVersion
-		}
-
-		resolvedArchiveList = append(resolvedArchiveList, archive)
-	}
-
-	return resolvedArchiveList, nil
-}
-
-// validateArchive validates the archive.
-func validateArchive(archive tooth.Archive, toothRepoPath string, version semver.Version) error {
-	if archive.Metadata().ToothRepoPath() != toothRepoPath {
-		return fmt.Errorf("tooth name mismatch: %v != %v", archive.Metadata().ToothRepoPath(), toothRepoPath)
-	}
-
-	if archive.Metadata().Version().NE(version) {
-		return fmt.Errorf("tooth version mismatch: %v != %v", archive.Metadata().Version(), version)
 	}
 
 	return nil

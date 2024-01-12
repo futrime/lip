@@ -13,7 +13,6 @@ import (
 
 // DownloadFile downloads a file from a url and saves it to a local path.
 func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) error {
-
 	resp, err := http.Get(url.String())
 	if err != nil {
 		return fmt.Errorf("cannot send HTTP request: %w", err)

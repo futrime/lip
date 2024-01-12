@@ -12,14 +12,13 @@ import (
 
 // Archive is an archive containing a tooth.
 type Archive struct {
-	metadata Metadata
-
-	assetArchiveFilePath     path.Path
-	assetArchiveFilePathRoot path.Path
+	metadata        Metadata
+	filePath        path.Path
+	contentPathRoot path.Path
 }
 
 // MakeArchive creates a new archive.
-func MakeArchive(archiveFilePath path.Path, assetArchiveFilePath path.Path) (Archive, error) {
+func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
@@ -35,9 +34,12 @@ func MakeArchive(archiveFilePath path.Path, assetArchiveFilePath path.Path) (Arc
 
 	// If only one file, it must be tooth.json. Then we should use the directory of the file as the root.
 	if len(filePaths) == 1 {
-		if filePathRoot, err = filePathRoot.Dir(); err != nil {
+		filePathRootDir, err := filePathRoot.Dir()
+		if err != nil {
 			return Archive{}, fmt.Errorf("failed to get directory of tooth.json: %w", err)
 		}
+
+		filePathRoot = filePathRootDir
 	}
 
 	// Find tooth.json.
@@ -71,55 +73,33 @@ func MakeArchive(archiveFilePath path.Path, assetArchiveFilePath path.Path) (Arc
 		return Archive{}, fmt.Errorf("failed to parse tooth.json: %w", err)
 	}
 
-	if (metadata.AssetURL() == "" && !assetArchiveFilePath.IsEmpty()) ||
-		(metadata.AssetURL() != "" && assetArchiveFilePath.IsEmpty()) {
-		return Archive{}, fmt.Errorf("asset URL and archive file path must be both specified or both empty")
+	// Extract all file paths and remove the common prefix.
+	filePathsTrimmed := make([]path.Path, 0)
+	for _, filePath := range filePaths {
+		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
 	}
 
-	if assetArchiveFilePath.IsEmpty() {
-		// If no external asset URL, use the archive file path as the asset URL.
-
-		// Extract all file paths and remove the common prefix.
-		filePathsTrimmed := make([]path.Path, 0)
-		for _, filePath := range filePaths {
-			filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
-		}
-
-		metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
-		if err != nil {
-			return Archive{}, fmt.Errorf(
-				"failed to resolve metadata files place regular expressions: %w", err)
-		}
-
-		return Archive{
-			metadata:                 metadataWithoutWildcards,
-			assetArchiveFilePath:     archiveFilePath,
-			assetArchiveFilePathRoot: filePathRoot,
-		}, nil
-
-	} else {
-		metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePaths)
-		if err != nil {
-			return Archive{}, fmt.Errorf(
-				"failed to resolve metadata files place regular expressions: %w", err)
-		}
-
-		return Archive{
-			metadata:                 metadataWithoutWildcards,
-			assetArchiveFilePath:     assetArchiveFilePath,
-			assetArchiveFilePathRoot: path.MakeEmpty(),
-		}, nil
+	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
+	if err != nil {
+		return Archive{}, fmt.Errorf(
+			"failed to resolve metadata files place regular expressions: %w", err)
 	}
+
+	return Archive{
+		metadata:        metadataWithoutWildcards,
+		filePath:        archiveFilePath,
+		contentPathRoot: filePathRoot,
+	}, nil
 }
 
-// AssetArchiveFilePath returns the path of the asset archive.
-func (ar Archive) AssetArchiveFilePath() path.Path {
-	return ar.assetArchiveFilePath
+// FilePath returns the path of the asset archive.
+func (ar Archive) FilePath() path.Path {
+	return ar.filePath
 }
 
-// AssetArchiveFilePathRoot returns the directory of tooth.json in the archive.
-func (ar Archive) AssetArchiveFilePathRoot() path.Path {
-	return ar.assetArchiveFilePathRoot
+// ContentFilePathRoot returns the directory of tooth.json in the archive.
+func (ar Archive) ContentFilePathRoot() path.Path {
+	return ar.contentPathRoot
 }
 
 // Metadata returns the metadata of the archive.

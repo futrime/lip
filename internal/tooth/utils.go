@@ -105,29 +105,47 @@ func GetAvailableVersions(ctx context.Context, toothRepoPath string) (semver.Ver
 func GetLatestVersion(ctx context.Context,
 	toothRepoPath string) (semver.Version, error) {
 
-	versionList, err := GetAvailableVersions(ctx, toothRepoPath)
+	versionRange := semver.Range(func(version semver.Version) bool {
+		return true
+	})
+	return GetLatestVersionInVersionRange(ctx, toothRepoPath, versionRange)
+}
+
+// GetLatestVersionInVersionRange returns the latest version in a version range.
+func GetLatestVersionInVersionRange(ctx context.Context,
+	toothRepoPath string, versionRange semver.Range) (semver.Version, error) {
+
+	availableVersions, err := GetAvailableVersions(ctx, toothRepoPath)
 	if err != nil {
 		return semver.Version{}, fmt.Errorf(
 			"failed to get available version list: %w", err)
 	}
 
-	stableVersionList := make(semver.Versions, 0)
-	for _, version := range versionList {
-		if len(version.Pre) == 0 {
-			stableVersionList = append(stableVersionList, version)
+	// Filter versions that satisfy the version range.
+	filteredVersions := make(semver.Versions, 0)
+	for _, version := range availableVersions {
+		if versionRange(version) {
+			filteredVersions = append(filteredVersions, version)
 		}
 	}
 
-	semver.Sort(stableVersionList)
-
-	if len(stableVersionList) >= 1 {
-		return stableVersionList[len(stableVersionList)-1], nil
+	stableVersions := make(semver.Versions, 0)
+	for _, version := range filteredVersions {
+		if len(version.Pre) == 0 {
+			stableVersions = append(stableVersions, version)
+		}
 	}
 
-	semver.Sort(versionList)
+	semver.Sort(stableVersions)
 
-	if len(versionList) >= 1 {
-		return versionList[len(versionList)-1], nil
+	if len(stableVersions) >= 1 {
+		return stableVersions[len(stableVersions)-1], nil
+	}
+
+	semver.Sort(filteredVersions)
+
+	if len(filteredVersions) >= 1 {
+		return filteredVersions[len(filteredVersions)-1], nil
 	}
 
 	return semver.Version{}, fmt.Errorf("no available version found")
