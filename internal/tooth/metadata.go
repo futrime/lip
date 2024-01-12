@@ -209,7 +209,9 @@ func (m Metadata) ToPlatformSpecific(goos string, goarch string) (Metadata, erro
 			continue
 		}
 
-		raw.AssetURL = platformItem.AssetURL
+		if platformItem.AssetURL != "" {
+			raw.AssetURL = platformItem.AssetURL
+		}
 
 		raw.Commands.PreInstall = append(raw.Commands.PreInstall, platformItem.Commands.PreInstall...)
 		raw.Commands.PostInstall = append(raw.Commands.PostInstall, platformItem.Commands.PostInstall...)
