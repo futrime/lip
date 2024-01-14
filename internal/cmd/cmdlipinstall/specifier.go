@@ -40,13 +40,10 @@ func downloadToothRepoSpecifier(ctx *context.Context,
 		toothVersion = latestVersion
 	}
 
-	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
-	}
-
 	archive, err := downloadToothArchiveIfNotCached(ctx, toothRepoPath, toothVersion)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to download archive of %v@%v: %w", toothRepoPath,
+			toothVersion, err)
 	}
 
 	return archive, nil
