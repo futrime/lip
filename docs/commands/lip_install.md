@@ -16,7 +16,7 @@ Install a tooth from:
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run lip without `--upgrade` or `--force-reinstall` flag, lip will not install the specific version.
 
-Only lowercase letters, numbers, dashes, underlines, dots, slashes [a-z0-9-_./] and one @ are allowed in requirement specifiers.
+Only letters, numbers, dashes, underlines, dots, slashes [A-Za-z0-9-_./] and one @ are allowed in requirement specifiers.
 
 If you have set environment variable GOPROXY, lip will access tooth repositories via it. Otherwise, lip will choose the default Goproxy <https://goproxy.io>.
 
@@ -34,10 +34,8 @@ Note that `lip install` prefers to leave the installed version as-is unless `--u
 
 When looking at the items to be installed, lip checks what type of item each is, in the following order:
 
-1. Local tooth file with suffix `.tth`.
+1. Local tooth file.
 2. Tooth repository, which can be accessed via Goproxy.
-
-In 2, all letters will be converted to lowercase before processing.
 
 ### Satisfying Requirements
 

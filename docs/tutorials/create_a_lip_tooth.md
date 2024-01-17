@@ -44,7 +44,7 @@ lip tooth init
 
 Edit tooth.json. Fill in the content enclosed in pointed brackets ("<" and ">").
 
-- The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://) in lowercase.
+- The tooth field indicates the tooth path of the tooth. If you would like to publish the tooth, it must be the tooth repository URL without protocol prefix (e.g. https:// or http://).
 
 - The placement filed indicates how will lip copy files from the tooth to the BDS. The source path bases on the root of the tooth (or the repository in this example and most cases), while the destination path bases on the root of BDS, in which "bedrock_server.exe" locates.
 

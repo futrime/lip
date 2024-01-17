@@ -96,7 +96,7 @@ Declares the tooth's tooth repository path, which is the tooth's unique identifi
 
 Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/tooth-hub/corepack).
 
-Only letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Must be identical to the tooth repository path.
 
 ### Examples
 
