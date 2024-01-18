@@ -1,5 +1,8 @@
 # 开始使用
 
+!!! tip
+    不习惯使用命令行工具？你可以使用[LipUI](https://github.com/lippkg/LipUI)。
+
 要开始使用lip你应该先完成[安装](installation.md)。如果你对命令行界面不熟悉，你也可以使用[lipUI](lipui_quickstart.md)来管理你的tooth。
 
 ## 确定你的lip正常工作

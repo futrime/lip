@@ -8,7 +8,6 @@ nav:
     - index.md
     - installation.md
     - quickstart.md
-    - lipui_quickstart.md
     - faq.md
     - tooth_json_file_reference.md
     - Changelog: https://github.com/lippkg/lip/blob/main/CHANGELOG.md
