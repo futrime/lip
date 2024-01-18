@@ -26,15 +26,18 @@ const metadataJSONSchema = `{
 				"author": {
 					"type": "string"
 				},
-				"source": {
-					"type": "string"
-				},
 				"tags": {
 					"type": "array",
 					"items": {
 						"type": "string",
 						"pattern": "^[a-zA-Z0-9-]+$"
 					}
+				},
+				"avatar_url": {
+					"type": "string"
+				},
+				"source": {
+					"type": "string"
 				}
 			},
 			"required": [

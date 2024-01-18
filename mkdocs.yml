@@ -34,8 +34,8 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
-  favicon: img/favicon.ico
-  logo: img/logo.webp
+  favicon: images/favicon.ico
+  logo: images/logo.webp
   palette:
     primary: white
 
