@@ -8,7 +8,6 @@ nav:
     - index.md
     - installation.md
     - quickstart.md
-    - lipui_quickstart.md
     - faq.md
     - tooth_json_file_reference.md
     - Changelog: https://github.com/lippkg/lip/blob/main/CHANGELOG.md
@@ -35,8 +34,8 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
-  favicon: img/favicon.ico
-  logo: img/logo.webp
+  favicon: images/favicon.ico
+  logo: images/logo.webp
   palette:
     primary: white
 

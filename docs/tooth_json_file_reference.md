@@ -25,10 +25,11 @@ A tooth.json includes directives as shown in the following example. These are de
         "name": "Example",
         "description": "An example package",
         "author": "exmaple",
-        "source": "github.com/lippkg/example",
         "tags": [
             "example"
-        ]
+        ],
+        "avatar_url": "avatar.png",
+        "source": "github.com/lippkg/example"
     },
     "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.tth",
     "commands": {
@@ -96,7 +97,7 @@ Declares the tooth's tooth repository path, which is the tooth's unique identifi
 
 Generally, tooth path should be in the form of a URL without protocol prefix (e.g. github.com/tooth-hub/corepack).
 
-Only letters, digits, dashes, underlines, dots and slashes [a-z0-9-_./] are allowed. Uppercase letters will be converted to lowercase before parsing.
+Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are allowed. Must be identical to the tooth repository path.
 
 ### Examples
 
@@ -158,7 +159,14 @@ Declares necessary information of your tooth.
 
 ### Syntax
 
-Provide the name, description , author and tags of your tooth. The source field is optional and is for indicating the source code repository of your tooth.
+Provide information about your tooth in the form of a JSON object with the following fields:
+
+- `name`: (required) the name of your tooth.
+- `description`: (required) a short description of your tooth.
+- `author`: (required) the author of your tooth.
+- `tags`: (required) an array of tags of your tooth.
+- `avatar_url`: the URL of the tooth's avatar. If not set, the default avatar will be used. If a relative path is provided, it will be regarded as a path relative to **the source repository path**.
+- `source`: the source repository of your tooth. If not set, the tooth repository path will be used.
 
 ### Examples
 
@@ -168,10 +176,11 @@ Provide the name, description , author and tags of your tooth. The source field 
         "name": "Example",
         "description": "An example package",
         "author": "example",
-        "source": "github.com/lippkg/example",
         "tags": [
             "example"
-        ]
+        ],
+        "avartar_url": "",
+        "source": "github.com/lippkg/example"
     }
 }
 ```
