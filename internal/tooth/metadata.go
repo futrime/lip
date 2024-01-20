@@ -17,6 +17,10 @@ type Metadata struct {
 	rawMetadata RawMetadata
 }
 
+type Info RawMetadataInfo
+type Commands RawMetadataCommands
+type Files RawMetadataFiles
+
 const expectedFormatVersion = 2
 
 // MakeMetadata parses the given jsonBytes and returns a Metadata.
@@ -114,16 +118,16 @@ func (m Metadata) Version() semver.Version {
 	return semver.MustParse(m.rawMetadata.Version)
 }
 
-func (m Metadata) Info() RawMetadataInfo {
-	return m.rawMetadata.Info
+func (m Metadata) Info() Info {
+	return Info(m.rawMetadata.Info)
 }
 
 func (m Metadata) AssetURL() (*url.URL, error) {
 	return url.Parse(m.rawMetadata.AssetURL)
 }
 
-func (m Metadata) Commands() RawMetadataCommands {
-	return m.rawMetadata.Commands
+func (m Metadata) Commands() Commands {
+	return Commands(m.rawMetadata.Commands)
 }
 
 func (m Metadata) Dependencies() map[string]semver.Range {
@@ -176,8 +180,8 @@ func (m Metadata) PrerequisitesAsStrings() map[string]string {
 	return prerequisites
 }
 
-func (m Metadata) Files() RawMetadataFiles {
-	return m.rawMetadata.Files
+func (m Metadata) Files() Files {
+	return Files(m.rawMetadata.Files)
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
