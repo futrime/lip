@@ -35,7 +35,11 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 
 			if archive.Metadata().Version().GT(currentMetadata.Version()) {
 				filteredArchives = append(filteredArchives, archive)
+			} else {
+				log.Infof("Tooth %v is already up-to-date", archive.Metadata().ToothRepoPath())
 			}
+		} else {
+			log.Infof("Tooth %v is already installed", archive.Metadata().ToothRepoPath())
 		}
 	}
 
@@ -44,6 +48,11 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 
 // installToothArchive installs the tooth archive.
 func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "installToothArchive",
+	})
+
 	isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 	if err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
@@ -95,6 +104,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		if err != nil {
 			return fmt.Errorf("failed to uninstall tooth: %w", err)
 		}
+		debugLogger.Debugf("Uninstalled tooth %v", archive.Metadata().ToothRepoPath())
 	}
 
 	if shouldInstall {
@@ -116,6 +126,9 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		if err := install.Install(ctx, archive, assetArchiveFilePath); err != nil {
 			return fmt.Errorf("failed to install tooth: %w", err)
 		}
+		debugLogger.Debugf("Installed tooth archive %v (%v@%v) with asset archive %v",
+			archive.FilePath(), archive.Metadata().ToothRepoPath(),
+			archive.Metadata().Version(), assetArchiveFilePath)
 	}
 
 	return nil

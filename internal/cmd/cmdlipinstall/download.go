@@ -14,6 +14,11 @@ import (
 )
 
 func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explicitCachePath path.Path) (path.Path, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "downloadFileIfNotCached",
+	})
+
 	var cachePath path.Path
 
 	if explicitCachePath.IsEmpty() {
@@ -46,6 +51,8 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explici
 
 	} else if err != nil {
 		return path.Path{}, fmt.Errorf("failed to check if file exists: %w", err)
+	} else {
+		debugLogger.Debugf("File %v already exists in the cache, skip downloading", cachePath)
 	}
 
 	return cachePath, nil
@@ -55,6 +62,10 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explici
 // if it is not cached, and returns the path to the downloaded tooth archive.
 func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 	toothVersion semver.Version) (tooth.Archive, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "downloadToothArchiveIfNotCached",
+	})
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
 	if err != nil {
@@ -71,6 +82,8 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 		return tooth.Archive{}, fmt.Errorf("failed to download file: %w", err)
 	}
 
+	debugLogger.Debugf("Downloaded tooth archive from %v to %v", downloadURL, cachePath)
+
 	archive, err := tooth.MakeArchive(cachePath)
 	if err != nil {
 		return tooth.Archive{}, fmt.Errorf("failed to open archive %v: %w", cachePath, err)
@@ -79,6 +92,8 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 	if err := validateToothArchive(archive, toothRepoPath, toothVersion); err != nil {
 		return tooth.Archive{}, fmt.Errorf("failed to validate archive: %w", err)
 	}
+
+	debugLogger.Debugf("Downloaded tooth archive %v (%v@%v)", cachePath, toothRepoPath, toothVersion)
 
 	return archive, nil
 }
@@ -128,6 +143,11 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 }
 
 func getCachePath(ctx *context.Context, u *url.URL) (path.Path, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "getCachePath",
+	})
+
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
 		return path.Path{}, fmt.Errorf("failed to get cache directory: %w", err)
@@ -135,6 +155,8 @@ func getCachePath(ctx *context.Context, u *url.URL) (path.Path, error) {
 
 	cacheFileName := url.QueryEscape(u.String())
 	cachePath := cacheDir.Join(path.MustParse(cacheFileName))
+
+	debugLogger.Debugf("Cache path of %v is %v", u, cachePath.LocalString())
 
 	return cachePath, nil
 }

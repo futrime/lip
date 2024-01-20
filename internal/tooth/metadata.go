@@ -77,7 +77,8 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 
 	// Warn for obsolete tooth.json.
 	if isMigrationNeeded {
-		log.Warnf("tooth.json format of %v is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
+		log.Warnf("tooth.json format version %v of %v is deprecated. This tooth might be obsolete.",
+			formatVersion, metadata.ToothRepoPath())
 	}
 
 	return metadata, nil

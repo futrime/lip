@@ -34,7 +34,7 @@ func main() {
 	}
 
 	if err := cmdlip.Run(ctx, os.Args[1:]); err != nil {
-		log.Error(err.Error())
+		log.Errorf(err.Error())
 		return
 	}
 }

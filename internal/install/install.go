@@ -12,11 +12,16 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
+	log "github.com/sirupsen/logrus"
 )
 
 // Install installs a tooth archive with an asset archive. If assetArchiveFilePath is empty,
 // will use the tooth archive as the asset archive.
 func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath path.Path) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "install",
+		"method":  "Install",
+	})
 
 	// 1. Check if the tooth is already installed.
 
@@ -25,12 +30,14 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 	} else if installed {
 		return fmt.Errorf("tooth %v is already installed", archive.Metadata().ToothRepoPath())
 	}
+	debugLogger.Debug("Checked if tooth is already installed")
 
 	// 2. Run pre-install commands.
 
 	if err := runCommands(archive.Metadata().Commands().PreInstall); err != nil {
 		return fmt.Errorf("failed to run pre-install commands: %w", err)
 	}
+	debugLogger.Debug("Ran pre-install commands")
 
 	// 3. Extract and place files.
 
@@ -45,17 +52,24 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 	}
 
 	if assetArchiveFilePath.IsEmpty() {
+		debugLogger.Debug("No asset archive specified, using tooth archive")
+
 		placeFiles(ctx, archive.Metadata(), archive.FilePath(), archive.ContentFilePathRoot())
 
 	} else {
+		debugLogger.Debug("Asset archive specified, using asset archive")
+
 		placeFiles(ctx, archive.Metadata(), assetArchiveFilePath, path.MakeEmpty())
 	}
+
+	debugLogger.Debug("Placed files")
 
 	// 4. Run post-install commands.
 
 	if err := runCommands(archive.Metadata().Commands().PostInstall); err != nil {
 		return fmt.Errorf("failed to run post-install commands: %w", err)
 	}
+	debugLogger.Debug("Ran post-install commands")
 
 	// 5. Create metadata file.
 
@@ -76,11 +90,18 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 		return fmt.Errorf("failed to create metadata file: %w", err)
 	}
 
+	debugLogger.Debugf("Created metadata file %v", metadataPath.LocalString())
+
 	return nil
 }
 
 // placeFiles places the files of the tooth.
 func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, assetContentFilePathRoot path.Path) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "install",
+		"method":  "placeFiles",
+	})
+
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err
@@ -115,6 +136,7 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 		if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
 			return fmt.Errorf("failed to create destination directory: %w", err)
 		}
+		debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
 
 		relSrc, err := path.Parse(place.Src)
 		if err != nil {
@@ -128,6 +150,8 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 		for _, f := range r.File {
 			// Skip directories.
 			if strings.HasSuffix(f.Name, "/") {
+				debugLogger.Debugf("Skipped %v because it is a directory", f.Name)
+
 				continue
 			}
 
@@ -156,6 +180,8 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 				// Close the files.
 				rc.Close()
 				fw.Close()
+
+				debugLogger.Debugf("Placed file %v to %v", f.Name, dest.LocalString())
 			}
 		}
 	}

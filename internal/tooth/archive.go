@@ -9,6 +9,8 @@ import (
 
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/zip"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Archive is an archive containing a tooth.
@@ -20,6 +22,11 @@ type Archive struct {
 
 // MakeArchive creates a new archive. It will automatically convert metadata to platform-specific.
 func MakeArchive(archiveFilePath path.Path) (Archive, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "tooth",
+		"method":  "MakeArchive",
+	})
+
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
 		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
@@ -85,6 +92,10 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	for _, filePath := range filePaths {
 		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
 	}
+	debugLogger.Debug("Got trimmed file paths:")
+	for _, filePath := range filePathsTrimmed {
+		debugLogger.Debugf("  %v", filePath)
+	}
 
 	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
 	if err != nil {
@@ -117,6 +128,11 @@ func (ar Archive) Metadata() Metadata {
 // populateMetadataFilePlaceWildcards populates wildcards in files.place field of metadata.
 // filePaths should be relative to the directory of tooth.json.
 func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path) (Metadata, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "tooth",
+		"method":  "populateMetadataFilePlaceWildcards",
+	})
+
 	newPlace := make([]RawMetadataFilesPlaceItem, 0)
 
 	rawMetadata := metadata.Raw()
@@ -149,6 +165,8 @@ func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path
 				Src:  filePath.String(),
 				Dest: destPathPrefix.Join(relFilePath).String(),
 			})
+
+			debugLogger.Debugf("Populated %v to %v", filePath, destPathPrefix.Join(relFilePath))
 		}
 	}
 

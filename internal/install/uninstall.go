@@ -8,9 +8,16 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func Uninstall(ctx *context.Context, toothRepoPath string) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "install",
+		"method":  "Uninstall",
+	})
+
 	metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
@@ -21,18 +28,21 @@ func Uninstall(ctx *context.Context, toothRepoPath string) error {
 	if err := runCommands(metadata.Commands().PreUninstall); err != nil {
 		return fmt.Errorf("failed to run pre-uninstall commands: %w", err)
 	}
+	debugLogger.Debug("Ran pre-uninstall commands")
 
 	// 2. Delete files.
 
 	if err := removeToothFiles(ctx, metadata); err != nil {
 		return fmt.Errorf("failed to delete files: %w", err)
 	}
+	debugLogger.Debug("Deleted files")
 
 	// 3. Run post-uninstall commands.
 
 	if err := runCommands(metadata.Commands().PostUninstall); err != nil {
 		return fmt.Errorf("failed to run post-uninstall commands: %w", err)
 	}
+	debugLogger.Debug("Ran post-uninstall commands")
 
 	// 4. Delete the metadata file.
 
@@ -48,11 +58,18 @@ func Uninstall(ctx *context.Context, toothRepoPath string) error {
 		return fmt.Errorf("failed to delete metadata file: %w", err)
 	}
 
+	debugLogger.Debugf("Deleted metadata file %v", metadataPath.LocalString())
+
 	return nil
 }
 
 // removeToothFiles removes the files of the tooth.
 func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "install",
+		"method":  "removeToothFiles",
+	})
+
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
 		return err
@@ -73,6 +90,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 			}
 		}
 		if isPreserved {
+			debugLogger.Debugf("Preserved file %v", place.Dest)
 			continue
 		}
 
@@ -87,6 +105,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 		if err := os.RemoveAll(dest.LocalString()); err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
+		debugLogger.Debugf("Deleted file %v", dest.LocalString())
 
 		// Delete all ancestor directories if they are empty until the workspace directory.
 		dir := dest
@@ -118,6 +137,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 			if err := os.Remove(dir.LocalString()); err != nil {
 				return fmt.Errorf("failed to delete directory: %w", err)
 			}
+			debugLogger.Debugf("Deleted directory %v", dir.LocalString())
 		}
 	}
 
@@ -131,6 +151,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 		if err := os.RemoveAll(workspaceDir.Join(removalPath).LocalString()); err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
+		debugLogger.Debugf("Deleted file %v that is marked as \"remove\"", workspaceDir.Join(removalPath).LocalString())
 	}
 
 	return nil

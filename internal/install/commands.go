@@ -5,10 +5,16 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // runCommands runs the given commands.
 func runCommands(commands []string) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "install",
+		"method":  "runCommands",
+	})
 
 	for _, command := range commands {
 		var cmd *exec.Cmd
@@ -24,8 +30,10 @@ func runCommands(commands []string) error {
 		cmd.Stderr = os.Stderr
 
 		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to run command: %w", err)
+			return fmt.Errorf("failed to run command %v: %w", command, err)
 		}
+
+		debugLogger.Debugf("Ran command %v", command)
 	}
 
 	return nil

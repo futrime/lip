@@ -111,7 +111,7 @@ func askForConfirmation(ctx *context.Context,
 			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
 		}
 
-		log.Infof("  %v@%v: %v", toothRepoPath, metadata.Version().String(),
+		log.Infof("  %v@%v: %v", toothRepoPath, metadata.Version(),
 			metadata.Info().Name)
 	}
 

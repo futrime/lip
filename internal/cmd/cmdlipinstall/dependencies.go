@@ -7,6 +7,7 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/tooth"
+	log "github.com/sirupsen/logrus"
 )
 
 func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.Archive, upgradeFlag bool,
@@ -54,6 +55,10 @@ func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.
 // The first return value indicates whether the dependencies are resolved.
 func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "resolveDependencies",
+	})
 
 	fixedToothAndVersionMap, err := getFixedToothAndVersionMap(ctx, rootArchiveList, upgradeFlag,
 		forceReinstallFlag)
@@ -83,6 +88,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 				}
 
 				// Avoid downloading the same tooth multiple times.
+				debugLogger.Debugf("Dependency %v@%v is already fixed, skip", dep, fixedVersion)
 				continue
 			}
 
@@ -91,10 +97,15 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 				return nil, fmt.Errorf("no available version in %v found for dependency %v", depStrMap[dep], dep)
 			}
 
+			debugLogger.Debugf("Dependency %v@%v is resolved to %v@%v", dep, depStrMap[dep], dep, targetVersion)
+
 			currentArchive, err := downloadToothArchiveIfNotCached(ctx, dep, targetVersion)
 			if err != nil {
 				return nil, fmt.Errorf("failed to download tooth: %w", err)
 			}
+
+			debugLogger.Debugf("Downloaded tooth archive %v (%v@%v)", currentArchive.FilePath(), currentArchive.Metadata().ToothRepoPath(),
+				currentArchive.Metadata().Version().String())
 
 			notResolvedArchiveQueue.PushBack(currentArchive)
 
@@ -107,6 +118,11 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	sortedArchives, err := topoSortToothArchives(resolvedArchiveList)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sort teeth: %w", err)
+	}
+
+	debugLogger.Debug("Topologically sorted teeth:")
+	for _, archive := range sortedArchives {
+		debugLogger.Debugf("  %v (%v@%v)", archive.FilePath(), archive.Metadata().ToothRepoPath(), archive.Metadata().Version())
 	}
 
 	return sortedArchives, nil
