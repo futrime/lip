@@ -52,7 +52,7 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explici
 	} else if err != nil {
 		return path.Path{}, fmt.Errorf("failed to check if file exists: %w", err)
 	} else {
-		debugLogger.Debugf("File %v already exists in the cache, skip downloading", cachePath)
+		debugLogger.Debugf("File %v already exists in the cache, skip downloading", cachePath.LocalString())
 	}
 
 	return cachePath, nil
@@ -82,7 +82,7 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 		return tooth.Archive{}, fmt.Errorf("failed to download file: %w", err)
 	}
 
-	debugLogger.Debugf("Downloaded tooth archive from %v to %v", downloadURL, cachePath)
+	debugLogger.Debugf("Downloaded tooth archive from %v to %v", downloadURL, cachePath.LocalString())
 
 	archive, err := tooth.MakeArchive(cachePath)
 	if err != nil {
@@ -93,7 +93,7 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 		return tooth.Archive{}, fmt.Errorf("failed to validate archive: %w", err)
 	}
 
-	debugLogger.Debugf("Downloaded tooth archive %v (%v@%v)", cachePath, toothRepoPath, toothVersion)
+	debugLogger.Debugf("Downloaded tooth archive %v", cachePath.LocalString())
 
 	return archive, nil
 }

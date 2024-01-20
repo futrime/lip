@@ -80,11 +80,16 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 		return fmt.Errorf("failed to parse workspace directory: %w", err)
 	}
 
-	for _, place := range metadata.Files().Place {
+	files, err := metadata.Files()
+	if err != nil {
+		return fmt.Errorf("failed to get files from metadata: %w", err)
+	}
+
+	for _, place := range files.Place {
 		// Files marked as "preserve" will not be deleted.
 		isPreserved := false
-		for _, preserve := range metadata.Files().Preserve {
-			if place.Dest == preserve {
+		for _, preserve := range files.Preserve {
+			if place.Dest.Equal(preserve) {
 				isPreserved = true
 				break
 			}
@@ -94,10 +99,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 			continue
 		}
 
-		relDest, err := path.Parse(place.Dest)
-		if err != nil {
-			return fmt.Errorf("failed to parse destination path: %w", err)
-		}
+		relDest := place.Dest
 
 		dest := workspaceDir.Join(relDest)
 
@@ -142,11 +144,13 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 	}
 
 	// Files marked as "remove" will be deleted regardless of whether they are marked as "preserve".
-	for _, removal := range metadata.Files().Remove {
-		removalPath, err := path.Parse(removal)
-		if err != nil {
-			return fmt.Errorf("failed to parse removal path: %w", err)
-		}
+	files, err = metadata.Files()
+	if err != nil {
+		return fmt.Errorf("failed to get files from metadata: %w", err)
+	}
+
+	for _, removal := range files.Remove {
+		removalPath := removal
 
 		if err := os.RemoveAll(workspaceDir.Join(removalPath).LocalString()); err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)

@@ -124,11 +124,10 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		}
 
 		if err := install.Install(ctx, archive, assetArchiveFilePath); err != nil {
-			return fmt.Errorf("failed to install tooth: %w", err)
+			return fmt.Errorf("failed to install tooth archive %v (asset archive %v): %w", archive.FilePath().LocalString(), assetArchiveFilePath, err)
 		}
-		debugLogger.Debugf("Installed tooth archive %v (%v@%v) with asset archive %v",
-			archive.FilePath(), archive.Metadata().ToothRepoPath(),
-			archive.Metadata().Version(), assetArchiveFilePath)
+		debugLogger.Debugf("Installed tooth archive %v with asset archive %v",
+			archive.FilePath().LocalString(), assetArchiveFilePath.LocalString())
 	}
 
 	return nil

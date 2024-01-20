@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"runtime"
-	"strings"
 
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/zip"
@@ -92,19 +91,13 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	for _, filePath := range filePaths {
 		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
 	}
-	debugLogger.Debug("Got trimmed file paths:")
+	debugLogger.Debug("Got trimmed file paths in tooth archive:")
 	for _, filePath := range filePathsTrimmed {
 		debugLogger.Debugf("  %v", filePath)
 	}
 
-	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
-	if err != nil {
-		return Archive{}, fmt.Errorf(
-			"failed to resolve metadata files place regular expressions: %w", err)
-	}
-
 	return Archive{
-		metadata:        metadataWithoutWildcards,
+		metadata:        metadata,
 		filePath:        archiveFilePath,
 		contentPathRoot: filePathRoot,
 	}, nil
@@ -123,56 +116,4 @@ func (ar Archive) ContentFilePathRoot() path.Path {
 // Metadata returns the metadata of the archive.
 func (ar Archive) Metadata() Metadata {
 	return ar.metadata
-}
-
-// populateMetadataFilePlaceWildcards populates wildcards in files.place field of metadata.
-// filePaths should be relative to the directory of tooth.json.
-func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path) (Metadata, error) {
-	debugLogger := log.WithFields(log.Fields{
-		"package": "tooth",
-		"method":  "populateMetadataFilePlaceWildcards",
-	})
-
-	newPlace := make([]RawMetadataFilesPlaceItem, 0)
-
-	rawMetadata := metadata.Raw()
-
-	for _, placeItem := range rawMetadata.Files.Place {
-		// If not wildcard, just append.
-		if !strings.HasSuffix(placeItem.Src, "*") {
-			newPlace = append(newPlace, placeItem)
-			continue
-		}
-
-		sourcePathPrefix, err := path.Parse(strings.TrimSuffix(placeItem.Src, "*"))
-		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse source path prefix: %w", err)
-		}
-
-		destPathPrefix, err := path.Parse(placeItem.Dest)
-		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse destination path prefix: %w", err)
-		}
-
-		for _, filePath := range filePaths {
-			if !filePath.HasPrefix(sourcePathPrefix) {
-				continue
-			}
-
-			relFilePath := filePath.TrimPrefix(sourcePathPrefix)
-
-			newPlace = append(newPlace, RawMetadataFilesPlaceItem{
-				Src:  filePath.String(),
-				Dest: destPathPrefix.Join(relFilePath).String(),
-			})
-
-			debugLogger.Debugf("Populated %v to %v", filePath, destPathPrefix.Join(relFilePath))
-		}
-	}
-
-	rawMetadata.Files.Place = newPlace
-
-	metadata = Metadata{rawMetadata}
-
-	return metadata, nil
 }

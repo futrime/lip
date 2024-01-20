@@ -54,12 +54,16 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 	if assetArchiveFilePath.IsEmpty() {
 		debugLogger.Debug("No asset archive specified, using tooth archive")
 
-		placeFiles(ctx, archive.Metadata(), archive.FilePath(), archive.ContentFilePathRoot())
+		if err := placeFiles(ctx, archive.Metadata(), archive.FilePath(), archive.ContentFilePathRoot()); err != nil {
+			return fmt.Errorf("failed to place files: %w", err)
+		}
 
 	} else {
 		debugLogger.Debug("Asset archive specified, using asset archive")
 
-		placeFiles(ctx, archive.Metadata(), assetArchiveFilePath, path.MakeEmpty())
+		if err := placeFiles(ctx, archive.Metadata(), assetArchiveFilePath, path.MakeEmpty()); err != nil {
+			return fmt.Errorf("failed to place files: %w", err)
+		}
 	}
 
 	debugLogger.Debug("Placed files")
@@ -119,11 +123,13 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 	}
 	defer r.Close()
 
-	for _, place := range metadata.Files().Place {
-		relDest, err := path.Parse(place.Dest)
-		if err != nil {
-			return fmt.Errorf("failed to parse destination path: %w", err)
-		}
+	files, err := metadata.Files()
+	if err != nil {
+		return fmt.Errorf("failed to get files from metadata: %w", err)
+	}
+
+	for _, place := range files.Place {
+		relDest := place.Dest
 
 		// Check if the destination exists.
 		if _, err := os.Stat(relDest.LocalString()); err == nil {
@@ -138,10 +144,7 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 		}
 		debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
 
-		relSrc, err := path.Parse(place.Src)
-		if err != nil {
-			return fmt.Errorf("failed to parse source path: %w", err)
-		}
+		relSrc := place.Src
 
 		src := assetContentFilePathRoot.Join(relSrc)
 

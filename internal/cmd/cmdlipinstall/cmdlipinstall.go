@@ -105,7 +105,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	debugLogger.Debug("Got tooth archives from specifiers:")
 	for _, archive := range specifiedArchives {
-		debugLogger.Debugf("  %v (%v@%v)", archive.FilePath(), archive.Metadata().ToothRepoPath(), archive.Metadata().Version())
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	// Resolve dependencies and check prerequisites.
@@ -122,7 +122,7 @@ func Run(ctx *context.Context, args []string) error {
 
 		debugLogger.Debug("After resolving dependencies, got tooth archives to install:")
 		for _, archive := range archivesToInstall {
-			debugLogger.Debugf("  %v (%v@%v)", archive.FilePath(), archive.Metadata().ToothRepoPath(), archive.Metadata().Version())
+			debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 		}
 
 		_, missingPrerequisites, err := getMissingPrerequisites(ctx, archivesToInstall)
@@ -149,7 +149,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	debugLogger.Debug("After filtering installed teeth, got archives to install:")
 	for _, archive := range filteredArchives {
-		debugLogger.Debugf("  %v (%v@%v)", archive.FilePath(), archive.Metadata().ToothRepoPath(), archive.Metadata().Version())
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	// Download tooth assets if necessary.
@@ -175,7 +175,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	for _, archive := range filteredArchives {
 		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag); err != nil {
-			return fmt.Errorf("failed to install tooth: %w", err)
+			return fmt.Errorf("failed to install tooth archive %v: %w", archive.FilePath().LocalString(), err)
 		}
 	}
 

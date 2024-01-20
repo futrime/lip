@@ -40,9 +40,8 @@ func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.
 
 		} else if fixedVersion.NE(archive.Metadata().Version()) {
 			return nil, fmt.Errorf(
-				"trying to fix tooth %v@%v, but found %v@%v fixed",
-				archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.Metadata().ToothRepoPath(),
-				fixedVersion)
+				"trying to fix tooth %v with version %v, but found version %v fixed",
+				archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), fixedVersion)
 		}
 	}
 
@@ -83,7 +82,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 		for dep, versionRange := range depMap {
 			if fixedVersion, ok := fixedToothAndVersionMap[dep]; ok {
 				if !versionRange(fixedToothAndVersionMap[dep]) {
-					return nil, fmt.Errorf("fixed tooth %v@%v does not satisfy the version range %v",
+					return nil, fmt.Errorf("fixed tooth %v of version %v does not satisfy the version range %v",
 						dep, fixedVersion.String(), depStrMap[dep])
 				}
 
@@ -97,15 +96,14 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 				return nil, fmt.Errorf("no available version in %v found for dependency %v", depStrMap[dep], dep)
 			}
 
-			debugLogger.Debugf("Dependency %v@%v is resolved to %v@%v", dep, depStrMap[dep], dep, targetVersion)
+			debugLogger.Debugf("Dependency %v of range %v is resolved to version %v", dep, depStrMap[dep], targetVersion)
 
 			currentArchive, err := downloadToothArchiveIfNotCached(ctx, dep, targetVersion)
 			if err != nil {
 				return nil, fmt.Errorf("failed to download tooth: %w", err)
 			}
 
-			debugLogger.Debugf("Downloaded tooth archive %v (%v@%v)", currentArchive.FilePath(), currentArchive.Metadata().ToothRepoPath(),
-				currentArchive.Metadata().Version().String())
+			debugLogger.Debugf("Downloaded tooth archive %v", currentArchive.FilePath().LocalString())
 
 			notResolvedArchiveQueue.PushBack(currentArchive)
 
@@ -122,7 +120,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 
 	debugLogger.Debug("Topologically sorted teeth:")
 	for _, archive := range sortedArchives {
-		debugLogger.Debugf("  %v (%v@%v)", archive.FilePath(), archive.Metadata().ToothRepoPath(), archive.Metadata().Version())
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	return sortedArchives, nil
