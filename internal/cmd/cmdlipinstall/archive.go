@@ -117,7 +117,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		if assetURL.String() != "" {
 			cachePath, err := getCachePath(ctx, assetURL)
 			if err != nil {
-				return fmt.Errorf("failed to get cache path: %w", err)
+				return fmt.Errorf("failed to get cache path of asset URL %v: %w", assetURL, err)
 			}
 
 			assetArchiveFilePath = cachePath

@@ -31,7 +31,7 @@ A tooth.json includes directives as shown in the following example. These are de
         "avatar_url": "avatar.png",
         "source": "github.com/lippkg/example"
     },
-    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.tth",
+    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.zip",
     "commands": {
         "pre_install": [
             "echo \"pre_install\""
@@ -111,7 +111,7 @@ Only letters, digits, dashes, underlines, dots and slashes [A-Za-z0-9-_./] are a
 
 The tooth path must uniquely identify your tooth. For most teeth, the path is a URL where lip can find the code. For teeth that won’t ever be downloaded directly, the tooth path can be just some name you control that will ensure uniqueness.
 
-Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax. Meanwhile, the tooth path should not end with ".tth", which will be regarded as a standalone tooth archive file.
+Note that the tooth path should not include protocol prefix (e.g. "https://" or "git://"), which already violates the syntax.
 
 If you would like to publish your tooth, please make the tooth path a real URL. For example, the first character should be a letter or a digit.
 
@@ -197,7 +197,7 @@ The URL should be a direct link to the asset file. The asset file should be a zi
 
 ```json
 {
-    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.tth"
+    "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.zip"
 }
 ```
 

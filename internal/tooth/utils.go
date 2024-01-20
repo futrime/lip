@@ -50,7 +50,7 @@ func GetAllMetadata(ctx *context.Context) ([]Metadata, error) {
 		// Check if the metadata file name matches the tooth repo path in the metadata.
 		expectedFileName := fmt.Sprintf("%v.json", url.QueryEscape(metadata.ToothRepoPath()))
 		if filePath.Base() != expectedFileName {
-			return nil, fmt.Errorf("metadata file name does not match: %v", filePath)
+			return nil, fmt.Errorf("metadata file name does not match: %v", filePath.LocalString())
 		}
 
 		metadataList = append(metadataList, metadata)

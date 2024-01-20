@@ -21,13 +21,13 @@ type Archive struct {
 func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
+		return Archive{}, fmt.Errorf("failed to open archive %v: %w", archiveFilePath.LocalString(), err)
 	}
 	defer r.Close()
 
 	filePaths, err := zip.GetFilePaths(r)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to extract file paths: %w", err)
+		return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", archiveFilePath.LocalString(), err)
 	}
 
 	filePathRoot := path.ExtractLongestCommonPath(filePaths...)

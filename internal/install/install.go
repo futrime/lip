@@ -43,7 +43,7 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 
 	assetFilePath, err := archive.AssetFilePath()
 	if err != nil {
-		return fmt.Errorf("failed to get asset file path: %w", err)
+		return fmt.Errorf("failed to get asset file path of archive %v: %w", archive.FilePath().LocalString(), err)
 	}
 
 	if err := placeFiles(ctx, archive.Metadata(), assetFilePath); err != nil {
@@ -139,7 +139,7 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 
 			filePath, err := path.Parse(f.Name)
 			if err != nil {
-				return fmt.Errorf("failed to parse file path: %w", err)
+				return fmt.Errorf("failed to parse file path from %v: %w", f.Name, err)
 			}
 
 			if filePath.Equal(place.Src) {

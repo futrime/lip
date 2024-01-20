@@ -65,7 +65,7 @@ func resolveSpecifiers(ctx *context.Context,
 			archivePath := must.Must(specifier.ToothArchivePath())
 			localArchive, err := tooth.MakeArchive(archivePath)
 			if err != nil {
-				return nil, fmt.Errorf("failed to open archive %v: %w", archivePath, err)
+				return nil, fmt.Errorf("failed to open archive %v: %w", archivePath.LocalString(), err)
 			}
 
 			archive = localArchive

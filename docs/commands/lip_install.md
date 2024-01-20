@@ -12,7 +12,7 @@ lip install [options] <tooth files>
 Install a tooth from:
 
 - tooth repositories via Goproxy.
-- local standalone tooth files (with suffix `.tth`).
+- local standalone tooth files.
 
 For the tooth repository, you can specific the version by add suffix like `@1.2.3` or `@1.2.0-beta.3`. However, when another version is installed and you run lip without `--upgrade` or `--force-reinstall` flag, lip will not install the specific version.
 

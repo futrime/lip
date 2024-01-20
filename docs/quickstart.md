@@ -34,8 +34,6 @@ By default, lip will fetch teeth via GOPROXY, a proxy of Git repos.
 Done.
 ```
 
-The tooth file should have ".tth" extension name.
-
 ### Install multiple teeth
 
 lip suppports installing multiple files at a time.

@@ -40,7 +40,7 @@ To install a online tooth (a package in lip), run `lip install <tooth>`. Here is
 lip install github.com/tooth-hub/bdsdownloader
 ```
 
-To install a local tooth (with `.tth` extension name), run `lip install <path>`. Here is an example:
+To install a local tooth (typically with `.tth` extension name), run `lip install <path>`. Here is an example:
 
 ```bash
 lip install ./bdsdownloader.tth

@@ -25,7 +25,7 @@ Usage:
   lip tooth pack [options] <output path>
 
 Description:
-  Pack the tooth into a .tth file.
+  Pack the tooth into a tooth archive.
 
 Options:
   -h, --help                  Show help.
@@ -67,7 +67,7 @@ func Run(ctx *context.Context, args []string) error {
 	// Pack the tooth.
 	outputPath, err := path.Parse(flagSet.Arg(0))
 	if err != nil {
-		return fmt.Errorf("failed to parse output path: %w", err)
+		return fmt.Errorf("failed to parse output path %v: %w", flagSet.Arg(0), err)
 	}
 
 	if err := packTooth(ctx, outputPath); err != nil {
@@ -121,7 +121,7 @@ func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 
 	zipFilePath, err := path.Parse(zipFile.Name())
 	if err != nil {
-		return path.Path{}, fmt.Errorf("failed to parse the temporary zip file path: %w", err)
+		return path.Path{}, fmt.Errorf("failed to parse the temporary zip file path %v: %w", zipFile.Name(), err)
 	}
 
 	zipWriter := zip.NewWriter(zipFile)
@@ -158,18 +158,13 @@ func packFilesToTemp(fileList []path.Path) (path.Path, error) {
 	return zipFilePath, nil
 }
 
-// packTooth packs the tooth into a .tth file.
+// packTooth packs the tooth into a tooth archive.
 func packTooth(ctx *context.Context, outputPath path.Path) error {
-
-	if filepath.Ext(outputPath.LocalString()) != ".tth" {
-		return fmt.Errorf("output path must have .tth extension")
-	}
-
 	_, err := os.Stat(outputPath.LocalString())
 	if err == nil {
 		return fmt.Errorf("output path %v already exists", outputPath.LocalString())
 	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("failed to stat output path: %w", err)
+		return fmt.Errorf("failed to stat output path %v: %w", outputPath.LocalString(), err)
 	}
 
 	workspaceDirStr, err := os.Getwd()
@@ -196,7 +191,8 @@ func packTooth(ctx *context.Context, outputPath path.Path) error {
 	// Copy the zip file to the output path.
 
 	if err := copyFile(zipFilePath, outputPath); err != nil {
-		return fmt.Errorf("failed to copy the zip file to the output path: %w", err)
+		return fmt.Errorf("failed to copy the zip file from %v to %v: %w",
+			zipFilePath.LocalString(), outputPath.LocalString(), err)
 	}
 
 	return nil

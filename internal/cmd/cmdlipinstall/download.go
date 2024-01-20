@@ -24,7 +24,7 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explici
 	if explicitCachePath.IsEmpty() {
 		p, err := getCachePath(ctx, downloadURL)
 		if err != nil {
-			return path.Path{}, fmt.Errorf("failed to get cache path: %w", err)
+			return path.Path{}, fmt.Errorf("failed to get cache path of %v: %w", downloadURL, err)
 		}
 
 		cachePath = p
@@ -86,7 +86,7 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 
 	archive, err := tooth.MakeArchive(cachePath)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to open archive %v: %w", cachePath, err)
+		return tooth.Archive{}, fmt.Errorf("failed to open archive %v: %w", cachePath.LocalString(), err)
 	}
 
 	if err := validateToothArchive(archive, toothRepoPath, toothVersion); err != nil {
@@ -126,7 +126,7 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 
 		cachePath, err := getCachePath(ctx, assetURL)
 		if err != nil {
-			return fmt.Errorf("failed to get cache path: %w", err)
+			return fmt.Errorf("failed to get cache path of asset URL %v: %w", assetURL, err)
 		}
 
 		if _, err := downloadFileIfNotCached(ctx, mirroredURL, cachePath); err != nil {

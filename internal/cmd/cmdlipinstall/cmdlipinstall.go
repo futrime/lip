@@ -35,9 +35,6 @@ Options:
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.
   -y, --yes                   Assume yes to all prompts and run non-interactively.
   --no-dependencies           Do not install dependencies. Also bypass prerequisite checks.
-
-Note:
-  Any string ends with .tth is considered as a local tooth archive path.
 `
 
 func Run(ctx *context.Context, args []string) error {
