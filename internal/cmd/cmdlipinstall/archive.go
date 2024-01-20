@@ -123,11 +123,15 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 			assetArchiveFilePath = cachePath
 		}
 
-		if err := install.Install(ctx, archive, assetArchiveFilePath); err != nil {
-			return fmt.Errorf("failed to install tooth archive %v (asset archive %v): %w", archive.FilePath().LocalString(), assetArchiveFilePath, err)
+		archiveWithAssets, err := archive.ToAssetArchiveAttached(assetArchiveFilePath)
+		if err != nil {
+			return fmt.Errorf("failed to attach asset archive %v: %w", assetArchiveFilePath.LocalString(), err)
 		}
-		debugLogger.Debugf("Installed tooth archive %v with asset archive %v",
-			archive.FilePath().LocalString(), assetArchiveFilePath.LocalString())
+
+		if err := install.Install(ctx, archiveWithAssets); err != nil {
+			return fmt.Errorf("failed to install tooth archive %v: %w", archiveWithAssets.FilePath().LocalString(), err)
+		}
+		debugLogger.Debugf("Installed tooth archive %v", archiveWithAssets.FilePath().LocalString())
 	}
 
 	return nil

@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 
+	gopath "path"
+
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth/migration/v1tov2"
@@ -313,13 +315,32 @@ func (m Metadata) ToPlatformSpecific(goos string, goarch string) (Metadata, erro
 	return MakeMetadataFromRaw(raw)
 }
 
+// ToFilePathPrefixPrepended prepends the given prefix to files.place field of metadata.
+func (m Metadata) ToFilePathPrefixPrepended(prefix path.Path) Metadata {
+	newRaw := m.rawMetadata
+
+	newPlace := make([]RawMetadataFilesPlaceItem, 0)
+
+	for _, placeItem := range m.rawMetadata.Files.Place {
+		newPlace = append(newPlace, RawMetadataFilesPlaceItem{
+			Src:  gopath.Join(prefix.String(), placeItem.Src),
+			Dest: placeItem.Dest,
+		})
+	}
+
+	newRaw.Files.Place = newPlace
+
+	return Metadata{newRaw}
+}
+
 // ToWildcardPopulated populates wildcards in files.place field of metadata.
-// filePaths should be relative to the directory of tooth.json.
-func (m Metadata) ToWildcardPopulated(metadata Metadata, filePaths []path.Path) (Metadata, error) {
+func (m Metadata) ToWildcardPopulated(filePaths []path.Path) (Metadata, error) {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "tooth",
 		"method":  "Metadata.ToWildcardPopulated",
 	})
+
+	newRaw := m.rawMetadata
 
 	newPlace := make([]RawMetadataFilesPlaceItem, 0)
 
@@ -356,11 +377,11 @@ func (m Metadata) ToWildcardPopulated(metadata Metadata, filePaths []path.Path) 
 		}
 	}
 
-	m.rawMetadata.Files.Place = newPlace
+	newRaw.Files.Place = newPlace
 
-	metadata = Metadata{m.rawMetadata}
+	newMetadata := Metadata{newRaw}
 
-	return metadata, nil
+	return newMetadata, nil
 }
 
 func parseFormatVersion(jsonBytes []byte) (int, error) {

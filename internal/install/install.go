@@ -17,7 +17,7 @@ import (
 
 // Install installs a tooth archive with an asset archive. If assetArchiveFilePath is empty,
 // will use the tooth archive as the asset archive.
-func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath path.Path) error {
+func Install(ctx *context.Context, archive tooth.Archive) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "install",
 		"method":  "Install",
@@ -41,31 +41,14 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 
 	// 3. Extract and place files.
 
-	assetURL, err := archive.Metadata().AssetURL()
+	assetFilePath, err := archive.AssetFilePath()
 	if err != nil {
-		return fmt.Errorf("failed to get asset URL: %w", err)
+		return fmt.Errorf("failed to get asset file path: %w", err)
 	}
 
-	if (assetArchiveFilePath.IsEmpty() && (assetURL.String() != "")) ||
-		(!assetArchiveFilePath.IsEmpty() && (assetURL.String() == "")) {
-		return fmt.Errorf("asset archive file path and asset URL must be both specified or both empty")
+	if err := placeFiles(ctx, archive.Metadata(), assetFilePath); err != nil {
+		return fmt.Errorf("failed to place files: %w", err)
 	}
-
-	if assetArchiveFilePath.IsEmpty() {
-		debugLogger.Debug("No asset archive specified, using tooth archive")
-
-		if err := placeFiles(ctx, archive.Metadata(), archive.FilePath(), archive.ContentFilePathRoot()); err != nil {
-			return fmt.Errorf("failed to place files: %w", err)
-		}
-
-	} else {
-		debugLogger.Debug("Asset archive specified, using asset archive")
-
-		if err := placeFiles(ctx, archive.Metadata(), assetArchiveFilePath, path.MakeEmpty()); err != nil {
-			return fmt.Errorf("failed to place files: %w", err)
-		}
-	}
-
 	debugLogger.Debug("Placed files")
 
 	// 4. Run post-install commands.
@@ -100,7 +83,7 @@ func Install(ctx *context.Context, archive tooth.Archive, assetArchiveFilePath p
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, assetContentFilePathRoot path.Path) error {
+func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "install",
 		"method":  "placeFiles",
@@ -144,10 +127,6 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 		}
 		debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
 
-		relSrc := place.Src
-
-		src := assetContentFilePathRoot.Join(relSrc)
-
 		// Iterate through the files in the archive,
 		// and find the source file.
 		for _, f := range r.File {
@@ -163,7 +142,7 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 				return fmt.Errorf("failed to parse file path: %w", err)
 			}
 
-			if filePath.Equal(src) {
+			if filePath.Equal(place.Src) {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {

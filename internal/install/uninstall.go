@@ -110,9 +110,9 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 		debugLogger.Debugf("Deleted file %v", dest.LocalString())
 
 		// Delete all ancestor directories if they are empty until the workspace directory.
-		dir := dest
+		currentPath := dest
 		for {
-			dir, err := dir.Dir()
+			dir, err := currentPath.Dir()
 			if err != nil {
 				return fmt.Errorf("failed to parse directory: %w", err)
 			}
@@ -128,8 +128,12 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 
 			fileList, err := os.ReadDir(dir.LocalString())
 			if err != nil {
-				// If the directory does not exist, we can ignore the error.
-				break
+				if os.IsNotExist(err) {
+					log.Errorf("Directory %v does not exist, skip deleting", dir.LocalString())
+					break
+				} else {
+					return fmt.Errorf("failed to read directory %v: %w", dir.LocalString(), err)
+				}
 			}
 
 			if len(fileList) != 0 {
@@ -140,6 +144,8 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 				return fmt.Errorf("failed to delete directory: %w", err)
 			}
 			debugLogger.Debugf("Deleted directory %v", dir.LocalString())
+
+			currentPath = dir
 		}
 	}
 
