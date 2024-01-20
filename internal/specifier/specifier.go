@@ -138,7 +138,11 @@ func (s Specifier) String() string {
 		return s.toothArchivePath.LocalString()
 
 	case ToothRepoKind:
-		return s.toothRepoPath + "@" + s.toothVersion.String()
+		if s.isToothVersionSpecified {
+			return s.toothRepoPath + "@" + s.toothVersion.String()
+		} else {
+			return s.toothRepoPath
+		}
 	}
 
 	// Never reached.

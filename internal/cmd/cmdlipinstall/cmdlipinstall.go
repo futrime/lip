@@ -35,12 +35,14 @@ Options:
   --force-reinstall           Reinstall the tooth even if they are already up-to-date.
   -y, --yes                   Assume yes to all prompts and run non-interactively.
   --no-dependencies           Do not install dependencies. Also bypass prerequisite checks.
-
-Note:
-  Any string ends with .tth is considered as a local tooth archive path.
 `
 
 func Run(ctx *context.Context, args []string) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "Run",
+	})
+
 	flagSet := flag.NewFlagSet("install", flag.ContinueOnError)
 
 	// Rewrite the default usage message.
@@ -86,11 +88,21 @@ func Run(ctx *context.Context, args []string) error {
 		specifiers = append(specifiers, specifier)
 	}
 
+	debugLogger.Debug("Got specifiers from arguments:")
+	for _, specifier := range specifiers {
+		debugLogger.Debugf("  %v", specifier)
+	}
+
 	// Download remote tooth archives. Then open all specified tooth archives.
 
 	specifiedArchives, err := resolveSpecifiers(ctx, specifiers)
 	if err != nil {
 		return fmt.Errorf("failed to parse and download specifier string list: %w", err)
+	}
+
+	debugLogger.Debug("Got tooth archives from specifiers:")
+	for _, archive := range specifiedArchives {
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	// Resolve dependencies and check prerequisites.
@@ -105,7 +117,11 @@ func Run(ctx *context.Context, args []string) error {
 
 		archivesToInstall = archives
 
-		// Check prerequisites.
+		debugLogger.Debug("After resolving dependencies, got tooth archives to install:")
+		for _, archive := range archivesToInstall {
+			debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
+		}
+
 		_, missingPrerequisites, err := getMissingPrerequisites(ctx, archivesToInstall)
 		if err != nil {
 			return fmt.Errorf("failed to find missing prerequisites: %w", err)
@@ -121,10 +137,16 @@ func Run(ctx *context.Context, args []string) error {
 	}
 
 	// Filter installed teeth.
+
 	filteredArchives, err := filterInstalledToothArchives(ctx, archivesToInstall, flagDict.upgradeFlag,
 		flagDict.forceReinstallFlag)
 	if err != nil {
 		return fmt.Errorf("failed to filter installed teeth: %w", err)
+	}
+
+	debugLogger.Debug("After filtering installed teeth, got archives to install:")
+	for _, archive := range filteredArchives {
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	// Download tooth assets if necessary.
@@ -146,9 +168,11 @@ func Run(ctx *context.Context, args []string) error {
 
 	// Install teeth.
 
+	log.Info("Installing teeth...")
+
 	for _, archive := range filteredArchives {
 		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag); err != nil {
-			return fmt.Errorf("failed to install tooth: %w", err)
+			return fmt.Errorf("failed to install tooth archive %v: %w", archive.FilePath().LocalString(), err)
 		}
 	}
 
@@ -164,7 +188,7 @@ func askForConfirmation(ctx *context.Context,
 	// Print the list of teeth to be installed.
 	log.Info("The following teeth will be installed:")
 	for _, archive := range archiveList {
-		log.Infof("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version().String(),
+		log.Infof("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(),
 			archive.Metadata().Info().Name)
 	}
 

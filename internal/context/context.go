@@ -177,11 +177,11 @@ func (ctx *Context) LoadOrCreateConfigFile() error {
 	} else {
 		jsonBytes, err := os.ReadFile(configFilePath.LocalString())
 		if err != nil {
-			return fmt.Errorf("cannot read config file at %v: %w", configFilePath, err)
+			return fmt.Errorf("cannot read config file at %v: %w", configFilePath.LocalString(), err)
 		}
 
 		if err := json.Unmarshal(jsonBytes, &ctx.config); err != nil {
-			return fmt.Errorf("cannot unmarshal config at %v: %w", configFilePath, err)
+			return fmt.Errorf("cannot unmarshal config at %v: %w", configFilePath.LocalString(), err)
 		}
 	}
 

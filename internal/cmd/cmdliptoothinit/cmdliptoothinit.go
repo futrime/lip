@@ -98,7 +98,7 @@ func initTooth(ctx *context.Context) error {
 	ans = scanner.Text()
 
 	if !tooth.IsValidToothRepoPath(ans) {
-		return fmt.Errorf("invalid tooth repo path: %w", err)
+		return fmt.Errorf("invalid tooth repo path %v: %w", ans, err)
 	}
 
 	rawMetadata.Tooth = ans

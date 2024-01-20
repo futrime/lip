@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"runtime"
-	"strings"
 
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/zip"
@@ -13,22 +12,22 @@ import (
 
 // Archive is an archive containing a tooth.
 type Archive struct {
-	metadata        Metadata
-	filePath        path.Path
-	contentPathRoot path.Path
+	metadata      Metadata
+	filePath      path.Path
+	assetFilePath path.Path
 }
 
 // MakeArchive creates a new archive. It will automatically convert metadata to platform-specific.
 func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to open archive: %w", err)
+		return Archive{}, fmt.Errorf("failed to open archive %v: %w", archiveFilePath.LocalString(), err)
 	}
 	defer r.Close()
 
 	filePaths, err := zip.GetFilePaths(r)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to extract file paths: %w", err)
+		return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", archiveFilePath.LocalString(), err)
 	}
 
 	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
@@ -80,23 +79,19 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 		return Archive{}, fmt.Errorf("failed to convert to platform-specific metadata: %w", err)
 	}
 
-	// Extract all file paths and remove the common prefix.
-	filePathsTrimmed := make([]path.Path, 0)
-	for _, filePath := range filePaths {
-		filePathsTrimmed = append(filePathsTrimmed, filePath.TrimPrefix(filePathRoot))
-	}
-
-	metadataWithoutWildcards, err := populateMetadataFilePlaceWildcards(metadata, filePathsTrimmed)
-	if err != nil {
-		return Archive{}, fmt.Errorf(
-			"failed to resolve metadata files place regular expressions: %w", err)
-	}
-
 	return Archive{
-		metadata:        metadataWithoutWildcards,
-		filePath:        archiveFilePath,
-		contentPathRoot: filePathRoot,
+		metadata:      metadata,
+		filePath:      archiveFilePath,
+		assetFilePath: path.MakeEmpty(),
 	}, nil
+}
+
+func (ar Archive) AssetFilePath() (path.Path, error) {
+	if ar.assetFilePath.IsEmpty() {
+		return path.MakeEmpty(), fmt.Errorf("asset file path is empty")
+	}
+
+	return ar.assetFilePath, nil
 }
 
 // FilePath returns the path of the asset archive.
@@ -104,57 +99,76 @@ func (ar Archive) FilePath() path.Path {
 	return ar.filePath
 }
 
-// ContentFilePathRoot returns the directory of tooth.json in the archive.
-func (ar Archive) ContentFilePathRoot() path.Path {
-	return ar.contentPathRoot
-}
-
 // Metadata returns the metadata of the archive.
 func (ar Archive) Metadata() Metadata {
 	return ar.metadata
 }
 
-// populateMetadataFilePlaceWildcards populates wildcards in files.place field of metadata.
-// filePaths should be relative to the directory of tooth.json.
-func populateMetadataFilePlaceWildcards(metadata Metadata, filePaths []path.Path) (Metadata, error) {
-	newPlace := make([]RawMetadataFilesPlaceItem, 0)
-
-	rawMetadata := metadata.Raw()
-
-	for _, placeItem := range rawMetadata.Files.Place {
-		// If not wildcard, just append.
-		if !strings.HasSuffix(placeItem.Src, "*") {
-			newPlace = append(newPlace, placeItem)
-			continue
-		}
-
-		sourcePathPrefix, err := path.Parse(strings.TrimSuffix(placeItem.Src, "*"))
-		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse source path prefix: %w", err)
-		}
-
-		destPathPrefix, err := path.Parse(placeItem.Dest)
-		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse destination path prefix: %w", err)
-		}
-
-		for _, filePath := range filePaths {
-			if !filePath.HasPrefix(sourcePathPrefix) {
-				continue
-			}
-
-			relFilePath := filePath.TrimPrefix(sourcePathPrefix)
-
-			newPlace = append(newPlace, RawMetadataFilesPlaceItem{
-				Src:  filePath.String(),
-				Dest: destPathPrefix.Join(relFilePath).String(),
-			})
-		}
+// ToAssetArchiveAttached converts the archive to an archive with asset archive attached.
+// If assetArchivePath is empty, the tooth archive will be used as the asset archive.
+func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archive, error) {
+	// Validate consistency of asset archive file path and asset URL.
+	assetURL, err := ar.Metadata().AssetURL()
+	if err != nil {
+		return Archive{}, fmt.Errorf("failed to get asset URL: %w", err)
 	}
 
-	rawMetadata.Files.Place = newPlace
+	if (assetArchiveFilePath.IsEmpty() && (assetURL.String() != "")) ||
+		(!assetArchiveFilePath.IsEmpty() && (assetURL.String() == "")) {
+		return Archive{}, fmt.Errorf("asset archive file path and asset URL must be both specified or both empty")
+	}
 
-	metadata = Metadata{rawMetadata}
+	if assetArchiveFilePath.IsEmpty() {
+		// Extract common prefix and prepend it to all file paths in file.place.
 
-	return metadata, nil
+		r, err := gozip.OpenReader(ar.filePath.LocalString())
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to open archive %v: %w", assetArchiveFilePath.LocalString(), err)
+		}
+		defer r.Close()
+
+		filePaths, err := zip.GetFilePaths(r)
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", assetArchiveFilePath.LocalString(), err)
+		}
+
+		filePathRoot := path.ExtractLongestCommonPath(filePaths...)
+
+		newMetadata := ar.metadata
+		newMetadataPrefixPrepended := newMetadata.ToFilePathPrefixPrepended(filePathRoot)
+		newMetadataWildcardPopulated, err := newMetadataPrefixPrepended.ToWildcardPopulated(filePaths)
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to populate wildcards: %w", err)
+		}
+
+		return Archive{
+			metadata:      newMetadataWildcardPopulated,
+			filePath:      ar.filePath,
+			assetFilePath: ar.filePath,
+		}, nil
+
+	} else {
+		r, err := gozip.OpenReader(assetArchiveFilePath.LocalString())
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to open archive %v: %w", assetArchiveFilePath.LocalString(), err)
+		}
+		defer r.Close()
+
+		filePaths, err := zip.GetFilePaths(r)
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", assetArchiveFilePath.LocalString(), err)
+		}
+
+		newMetadata := ar.metadata
+		newMetadataWildcardPopulated, err := newMetadata.ToWildcardPopulated(filePaths)
+		if err != nil {
+			return Archive{}, fmt.Errorf("failed to populate wildcards: %w", err)
+		}
+
+		return Archive{
+			metadata:      newMetadataWildcardPopulated,
+			filePath:      ar.filePath,
+			assetFilePath: assetArchiveFilePath,
+		}, nil
+	}
 }

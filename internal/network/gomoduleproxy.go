@@ -13,12 +13,12 @@ import (
 // module.
 func GenerateGoModuleVersionListURL(goModulePath string, goProxyURL *url.URL) (*url.URL, error) {
 	if err := module.CheckPath(goModulePath); err != nil {
-		return nil, fmt.Errorf("not a Go module path: %v", goModulePath)
+		return nil, fmt.Errorf("%v is not a Go module path", goModulePath)
 	}
 
 	escapedPath, err := module.EscapePath(goModulePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot escape Go module path: %w", err)
+		return nil, fmt.Errorf("cannot escape Go module path %v: %w", goModulePath, err)
 	}
 
 	resultURL, err := goProxyURL.Parse(path.Join(escapedPath, "@v", "list"))
@@ -32,7 +32,7 @@ func GenerateGoModuleVersionListURL(goModulePath string, goProxyURL *url.URL) (*
 // GenerateGoModuleZipFileURL generates the URL of a Go module zip file.
 func GenerateGoModuleZipFileURL(goModulePath string, version semver.Version, goProxyURL *url.URL) (*url.URL, error) {
 	if err := module.CheckPath(goModulePath); err != nil {
-		return nil, fmt.Errorf("not a Go module path: %v", goModulePath)
+		return nil, fmt.Errorf("%v is not a Go module path", goModulePath)
 	}
 
 	zipFileName, err := generateGoModuleZipFileName(version)
@@ -42,7 +42,7 @@ func GenerateGoModuleZipFileURL(goModulePath string, version semver.Version, goP
 
 	escapedPath, err := module.EscapePath(goModulePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot escape Go module path: %w", err)
+		return nil, fmt.Errorf("cannot escape Go module path %v: %w", goModulePath, err)
 	}
 
 	resultURL, err := goProxyURL.Parse(path.Join(escapedPath, "@v", zipFileName))

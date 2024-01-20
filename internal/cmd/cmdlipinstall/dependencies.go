@@ -7,6 +7,7 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/tooth"
+	log "github.com/sirupsen/logrus"
 )
 
 func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.Archive, upgradeFlag bool,
@@ -39,9 +40,8 @@ func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.
 
 		} else if fixedVersion.NE(archive.Metadata().Version()) {
 			return nil, fmt.Errorf(
-				"trying to fix tooth %v@%v, but found %v@%v fixed",
-				archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.Metadata().ToothRepoPath(),
-				fixedVersion)
+				"trying to fix tooth %v with version %v, but found version %v fixed",
+				archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), fixedVersion)
 		}
 	}
 
@@ -54,6 +54,10 @@ func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.
 // The first return value indicates whether the dependencies are resolved.
 func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	upgradeFlag bool, forceReinstallFlag bool) ([]tooth.Archive, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "resolveDependencies",
+	})
 
 	fixedToothAndVersionMap, err := getFixedToothAndVersionMap(ctx, rootArchiveList, upgradeFlag,
 		forceReinstallFlag)
@@ -78,11 +82,12 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 		for dep, versionRange := range depMap {
 			if fixedVersion, ok := fixedToothAndVersionMap[dep]; ok {
 				if !versionRange(fixedToothAndVersionMap[dep]) {
-					return nil, fmt.Errorf("fixed tooth %v@%v does not satisfy the version range %v",
+					return nil, fmt.Errorf("fixed tooth %v of version %v does not satisfy the version range %v",
 						dep, fixedVersion.String(), depStrMap[dep])
 				}
 
 				// Avoid downloading the same tooth multiple times.
+				debugLogger.Debugf("Dependency %v@%v is already fixed, skip", dep, fixedVersion)
 				continue
 			}
 
@@ -91,10 +96,14 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 				return nil, fmt.Errorf("no available version in %v found for dependency %v", depStrMap[dep], dep)
 			}
 
+			debugLogger.Debugf("Dependency %v of range %v is resolved to version %v", dep, depStrMap[dep], targetVersion)
+
 			currentArchive, err := downloadToothArchiveIfNotCached(ctx, dep, targetVersion)
 			if err != nil {
 				return nil, fmt.Errorf("failed to download tooth: %w", err)
 			}
+
+			debugLogger.Debugf("Downloaded tooth archive %v", currentArchive.FilePath().LocalString())
 
 			notResolvedArchiveQueue.PushBack(currentArchive)
 
@@ -107,6 +116,11 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	sortedArchives, err := topoSortToothArchives(resolvedArchiveList)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sort teeth: %w", err)
+	}
+
+	debugLogger.Debug("Topologically sorted teeth:")
+	for _, archive := range sortedArchives {
+		debugLogger.Debugf("  %v@%v: %v", archive.Metadata().ToothRepoPath(), archive.Metadata().Version(), archive.FilePath().LocalString())
 	}
 
 	return sortedArchives, nil

@@ -6,7 +6,10 @@ import (
 	"net/url"
 	"strings"
 
+	gopath "path"
+
 	"github.com/blang/semver/v4"
+	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth/migration/v1tov2"
 	"github.com/xeipuuv/gojsonschema"
 
@@ -15,6 +18,31 @@ import (
 
 type Metadata struct {
 	rawMetadata RawMetadata
+}
+
+type Info struct {
+	Name        string
+	Description string
+	Author      string
+	Tags        []string
+	Source      string
+}
+type Commands struct {
+	PreInstall    []string
+	PostInstall   []string
+	PreUninstall  []string
+	PostUninstall []string
+}
+
+type Files struct {
+	Place    []FilesPlaceItem
+	Preserve []path.Path
+	Remove   []path.Path
+}
+
+type FilesPlaceItem struct {
+	Src  path.Path
+	Dest path.Path
 }
 
 const expectedFormatVersion = 2
@@ -77,7 +105,8 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 
 	// Warn for obsolete tooth.json.
 	if isMigrationNeeded {
-		log.Warnf("tooth.json format of %v is deprecated. This tooth might be obsolete.", rawMetadata.Tooth)
+		log.Warnf("tooth.json format version %v of %v is deprecated. This tooth might be obsolete.",
+			formatVersion, metadata.ToothRepoPath())
 	}
 
 	return metadata, nil
@@ -101,10 +130,6 @@ func MakeMetadataFromRaw(rawMetadata RawMetadata) (Metadata, error) {
 	return Metadata{rawMetadata}, nil
 }
 
-func (m Metadata) Raw() RawMetadata {
-	return m.rawMetadata
-}
-
 func (m Metadata) ToothRepoPath() string {
 	return m.rawMetadata.Tooth
 }
@@ -113,16 +138,16 @@ func (m Metadata) Version() semver.Version {
 	return semver.MustParse(m.rawMetadata.Version)
 }
 
-func (m Metadata) Info() RawMetadataInfo {
-	return m.rawMetadata.Info
+func (m Metadata) Info() Info {
+	return Info(m.rawMetadata.Info)
 }
 
 func (m Metadata) AssetURL() (*url.URL, error) {
 	return url.Parse(m.rawMetadata.AssetURL)
 }
 
-func (m Metadata) Commands() RawMetadataCommands {
-	return m.rawMetadata.Commands
+func (m Metadata) Commands() Commands {
+	return Commands(m.rawMetadata.Commands)
 }
 
 func (m Metadata) Dependencies() map[string]semver.Range {
@@ -175,8 +200,64 @@ func (m Metadata) PrerequisitesAsStrings() map[string]string {
 	return prerequisites
 }
 
-func (m Metadata) Files() RawMetadataFiles {
-	return m.rawMetadata.Files
+func (m Metadata) Files() (Files, error) {
+	if !m.IsWildcardPopulated() {
+		return Files{}, fmt.Errorf("wildcard is not populated")
+	}
+
+	place := make([]FilesPlaceItem, 0)
+	for _, placeItem := range m.rawMetadata.Files.Place {
+		src, err := path.Parse(placeItem.Src)
+		if err != nil {
+			return Files{}, fmt.Errorf("failed to parse source path: %w", err)
+		}
+
+		dest, err := path.Parse(placeItem.Dest)
+		if err != nil {
+			return Files{}, fmt.Errorf("failed to parse destination path: %w", err)
+		}
+
+		place = append(place, FilesPlaceItem{
+			Src:  src,
+			Dest: dest,
+		})
+	}
+
+	preserve := make([]path.Path, 0)
+	for _, preserveItem := range m.rawMetadata.Files.Preserve {
+		preservePath, err := path.Parse(preserveItem)
+		if err != nil {
+			return Files{}, fmt.Errorf("failed to parse preserve path: %w", err)
+		}
+
+		preserve = append(preserve, preservePath)
+	}
+
+	remove := make([]path.Path, 0)
+	for _, removeItem := range m.rawMetadata.Files.Remove {
+		removePath, err := path.Parse(removeItem)
+		if err != nil {
+			return Files{}, fmt.Errorf("failed to parse remove path: %w", err)
+		}
+
+		remove = append(remove, removePath)
+	}
+
+	return Files{
+		Place:    place,
+		Preserve: preserve,
+		Remove:   remove,
+	}, nil
+}
+
+func (m Metadata) IsWildcardPopulated() bool {
+	for _, placeItem := range m.rawMetadata.Files.Place {
+		if strings.Contains(placeItem.Src, "*") {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (m Metadata) MarshalJSON() ([]byte, error) {
@@ -232,6 +313,75 @@ func (m Metadata) ToPlatformSpecific(goos string, goarch string) (Metadata, erro
 	}
 
 	return MakeMetadataFromRaw(raw)
+}
+
+// ToFilePathPrefixPrepended prepends the given prefix to files.place field of metadata.
+func (m Metadata) ToFilePathPrefixPrepended(prefix path.Path) Metadata {
+	newRaw := m.rawMetadata
+
+	newPlace := make([]RawMetadataFilesPlaceItem, 0)
+
+	for _, placeItem := range m.rawMetadata.Files.Place {
+		newPlace = append(newPlace, RawMetadataFilesPlaceItem{
+			Src:  gopath.Join(prefix.String(), placeItem.Src),
+			Dest: placeItem.Dest,
+		})
+	}
+
+	newRaw.Files.Place = newPlace
+
+	return Metadata{newRaw}
+}
+
+// ToWildcardPopulated populates wildcards in files.place field of metadata.
+func (m Metadata) ToWildcardPopulated(filePaths []path.Path) (Metadata, error) {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "tooth",
+		"method":  "Metadata.ToWildcardPopulated",
+	})
+
+	newRaw := m.rawMetadata
+
+	newPlace := make([]RawMetadataFilesPlaceItem, 0)
+
+	for _, placeItem := range m.rawMetadata.Files.Place {
+		// If not wildcard, just append.
+		if !strings.HasSuffix(placeItem.Src, "*") {
+			newPlace = append(newPlace, placeItem)
+			continue
+		}
+
+		sourcePathPrefix, err := path.Parse(strings.TrimSuffix(placeItem.Src, "*"))
+		if err != nil {
+			return Metadata{}, fmt.Errorf("failed to parse source path prefix: %w", err)
+		}
+
+		destPathPrefix, err := path.Parse(placeItem.Dest)
+		if err != nil {
+			return Metadata{}, fmt.Errorf("failed to parse destination path prefix: %w", err)
+		}
+
+		for _, filePath := range filePaths {
+			if !filePath.HasPrefix(sourcePathPrefix) {
+				continue
+			}
+
+			relFilePath := filePath.TrimPrefix(sourcePathPrefix)
+
+			newPlace = append(newPlace, RawMetadataFilesPlaceItem{
+				Src:  filePath.String(),
+				Dest: destPathPrefix.Join(relFilePath).String(),
+			})
+
+			debugLogger.Debugf("Populated %v to %v", filePath, destPathPrefix.Join(relFilePath))
+		}
+	}
+
+	newRaw.Files.Place = newPlace
+
+	newMetadata := Metadata{newRaw}
+
+	return newMetadata, nil
 }
 
 func parseFormatVersion(jsonBytes []byte) (int, error) {

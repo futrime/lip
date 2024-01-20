@@ -40,13 +40,10 @@ func downloadToothRepoSpecifier(ctx *context.Context,
 		toothVersion = latestVersion
 	}
 
-	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to get tooth repo: %w", err)
-	}
-
 	archive, err := downloadToothArchiveIfNotCached(ctx, toothRepoPath, toothVersion)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to download from all Go proxies: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to download archive of %v@%v: %w", toothRepoPath,
+			toothVersion, err)
 	}
 
 	return archive, nil
@@ -68,7 +65,7 @@ func resolveSpecifiers(ctx *context.Context,
 			archivePath := must.Must(specifier.ToothArchivePath())
 			localArchive, err := tooth.MakeArchive(archivePath)
 			if err != nil {
-				return nil, fmt.Errorf("failed to open archive %v: %w", archivePath, err)
+				return nil, fmt.Errorf("failed to open archive %v: %w", archivePath.LocalString(), err)
 			}
 
 			archive = localArchive

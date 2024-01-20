@@ -177,7 +177,7 @@ func (f Path) Join(other Path) Path {
 
 // TrimPrefix trims the prefix from the path.
 func (f Path) TrimPrefix(prefix Path) Path {
-	if !prefix.HasPrefix(f) {
+	if !f.HasPrefix(f) {
 		return f
 	}
 
@@ -188,7 +188,7 @@ func (f Path) TrimPrefix(prefix Path) Path {
 
 // TrimSuffix trims the suffix from the path.
 func (f Path) TrimSuffix(suffix Path) Path {
-	if !suffix.HasSuffix(f) {
+	if !f.HasSuffix(f) {
 		return f
 	}
 

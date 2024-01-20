@@ -35,7 +35,11 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 
 			if archive.Metadata().Version().GT(currentMetadata.Version()) {
 				filteredArchives = append(filteredArchives, archive)
+			} else {
+				log.Infof("Tooth %v is already up-to-date", archive.Metadata().ToothRepoPath())
 			}
+		} else {
+			log.Infof("Tooth %v is already installed", archive.Metadata().ToothRepoPath())
 		}
 	}
 
@@ -44,6 +48,11 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 
 // installToothArchive installs the tooth archive.
 func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
+	debugLogger := log.WithFields(log.Fields{
+		"package": "cmdlipinstall",
+		"method":  "installToothArchive",
+	})
+
 	isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 	if err != nil {
 		return fmt.Errorf("failed to check if tooth is installed: %w", err)
@@ -95,6 +104,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		if err != nil {
 			return fmt.Errorf("failed to uninstall tooth: %w", err)
 		}
+		debugLogger.Debugf("Uninstalled tooth %v", archive.Metadata().ToothRepoPath())
 	}
 
 	if shouldInstall {
@@ -107,15 +117,21 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		if assetURL.String() != "" {
 			cachePath, err := getCachePath(ctx, assetURL)
 			if err != nil {
-				return fmt.Errorf("failed to get cache path: %w", err)
+				return fmt.Errorf("failed to get cache path of asset URL %v: %w", assetURL, err)
 			}
 
 			assetArchiveFilePath = cachePath
 		}
 
-		if err := install.Install(ctx, archive, assetArchiveFilePath); err != nil {
-			return fmt.Errorf("failed to install tooth: %w", err)
+		archiveWithAssets, err := archive.ToAssetArchiveAttached(assetArchiveFilePath)
+		if err != nil {
+			return fmt.Errorf("failed to attach asset archive %v: %w", assetArchiveFilePath.LocalString(), err)
 		}
+
+		if err := install.Install(ctx, archiveWithAssets); err != nil {
+			return fmt.Errorf("failed to install tooth archive %v: %w", archiveWithAssets.FilePath().LocalString(), err)
+		}
+		debugLogger.Debugf("Installed tooth archive %v", archiveWithAssets.FilePath().LocalString())
 	}
 
 	return nil

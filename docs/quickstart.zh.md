@@ -34,8 +34,6 @@ Done.
 Done.
 ```
 
-tooth文件需要有`.tth`扩展名。
-
 ### 安装多个tooth
 
 lip 支持一次安装多个tooth
