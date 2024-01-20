@@ -7,8 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2024-01-20
+
+### Added
+
+- Tons of debug logging.
+- Show available versions without installing.
+
+### Changed
+
+- Optimize error logging.
+
 ### Fixed
 
+- Wildcard not parsing correctly.
+- Wrong error output when "%" is used in messages.
 - Wrong version `@0.0.0` when stringify specifiers without version.
 
 ## [0.18.1] - 2024-01-12
@@ -352,7 +365,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/lippkg/lip/compare/v0.18.1...HEAD
+[unreleased]: https://github.com/lippkg/lip/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/lippkg/lip/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/lippkg/lip/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/lippkg/lip/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/lippkg/lip/compare/v0.16.1...v0.17.0
