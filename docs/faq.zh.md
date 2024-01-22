@@ -6,7 +6,7 @@
 
 ## 它的下载速度太慢了! 我可以做什么呢？
 
-lip通过GOPROXY下载牙齿。你可以将`GOPROXY`环境变量设置为一个用逗号隔开的GOPROXY服务器列表，例如`LIP_GOPROXY=https://goproxy.cn,https://goproxy.io`。设置一个离你很近的GOPROXY服务器。
+Lip通过GOPROXY下载依赖。你可以通过运行`lip config GoModuleProxyURL <url>`来使用更快的代理。Lip还支持GitHub镜像，你可以通过运行`lip config GitHubMirrorURL <url>`来使用它。
 
 ## 当我试图安装一个tooth时，它总是显示错误！
 
