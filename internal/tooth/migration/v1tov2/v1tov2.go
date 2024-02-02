@@ -166,7 +166,6 @@ type RawMetadataInfo struct {
 	Description string   `json:"description"`
 	Author      string   `json:"author"`
 	Tags        []string `json:"tags"`
-	Source      string   `json:"source,omitempty"`
 }
 
 type RawMetadataCommands struct {
@@ -228,7 +227,6 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 			Name:        v1RawMetadata.Information.Name,
 			Description: v1RawMetadata.Information.Description,
 			Author:      v1RawMetadata.Information.Author,
-			Source:      "",
 			Tags:        make([]string, 0),
 		},
 		Commands: RawMetadataCommands{

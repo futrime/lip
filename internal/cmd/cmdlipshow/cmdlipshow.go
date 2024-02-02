@@ -145,7 +145,6 @@ func show(ctx *context.Context, toothRepoPath string,
 				{"Name", metadata.Info().Name},
 				{"Description", metadata.Info().Description},
 				{"Author", metadata.Info().Author},
-				{"Source", metadata.Info().Source},
 				{"Tags", strings.Join(metadata.Info().Tags, ", ")},
 				{"Version", metadata.Version().String()},
 			}...)

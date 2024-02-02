@@ -22,7 +22,6 @@ type RawMetadataInfo struct {
 	Description string   `json:"description"`
 	Author      string   `json:"author"`
 	Tags        []string `json:"tags"`
-	Source      string   `json:"source,omitempty"`
 }
 
 type RawMetadataCommands struct {

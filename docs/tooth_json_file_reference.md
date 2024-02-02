@@ -28,8 +28,7 @@ A tooth.json includes directives as shown in the following example. These are de
         "tags": [
             "example"
         ],
-        "avatar_url": "avatar.png",
-        "source": "github.com/lippkg/example"
+        "avatar_url": "avatar.png"
     },
     "asset_url": "https://github.com/tooth-hub/example/releases/download/v1.0.0/example-1.0.0.zip",
     "commands": {
@@ -166,7 +165,6 @@ Provide information about your tooth in the form of a JSON object with the follo
 - `author`: (required) the author of your tooth.
 - `tags`: (required) an array of tags of your tooth.
 - `avatar_url`: the URL of the tooth's avatar. If not set, the default avatar will be used. If a relative path is provided, it will be regarded as a path relative to **the source repository path**.
-- `source`: the source repository of your tooth. If not set, the tooth repository path will be used.
 
 ### Examples
 
@@ -179,8 +177,7 @@ Provide information about your tooth in the form of a JSON object with the follo
         "tags": [
             "example"
         ],
-        "avartar_url": "",
-        "source": "github.com/lippkg/example"
+        "avartar_url": ""
     }
 }
 ```

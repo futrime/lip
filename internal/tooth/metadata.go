@@ -25,7 +25,6 @@ type Info struct {
 	Description string
 	Author      string
 	Tags        []string
-	Source      string
 }
 type Commands struct {
 	PreInstall    []string

@@ -35,9 +35,6 @@ const metadataJSONSchema = `{
 				},
 				"avatar_url": {
 					"type": "string"
-				},
-				"source": {
-					"type": "string"
 				}
 			},
 			"required": [

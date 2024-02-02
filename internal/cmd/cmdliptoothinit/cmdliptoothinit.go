@@ -36,7 +36,6 @@ var metadataTemplate = tooth.RawMetadata{
 		Name:        "",
 		Description: "",
 		Author:      "",
-		Source:      "",
 		Tags:        []string{},
 	},
 }
@@ -117,11 +116,6 @@ func initTooth(ctx *context.Context) error {
 	scanner.Scan()
 	ans = scanner.Text()
 	rawMetadata.Info.Author = ans
-
-	log.Info("What is the source code repo path (leave empty if identical to tooth repo path)?")
-	scanner.Scan()
-	ans = scanner.Text()
-	rawMetadata.Info.Source = ans
 
 	metadata, err := tooth.MakeMetadataFromRaw(rawMetadata)
 	if err != nil {
