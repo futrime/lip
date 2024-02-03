@@ -6,6 +6,7 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/install"
+	"github.com/lippkg/lip/internal/network"
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
 	log "github.com/sirupsen/logrus"
@@ -115,7 +116,21 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 
 		assetArchiveFilePath := path.MakeEmpty()
 		if assetURL.String() != "" {
-			cachePath, err := getCachePath(ctx, assetURL)
+			gitHubMirrorURL, err := ctx.GitHubMirrorURL()
+			if err != nil {
+				return fmt.Errorf("failed to get GitHub mirror URL: %w", err)
+			}
+
+			mirroredURL := assetURL
+			if network.IsGitHubDirectDownloadURL(assetURL) && gitHubMirrorURL.String() != "" {
+				// Rewrite GitHub URL to GitHub mirror URL if it is set.
+				mirroredURL, err = network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
+				if err != nil {
+					return fmt.Errorf("failed to generate GitHub mirror URL: %w", err)
+				}
+			}
+
+			cachePath, err := getCachePath(ctx, mirroredURL)
 			if err != nil {
 				return fmt.Errorf("failed to get cache path of asset URL %v: %w", assetURL, err)
 			}

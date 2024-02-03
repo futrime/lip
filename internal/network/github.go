@@ -7,7 +7,7 @@ import (
 
 // GenerateGitHubMirrorURL generates a GitHub mirror URL from a GitHub URL.
 func GenerateGitHubMirrorURL(url *url.URL, gitHubMirrorURL *url.URL) (*url.URL, error) {
-	if !IsGitHubURL(url) {
+	if !IsGitHubDirectDownloadURL(url) {
 		return nil, fmt.Errorf("not a GitHub URL: %v", url)
 	}
 
@@ -20,7 +20,7 @@ func GenerateGitHubMirrorURL(url *url.URL, gitHubMirrorURL *url.URL) (*url.URL, 
 	return mirroredURL, nil
 }
 
-// IsGitHubURL checks if a URL is a GitHub URL.
-func IsGitHubURL(url *url.URL) bool {
-	return url.Host == "github.com"
+// IsGitHubDirectDownloadURL checks if a URL is a GitHub URL that can be directly downloaded.
+func IsGitHubDirectDownloadURL(url *url.URL) bool {
+	return url.Host == "github.com" && (url.Scheme == "http" || url.Scheme == "https")
 }
