@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support Go module URL as asset URL.
+
 ### Removed
 
 - `source` field in `tooth.json`.
@@ -48,14 +52,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `github.com/blang/semver/v4` for versioning.
 - Refactor most of the code.
 
-### Fixed
-
-- Some bugs.
-
 ### Removed
 
 - Remove `lip autoremove` command.
 - Percentage progress bar.
+
+### Fixed
+
+- Some bugs.
 
 ## [0.17.0] - 2023-12-30
 
@@ -353,15 +357,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Possession field in tooth.json to specify directory to remove when uninstalling a tooth.
 
+### Changed
+
+- Change extension name of tooth files to .tth
+
 ### Fixed
 
 - Fix failing to fetch tooth when the repository does not contain go.mod file.
 - Fix failing to parse tooth file when the tooth is downloaded via GOPROXY.
 - Fix failing to parse tooth when tooth.json is the only file in the tooth.
-
-### Changed
-
-- Change extension name of tooth files to .tth
 
 ## [0.1.0] - 2023-01-17
 
@@ -369,7 +373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[unreleased]: https://github.com/lippkg/lip/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/lippkg/lip/compare/v0.19.0...HEAD
 [0.19.0]: https://github.com/lippkg/lip/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/lippkg/lip/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/lippkg/lip/compare/v0.17.0...v0.18.0
@@ -396,7 +400,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.7.1]: https://github.com/lippkg/lip/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/lippkg/lip/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/lippkg/lip/compare/v0.5.1...v0.6.0
-[0.5.1]: https://github.com/lippkg/lip/compare/v0.4.0...v0.5.1
+[0.5.1]: https://github.com/lippkg/lip/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/lippkg/lip/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/lippkg/lip/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/lippkg/lip/compare/v0.3.3...v0.3.4

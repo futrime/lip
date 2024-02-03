@@ -11,6 +11,7 @@ import (
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/tooth"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/mod/module"
 )
 
 func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL, explicitCachePath path.Path) (path.Path, error) {
@@ -116,7 +117,9 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 		return fmt.Errorf("failed to get GitHub mirror URL: %w", err)
 	}
 
-	if network.IsGitHubURL(assetURL) && gitHubMirrorURL.String() != "" {
+	if network.IsGitHubDirectDownloadURL(assetURL) && gitHubMirrorURL.String() != "" {
+		// HTTP or HTTPS URL from GitHub.
+
 		mirroredURL, err := network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 		if err != nil {
 			return fmt.Errorf("failed to generate GitHub mirror URL: %w", err)
@@ -133,10 +136,32 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 			return fmt.Errorf("failed to download file: %w", err)
 		}
 
-	} else {
+	} else if assetURL.Scheme == "http" || assetURL.Scheme == "https" {
+		// Other HTTP or HTTPS URL.
+
 		if _, err := downloadFileIfNotCached(ctx, assetURL, path.MakeEmpty()); err != nil {
 			return fmt.Errorf("failed to download file: %w", err)
 		}
+
+	} else if err := module.CheckPath(assetURL.String()); err == nil {
+		// Go module path.
+
+		goModuleProxyURL, err := ctx.GoModuleProxyURL()
+		if err != nil {
+			return fmt.Errorf("failed to get Go module proxy URL: %w", err)
+		}
+
+		downloadURL, err := network.GenerateGoModuleZipFileURL(assetURL.String(), archive.Metadata().Version(), goModuleProxyURL)
+		if err != nil {
+			return fmt.Errorf("failed to generate Go module zip file URL: %w", err)
+		}
+
+		if _, err := downloadFileIfNotCached(ctx, downloadURL, path.MakeEmpty()); err != nil {
+			return fmt.Errorf("failed to download file: %w", err)
+		}
+
+	} else {
+		return fmt.Errorf("unsupported asset URL: %v", assetURL)
 	}
 
 	return nil
