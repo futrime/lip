@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support Go module URL as asset URL.
 
+### Changed
+
+- Files downloaded from GitHub mirror are now cached in different paths.
+
 ### Removed
 
 - `source` field in `tooth.json`.
