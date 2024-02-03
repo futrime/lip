@@ -3,9 +3,6 @@ on:
     types: 
       - published
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,6 +29,8 @@ jobs:
           path: bin
 
   update-release-notes:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +46,8 @@ jobs:
     needs: 
       - build
       - update-release-notes
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     strategy:
       matrix:
