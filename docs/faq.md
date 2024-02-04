@@ -1,4 +1,4 @@
-# Frequent Asked Questions
+# FAQ
 
 ## Where can I find online available teeth?
 

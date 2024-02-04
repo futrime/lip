@@ -4,7 +4,7 @@ repo_url: https://github.com/lippkg/lip/
 nav:
   - Home: index.md
 
-  - installation.md
+  - install.md
 
   - quickstart.md
 
