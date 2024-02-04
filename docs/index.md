@@ -30,8 +30,6 @@ Finally, add the location to PATH environment variable.
 
 To check if lip is installed successfully, run `lip --version` in your terminal. You should see the version of lip you just installed.
 
-For more information, please refer to [the documentation](https://docs.lippkg.com).
-
 ## Usage
 
 To install a online tooth (a package in lip), run `lip install <tooth>`. Here is an example:
@@ -59,8 +57,6 @@ To show information of a tooth, run `lip show <tooth>`. Here is an example:
 ```bash
 lip show github.com/tooth-hub/bdsdownloader
 ```
-
-For more information, please refer to [the documentation](https://docs.lippkg.com).
 
 ## Contributing
 
