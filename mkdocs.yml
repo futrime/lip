@@ -4,28 +4,29 @@ repo_name: lippkg/lip
 repo_url: https://github.com/lippkg/lip/
 
 nav:
-  - Basics:
-    - index.md
-    - installation.md
-    - quickstart.md
-    - faq.md
-    - tooth_json_file_reference.md
-    - Changelog: https://github.com/lippkg/lip/blob/main/CHANGELOG.md
+  - Home: index.md
+
+  - installation.md
+
+  - quickstart.md
+
+  - faq.md
 
   - Tutorials:
     - tutorials/create_a_lip_tooth.md
 
-  - Commands:
-    - commands/lip.md
-    - commands/lip_cache.md
-    - commands/lip_cache_purge.md
-    - commands/lip_install.md
-    - commands/lip_list.md
-    - commands/lip_show.md
-    - commands/lip_tooth.md
-    - commands/lip_tooth_init.md
-    - commands/lip_tooth_pack.md
-    - commands/lip_uninstall.md
+  - Reference:
+    - reference/lip.md
+    - reference/lip_cache.md
+    - reference/lip_cache_purge.md
+    - reference/lip_install.md
+    - reference/lip_list.md
+    - reference/lip_show.md
+    - reference/lip_tooth.md
+    - reference/lip_tooth_init.md
+    - reference/lip_tooth_pack.md
+    - reference/lip_uninstall.md
+    - reference/tooth_json_file_reference.md
 
   - Packages: https://www.lippkg.com
 
@@ -50,11 +51,10 @@ plugins:
         - locale: zh
           name: 中文
           nav_translations:
-            Basics: 基础
-            Changelog: 更新日志
-            Commands: 命令
-            Languages: 语言
+            Home: 首页
             Tutorials: 教程
+            Reference: 参考
+            Packages: 包
 
 markdown_extensions:
   - abbr
