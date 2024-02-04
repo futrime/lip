@@ -1,6 +1,4 @@
-site_name: lip Documentation
-site_url: https://docs.lippkg.com
-repo_name: lippkg/lip
+site_name: lip
 repo_url: https://github.com/lippkg/lip/
 
 nav:
@@ -38,23 +36,18 @@ theme:
   favicon: images/favicon.ico
   logo: images/logo.webp
   palette:
-    primary: white
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
-use_directory_urls: false
-
-plugins:
-  - i18n:
-      languages:
-        - locale: en
-          default: true
-          name: English
-        - locale: zh
-          name: 中文
-          nav_translations:
-            Home: 首页
-            Tutorials: 教程
-            Reference: 参考
-            Packages: 包
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 markdown_extensions:
   - abbr
@@ -84,3 +77,20 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist
+
+plugins:
+  - i18n:
+      languages:
+        - locale: en
+          default: true
+          name: English
+
+        - locale: zh
+          name: 中文
+          nav_translations:
+            Home: 首页
+            Tutorials: 教程
+            Reference: 参考
+            Packages: 包
+
+  - search
