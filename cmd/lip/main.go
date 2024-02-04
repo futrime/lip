@@ -16,7 +16,7 @@ var defaultConfig context.Config = context.Config{
 	GoModuleProxyURL: "https://goproxy.io",
 }
 
-var lipVersion semver.Version = semver.MustParse("0.19.0")
+var lipVersion semver.Version = semver.MustParse("0.20.1")
 
 func main() {
 	log.SetFormatter(&nested.Formatter{})
