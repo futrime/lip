@@ -35,6 +35,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate release stuff (tooth.json, CHANGELOG.md, etc.)
+        run: |
+          npm i -g keep-a-changelog
+          python scripts/validate_release.py --tag ${{ github.event.release.tag_name }}
+
       - id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v2
 
