@@ -182,6 +182,27 @@ Provide information about your tooth in the form of a JSON object with the follo
 }
 ```
 
+### Notes
+
+Several tags have special meanings:
+
+Platforms:
+
+- `bds`: indicates that the tooth should be installed on Minecraft Bedrock Dedicated Server platform.
+- `levilamina`: indicates that the tooth should be installed on LeviLamina platform.
+- `pnx`: indicates that the tooth should be installed on PowerNukkitX platform.
+
+Types:
+
+- `addon`: indicates that the tooth is an addon.
+- `library`: indicates that the tooth is a library.
+- `plugin`: indicates that the tooth is a plugin.
+- `plugin-engine`: indicates that the tooth is a plugin engine.
+- `utility`: indicates that the tooth is a utility.
+- `world`: indicates that the tooth is a world.
+
+These tags will be used to filter teeth when searching.
+
 ## `asset_url` (optional)
 
 Declares the URL of the tooth asset. If this field is set, lip will download the asset and use files in the asset archive instead of files in the tooth repository. This helps when releasing large binary files.
