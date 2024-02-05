@@ -190,6 +190,7 @@ Platforms:
 
 - `bds`: indicates that the tooth should be installed on Minecraft Bedrock Dedicated Server platform.
 - `levilamina`: indicates that the tooth should be installed on LeviLamina platform.
+- `lse`: indicates that the tooth should be installed on LegacyScriptEngine platform.
 - `pnx`: indicates that the tooth should be installed on PowerNukkitX platform.
 
 Types:
