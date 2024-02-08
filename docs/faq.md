@@ -6,7 +6,7 @@ Visit [lipWeb](https://www.lippkg.com).
 
 ## It downloads so slowly! What can I do?
 
-lip downloads teeth via GOPROXY. You can use a faster proxy by running `lip config GoModuleProxyURL <url>`. lip supports GitHub mirror as well. You can use it by running `lip config GitHubMirrorURL <url>`.
+lip downloads teeth via GOPROXY. You can use a faster proxy by running `lip config GoModuleProxyURL <url>`. lip supports GitHub mirror as well. You can use it by running `lip config GitHubMirrorURL <url>`. If you are setting up HTTP proxy, you can simply set the `HTTP_PROXY` and `HTTPS_PROXY` environment variable.
 
 ## It always shows errors when I try to install a tooth!
 
