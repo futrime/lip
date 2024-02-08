@@ -37,19 +37,19 @@ For more information, please refer to [the documentation](https://docs.lippkg.co
 To install a online tooth (a package in lip), run `lip install <tooth>`. Here is an example:
 
 ```bash
-lip install github.com/tooth-hub/bdsdownloader
+lip install github.com/LiteLDev/LeviLamina
 ```
 
 To install a local tooth (typically with `.tth` extension name), run `lip install <path>`. Here is an example:
 
 ```bash
-lip install ./bdsdownloader.tth
+lip install ./example.tth
 ```
 
 To uninstall a tooth, run `lip uninstall <tooth>`. Here is an example:
 
 ```bash
-lip uninstall github.com/tooth-hub/bdsdownloader
+lip uninstall github.com/LiteLDev/LeviLamina
 ```
 
 To list all installed teeth, run `lip list`. Here is an example:
@@ -57,7 +57,7 @@ To list all installed teeth, run `lip list`. Here is an example:
 To show information of a tooth, run `lip show <tooth>`. Here is an example:
 
 ```bash
-lip show github.com/tooth-hub/bdsdownloader
+lip show github.com/LiteLDev/LeviLamina
 ```
 
 For more information, please refer to [the documentation](https://docs.lippkg.com).

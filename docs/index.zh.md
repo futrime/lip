@@ -35,19 +35,19 @@ lip是一个通用的软件包安装程序。您可以使用lip从任何Git存�
 要安装在线tooth（lip中的软件包），运行 `lip install <tooth>`。以下是一个示例：
 
 ```bash
-lip install github.com/tooth-hub/bdsdownloader
+lip install github.com/LiteLDev/LeviLamina
 ```
 
 要安装本地tooth（通常使用`.tth`扩展名），运行 `lip install <path>`。以下是一个示例：
 
 ```bash
-lip install ./bdsdownloader.tth
+lip install ./example.tth
 ```
 
 要卸载tooth，运行 `lip uninstall <tooth>`。以下是一个示例：
 
 ```bash
-lip uninstall github.com/tooth-hub/bdsdownloader
+lip uninstall github.com/LiteLDev/LeviLamina
 ```
 
 要列出所有安装的tooth，运行 `lip list`。以下是一个示例：
@@ -55,7 +55,7 @@ lip uninstall github.com/tooth-hub/bdsdownloader
 要显示tooth的信息，运行 `lip show <tooth>`。以下是一个示例：
 
 ```bash
-lip show github.com/tooth-hub/bdsdownloader
+lip show github.com/LiteLDev/LeviLamina
 ```
 
 ## 贡献

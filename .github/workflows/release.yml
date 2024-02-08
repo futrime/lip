@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          name: lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}-${{ github.sha }}
           path: bin
 
   update-release-notes:
@@ -63,32 +63,29 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.GOOS }}-${{ matrix.GOARCH }}
+          name: lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}-${{ github.sha }}
           path: artifact
 
       - name: Copy essential files
         run: |
-          cp CHANGELOG.md LICENSE README.md artifact/
+          cp CHANGELOG.md COPYING README.md artifact/
 
       - name: Pack artifact (Windows)
         if: matrix.GOOS == 'windows'
         run: |
-          cd artifact
           zip -r ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip *
-          cd ..
+        working-directory: artifact
 
       - name: Pack artifact (Others)
         if: matrix.GOOS != 'windows'
         run: |
-          cd artifact
           tar -czvf ../lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz *
-          cd ..
+        working-directory: artifact
 
       - name: Upload artifact to release (Windows)
         if: matrix.GOOS == 'windows'
         uses: softprops/action-gh-release@v1
         with:
-          append_body: true
           files: |
             lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip
 
@@ -96,6 +93,5 @@ jobs:
         if: matrix.GOOS != 'windows'
         uses: softprops/action-gh-release@v1
         with:
-          append_body: true
           files: |
             lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz
