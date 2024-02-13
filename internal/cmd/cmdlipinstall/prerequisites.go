@@ -16,7 +16,11 @@ func getMissingPrerequisites(ctx *context.Context,
 	missingPrerequisitesAsStrings := make(map[string]string)
 
 	for _, archive := range archiveList {
-		prerequisites := archive.Metadata().Prerequisites()
+		prerequisites, err := archive.Metadata().Prerequisites()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to get prerequisites: %w", err)
+		}
+
 		prerequisitesAsStrings := archive.Metadata().PrerequisitesAsStrings()
 
 		for prerequisite, versionRange := range prerequisites {
