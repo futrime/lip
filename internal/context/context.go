@@ -39,7 +39,6 @@ func (ctx *Context) GitHubMirrorURL() (*url.URL, error) {
 	return gitHubMirrorURL, nil
 }
 
-// GoModuleProxyURL returns the go module proxy URL.
 func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 	goModuleProxyURL, err := url.Parse(ctx.config.GoModuleProxyURL)
 	if err != nil {
@@ -47,6 +46,25 @@ func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 	}
 
 	return goModuleProxyURL, nil
+}
+
+// GetProxyURL returns the proxy URL.
+func (ctx *Context) GetProxyURL() (*url.URL, error) {
+	proxyURLs := []string{ctx.config.Socks5ProxyURL, ctx.config.HttpsProxyURL, ctx.config.HttpProxyURL}
+
+	for _, proxyStr := range proxyURLs {
+		if proxyStr == "" {
+			continue
+		}
+		proxyURL, err := url.Parse(proxyStr)
+		if err != nil {
+			continue
+		}
+		if proxyURL.Scheme == "http" || proxyURL.Scheme == "https" || proxyURL.Scheme == "socks5" {
+			return proxyURL, nil
+		}
+	}
+	return nil, nil
 }
 
 // LipVersion returns the lip version.

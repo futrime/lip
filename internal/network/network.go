@@ -9,11 +9,36 @@ import (
 
 	"github.com/lippkg/lip/internal/path"
 	"github.com/schollz/progressbar/v3"
+	"golang.org/x/net/proxy"
 )
 
-// DownloadFile downloads a file from a url and saves it to a local path.
-func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) error {
-	resp, err := http.Get(url.String())
+func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool, proxyURL *url.URL) error {
+	var httpClient *http.Client
+	if proxyURL != nil {
+		if proxyURL.Scheme == "http" || proxyURL.Scheme == "https" {
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyURL),
+				},
+			}
+		} else if proxyURL.Scheme == "socks5" {
+			dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+			if err != nil {
+				return fmt.Errorf("cannot create SOCKS5 dialer: %w", err)
+			}
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					Dial: dialer.Dial,
+				},
+			}
+		} else {
+			httpClient = http.DefaultClient
+		}
+	} else {
+		httpClient = http.DefaultClient
+	}
+
+	resp, err := httpClient.Get(url.String())
 	if err != nil {
 		return fmt.Errorf("cannot send HTTP request: %w", err)
 	}
@@ -49,9 +74,34 @@ func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) erro
 }
 
 // GetContent gets the content at once of a URL.
-func GetContent(url *url.URL) ([]byte, error) {
+func GetContent(url *url.URL, proxyURL *url.URL) ([]byte, error) {
 
-	resp, err := http.Get(url.String())
+	var httpClient *http.Client
+	if proxyURL != nil {
+		if proxyURL.Scheme == "http" || proxyURL.Scheme == "https" {
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyURL),
+				},
+			}
+		} else if proxyURL.Scheme == "socks5" {
+			dialer, err := proxy.SOCKS5("tcp", proxyURL.Host, nil, proxy.Direct)
+			if err != nil {
+				return nil, fmt.Errorf("cannot create SOCKS5 dialer: %w", err)
+			}
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					Dial: dialer.Dial,
+				},
+			}
+		} else {
+			httpClient = http.DefaultClient
+		}
+	} else {
+		httpClient = http.DefaultClient
+	}
+
+	resp, err := httpClient.Get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("cannot send HTTP request: %w", err)
 	}
