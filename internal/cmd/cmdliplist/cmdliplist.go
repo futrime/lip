@@ -48,7 +48,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
 	err := flagSet.Parse(args)
 	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -65,7 +65,7 @@ func Run(ctx *context.Context, args []string) error {
 	if flagDict.upgradableFlag {
 		err := listUpgradable(ctx, flagDict.jsonFlag)
 		if err != nil {
-			return fmt.Errorf("failed to list upgradable teeth: %w", err)
+			return fmt.Errorf("failed to list upgradable teeth\n\t%w", err)
 		}
 
 		return nil
@@ -73,7 +73,7 @@ func Run(ctx *context.Context, args []string) error {
 	} else {
 		err := listAll(ctx, flagDict.jsonFlag)
 		if err != nil {
-			return fmt.Errorf("failed to list all teeth: %w", err)
+			return fmt.Errorf("failed to list all teeth\n\t%w", err)
 		}
 
 		return nil
@@ -87,14 +87,14 @@ func listAll(ctx *context.Context, jsonFlag bool) error {
 
 	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to list all installed teeth: %w", err)
+		return fmt.Errorf("failed to list all installed teeth\n\t%w", err)
 	}
 
 	if jsonFlag {
 		// Marshal the data.
 		jsonBytes, err := json.Marshal(metadataList)
 		if err != nil {
-			return fmt.Errorf("failed to marshal JSON: %w", err)
+			return fmt.Errorf("failed to marshal JSON\n\t%w", err)
 		}
 
 		jsonString := string(jsonBytes)
@@ -132,7 +132,7 @@ func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 
 	metadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to list all installed teeth: %w", err)
+		return fmt.Errorf("failed to list all installed teeth\n\t%w", err)
 	}
 
 	if jsonFlag {
@@ -144,7 +144,7 @@ func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 				metadata.ToothRepoPath())
 			if err != nil {
 				log.Errorf(
-					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+					"\n\tfailed to look up latest version for %v\n\t%v", metadata.ToothRepoPath(), err.Error())
 				continue
 			}
 
@@ -156,7 +156,7 @@ func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 		// Marshal the data.
 		jsonBytes, err := json.Marshal(dataList)
 		if err != nil {
-			return fmt.Errorf("failed to marshal JSON: %w", err)
+			return fmt.Errorf("failed to marshal JSON\n\t%w", err)
 		}
 
 		jsonString := string(jsonBytes)
@@ -170,7 +170,7 @@ func listUpgradable(ctx *context.Context, jsonFlag bool) error {
 				metadata.ToothRepoPath())
 			if err != nil {
 				log.Errorf(
-					"failed to look up latest version for %v: %v", metadata.ToothRepoPath(), err.Error())
+					"\n\tfailed to look up latest version for %v\n\t%v", metadata.ToothRepoPath(), err.Error())
 				continue
 			}
 

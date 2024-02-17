@@ -44,7 +44,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
 	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -59,12 +59,12 @@ func Run(ctx *context.Context, args []string) error {
 
 	case 1:
 		if err := showConfig(ctx, flagSet.Arg(0)); err != nil {
-			return fmt.Errorf("failed to show config: %w", err)
+			return fmt.Errorf("failed to show config\n\t%w", err)
 		}
 
 	case 2:
 		if err := setConfig(ctx, flagSet.Arg(0), flagSet.Arg(1)); err != nil {
-			return fmt.Errorf("failed to set config: %w", err)
+			return fmt.Errorf("failed to set config\n\t%w", err)
 		}
 
 	default:
@@ -145,7 +145,7 @@ func setConfig(ctx *context.Context, key string, value string) error {
 	fieldType := field.Type()
 	structValueInterface, err := convertStringToType(value, fieldType)
 	if err != nil {
-		return fmt.Errorf("failed to convert value to type: %w", err)
+		return fmt.Errorf("failed to convert value to type\n\t%w", err)
 	}
 	structValue := reflect.ValueOf(structValueInterface)
 
@@ -157,7 +157,7 @@ func setConfig(ctx *context.Context, key string, value string) error {
 	}
 
 	if err := ctx.SaveConfigFile(); err != nil {
-		return fmt.Errorf("failed to save config file: %w", err)
+		return fmt.Errorf("failed to save config file\n\t%w", err)
 	}
 
 	return nil

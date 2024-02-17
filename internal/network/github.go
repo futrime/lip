@@ -14,7 +14,7 @@ func GenerateGitHubMirrorURL(url *gourl.URL, gitHubMirrorURL *gourl.URL) (*gourl
 	// Replace the host of the URL with the GitHub mirror URL.
 	mirroredURL, err := url.Parse(fmt.Sprintf("%v%v", gitHubMirrorURL, url.Path))
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse GitHub mirror URL: %w", err)
+		return nil, fmt.Errorf("cannot parse GitHub mirror URL\n\t%w", err)
 	}
 
 	return mirroredURL, nil

@@ -36,7 +36,7 @@ func Parse(specifierString string) (Specifier, error) {
 	case ToothArchiveKind:
 		toothArchivePath, err := path.Parse(specifierString)
 		if err != nil {
-			return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %w",
+			return Specifier{}, fmt.Errorf("invalid requirement specifier %v\n\t%w",
 				specifierString, err)
 		}
 
@@ -59,7 +59,7 @@ func Parse(specifierString string) (Specifier, error) {
 		if len(splittedSpecifier) == 2 {
 			toothVersion, err := semver.Parse(splittedSpecifier[1])
 			if err != nil {
-				return Specifier{}, fmt.Errorf("invalid requirement specifier %v: %w",
+				return Specifier{}, fmt.Errorf("invalid requirement specifier %v\n\t%w",
 					specifierString, err)
 			}
 

@@ -36,7 +36,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 
 	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -53,7 +53,7 @@ func Run(ctx *context.Context, args []string) error {
 	// Purge the cache.
 
 	if err := purgeCache(ctx); err != nil {
-		return fmt.Errorf("failed to purge the cache: %w", err)
+		return fmt.Errorf("failed to purge the cache\n\t%w", err)
 	}
 
 	return nil
@@ -65,17 +65,17 @@ func Run(ctx *context.Context, args []string) error {
 func purgeCache(ctx *context.Context) error {
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
-		return fmt.Errorf("failed to get the cache directory: %w", err)
+		return fmt.Errorf("failed to get the cache directory\n\t%w", err)
 	}
 
 	// Remove the cache directory.
 	if err := os.RemoveAll(cacheDir.LocalString()); err != nil {
-		return fmt.Errorf("failed to remove the cache directory: %w", err)
+		return fmt.Errorf("failed to remove the cache directory\n\t%w", err)
 	}
 
 	// Recreate the cache directory.
 	if err := os.MkdirAll(cacheDir.LocalString(), 0755); err != nil {
-		return fmt.Errorf("failed to recreate the cache directory: %w", err)
+		return fmt.Errorf("failed to recreate the cache directory\n\t%w", err)
 	}
 
 	return nil

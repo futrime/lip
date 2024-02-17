@@ -33,7 +33,7 @@ func (ctx *Context) Config() *Config {
 func (ctx *Context) GitHubMirrorURL() (*url.URL, error) {
 	gitHubMirrorURL, err := url.Parse(ctx.config.GitHubMirrorURL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse GitHub mirror URL: %w", err)
+		return nil, fmt.Errorf("cannot parse GitHub mirror URL\n\t%w", err)
 	}
 
 	return gitHubMirrorURL, nil
@@ -43,7 +43,7 @@ func (ctx *Context) GitHubMirrorURL() (*url.URL, error) {
 func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 	goModuleProxyURL, err := url.Parse(ctx.config.GoModuleProxyURL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse go module proxy URL: %w", err)
+		return nil, fmt.Errorf("cannot parse go module proxy URL\n\t%w", err)
 	}
 
 	return goModuleProxyURL, nil
@@ -53,7 +53,7 @@ func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 func (ctx *Context) ProxyURL() (*url.URL, error) {
 	proxyURL, err := url.Parse(ctx.config.ProxyURL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse proxy URL: %w", err)
+		return nil, fmt.Errorf("cannot parse proxy URL\n\t%w", err)
 	}
 
 	return proxyURL, nil
@@ -69,12 +69,12 @@ func (ctx *Context) GlobalDotLipDir() (path.Path, error) {
 
 	userHomeDirStr, err := os.UserHomeDir()
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot get user home directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot get user home directory\n\t%w", err)
 	}
 
 	userHomeDir, err := path.Parse(userHomeDirStr)
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot parse user home directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot parse user home directory\n\t%w", err)
 	}
 
 	globalDotLipDir := userHomeDir.Join(path.MustParse(".lip"))
@@ -87,12 +87,12 @@ func (ctx *Context) LocalDotLipDir() (path.Path, error) {
 
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot get workspace directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot get workspace directory\n\t%w", err)
 	}
 
 	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot parse workspace directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot parse workspace directory\n\t%w", err)
 	}
 
 	path := workspaceDir.Join(path.MustParse(".lip"))
@@ -105,7 +105,7 @@ func (ctx *Context) CacheDir() (path.Path, error) {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot get global .lip directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot get global .lip directory\n\t%w", err)
 	}
 
 	path := globalDotLipDir.Join(path.MustParse("cache"))
@@ -118,7 +118,7 @@ func (ctx *Context) MetadataDir() (path.Path, error) {
 
 	localDotLipDir, err := ctx.LocalDotLipDir()
 	if err != nil {
-		return path.Path{}, fmt.Errorf("cannot get local .lip directory: %w", err)
+		return path.Path{}, fmt.Errorf("cannot get local .lip directory\n\t%w", err)
 	}
 
 	path := localDotLipDir.Join(path.MustParse("metadata"))
@@ -131,38 +131,38 @@ func (ctx *Context) CreateDirStructure() error {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
-		return fmt.Errorf("cannot get global .lip directory: %w", err)
+		return fmt.Errorf("cannot get global .lip directory\n\t%w", err)
 	}
 
 	if err := os.MkdirAll(globalDotLipDir.LocalString(), 0755); err != nil {
-		return fmt.Errorf("cannot create global .lip directory: %w", err)
+		return fmt.Errorf("cannot create global .lip directory\n\t%w", err)
 	}
 
 	localDotLipDir, err := ctx.LocalDotLipDir()
 	if err != nil {
-		return fmt.Errorf("cannot get local .lip directory: %w", err)
+		return fmt.Errorf("cannot get local .lip directory\n\t%w", err)
 	}
 
 	if err := os.MkdirAll(localDotLipDir.LocalString(), 0755); err != nil {
-		return fmt.Errorf("cannot create local .lip directory: %w", err)
+		return fmt.Errorf("cannot create local .lip directory\n\t%w", err)
 	}
 
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
-		return fmt.Errorf("cannot get cache directory: %w", err)
+		return fmt.Errorf("cannot get cache directory\n\t%w", err)
 	}
 
 	if err := os.MkdirAll(cacheDir.LocalString(), 0755); err != nil {
-		return fmt.Errorf("cannot create cache directory: %w", err)
+		return fmt.Errorf("cannot create cache directory\n\t%w", err)
 	}
 
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
-		return fmt.Errorf("cannot get metadata directory: %w", err)
+		return fmt.Errorf("cannot get metadata directory\n\t%w", err)
 	}
 
 	if err := os.MkdirAll(metadataDir.LocalString(), 0755); err != nil {
-		return fmt.Errorf("cannot create metadata directory: %w", err)
+		return fmt.Errorf("cannot create metadata directory\n\t%w", err)
 	}
 
 	return nil
@@ -173,7 +173,7 @@ func (ctx *Context) LoadOrCreateConfigFile() error {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
-		return fmt.Errorf("cannot get global .lip directory: %w", err)
+		return fmt.Errorf("cannot get global .lip directory\n\t%w", err)
 	}
 
 	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
@@ -182,16 +182,16 @@ func (ctx *Context) LoadOrCreateConfigFile() error {
 		ctx.SaveConfigFile()
 
 	} else if err != nil {
-		return fmt.Errorf("cannot get config file info: %w", err)
+		return fmt.Errorf("cannot get config file info\n\t%w", err)
 
 	} else {
 		jsonBytes, err := os.ReadFile(configFilePath.LocalString())
 		if err != nil {
-			return fmt.Errorf("cannot read config file at %v: %w", configFilePath.LocalString(), err)
+			return fmt.Errorf("cannot read config file at %v\n\t%w", configFilePath.LocalString(), err)
 		}
 
 		if err := json.Unmarshal(jsonBytes, &ctx.config); err != nil {
-			return fmt.Errorf("cannot unmarshal config at %v: %w", configFilePath.LocalString(), err)
+			return fmt.Errorf("cannot unmarshal config at %v\n\t%w", configFilePath.LocalString(), err)
 		}
 	}
 
@@ -203,18 +203,18 @@ func (ctx *Context) SaveConfigFile() error {
 
 	globalDotLipDir, err := ctx.GlobalDotLipDir()
 	if err != nil {
-		return fmt.Errorf("cannot get global .lip directory: %w", err)
+		return fmt.Errorf("cannot get global .lip directory\n\t%w", err)
 	}
 
 	configFilePath := globalDotLipDir.Join(path.MustParse("config.json"))
 
 	jsonBytes, err := json.MarshalIndent(ctx.config, "", "  ")
 	if err != nil {
-		return fmt.Errorf("cannot marshal config: %w", err)
+		return fmt.Errorf("cannot marshal config\n\t%w", err)
 	}
 
 	if err := os.WriteFile(configFilePath.LocalString(), jsonBytes, 0644); err != nil {
-		return fmt.Errorf("cannot write config file: %w", err)
+		return fmt.Errorf("cannot write config file\n\t%w", err)
 	}
 
 	return nil

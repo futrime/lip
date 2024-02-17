@@ -64,7 +64,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
 
 	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("cannot parse flags: %w", err)
+		return fmt.Errorf("cannot parse flags\n\t%w", err)
 	}
 
 	// Set logging level.

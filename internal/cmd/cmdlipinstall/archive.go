@@ -23,7 +23,7 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 	for _, archive := range archives {
 		isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 		if err != nil {
-			return nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
+			return nil, fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 		}
 
 		if !isInstalled {
@@ -31,7 +31,7 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 		} else if upgradeFlag {
 			currentMetadata, err := tooth.GetMetadata(ctx, archive.Metadata().ToothRepoPath())
 			if err != nil {
-				return nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
+				return nil, fmt.Errorf("failed to find installed tooth metadata\n\t%w", err)
 			}
 
 			if archive.Metadata().Version().GT(currentMetadata.Version()) {
@@ -56,7 +56,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 
 	isInstalled, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath())
 	if err != nil {
-		return fmt.Errorf("failed to check if tooth is installed: %w", err)
+		return fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 	}
 
 	shouldInstall := false
@@ -72,7 +72,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 		currentMetadata, err := tooth.GetMetadata(ctx,
 			archive.Metadata().ToothRepoPath())
 		if err != nil {
-			return fmt.Errorf("failed to find installed tooth metadata: %w", err)
+			return fmt.Errorf("failed to find installed tooth metadata\n\t%w", err)
 		}
 
 		if archive.Metadata().Version().GT(currentMetadata.Version()) {
@@ -103,7 +103,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 	if shouldUninstall {
 		err := install.Uninstall(ctx, archive.Metadata().ToothRepoPath())
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth: %w", err)
+			return fmt.Errorf("failed to uninstall tooth\n\t%w", err)
 		}
 		debugLogger.Debugf("Uninstalled tooth %v", archive.Metadata().ToothRepoPath())
 	}
@@ -111,14 +111,14 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 	if shouldInstall {
 		assetURL, err := archive.Metadata().AssetURL()
 		if err != nil {
-			return fmt.Errorf("failed to get asset URL: %w", err)
+			return fmt.Errorf("failed to get asset URL\n\t%w", err)
 		}
 
 		assetArchiveFilePath := path.MakeEmpty()
 		if assetURL.String() != "" {
 			gitHubMirrorURL, err := ctx.GitHubMirrorURL()
 			if err != nil {
-				return fmt.Errorf("failed to get GitHub mirror URL: %w", err)
+				return fmt.Errorf("failed to get GitHub mirror URL\n\t%w", err)
 			}
 
 			mirroredURL := assetURL
@@ -126,13 +126,13 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 				// Rewrite GitHub URL to GitHub mirror URL if it is set.
 				mirroredURL, err = network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 				if err != nil {
-					return fmt.Errorf("failed to generate GitHub mirror URL: %w", err)
+					return fmt.Errorf("failed to generate GitHub mirror URL\n\t%w", err)
 				}
 			}
 
 			cachePath, err := getCachePath(ctx, mirroredURL)
 			if err != nil {
-				return fmt.Errorf("failed to get cache path of asset URL %v: %w", assetURL, err)
+				return fmt.Errorf("failed to get cache path of asset URL %v\n\t%w", assetURL, err)
 			}
 
 			assetArchiveFilePath = cachePath
@@ -140,11 +140,11 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 
 		archiveWithAssets, err := archive.ToAssetArchiveAttached(assetArchiveFilePath)
 		if err != nil {
-			return fmt.Errorf("failed to attach asset archive %v: %w", assetArchiveFilePath.LocalString(), err)
+			return fmt.Errorf("failed to attach asset archive %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 
 		if err := install.Install(ctx, archiveWithAssets); err != nil {
-			return fmt.Errorf("failed to install tooth archive %v: %w", archiveWithAssets.FilePath().LocalString(), err)
+			return fmt.Errorf("failed to install tooth archive %v\n\t%w", archiveWithAssets.FilePath().LocalString(), err)
 		}
 		debugLogger.Debugf("Installed tooth archive %v", archiveWithAssets.FilePath().LocalString())
 	}
@@ -189,7 +189,7 @@ func topoSortVisit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 	preVisited[archive.Metadata().ToothRepoPath()] = true
 	dependencies, err := archive.Metadata().Dependencies()
 	if err != nil {
-		return fmt.Errorf("failed to get dependencies of tooth %s: %w", archive.Metadata().ToothRepoPath(), err)
+		return fmt.Errorf("failed to get dependencies of tooth %s\n\t%w", archive.Metadata().ToothRepoPath(), err)
 	}
 
 	for depToothPath := range dependencies {

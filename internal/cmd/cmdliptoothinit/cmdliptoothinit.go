@@ -54,7 +54,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	err := flagSet.Parse(args)
 	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -69,7 +69,7 @@ func Run(ctx *context.Context, args []string) error {
 	}
 
 	if err := initTooth(ctx); err != nil {
-		return fmt.Errorf("failed to initialize the tooth: %w", err)
+		return fmt.Errorf("failed to initialize the tooth\n\t%w", err)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func initTooth(ctx *context.Context) error {
 	ans = scanner.Text()
 
 	if !tooth.IsValidToothRepoPath(ans) {
-		return fmt.Errorf("invalid tooth repo path %v: %w", ans, err)
+		return fmt.Errorf("invalid tooth repo path %v\n\t%w", ans, err)
 	}
 
 	rawMetadata.Tooth = ans
@@ -119,34 +119,34 @@ func initTooth(ctx *context.Context) error {
 
 	metadata, err := tooth.MakeMetadataFromRaw(rawMetadata)
 	if err != nil {
-		return fmt.Errorf("failed to make metadata: %w", err)
+		return fmt.Errorf("failed to make metadata\n\t%w", err)
 	}
 
 	jsonBytes, err := metadata.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to marshal metadata: %w", err)
+		return fmt.Errorf("failed to marshal metadata\n\t%w", err)
 	}
 
 	// Create tooth.json.
 	workspaceDirStr, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("failed to get workspace directory: %w", err)
+		return fmt.Errorf("failed to get workspace directory\n\t%w", err)
 	}
 
 	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
-		return fmt.Errorf("failed to parse workspace directory: %w", err)
+		return fmt.Errorf("failed to parse workspace directory\n\t%w", err)
 	}
 
 	file, err := os.Create(workspaceDir.Join(path.MustParse("tooth.json")).LocalString())
 	if err != nil {
-		return fmt.Errorf("failed to create tooth.json: %w", err)
+		return fmt.Errorf("failed to create tooth.json\n\t%w", err)
 	}
 	defer file.Close()
 
 	// Write default tooth.json content.
 	if _, err := file.Write(jsonBytes); err != nil {
-		return fmt.Errorf("failed to write tooth.json: %w", err)
+		return fmt.Errorf("failed to write tooth.json\n\t%w", err)
 	}
 
 	log.Info("Successfully initialized a new tooth.")

@@ -17,7 +17,7 @@ func DownloadFile(url *url.URL, proxyURL *url.URL, filePath path.Path, enablePro
 
 	resp, err := httpClient.Get(url.String())
 	if err != nil {
-		return fmt.Errorf("cannot send HTTP request: %w", err)
+		return fmt.Errorf("cannot send HTTP request\n\t%w", err)
 	}
 	defer resp.Body.Close()
 
@@ -28,7 +28,7 @@ func DownloadFile(url *url.URL, proxyURL *url.URL, filePath path.Path, enablePro
 	// Create the file
 	file, err := os.Create(filePath.LocalString())
 	if err != nil {
-		return fmt.Errorf("cannot create file: %w", err)
+		return fmt.Errorf("cannot create file\n\t%w", err)
 	}
 	defer file.Close()
 
@@ -45,7 +45,7 @@ func DownloadFile(url *url.URL, proxyURL *url.URL, filePath path.Path, enablePro
 	}
 
 	if _, err := io.Copy(writer, resp.Body); err != nil {
-		return fmt.Errorf("cannot download file from %v: %w", url, err)
+		return fmt.Errorf("cannot download file from %v\n\t%w", url, err)
 	}
 	return nil
 }
@@ -56,7 +56,7 @@ func GetContent(url *url.URL, proxyURL *url.URL) ([]byte, error) {
 
 	resp, err := httpClient.Get(url.String())
 	if err != nil {
-		return nil, fmt.Errorf("cannot send HTTP request: %w", err)
+		return nil, fmt.Errorf("cannot send HTTP request\n\t%w", err)
 	}
 	defer resp.Body.Close()
 
@@ -66,13 +66,17 @@ func GetContent(url *url.URL, proxyURL *url.URL) ([]byte, error) {
 
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read HTTP response: %w", err)
+		return nil, fmt.Errorf("cannot read HTTP response\n\t%w", err)
 	}
 
 	return content, nil
 }
 
 func getProxiedHTTPClient(proxyURL *url.URL) *http.Client {
+	if proxyURL.String() == "" {
+		return http.DefaultClient
+	}
+
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = http.ProxyURL(proxyURL)
 	return &http.Client{Transport: transport}

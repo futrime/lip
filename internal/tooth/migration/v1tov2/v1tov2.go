@@ -205,7 +205,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 
 	result, err := gojsonschema.Validate(v1SchemaLoader, v1DocumentLoader)
 	if err != nil {
-		return nil, fmt.Errorf("error validating JSON against schema: %w", err)
+		return nil, fmt.Errorf("error validating JSON against schema\n\t%w", err)
 	}
 
 	if !result.Valid() {
@@ -215,7 +215,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 	// Unmarshal JSON into struct.
 	var v1RawMetadata v1RawMetadata
 	if err := json.Unmarshal(jsonBytes, &v1RawMetadata); err != nil {
-		return nil, fmt.Errorf("error unmarshaling JSON into struct: %w", err)
+		return nil, fmt.Errorf("error unmarshaling JSON into struct\n\t%w", err)
 	}
 
 	// Migrate struct.
@@ -292,7 +292,7 @@ func Migrate(jsonBytes []byte) ([]byte, error) {
 
 	resultJSONBytes, err := json.Marshal(v2RawMetadata)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling struct into JSON: %w", err)
+		return nil, fmt.Errorf("error marshaling struct into JSON\n\t%w", err)
 	}
 
 	return resultJSONBytes, nil

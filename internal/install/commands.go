@@ -10,7 +10,7 @@ import (
 )
 
 // runCommands runs the given commands.
-func runCommands(commands []string) error {
+func runCommands(commands []string, environs map[string]string) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "install",
 		"method":  "runCommands",
@@ -29,8 +29,12 @@ func runCommands(commands []string) error {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
+		for key, value := range environs {
+			cmd.Env = append(os.Environ(), fmt.Sprintf("%v=%v", key, value))
+		}
+
 		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to run command %v: %w", command, err)
+			return fmt.Errorf("failed to run command %v\n\t%w", command, err)
 		}
 
 		debugLogger.Debugf("Ran command %v", command)

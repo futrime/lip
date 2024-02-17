@@ -51,7 +51,7 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	// Migrate if needed.
 	formatVersion, err := parseFormatVersion(jsonBytes)
 	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to get format version: %w", err)
+		return Metadata{}, fmt.Errorf("failed to get format version\n\t%w", err)
 	}
 
 	isMigrationNeeded := false
@@ -59,7 +59,7 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	case 1:
 		migratedJSONBytes, err := v1tov2.Migrate(jsonBytes)
 		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to migrate metadata: %w", err)
+			return Metadata{}, fmt.Errorf("failed to migrate metadata\n\t%w", err)
 		}
 
 		isMigrationNeeded = true
@@ -79,7 +79,7 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 
 	validationResult, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to validate raw metadata: %w", err)
+		return Metadata{}, fmt.Errorf("failed to validate raw metadata\n\t%w", err)
 	}
 
 	if !validationResult.Valid() {
@@ -94,12 +94,12 @@ func MakeMetadata(jsonBytes []byte) (Metadata, error) {
 	// Unmarshal JSON
 	var rawMetadata RawMetadata
 	if err := json.Unmarshal(jsonBytes, &rawMetadata); err != nil {
-		return Metadata{}, fmt.Errorf("failed to unmarshal raw metadata: %w", err)
+		return Metadata{}, fmt.Errorf("failed to unmarshal raw metadata\n\t%w", err)
 	}
 
 	metadata, err := MakeMetadataFromRaw(rawMetadata)
 	if err != nil {
-		return Metadata{}, fmt.Errorf("failed to make metadata: %w", err)
+		return Metadata{}, fmt.Errorf("failed to make metadata\n\t%w", err)
 	}
 
 	// Warn for obsolete tooth.json.
@@ -123,7 +123,7 @@ func MakeMetadataFromRaw(rawMetadata RawMetadata) (Metadata, error) {
 	}
 
 	if _, err := semver.Parse(rawMetadata.Version); err != nil {
-		return Metadata{}, fmt.Errorf("failed to parse version: %w", err)
+		return Metadata{}, fmt.Errorf("failed to parse version\n\t%w", err)
 	}
 
 	return Metadata{rawMetadata}, nil
@@ -155,7 +155,7 @@ func (m Metadata) Dependencies() (map[string]semver.Range, error) {
 	for toothRepoPath, dep := range m.rawMetadata.Dependencies {
 		versionRange, err := semver.ParseRange(dep)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse version range: %w", err)
+			return nil, fmt.Errorf("failed to parse version range\n\t%w", err)
 		}
 
 		dependencies[toothRepoPath] = versionRange
@@ -180,7 +180,7 @@ func (m Metadata) Prerequisites() (map[string]semver.Range, error) {
 	for toothRepoPath, prereq := range m.rawMetadata.Prerequisites {
 		versionRange, err := semver.ParseRange(prereq)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse version range: %w", err)
+			return nil, fmt.Errorf("failed to parse version range\n\t%w", err)
 		}
 
 		prerequisites[toothRepoPath] = versionRange
@@ -208,12 +208,12 @@ func (m Metadata) Files() (Files, error) {
 	for _, placeItem := range m.rawMetadata.Files.Place {
 		src, err := path.Parse(placeItem.Src)
 		if err != nil {
-			return Files{}, fmt.Errorf("failed to parse source path: %w", err)
+			return Files{}, fmt.Errorf("failed to parse source path\n\t%w", err)
 		}
 
 		dest, err := path.Parse(placeItem.Dest)
 		if err != nil {
-			return Files{}, fmt.Errorf("failed to parse destination path: %w", err)
+			return Files{}, fmt.Errorf("failed to parse destination path\n\t%w", err)
 		}
 
 		place = append(place, FilesPlaceItem{
@@ -226,7 +226,7 @@ func (m Metadata) Files() (Files, error) {
 	for _, preserveItem := range m.rawMetadata.Files.Preserve {
 		preservePath, err := path.Parse(preserveItem)
 		if err != nil {
-			return Files{}, fmt.Errorf("failed to parse preserve path: %w", err)
+			return Files{}, fmt.Errorf("failed to parse preserve path\n\t%w", err)
 		}
 
 		preserve = append(preserve, preservePath)
@@ -236,7 +236,7 @@ func (m Metadata) Files() (Files, error) {
 	for _, removeItem := range m.rawMetadata.Files.Remove {
 		removePath, err := path.Parse(removeItem)
 		if err != nil {
-			return Files{}, fmt.Errorf("failed to parse remove path: %w", err)
+			return Files{}, fmt.Errorf("failed to parse remove path\n\t%w", err)
 		}
 
 		remove = append(remove, removePath)
@@ -263,7 +263,7 @@ func (m Metadata) MarshalJSON() ([]byte, error) {
 	jsonBytes, err := json.MarshalIndent(m.rawMetadata, "", "    ")
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal raw metadata: %w", err)
+		return nil, fmt.Errorf("failed to marshal raw metadata\n\t%w", err)
 	}
 
 	return jsonBytes, nil
@@ -352,12 +352,12 @@ func (m Metadata) ToWildcardPopulated(filePaths []path.Path) (Metadata, error) {
 
 		sourcePathPrefix, err := path.Parse(strings.TrimSuffix(placeItem.Src, "*"))
 		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse source path prefix: %w", err)
+			return Metadata{}, fmt.Errorf("failed to parse source path prefix\n\t%w", err)
 		}
 
 		destPathPrefix, err := path.Parse(placeItem.Dest)
 		if err != nil {
-			return Metadata{}, fmt.Errorf("failed to parse destination path prefix: %w", err)
+			return Metadata{}, fmt.Errorf("failed to parse destination path prefix\n\t%w", err)
 		}
 
 		for _, filePath := range filePaths {
@@ -387,7 +387,7 @@ func parseFormatVersion(jsonBytes []byte) (int, error) {
 	jsonData := make(map[string]interface{})
 	err := json.Unmarshal(jsonBytes, &jsonData)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse json: %w", err)
+		return 0, fmt.Errorf("failed to parse json\n\t%w", err)
 	}
 
 	formatVersion, ok := jsonData["format_version"]

@@ -40,7 +40,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
 	err := flagSet.Parse(args)
 	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.

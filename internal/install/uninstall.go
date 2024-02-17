@@ -18,6 +18,20 @@ func Uninstall(ctx *context.Context, toothRepoPath string) error {
 		"method":  "Uninstall",
 	})
 
+	commandEnvirons := make(map[string]string)
+
+	proxyURL, err := ctx.ProxyURL()
+	if err != nil {
+		return fmt.Errorf("failed to get proxy URL\n\t%w", err)
+	}
+
+	if proxyURL.String() != "" {
+		commandEnvirons = map[string]string{
+			"HTTP_PROXY":  proxyURL.String(),
+			"HTTPS_PROXY": proxyURL.String(),
+		}
+	}
+
 	metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 	if err != nil {
 		return err
@@ -25,22 +39,22 @@ func Uninstall(ctx *context.Context, toothRepoPath string) error {
 
 	// 1. Run pre-uninstall commands.
 
-	if err := runCommands(metadata.Commands().PreUninstall); err != nil {
-		return fmt.Errorf("failed to run pre-uninstall commands: %w", err)
+	if err := runCommands(metadata.Commands().PreUninstall, commandEnvirons); err != nil {
+		return fmt.Errorf("failed to run pre-uninstall commands\n\t%w", err)
 	}
 	debugLogger.Debug("Ran pre-uninstall commands")
 
 	// 2. Delete files.
 
 	if err := removeToothFiles(ctx, metadata); err != nil {
-		return fmt.Errorf("failed to delete files: %w", err)
+		return fmt.Errorf("failed to delete files\n\t%w", err)
 	}
 	debugLogger.Debug("Deleted files")
 
 	// 3. Run post-uninstall commands.
 
-	if err := runCommands(metadata.Commands().PostUninstall); err != nil {
-		return fmt.Errorf("failed to run post-uninstall commands: %w", err)
+	if err := runCommands(metadata.Commands().PostUninstall, commandEnvirons); err != nil {
+		return fmt.Errorf("failed to run post-uninstall commands\n\t%w", err)
 	}
 	debugLogger.Debug("Ran post-uninstall commands")
 
@@ -48,14 +62,14 @@ func Uninstall(ctx *context.Context, toothRepoPath string) error {
 
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
-		return fmt.Errorf("failed to get metadata directory: %w", err)
+		return fmt.Errorf("failed to get metadata directory\n\t%w", err)
 	}
 
 	metadataFileName := fmt.Sprintf("%v.json", url.QueryEscape(toothRepoPath))
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
 	if err := os.Remove(metadataPath.LocalString()); err != nil {
-		return fmt.Errorf("failed to delete metadata file: %w", err)
+		return fmt.Errorf("failed to delete metadata file\n\t%w", err)
 	}
 
 	debugLogger.Debugf("Deleted metadata file %v", metadataPath.LocalString())
@@ -77,12 +91,12 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 
 	workspaceDir, err := path.Parse(workspaceDirStr)
 	if err != nil {
-		return fmt.Errorf("failed to parse workspace directory: %w", err)
+		return fmt.Errorf("failed to parse workspace directory\n\t%w", err)
 	}
 
 	files, err := metadata.Files()
 	if err != nil {
-		return fmt.Errorf("failed to get files from metadata: %w", err)
+		return fmt.Errorf("failed to get files from metadata\n\t%w", err)
 	}
 
 	for _, place := range files.Place {
@@ -105,7 +119,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 
 		// Delete the file.
 		if err := os.RemoveAll(dest.LocalString()); err != nil {
-			return fmt.Errorf("failed to delete file: %w", err)
+			return fmt.Errorf("failed to delete file\n\t%w", err)
 		}
 		debugLogger.Debugf("Deleted file %v", dest.LocalString())
 
@@ -114,7 +128,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 		for {
 			dir, err := currentPath.Dir()
 			if err != nil {
-				return fmt.Errorf("failed to parse directory: %w", err)
+				return fmt.Errorf("failed to parse directory\n\t%w", err)
 			}
 
 			if dir.Equal(workspaceDir) {
@@ -129,10 +143,10 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 			fileList, err := os.ReadDir(dir.LocalString())
 			if err != nil {
 				if os.IsNotExist(err) {
-					log.Errorf("Directory %v does not exist, skip deleting", dir.LocalString())
+					log.Errorf("directory %v does not exist, skip deleting", dir.LocalString())
 					break
 				} else {
-					return fmt.Errorf("failed to read directory %v: %w", dir.LocalString(), err)
+					return fmt.Errorf("failed to read directory %v\n\t%w", dir.LocalString(), err)
 				}
 			}
 
@@ -141,7 +155,7 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 			}
 
 			if err := os.Remove(dir.LocalString()); err != nil {
-				return fmt.Errorf("failed to delete directory: %w", err)
+				return fmt.Errorf("failed to delete directory\n\t%w", err)
 			}
 			debugLogger.Debugf("Deleted directory %v", dir.LocalString())
 
@@ -152,14 +166,14 @@ func removeToothFiles(ctx *context.Context, metadata tooth.Metadata) error {
 	// Files marked as "remove" will be deleted regardless of whether they are marked as "preserve".
 	files, err = metadata.Files()
 	if err != nil {
-		return fmt.Errorf("failed to get files from metadata: %w", err)
+		return fmt.Errorf("failed to get files from metadata\n\t%w", err)
 	}
 
 	for _, removal := range files.Remove {
 		removalPath := removal
 
 		if err := os.RemoveAll(workspaceDir.Join(removalPath).LocalString()); err != nil {
-			return fmt.Errorf("failed to delete file: %w", err)
+			return fmt.Errorf("failed to delete file\n\t%w", err)
 		}
 		debugLogger.Debugf("Deleted file %v that is marked as \"remove\"", workspaceDir.Join(removalPath).LocalString())
 	}

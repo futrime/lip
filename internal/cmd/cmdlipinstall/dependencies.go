@@ -17,7 +17,7 @@ func getFixedToothAndVersionMap(ctx *context.Context, specifiedArchives []tooth.
 
 	installedToothMetadataList, err := tooth.GetAllMetadata(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all installed tooth metadata: %w", err)
+		return nil, fmt.Errorf("failed to get all installed tooth metadata\n\t%w", err)
 	}
 
 	for _, installedToothMetadata := range installedToothMetadataList {
@@ -62,7 +62,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 	fixedToothAndVersionMap, err := getFixedToothAndVersionMap(ctx, rootArchiveList, upgradeFlag,
 		forceReinstallFlag)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get fixed tooth and version map: %w", err)
+		return nil, fmt.Errorf("failed to get fixed tooth and version map\n\t%w", err)
 	}
 
 	notResolvedArchiveQueue := list.New()
@@ -78,7 +78,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 
 		depMap, err := archive.Metadata().Dependencies()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get dependencies: %w", err)
+			return nil, fmt.Errorf("failed to get dependencies\n\t%w", err)
 		}
 
 		depStrMap := archive.Metadata().DependenciesAsStrings()
@@ -104,7 +104,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 
 			currentArchive, err := downloadToothArchiveIfNotCached(ctx, dep, targetVersion)
 			if err != nil {
-				return nil, fmt.Errorf("failed to download tooth: %w", err)
+				return nil, fmt.Errorf("failed to download tooth\n\t%w", err)
 			}
 
 			debugLogger.Debugf("Downloaded tooth archive %v", currentArchive.FilePath().LocalString())
@@ -119,7 +119,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 
 	sortedArchives, err := topoSortToothArchives(resolvedArchiveList)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sort teeth: %w", err)
+		return nil, fmt.Errorf("failed to sort teeth\n\t%w", err)
 	}
 
 	debugLogger.Debug("Topologically sorted teeth:")

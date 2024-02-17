@@ -23,28 +23,28 @@ func GetAllMetadata(ctx *context.Context) ([]Metadata, error) {
 
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get metadata directory: %w", err)
+		return nil, fmt.Errorf("failed to get metadata directory\n\t%w", err)
 	}
 
 	filePathStrings, err := filepath.Glob(filepath.Join(metadataDir.LocalString(), "*.json"))
 	if err != nil {
-		return nil, fmt.Errorf("failed to list metadata files: %w", err)
+		return nil, fmt.Errorf("failed to list metadata files\n\t%w", err)
 	}
 
 	for _, filePathString := range filePathStrings {
 		filePath, err := path.Parse(filePathString)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse metadata file path: %w", err)
+			return nil, fmt.Errorf("failed to parse metadata file path\n\t%w", err)
 		}
 
 		jsonBytes, err := os.ReadFile(filePath.LocalString())
 		if err != nil {
-			return nil, fmt.Errorf("failed to read metadata file: %w", err)
+			return nil, fmt.Errorf("failed to read metadata file\n\t%w", err)
 		}
 
 		metadata, err := MakeMetadata(jsonBytes)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse metadata file: %w", err)
+			return nil, fmt.Errorf("failed to parse metadata file\n\t%w", err)
 		}
 
 		// Check if the metadata file name matches the tooth repo path in the metadata.
@@ -69,22 +69,22 @@ func GetAvailableVersions(ctx *context.Context, toothRepoPath string) (semver.Ve
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get go module proxy URL: %w", err)
+		return nil, fmt.Errorf("failed to get go module proxy URL\n\t%w", err)
 	}
 
 	versionURL, err := network.GenerateGoModuleVersionListURL(toothRepoPath, goModuleProxyURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate version list URL: %w", err)
+		return nil, fmt.Errorf("failed to generate version list URL\n\t%w", err)
 	}
 
 	proxyURL, err := ctx.ProxyURL()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get proxy URL: %w", err)
+		return nil, fmt.Errorf("failed to get proxy URL\n\t%w", err)
 	}
 
 	content, err := network.GetContent(versionURL, proxyURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch version list: %w", err)
+		return nil, fmt.Errorf("failed to fetch version list\n\t%w", err)
 	}
 
 	reader := bytes.NewReader(content)
@@ -123,7 +123,7 @@ func GetLatestVersionInVersionRange(ctx *context.Context,
 	availableVersions, err := GetAvailableVersions(ctx, toothRepoPath)
 	if err != nil {
 		return semver.Version{}, fmt.Errorf(
-			"failed to get available version list: %w", err)
+			"failed to get available version list\n\t%w", err)
 	}
 
 	// Filter versions that satisfy the version range.
@@ -163,7 +163,7 @@ func GetMetadata(ctx *context.Context, toothRepoPath string) (Metadata,
 	metadataList, err := GetAllMetadata(ctx)
 	if err != nil {
 		return Metadata{}, fmt.Errorf(
-			"failed to list all installed tooth metadata: %w", err)
+			"failed to list all installed tooth metadata\n\t%w", err)
 	}
 
 	for _, metadata := range metadataList {
@@ -182,7 +182,7 @@ func IsInstalled(ctx *context.Context, toothRepoPath string) (bool, error) {
 	metadataList, err := GetAllMetadata(ctx)
 	if err != nil {
 		return false, fmt.Errorf(
-			"failed to list all installed tooth metadata: %w", err)
+			"failed to list all installed tooth metadata\n\t%w", err)
 	}
 
 	for _, metadata := range metadataList {

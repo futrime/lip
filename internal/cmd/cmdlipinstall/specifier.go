@@ -25,7 +25,7 @@ func downloadToothRepoSpecifier(ctx *context.Context,
 	var toothVersion semver.Version
 	isToothVersionSpecified, err := specifier.IsToothVersionSpecified()
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to get is tooth version specified: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to get is tooth version specified\n\t%w", err)
 	}
 
 	if isToothVersionSpecified {
@@ -34,7 +34,7 @@ func downloadToothRepoSpecifier(ctx *context.Context,
 	} else {
 		latestVersion, err := tooth.GetLatestVersion(ctx, toothRepoPath)
 		if err != nil {
-			return tooth.Archive{}, fmt.Errorf("failed to look up tooth version: %w", err)
+			return tooth.Archive{}, fmt.Errorf("failed to look up tooth version\n\t%w", err)
 		}
 
 		toothVersion = latestVersion
@@ -42,7 +42,7 @@ func downloadToothRepoSpecifier(ctx *context.Context,
 
 	archive, err := downloadToothArchiveIfNotCached(ctx, toothRepoPath, toothVersion)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to download archive of %v@%v: %w", toothRepoPath,
+		return tooth.Archive{}, fmt.Errorf("failed to download archive of %v@%v\n\t%w", toothRepoPath,
 			toothVersion, err)
 	}
 
@@ -65,7 +65,7 @@ func resolveSpecifiers(ctx *context.Context,
 			archivePath := must.Must(specifier.ToothArchivePath())
 			localArchive, err := tooth.MakeArchive(archivePath)
 			if err != nil {
-				return nil, fmt.Errorf("failed to open archive %v: %w", archivePath.LocalString(), err)
+				return nil, fmt.Errorf("failed to open archive %v\n\t%w", archivePath.LocalString(), err)
 			}
 
 			archive = localArchive
@@ -73,7 +73,7 @@ func resolveSpecifiers(ctx *context.Context,
 		case specifierpkg.ToothRepoKind:
 			downloadedArchive, err := downloadToothRepoSpecifier(ctx, specifier)
 			if err != nil {
-				return nil, fmt.Errorf("failed to download specifier %v: %w", specifier, err)
+				return nil, fmt.Errorf("failed to download specifier %v\n\t%w", specifier, err)
 			}
 
 			archive = downloadedArchive

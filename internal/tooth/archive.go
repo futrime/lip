@@ -21,13 +21,13 @@ type Archive struct {
 func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	r, err := gozip.OpenReader(archiveFilePath.LocalString())
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to open archive %v: %w", archiveFilePath.LocalString(), err)
+		return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", archiveFilePath.LocalString(), err)
 	}
 	defer r.Close()
 
 	filePaths, err := zip.GetFilePaths(r)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", archiveFilePath.LocalString(), err)
+		return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", archiveFilePath.LocalString(), err)
 	}
 
 	filePathRoot := path.ExtractLongestCommonPath(filePaths...)
@@ -36,7 +36,7 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	if len(filePaths) == 1 {
 		filePathRootDir, err := filePathRoot.Dir()
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to get directory of tooth.json: %w", err)
+			return Archive{}, fmt.Errorf("failed to get directory of tooth.json\n\t%w", err)
 		}
 
 		filePathRoot = filePathRootDir
@@ -58,25 +58,25 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 	// Read tooth.json.
 	toothJSONFileReader, err := toothJSONFile.Open()
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to open tooth.json: %w", err)
+		return Archive{}, fmt.Errorf("failed to open tooth.json\n\t%w", err)
 	}
 	defer toothJSONFileReader.Close()
 
 	toothJSONBytes, err := io.ReadAll(toothJSONFileReader)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to read tooth.json: %w", err)
+		return Archive{}, fmt.Errorf("failed to read tooth.json\n\t%w", err)
 	}
 
 	// Parse tooth.json.
 	metadata, err := MakeMetadata(toothJSONBytes)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to parse tooth.json: %w", err)
+		return Archive{}, fmt.Errorf("failed to parse tooth.json\n\t%w", err)
 	}
 
 	// Convert to platform-specific metadata.
 	metadata, err = metadata.ToPlatformSpecific(runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to convert to platform-specific metadata: %w", err)
+		return Archive{}, fmt.Errorf("failed to convert to platform-specific metadata\n\t%w", err)
 	}
 
 	return Archive{
@@ -110,7 +110,7 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 	// Validate consistency of asset archive file path and asset URL.
 	assetURL, err := ar.Metadata().AssetURL()
 	if err != nil {
-		return Archive{}, fmt.Errorf("failed to get asset URL: %w", err)
+		return Archive{}, fmt.Errorf("failed to get asset URL\n\t%w", err)
 	}
 
 	if (assetArchiveFilePath.IsEmpty() && (assetURL.String() != "")) ||
@@ -123,13 +123,13 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 
 		r, err := gozip.OpenReader(ar.filePath.LocalString())
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to open archive %v: %w", assetArchiveFilePath.LocalString(), err)
+			return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 		defer r.Close()
 
 		filePaths, err := zip.GetFilePaths(r)
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", assetArchiveFilePath.LocalString(), err)
+			return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 
 		filePathRoot := path.ExtractLongestCommonPath(filePaths...)
@@ -138,7 +138,7 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 		newMetadataPrefixPrepended := newMetadata.ToFilePathPrefixPrepended(filePathRoot)
 		newMetadataWildcardPopulated, err := newMetadataPrefixPrepended.ToWildcardPopulated(filePaths)
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to populate wildcards: %w", err)
+			return Archive{}, fmt.Errorf("failed to populate wildcards\n\t%w", err)
 		}
 
 		return Archive{
@@ -150,19 +150,19 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 	} else {
 		r, err := gozip.OpenReader(assetArchiveFilePath.LocalString())
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to open archive %v: %w", assetArchiveFilePath.LocalString(), err)
+			return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 		defer r.Close()
 
 		filePaths, err := zip.GetFilePaths(r)
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to extract file paths from %v: %w", assetArchiveFilePath.LocalString(), err)
+			return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 
 		newMetadata := ar.metadata
 		newMetadataWildcardPopulated, err := newMetadata.ToWildcardPopulated(filePaths)
 		if err != nil {
-			return Archive{}, fmt.Errorf("failed to populate wildcards: %w", err)
+			return Archive{}, fmt.Errorf("failed to populate wildcards\n\t%w", err)
 		}
 
 		return Archive{

@@ -18,7 +18,7 @@ func getMissingPrerequisites(ctx *context.Context,
 	for _, archive := range archiveList {
 		prerequisites, err := archive.Metadata().Prerequisites()
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to get prerequisites: %w", err)
+			return nil, nil, fmt.Errorf("failed to get prerequisites\n\t%w", err)
 		}
 
 		prerequisitesAsStrings := archive.Metadata().PrerequisitesAsStrings()
@@ -26,13 +26,13 @@ func getMissingPrerequisites(ctx *context.Context,
 		for prerequisite, versionRange := range prerequisites {
 			isInstalled, err := tooth.IsInstalled(ctx, prerequisite)
 			if err != nil {
-				return nil, nil, fmt.Errorf("failed to check if tooth is installed: %w", err)
+				return nil, nil, fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 			}
 
 			if isInstalled {
 				currentMetadata, err := tooth.GetMetadata(ctx, prerequisite)
 				if err != nil {
-					return nil, nil, fmt.Errorf("failed to find installed tooth metadata: %w", err)
+					return nil, nil, fmt.Errorf("failed to find installed tooth metadata\n\t%w", err)
 				}
 
 				if !versionRange(currentMetadata.Version()) {

@@ -60,7 +60,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.noDependenciesFlag, "no-dependencies", false, "")
 
 	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -82,7 +82,7 @@ func Run(ctx *context.Context, args []string) error {
 	for _, specifierString := range flagSet.Args() {
 		specifier, err := specifier.Parse(specifierString)
 		if err != nil {
-			return fmt.Errorf("failed to parse specifier: %w", err)
+			return fmt.Errorf("failed to parse specifier\n\t%w", err)
 		}
 
 		specifiers = append(specifiers, specifier)
@@ -97,7 +97,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	specifiedArchives, err := resolveSpecifiers(ctx, specifiers)
 	if err != nil {
-		return fmt.Errorf("failed to parse and download specifier string list: %w", err)
+		return fmt.Errorf("failed to parse and download specifier string list\n\t%w", err)
 	}
 
 	debugLogger.Debug("Got tooth archives from specifiers:")
@@ -112,7 +112,7 @@ func Run(ctx *context.Context, args []string) error {
 		archives, err := resolveDependencies(ctx, specifiedArchives, flagDict.upgradeFlag,
 			flagDict.forceReinstallFlag)
 		if err != nil {
-			return fmt.Errorf("failed to resolve dependencies: %w", err)
+			return fmt.Errorf("failed to resolve dependencies\n\t%w", err)
 		}
 
 		archivesToInstall = archives
@@ -124,7 +124,7 @@ func Run(ctx *context.Context, args []string) error {
 
 		_, missingPrerequisites, err := getMissingPrerequisites(ctx, archivesToInstall)
 		if err != nil {
-			return fmt.Errorf("failed to find missing prerequisites: %w", err)
+			return fmt.Errorf("failed to find missing prerequisites\n\t%w", err)
 		}
 
 		if len(missingPrerequisites) != 0 {
@@ -141,7 +141,7 @@ func Run(ctx *context.Context, args []string) error {
 	filteredArchives, err := filterInstalledToothArchives(ctx, archivesToInstall, flagDict.upgradeFlag,
 		flagDict.forceReinstallFlag)
 	if err != nil {
-		return fmt.Errorf("failed to filter installed teeth: %w", err)
+		return fmt.Errorf("failed to filter installed teeth\n\t%w", err)
 	}
 
 	debugLogger.Debug("After filtering installed teeth, got archives to install:")
@@ -153,7 +153,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	for _, archive := range filteredArchives {
 		if err := downloadToothAssetArchiveIfNotCached(ctx, archive); err != nil {
-			return fmt.Errorf("failed to download tooth assets: %w", err)
+			return fmt.Errorf("failed to download tooth assets\n\t%w", err)
 		}
 	}
 
@@ -172,7 +172,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	for _, archive := range filteredArchives {
 		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag); err != nil {
-			return fmt.Errorf("failed to install tooth archive %v: %w", archive.FilePath().LocalString(), err)
+			return fmt.Errorf("failed to install tooth archive %v\n\t%w", archive.FilePath().LocalString(), err)
 		}
 	}
 

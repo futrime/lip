@@ -47,7 +47,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
 	err := flagSet.Parse(args)
 	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -64,7 +64,7 @@ func Run(ctx *context.Context, args []string) error {
 	toothRepoPath := flagSet.Arg(0)
 
 	if err := show(ctx, toothRepoPath, flagDict.availableFlag, flagDict.jsonFlag); err != nil {
-		return fmt.Errorf("failed to show JSON: %w", err)
+		return fmt.Errorf("failed to show JSON\n\t%w", err)
 	}
 
 	return nil
@@ -78,14 +78,14 @@ func checkIsInstalledAndGetMetadata(ctx *context.Context,
 	isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
 	if err != nil {
 		return false, tooth.Metadata{},
-			fmt.Errorf("failed to check if tooth is installed: %w", err)
+			fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 	}
 
 	if isInstalled {
 		metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 		if err != nil {
 			return false, tooth.Metadata{},
-				fmt.Errorf("failed to find installed tooth metadata: %w", err)
+				fmt.Errorf("failed to find installed tooth metadata\n\t%w", err)
 		}
 
 		return true, metadata, nil
@@ -106,7 +106,7 @@ func show(ctx *context.Context, toothRepoPath string,
 	if availableFlag {
 		versionList, err := tooth.GetAvailableVersions(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to get tooth version list: %w", err)
+			return fmt.Errorf("failed to get tooth version list\n\t%w", err)
 		}
 
 		for _, v := range versionList {
@@ -131,7 +131,7 @@ func show(ctx *context.Context, toothRepoPath string,
 
 		jsonBytes, err := json.Marshal(info)
 		if err != nil {
-			return fmt.Errorf("failed to marshal JSON: %w", err)
+			return fmt.Errorf("failed to marshal JSON\n\t%w", err)
 		}
 
 		fmt.Print(string(jsonBytes))

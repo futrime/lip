@@ -18,12 +18,12 @@ func GenerateGoModuleVersionListURL(goModulePath string, goProxyURL *url.URL) (*
 
 	escapedPath, err := module.EscapePath(goModulePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot escape Go module path %v: %w", goModulePath, err)
+		return nil, fmt.Errorf("cannot escape Go module path %v\n\t%w", goModulePath, err)
 	}
 
 	resultURL, err := goProxyURL.Parse(path.Join(escapedPath, "@v", "list"))
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse Go proxy URL: %w", err)
+		return nil, fmt.Errorf("cannot parse Go proxy URL\n\t%w", err)
 	}
 
 	return resultURL, nil
@@ -37,17 +37,17 @@ func GenerateGoModuleZipFileURL(goModulePath string, version semver.Version, goP
 
 	zipFileName, err := generateGoModuleZipFileName(version)
 	if err != nil {
-		return nil, fmt.Errorf("cannot generate Go module zip file name: %w", err)
+		return nil, fmt.Errorf("cannot generate Go module zip file name\n\t%w", err)
 	}
 
 	escapedPath, err := module.EscapePath(goModulePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot escape Go module path %v: %w", goModulePath, err)
+		return nil, fmt.Errorf("cannot escape Go module path %v\n\t%w", goModulePath, err)
 	}
 
 	resultURL, err := goProxyURL.Parse(path.Join(escapedPath, "@v", zipFileName))
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse Go proxy URL: %w", err)
+		return nil, fmt.Errorf("cannot parse Go proxy URL\n\t%w", err)
 	}
 
 	return resultURL, nil

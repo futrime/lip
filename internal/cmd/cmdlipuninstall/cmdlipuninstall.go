@@ -44,7 +44,7 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
 	err := flagSet.Parse(args)
 	if err != nil {
-		return fmt.Errorf("failed to parse flags: %w", err)
+		return fmt.Errorf("failed to parse flags\n\t%w", err)
 	}
 
 	// Help flag has the highest priority.
@@ -66,7 +66,7 @@ func Run(ctx *context.Context, args []string) error {
 
 		isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to check if tooth is installed: %w", err)
+			return fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 		}
 
 		if !isInstalled {
@@ -88,7 +88,7 @@ func Run(ctx *context.Context, args []string) error {
 	for _, toothRepoPath := range toothRepoPathList {
 		err := install.Uninstall(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %v: %w", toothRepoPath, err)
+			return fmt.Errorf("failed to uninstall tooth %v\n\t%w", toothRepoPath, err)
 		}
 	}
 
@@ -108,7 +108,7 @@ func askForConfirmation(ctx *context.Context,
 	for _, toothRepoPath := range toothRepoPathList {
 		metadata, err := tooth.GetMetadata(ctx, toothRepoPath)
 		if err != nil {
-			return fmt.Errorf("failed to get installed tooth metadata: %w", err)
+			return fmt.Errorf("failed to get installed tooth metadata\n\t%w", err)
 		}
 
 		log.Infof("  %v@%v: %v", toothRepoPath, metadata.Version(),

@@ -23,10 +23,24 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 		"method":  "Install",
 	})
 
+	commandEnvirons := make(map[string]string)
+
+	proxyURL, err := ctx.ProxyURL()
+	if err != nil {
+		return fmt.Errorf("failed to get proxy URL\n\t%w", err)
+	}
+
+	if proxyURL.String() != "" {
+		commandEnvirons = map[string]string{
+			"HTTP_PROXY":  proxyURL.String(),
+			"HTTPS_PROXY": proxyURL.String(),
+		}
+	}
+
 	// 1. Check if the tooth is already installed.
 
 	if installed, err := tooth.IsInstalled(ctx, archive.Metadata().ToothRepoPath()); err != nil {
-		return fmt.Errorf("failed to check if tooth is installed: %w", err)
+		return fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
 	} else if installed {
 		return fmt.Errorf("tooth %v is already installed", archive.Metadata().ToothRepoPath())
 	}
@@ -34,8 +48,8 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 
 	// 2. Run pre-install commands.
 
-	if err := runCommands(archive.Metadata().Commands().PreInstall); err != nil {
-		return fmt.Errorf("failed to run pre-install commands: %w", err)
+	if err := runCommands(archive.Metadata().Commands().PreInstall, commandEnvirons); err != nil {
+		return fmt.Errorf("failed to run pre-install commands\n\t%w", err)
 	}
 	debugLogger.Debug("Ran pre-install commands")
 
@@ -43,18 +57,18 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 
 	assetFilePath, err := archive.AssetFilePath()
 	if err != nil {
-		return fmt.Errorf("failed to get asset file path of archive %v: %w", archive.FilePath().LocalString(), err)
+		return fmt.Errorf("failed to get asset file path of archive %v\n\t%w", archive.FilePath().LocalString(), err)
 	}
 
 	if err := placeFiles(ctx, archive.Metadata(), assetFilePath); err != nil {
-		return fmt.Errorf("failed to place files: %w", err)
+		return fmt.Errorf("failed to place files\n\t%w", err)
 	}
 	debugLogger.Debug("Placed files")
 
 	// 4. Run post-install commands.
 
-	if err := runCommands(archive.Metadata().Commands().PostInstall); err != nil {
-		return fmt.Errorf("failed to run post-install commands: %w", err)
+	if err := runCommands(archive.Metadata().Commands().PostInstall, commandEnvirons); err != nil {
+		return fmt.Errorf("failed to run post-install commands\n\t%w", err)
 	}
 	debugLogger.Debug("Ran post-install commands")
 
@@ -62,19 +76,19 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 
 	jsonBytes, err := archive.Metadata().MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to marshal metadata: %w", err)
+		return fmt.Errorf("failed to marshal metadata\n\t%w", err)
 	}
 
 	metadataFileName := url.QueryEscape(archive.Metadata().ToothRepoPath()) + ".json"
 	metadataDir, err := ctx.MetadataDir()
 	if err != nil {
-		return fmt.Errorf("failed to get metadata directory: %w", err)
+		return fmt.Errorf("failed to get metadata directory\n\t%w", err)
 	}
 
 	metadataPath := metadataDir.Join(path.MustParse(metadataFileName))
 
 	if err := os.WriteFile(metadataPath.LocalString(), jsonBytes, 0644); err != nil {
-		return fmt.Errorf("failed to create metadata file: %w", err)
+		return fmt.Errorf("failed to create metadata file\n\t%w", err)
 	}
 
 	debugLogger.Debugf("Created metadata file %v", metadataPath.LocalString())
@@ -102,13 +116,13 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 	// Open the archive.
 	r, err := zip.OpenReader(assetArchiveFilePath.LocalString())
 	if err != nil {
-		return fmt.Errorf("failed to open archive: %w", err)
+		return fmt.Errorf("failed to open zip reader\n\t%w", err)
 	}
 	defer r.Close()
 
 	files, err := metadata.Files()
 	if err != nil {
-		return fmt.Errorf("failed to get files from metadata: %w", err)
+		return fmt.Errorf("failed to get files from metadata\n\t%w", err)
 	}
 
 	for _, place := range files.Place {
@@ -123,7 +137,7 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 
 		// Create the destination directory.
 		if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
-			return fmt.Errorf("failed to create destination directory: %w", err)
+			return fmt.Errorf("failed to create destination directory\n\t%w", err)
 		}
 		debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
 
@@ -139,24 +153,24 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 
 			filePath, err := path.Parse(f.Name)
 			if err != nil {
-				return fmt.Errorf("failed to parse file path from %v: %w", f.Name, err)
+				return fmt.Errorf("failed to parse file path from %v\n\t%w", f.Name, err)
 			}
 
 			if filePath.Equal(place.Src) {
 				// Open the source file.
 				rc, err := f.Open()
 				if err != nil {
-					return fmt.Errorf("failed to open source file: %w", err)
+					return fmt.Errorf("failed to open source file\n\t%w", err)
 				}
 
 				fw, err := os.Create(dest.LocalString())
 				if err != nil {
-					return fmt.Errorf("failed to create destination file: %w", err)
+					return fmt.Errorf("failed to create destination file\n\t%w", err)
 				}
 
 				// Copy the file.
 				if _, err := io.Copy(fw, rc); err != nil {
-					return fmt.Errorf("failed to copy file: %w", err)
+					return fmt.Errorf("failed to copy file\n\t%w", err)
 				}
 
 				// Close the files.

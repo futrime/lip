@@ -22,7 +22,7 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL) (path.P
 
 	cachePath, err := getCachePath(ctx, downloadURL)
 	if err != nil {
-		return path.Path{}, fmt.Errorf("failed to get cache path of %v: %w", downloadURL, err)
+		return path.Path{}, fmt.Errorf("failed to get cache path of %v\n\t%w", downloadURL, err)
 	}
 
 	// Skip downloading if the file is already in the cache.
@@ -39,15 +39,15 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL) (path.P
 
 		proxyURL, err := ctx.ProxyURL()
 		if err != nil {
-			return path.Path{}, fmt.Errorf("failed to get proxy URL: %w", err)
+			return path.Path{}, fmt.Errorf("failed to get proxy URL\n\t%w", err)
 		}
 
 		if err := network.DownloadFile(downloadURL, proxyURL, cachePath, enableProgressBar); err != nil {
-			return path.Path{}, fmt.Errorf("failed to download file: %w", err)
+			return path.Path{}, fmt.Errorf("failed to download file\n\t%w", err)
 		}
 
 	} else if err != nil {
-		return path.Path{}, fmt.Errorf("failed to check if file exists: %w", err)
+		return path.Path{}, fmt.Errorf("failed to check if file exists\n\t%w", err)
 	} else {
 		debugLogger.Debugf("File %v already exists in the cache, skip downloading", cachePath.LocalString())
 	}
@@ -66,28 +66,28 @@ func downloadToothArchiveIfNotCached(ctx *context.Context, toothRepoPath string,
 
 	goModuleProxyURL, err := ctx.GoModuleProxyURL()
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to get Go module proxy URL: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to get Go module proxy URL\n\t%w", err)
 	}
 
 	downloadURL, err := network.GenerateGoModuleZipFileURL(toothRepoPath, toothVersion, goModuleProxyURL)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to generate Go module zip file URL: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to generate Go module zip file URL\n\t%w", err)
 	}
 
 	cachePath, err := downloadFileIfNotCached(ctx, downloadURL)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to download file: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to download file\n\t%w", err)
 	}
 
 	debugLogger.Debugf("Downloaded tooth archive from %v to %v", downloadURL, cachePath.LocalString())
 
 	archive, err := tooth.MakeArchive(cachePath)
 	if err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to open archive %v: %w", cachePath.LocalString(), err)
+		return tooth.Archive{}, fmt.Errorf("failed to open archive %v\n\t%w", cachePath.LocalString(), err)
 	}
 
 	if err := validateToothArchive(archive, toothRepoPath, toothVersion); err != nil {
-		return tooth.Archive{}, fmt.Errorf("failed to validate archive: %w", err)
+		return tooth.Archive{}, fmt.Errorf("failed to validate archive\n\t%w", err)
 	}
 
 	debugLogger.Debugf("Downloaded tooth archive %v", cachePath.LocalString())
@@ -99,7 +99,7 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 	metadata := archive.Metadata()
 	assetURL, err := metadata.AssetURL()
 	if err != nil {
-		return fmt.Errorf("failed to get asset URL: %w", err)
+		return fmt.Errorf("failed to get asset URL\n\t%w", err)
 	}
 
 	if assetURL.String() == "" {
@@ -110,7 +110,7 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 
 	gitHubMirrorURL, err := ctx.GitHubMirrorURL()
 	if err != nil {
-		return fmt.Errorf("failed to get GitHub mirror URL: %w", err)
+		return fmt.Errorf("failed to get GitHub mirror URL\n\t%w", err)
 	}
 
 	if network.IsGitHubDirectDownloadURL(assetURL) {
@@ -118,18 +118,18 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 
 		mirroredURL, err := network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 		if err != nil {
-			return fmt.Errorf("failed to generate GitHub mirror URL: %w", err)
+			return fmt.Errorf("failed to generate GitHub mirror URL\n\t%w", err)
 		}
 
 		if _, err := downloadFileIfNotCached(ctx, mirroredURL); err != nil {
-			return fmt.Errorf("failed to download file: %w", err)
+			return fmt.Errorf("failed to download file\n\t%w", err)
 		}
 
 	} else if assetURL.Scheme == "http" || assetURL.Scheme == "https" {
 		// Other HTTP or HTTPS URL.
 
 		if _, err := downloadFileIfNotCached(ctx, assetURL); err != nil {
-			return fmt.Errorf("failed to download file: %w", err)
+			return fmt.Errorf("failed to download file\n\t%w", err)
 		}
 
 	} else if err := module.CheckPath(assetURL.String()); err == nil {
@@ -137,16 +137,16 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 
 		goModuleProxyURL, err := ctx.GoModuleProxyURL()
 		if err != nil {
-			return fmt.Errorf("failed to get Go module proxy URL: %w", err)
+			return fmt.Errorf("failed to get Go module proxy URL\n\t%w", err)
 		}
 
 		downloadURL, err := network.GenerateGoModuleZipFileURL(assetURL.String(), archive.Metadata().Version(), goModuleProxyURL)
 		if err != nil {
-			return fmt.Errorf("failed to generate Go module zip file URL: %w", err)
+			return fmt.Errorf("failed to generate Go module zip file URL\n\t%w", err)
 		}
 
 		if _, err := downloadFileIfNotCached(ctx, downloadURL); err != nil {
-			return fmt.Errorf("failed to download file: %w", err)
+			return fmt.Errorf("failed to download file\n\t%w", err)
 		}
 
 	} else {
@@ -164,7 +164,7 @@ func getCachePath(ctx *context.Context, u *url.URL) (path.Path, error) {
 
 	cacheDir, err := ctx.CacheDir()
 	if err != nil {
-		return path.Path{}, fmt.Errorf("failed to get cache directory: %w", err)
+		return path.Path{}, fmt.Errorf("failed to get cache directory\n\t%w", err)
 	}
 
 	cacheFileName := url.QueryEscape(u.String())
