@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Proxy configuration support.
 
+### Changed
+
+- Set `https://github.com` as the default GitHub mirror.
+
 ### Fixed
 
 - Panic when dependencies and prerequisites have malformed version strings.

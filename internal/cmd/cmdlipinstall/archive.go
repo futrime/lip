@@ -122,7 +122,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 			}
 
 			mirroredURL := assetURL
-			if network.IsGitHubDirectDownloadURL(assetURL) && gitHubMirrorURL.String() != "" {
+			if network.IsGitHubDirectDownloadURL(assetURL) {
 				// Rewrite GitHub URL to GitHub mirror URL if it is set.
 				mirroredURL, err = network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 				if err != nil {

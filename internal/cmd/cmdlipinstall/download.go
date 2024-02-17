@@ -113,15 +113,13 @@ func downloadToothAssetArchiveIfNotCached(ctx *context.Context, archive tooth.Ar
 		return fmt.Errorf("failed to get GitHub mirror URL: %w", err)
 	}
 
-	if network.IsGitHubDirectDownloadURL(assetURL) && gitHubMirrorURL.String() != "" {
+	if network.IsGitHubDirectDownloadURL(assetURL) {
 		// HTTP or HTTPS URL from GitHub.
 
 		mirroredURL, err := network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 		if err != nil {
 			return fmt.Errorf("failed to generate GitHub mirror URL: %w", err)
 		}
-
-		log.Infof("GitHub URL detected. Rewrite URL to %v", gitHubMirrorURL)
 
 		if _, err := downloadFileIfNotCached(ctx, mirroredURL); err != nil {
 			return fmt.Errorf("failed to download file: %w", err)
