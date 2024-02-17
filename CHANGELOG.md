@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Proxy configuration support.
-- Support more kinds of GitHub mirrors.
+- Support more kinds of GitHub mirrors
+- Support `NO_COLOR` environment variable to disable color output.
 
 ### Changed
 

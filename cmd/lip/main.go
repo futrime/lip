@@ -19,7 +19,11 @@ var defaultConfig context.Config = context.Config{
 var lipVersion semver.Version = semver.MustParse("0.21.0")
 
 func main() {
-	log.SetFormatter(&nested.Formatter{})
+	if os.Getenv("NO_COLOR") != "" {
+		log.SetFormatter(&nested.Formatter{NoColors: true})
+	} else {
+		log.SetFormatter(&nested.Formatter{})
+	}
 
 	ctx := context.New(defaultConfig, lipVersion)
 
