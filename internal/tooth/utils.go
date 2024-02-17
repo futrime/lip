@@ -77,7 +77,12 @@ func GetAvailableVersions(ctx *context.Context, toothRepoPath string) (semver.Ve
 		return nil, fmt.Errorf("failed to generate version list URL: %w", err)
 	}
 
-	content, err := network.GetContent(versionURL)
+	proxyURL, err := ctx.ProxyURL()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get proxy URL: %w", err)
+	}
+
+	content, err := network.GetContent(versionURL, proxyURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch version list: %w", err)
 	}

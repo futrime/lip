@@ -122,7 +122,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 			}
 
 			mirroredURL := assetURL
-			if network.IsGitHubDirectDownloadURL(assetURL) && gitHubMirrorURL.String() != "" {
+			if network.IsGitHubDirectDownloadURL(assetURL) {
 				// Rewrite GitHub URL to GitHub mirror URL if it is set.
 				mirroredURL, err = network.GenerateGitHubMirrorURL(assetURL, gitHubMirrorURL)
 				if err != nil {
@@ -187,7 +187,12 @@ func topoSortVisit(archive tooth.Archive, archiveMap map[string]tooth.Archive,
 	}
 
 	preVisited[archive.Metadata().ToothRepoPath()] = true
-	for depToothPath := range archive.Metadata().Dependencies() {
+	dependencies, err := archive.Metadata().Dependencies()
+	if err != nil {
+		return fmt.Errorf("failed to get dependencies of tooth %s: %w", archive.Metadata().ToothRepoPath(), err)
+	}
+
+	for depToothPath := range dependencies {
 		// Find the tooth archive of the dependency.
 		dep, ok := archiveMap[depToothPath]
 		if !ok {

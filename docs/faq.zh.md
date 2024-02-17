@@ -6,7 +6,7 @@
 
 ## 它的下载速度太慢了! 我可以做什么呢？
 
-Lip通过GOPROXY下载依赖。你可以通过运行`lip config GoModuleProxyURL <url>`来使用更快的代理。Lip还支持GitHub镜像，你可以通过运行`lip config GitHubMirrorURL <url>`来使用它。
+Lip通过GOPROXY下载依赖。你可以通过运行`lip config GoModuleProxyURL <url>`来使用更快的代理。Lip还支持GitHub镜像，你可以通过运行`lip config GitHubMirrorURL <url>`来使用它。 If you are setting up HTTP proxy, you can simply set the `HTTP_PROXY` and `HTTPS_PROXY` environment variable.
 
 ## 当我试图安装一个tooth时，它总是显示错误！
 

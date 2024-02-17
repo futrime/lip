@@ -76,7 +76,11 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 		archive := notResolvedArchiveQueue.Front().Value.(tooth.Archive)
 		notResolvedArchiveQueue.Remove(notResolvedArchiveQueue.Front())
 
-		depMap := archive.Metadata().Dependencies()
+		depMap, err := archive.Metadata().Dependencies()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get dependencies: %w", err)
+		}
+
 		depStrMap := archive.Metadata().DependenciesAsStrings()
 
 		for dep, versionRange := range depMap {

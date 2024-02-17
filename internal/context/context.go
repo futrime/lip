@@ -49,6 +49,16 @@ func (ctx *Context) GoModuleProxyURL() (*url.URL, error) {
 	return goModuleProxyURL, nil
 }
 
+// ProxyURL returns the proxy URL.
+func (ctx *Context) ProxyURL() (*url.URL, error) {
+	proxyURL, err := url.Parse(ctx.config.ProxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse proxy URL: %w", err)
+	}
+
+	return proxyURL, nil
+}
+
 // LipVersion returns the lip version.
 func (ctx *Context) LipVersion() semver.Version {
 	return ctx.lipVersion
