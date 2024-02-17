@@ -12,8 +12,10 @@ import (
 )
 
 // DownloadFile downloads a file from a url and saves it to a local path.
-func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) error {
-	resp, err := http.Get(url.String())
+func DownloadFile(url *url.URL, proxyURL *url.URL, filePath path.Path, enableProgressBar bool) error {
+	httpClient := getProxiedHTTPClient(proxyURL)
+
+	resp, err := httpClient.Get(url.String())
 	if err != nil {
 		return fmt.Errorf("cannot send HTTP request: %w", err)
 	}
@@ -49,9 +51,10 @@ func DownloadFile(url *url.URL, filePath path.Path, enableProgressBar bool) erro
 }
 
 // GetContent gets the content at once of a URL.
-func GetContent(url *url.URL) ([]byte, error) {
+func GetContent(url *url.URL, proxyURL *url.URL) ([]byte, error) {
+	httpClient := getProxiedHTTPClient(proxyURL)
 
-	resp, err := http.Get(url.String())
+	resp, err := httpClient.Get(url.String())
 	if err != nil {
 		return nil, fmt.Errorf("cannot send HTTP request: %w", err)
 	}
@@ -67,4 +70,10 @@ func GetContent(url *url.URL) ([]byte, error) {
 	}
 
 	return content, nil
+}
+
+func getProxiedHTTPClient(proxyURL *url.URL) *http.Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.Proxy = http.ProxyURL(proxyURL)
+	return &http.Client{Transport: transport}
 }

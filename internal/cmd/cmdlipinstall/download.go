@@ -37,7 +37,12 @@ func downloadFileIfNotCached(ctx *context.Context, downloadURL *url.URL) (path.P
 			enableProgressBar = true
 		}
 
-		if err := network.DownloadFile(downloadURL, cachePath, enableProgressBar); err != nil {
+		proxyURL, err := ctx.ProxyURL()
+		if err != nil {
+			return path.Path{}, fmt.Errorf("failed to get proxy URL: %w", err)
+		}
+
+		if err := network.DownloadFile(downloadURL, proxyURL, cachePath, enableProgressBar); err != nil {
 			return path.Path{}, fmt.Errorf("failed to download file: %w", err)
 		}
 
