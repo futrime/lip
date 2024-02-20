@@ -155,7 +155,7 @@ func (m Metadata) Dependencies() (map[string]semver.Range, error) {
 	for toothRepoPath, dep := range m.rawMetadata.Dependencies {
 		versionRange, err := semver.ParseRange(dep)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse version range\n\t%w", err)
+			return nil, fmt.Errorf("failed to parse version range \"%v\" of %v\n\t%w", dep, toothRepoPath, err)
 		}
 
 		dependencies[toothRepoPath] = versionRange
@@ -180,7 +180,7 @@ func (m Metadata) Prerequisites() (map[string]semver.Range, error) {
 	for toothRepoPath, prereq := range m.rawMetadata.Prerequisites {
 		versionRange, err := semver.ParseRange(prereq)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse version range\n\t%w", err)
+			return nil, fmt.Errorf("failed to parse version range \"%v\" of %v\n\t%w", prereq, toothRepoPath, err)
 		}
 
 		prerequisites[toothRepoPath] = versionRange
