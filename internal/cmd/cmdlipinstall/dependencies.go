@@ -78,7 +78,7 @@ func resolveDependencies(ctx *context.Context, rootArchiveList []tooth.Archive,
 
 		depMap, err := archive.Metadata().Dependencies()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get dependencies\n\t%w", err)
+			return nil, fmt.Errorf("failed to get dependencies of %v\n\t%w", archive.FilePath().LocalString(), err)
 		}
 
 		depStrMap := archive.Metadata().DependenciesAsStrings()
