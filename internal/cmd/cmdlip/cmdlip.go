@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/lippkg/lip/internal/cmd/cmdlipcache"
 	"github.com/lippkg/lip/internal/cmd/cmdlipconfig"
 	"github.com/lippkg/lip/internal/cmd/cmdlipinstall"
@@ -22,6 +23,7 @@ type FlagDict struct {
 	versionFlag bool
 	verboseFlag bool
 	quietFlag   bool
+	noColorFlag bool
 }
 
 const helpMessage = `
@@ -42,6 +44,7 @@ Options:
   -V, --version               Show version and exit.
   -v, --verbose               Show verbose output.
   -q, --quiet                 Show only errors.
+  --no-color                  Disable color output.
 `
 
 func Run(ctx *context.Context, args []string) error {
@@ -62,9 +65,14 @@ func Run(ctx *context.Context, args []string) error {
 	flagSet.BoolVar(&flagDict.verboseFlag, "v", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "quiet", false, "")
 	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
+	flagSet.BoolVar(&flagDict.noColorFlag, "no-color", false, "")
 
 	if err := flagSet.Parse(args); err != nil {
 		return fmt.Errorf("cannot parse flags\n\t%w", err)
+	}
+
+	if flagDict.noColorFlag {
+		log.SetFormatter(&nested.Formatter{NoColors: true})
 	}
 
 	// Set logging level.

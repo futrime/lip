@@ -29,3 +29,7 @@ When a lip executable file exists under .lip/tools/lip/, it will be executed ins
 - `-q, --quiet`
 
   Show only errors.
+
+- `--no-color`
+
+  Disable color output.
