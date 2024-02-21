@@ -171,7 +171,7 @@ func Run(ctx *context.Context, args []string) error {
 	log.Info("Installing teeth...")
 
 	for _, archive := range filteredArchives {
-		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag); err != nil {
+		if err := installToothArchive(ctx, archive, flagDict.forceReinstallFlag, flagDict.upgradeFlag, flagDict.yesFlag); err != nil {
 			return fmt.Errorf("failed to install tooth archive %v\n\t%w", archive.FilePath().LocalString(), err)
 		}
 	}

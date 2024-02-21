@@ -48,7 +48,7 @@ func filterInstalledToothArchives(ctx *context.Context, archives []tooth.Archive
 }
 
 // installToothArchive installs the tooth archive.
-func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool) error {
+func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReinstall bool, upgrade bool, yes bool) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "cmdlipinstall",
 		"method":  "installToothArchive",
@@ -143,7 +143,7 @@ func installToothArchive(ctx *context.Context, archive tooth.Archive, forceReins
 			return fmt.Errorf("failed to attach asset archive %v\n\t%w", assetArchiveFilePath.LocalString(), err)
 		}
 
-		if err := install.Install(ctx, archiveWithAssets); err != nil {
+		if err := install.Install(ctx, archiveWithAssets, yes); err != nil {
 			return fmt.Errorf("failed to install tooth archive %v\n\t%w", archiveWithAssets.FilePath().LocalString(), err)
 		}
 		debugLogger.Debugf("Installed tooth archive %v", archiveWithAssets.FilePath().LocalString())

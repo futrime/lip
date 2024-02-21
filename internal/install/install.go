@@ -17,7 +17,7 @@ import (
 
 // Install installs a tooth archive with an asset archive. If assetArchiveFilePath is empty,
 // will use the tooth archive as the asset archive.
-func Install(ctx *context.Context, archive tooth.Archive) error {
+func Install(ctx *context.Context, archive tooth.Archive, yes bool) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "install",
 		"method":  "Install",
@@ -60,7 +60,7 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 		return fmt.Errorf("failed to get asset file path of archive %v\n\t%w", archive.FilePath().LocalString(), err)
 	}
 
-	if err := placeFiles(ctx, archive.Metadata(), assetFilePath); err != nil {
+	if err := placeFiles(ctx, archive.Metadata(), assetFilePath, yes); err != nil {
 		return fmt.Errorf("failed to place files\n\t%w", err)
 	}
 	debugLogger.Debug("Placed files")
@@ -97,7 +97,7 @@ func Install(ctx *context.Context, archive tooth.Archive) error {
 }
 
 // placeFiles places the files of the tooth.
-func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path) error {
+func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFilePath path.Path, forcePlace bool) error {
 	debugLogger := log.WithFields(log.Fields{
 		"package": "install",
 		"method":  "placeFiles",
@@ -130,7 +130,23 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 
 		// Check if the destination exists.
 		if _, err := os.Stat(relDest.LocalString()); err == nil {
-			return fmt.Errorf("destination %v already exists", relDest.LocalString())
+			if !forcePlace {
+				// Ask for confirmation.
+				log.Infof("Destination %v already exists", relDest.LocalString())
+				log.Info("Do you want to remove? [y/N]")
+				var ans string
+				fmt.Scanln(&ans)
+				if ans != "y" && ans != "Y" {
+					return fmt.Errorf("aborted")
+				}
+			}
+
+			log.Infof("Removing destination %v", relDest.LocalString())
+
+			// Remove the destination if it exists.
+			if err := os.RemoveAll(relDest.LocalString()); err != nil {
+				return fmt.Errorf("failed to remove destination %v\n\t%w", relDest.LocalString(), err)
+			}
 		}
 
 		dest := workspaceDir.Join(relDest)
