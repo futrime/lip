@@ -166,6 +166,9 @@ Provide information about your tooth in the form of a JSON object with the follo
 - `tags`: (required) an array of tags of your tooth. Only [a-z0-9-] are allowed.
 - `avatar_url`: the URL of the tooth's avatar. If not set, the default avatar will be used. If a relative path is provided, it will be regarded as a path relative to **the source repository path**.
 
+!!!tip
+    tags shouldn't contain upper letters
+
 ### Examples
 
 ```json

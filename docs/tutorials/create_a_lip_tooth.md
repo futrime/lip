@@ -123,4 +123,4 @@ You can create a tooth.json like this:
 
 ## Next Steps
 
-You can read [tooth.json File Reference](../tooth_json_file_reference.md) for further reference.
+You can read [tooth.json File Reference](../reference/tooth_json_file_reference.md) for further reference.
