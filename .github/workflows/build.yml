@@ -32,3 +32,32 @@ jobs:
         with:
           name: lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}-${{ github.sha }}
           path: bin
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MkDocs and MkDocs static i18n plugin
+        run: |
+          pip install -r requirements.txt
+      - name: Build
+        run: |
+          mkdocs build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build-docs
+    permissions:
+      id-token: write
+      pages: write
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
