@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.21.2] - Unreleased
+## [Unreleased]
+
+### Added
+
+- `--no-color` flag to disable color output.
+
+## [0.21.2] - 2024-02-21
 
 ### Fixed
 
@@ -413,7 +419,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[0.21.2]: https://github.com/lippkg/lip/compare/v0.21.1...HEAD
+[Unreleased]: https://github.com/lippkg/lip/compare/v0.21.2...HEAD
+[0.21.2]: https://github.com/lippkg/lip/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/lippkg/lip/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/lippkg/lip/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/lippkg/lip/compare/v0.20.0...v0.20.1

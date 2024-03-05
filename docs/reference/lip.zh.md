@@ -23,3 +23,7 @@ lip [options]
 - `-q, --quiet`
 
   只显示错误。
+
+- `--no-color`
+
+  禁用颜色输出。
