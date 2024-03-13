@@ -61,3 +61,49 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  pack:
+    needs: build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        OS:
+          - windows
+        ARCH:
+          - amd64
+          - arm64
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: lip-${{ matrix.OS }}-${{ matrix.ARCH }}-${{ github.sha }}
+
+      - name: Set up NSIS
+        run: |
+          C:\msys64\usr\bin\wget.exe -q https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09.zip -O nsis.zip
+          C:\msys64\usr\bin\wget.exe -q https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-strlen_8192.zip -O nsis-strlen.zip
+          C:\msys64\usr\bin\wget.exe -q https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip -O EnVar_plugin.zip
+          unzip -q -o nsis.zip
+          mv nsis-3.09 nsis-portable
+          unzip -q -o nsis-strlen.zip -d nsis-portable
+          unzip -q -o EnVar_plugin.zip -d nsis-portable
+ 
+      - name: Set up NSIS building folder
+        run: |
+          mkdir nsis
+          cp ./scripts/make_installer.nsi ./nsis/
+          cp ./lip.exe ./nsis/
+          cp ./COPYING ./nsis/
+
+      - name: Build setup program
+        run: |
+          .\nsis-portable\makensis /DLIP_VERSION=${{ github.ref_name }} /DLIP_OS=${{ matrix.OS }} /DLIP_ARCH=${{ matrix.ARCH }} ./nsis/make_installer.nsi
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: lip-${{ matrix.OS }}-${{ matrix.ARCH }}-${{ github.sha }}-setup
+          path: nsis/lip-${{ matrix.OS }}-${{ matrix.ARCH }}-setup.exe
