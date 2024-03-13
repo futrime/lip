@@ -119,7 +119,7 @@ Function un.onInit
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
     Abort
   ${ElseIf} $0 == "2052"
-    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all its components?" IDYES +2
+    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "你确定要完全移除 $(^Name) 及其所有组件吗？" IDYES +2
     Abort
   ${EndIf}
 FunctionEnd
@@ -129,7 +129,7 @@ Function un.onUninstSuccess
   ${If} $0 == "1033"
     MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) has been successfully removed."
   ${ElseIf} $0 == "2052"
-    MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) has been successfully removed."
+    MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) 已成功移除。"
   ${EndIf}
 FunctionEnd
 
