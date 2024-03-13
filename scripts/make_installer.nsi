@@ -146,6 +146,7 @@ Section Uninstall
   EnVar::Check "NULL" "NULL"
   ; Set to HKLM
   EnVar::SetHKLM
-  ; Delete a value from a variable
-  EnVar::DeleteValue "PATH" "D:\Program Files\Lip"
+  ; Delete Lip install directory from PATH
+  EnVar::DeleteValue "PATH" "$INSTDIR"
   SetAutoClose true
+SectionEnd
