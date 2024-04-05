@@ -9,7 +9,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.14.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/mod v0.16.0
+	golang.org/x/mod v0.17.0
 )
 
 require (
