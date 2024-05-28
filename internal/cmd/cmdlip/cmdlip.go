@@ -32,7 +32,7 @@ Usage:
 
 Commands:
   cache                       Inspect and manage lip's cache.
-  config					  Manage configuration.
+  config                      Manage configuration.
   install                     Install a tooth.
   list                        List installed teeth.
   show                        Show information about installed teeth.
