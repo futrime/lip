@@ -2,11 +2,13 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
 	"github.com/lippkg/lip/internal/context"
+	"golang.org/x/term"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -19,8 +21,40 @@ var defaultConfig context.Config = context.Config{
 
 var lipVersion semver.Version = semver.MustParse("0.22.0")
 
-func main() {
+func IsStdoutAndStderrSupportAnsi() bool {
 	if os.Getenv("NO_COLOR") != "" {
+		return false
+	}
+	if os.Getenv("TERM") != "" && !strings.HasSuffix(os.Getenv("TERM"), "color") {
+		return false
+	}
+	if !term.IsTerminal(int(os.Stdout.Fd())) || !term.IsTerminal(int(os.Stderr.Fd())) {
+		return false
+	}
+	// {
+	// 	var st uint32
+	// 	if err := windows.GetConsoleMode(windows.Handle(int(os.Stdout.Fd())), &st); err != nil {
+	// 		return false
+	// 	}
+	// 	if (st | 0x4) != 0 {
+	// 		return false
+	// 	}
+	// }
+	// {
+	// 	var st uint32
+	// 	if err := windows.GetConsoleMode(windows.Handle(int(os.Stderr.Fd())), &st); err != nil {
+	// 		return false
+	// 	}
+	// 	if (st | 0x4) != 0 {
+	// 		return false
+	// 	}
+	// }
+	return true
+}
+
+func main() {
+	if IsStdoutAndStderrSupportAnsi() {
+		log.Errorf("test")
 		log.SetFormatter(&nested.Formatter{NoColors: true})
 	} else {
 		log.SetFormatter(&nested.Formatter{})
