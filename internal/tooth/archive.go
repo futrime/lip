@@ -1,10 +1,14 @@
 package tooth
 
 import (
+	"archive/tar"
 	gozip "archive/zip"
+	"compress/gzip"
 	"fmt"
 	"io"
+	"os"
 	"runtime"
+	"strings"
 
 	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/zip"
@@ -118,20 +122,50 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 		return Archive{}, fmt.Errorf("asset archive file path and asset URL must be both specified or both empty")
 	}
 
+	var filePaths []path.Path
 	if assetArchiveFilePath.IsEmpty() {
 		// Extract common prefix and prepend it to all file paths in file.place.
+		if strings.HasSuffix(ar.filePath.LocalString(), ".zip") {
+			r, err := gozip.OpenReader(ar.filePath.LocalString())
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", ar.filePath.LocalString(), err)
+			}
+			defer r.Close()
 
-		r, err := gozip.OpenReader(ar.filePath.LocalString())
-		if err != nil {
-			return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			filePaths, err = zip.GetFilePaths(r)
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", ar.filePath.LocalString(), err)
+			}
+
+		} else if strings.HasSuffix(ar.filePath.LocalString(), ".tar.gz") {
+			file, err := os.Open(ar.filePath.LocalString())
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open file %v\n\t%w", ar.filePath.LocalString(), err)
+			}
+			gzr, err := gzip.NewReader(file)
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open gzip reader %v\n\t%w", ar.filePath.LocalString(), err)
+			}
+			defer gzr.Close()
+			r := tar.NewReader(gzr)
+
+			for f, err := r.Next(); err != io.EOF; f, err = r.Next() {
+				if err != nil {
+					return Archive{}, fmt.Errorf("failed to read file paths from %v\n\t%w", ar.filePath.LocalString(), err)
+				}
+				// Skip directories.
+				if f.Typeflag == tar.TypeDir {
+					continue
+				}
+				filePath, err := path.Parse(f.Name)
+				if err != nil {
+					return Archive{}, fmt.Errorf("failed to parse file paths from %v\n\t%w", ar.filePath.LocalString(), err)
+				}
+				filePaths = append(filePaths, filePath)
+			}
+
 		}
-		defer r.Close()
-
-		filePaths, err := zip.GetFilePaths(r)
-		if err != nil {
-			return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
-		}
-
+		fmt.Println(filePaths)
 		filePathRoot := path.ExtractLongestCommonPath(filePaths...)
 
 		newMetadata := ar.metadata
@@ -146,18 +180,49 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 			filePath:      ar.filePath,
 			assetFilePath: ar.filePath,
 		}, nil
-
 	} else {
-		r, err := gozip.OpenReader(assetArchiveFilePath.LocalString())
-		if err != nil {
-			return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
-		}
-		defer r.Close()
+		var filePaths []path.Path
+		if strings.HasSuffix(assetArchiveFilePath.LocalString(), ".zip") {
+			r, err := gozip.OpenReader(assetArchiveFilePath.LocalString())
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open zip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			}
+			defer r.Close()
 
-		filePaths, err := zip.GetFilePaths(r)
-		if err != nil {
-			return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			filePaths, err = zip.GetFilePaths(r)
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to extract file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			}
+
+		} else if strings.HasSuffix(assetArchiveFilePath.LocalString(), ".tar.gz") {
+			file, err := os.Open(assetArchiveFilePath.LocalString())
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open file %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			}
+			gzr, err := gzip.NewReader(file)
+			if err != nil {
+				return Archive{}, fmt.Errorf("failed to open gzip reader %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+			}
+			defer gzr.Close()
+			r := tar.NewReader(gzr)
+
+			for f, err := r.Next(); err != io.EOF; f, err = r.Next() {
+				if err != nil {
+					return Archive{}, fmt.Errorf("failed to read file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+				}
+				// Skip directories.
+				if f.Typeflag == tar.TypeDir {
+					continue
+				}
+				filePath, err := path.Parse(f.Name)
+				if err != nil {
+					return Archive{}, fmt.Errorf("failed to parse file paths from %v\n\t%w", assetArchiveFilePath.LocalString(), err)
+				}
+				filePaths = append(filePaths, filePath)
+			}
+
 		}
+		fmt.Println(filePaths)
 
 		newMetadata := ar.metadata
 		newMetadataWildcardPopulated, err := newMetadata.ToWildcardPopulated(filePaths)

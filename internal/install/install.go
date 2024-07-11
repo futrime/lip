@@ -1,7 +1,9 @@
 package install
 
 import (
+	"archive/tar"
 	"archive/zip"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"net/url"
@@ -113,87 +115,174 @@ func placeFiles(ctx *context.Context, metadata tooth.Metadata, assetArchiveFileP
 		return err
 	}
 
-	// Open the archive.
-	r, err := zip.OpenReader(assetArchiveFilePath.LocalString())
-	if err != nil {
-		return fmt.Errorf("failed to open zip reader\n\t%w", err)
-	}
-	defer r.Close()
+	if strings.HasSuffix(assetArchiveFilePath.LocalString(), ".zip") {
+		// Open the archive.
+		r, err := zip.OpenReader(assetArchiveFilePath.LocalString())
+		if err != nil {
+			return fmt.Errorf("failed to open zip reader\n\t%w", err)
+		}
+		defer r.Close()
 
-	files, err := metadata.Files()
-	if err != nil {
-		return fmt.Errorf("failed to get files from metadata\n\t%w", err)
-	}
-
-	for _, place := range files.Place {
-		relDest := place.Dest
-
-		// Check if the destination exists.
-		if _, err := os.Stat(relDest.LocalString()); err == nil {
-			if !forcePlace {
-				// Ask for confirmation.
-				log.Infof("Destination %v already exists", relDest.LocalString())
-				log.Info("Do you want to remove? [y/N]")
-				var ans string
-				fmt.Scanln(&ans)
-				if ans != "y" && ans != "Y" {
-					return fmt.Errorf("aborted")
-				}
-			}
-
-			log.Infof("Removing destination %v", relDest.LocalString())
-
-			// Remove the destination if it exists.
-			if err := os.RemoveAll(relDest.LocalString()); err != nil {
-				return fmt.Errorf("failed to remove destination %v\n\t%w", relDest.LocalString(), err)
-			}
+		files, err := metadata.Files()
+		if err != nil {
+			return fmt.Errorf("failed to get files from metadata\n\t%w", err)
 		}
 
-		dest := workspaceDir.Join(relDest)
+		for _, place := range files.Place {
+			relDest := place.Dest
 
-		// Create the destination directory.
-		if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
-			return fmt.Errorf("failed to create destination directory\n\t%w", err)
+			// Check if the destination exists.
+			if _, err := os.Stat(relDest.LocalString()); err == nil {
+				if !forcePlace {
+					// Ask for confirmation.
+					log.Infof("Destination %v already exists", relDest.LocalString())
+					log.Info("Do you want to remove? [y/N]")
+					var ans string
+					fmt.Scanln(&ans)
+					if ans != "y" && ans != "Y" {
+						return fmt.Errorf("aborted")
+					}
+				}
+
+				log.Infof("Removing destination %v", relDest.LocalString())
+
+				// Remove the destination if it exists.
+				if err := os.RemoveAll(relDest.LocalString()); err != nil {
+					return fmt.Errorf("failed to remove destination %v\n\t%w", relDest.LocalString(), err)
+				}
+			}
+
+			dest := workspaceDir.Join(relDest)
+
+			// Create the destination directory.
+			if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory\n\t%w", err)
+			}
+			debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
+
+			// Iterate through the files in the archive,
+			// and find the source file.
+			for _, f := range r.File {
+				// Skip directories.
+				if strings.HasSuffix(f.Name, "/") {
+					debugLogger.Debugf("Skipped %v because it is a directory", f.Name)
+
+					continue
+				}
+
+				filePath, err := path.Parse(f.Name)
+				if err != nil {
+					return fmt.Errorf("failed to parse file path from %v\n\t%w", f.Name, err)
+				}
+
+				if filePath.Equal(place.Src) {
+					// Open the source file.
+					rc, err := f.Open()
+					if err != nil {
+						return fmt.Errorf("failed to open source file\n\t%w", err)
+					}
+
+					fw, err := os.Create(dest.LocalString())
+					if err != nil {
+						return fmt.Errorf("failed to create destination file\n\t%w", err)
+					}
+
+					// Copy the file.
+					if _, err := io.Copy(fw, rc); err != nil {
+						return fmt.Errorf("failed to copy file\n\t%w", err)
+					}
+
+					// Close the files.
+					rc.Close()
+					fw.Close()
+
+					debugLogger.Debugf("Placed file %v to %v", f.Name, dest.LocalString())
+				}
+			}
 		}
-		debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
+	} else if strings.HasSuffix(assetArchiveFilePath.LocalString(), ".tar.gz") {
+		file, err := os.Open(assetArchiveFilePath.LocalString())
+		if err != nil {
+			return fmt.Errorf("failed to open %s\n\t%w", assetArchiveFilePath.LocalString(), err)
+		}
+		gzr, err := gzip.NewReader(file)
+		if err != nil {
+			return fmt.Errorf("failed to open %s\n\t%w", assetArchiveFilePath.LocalString(), err)
+		}
+		gzr.Close()
 
-		// Iterate through the files in the archive,
-		// and find the source file.
-		for _, f := range r.File {
-			// Skip directories.
-			if strings.HasSuffix(f.Name, "/") {
-				debugLogger.Debugf("Skipped %v because it is a directory", f.Name)
+		tarR := tar.NewReader(gzr)
+		files, err := metadata.Files()
+		if err != nil {
+			return fmt.Errorf("failed to get files from metadata\n\t%w", err)
+		}
 
-				continue
+		for _, place := range files.Place {
+			relDest := place.Dest
+
+			// Check if the destination exists.
+			if _, err := os.Stat(relDest.LocalString()); err == nil {
+				if !forcePlace {
+					// Ask for confirmation.
+					log.Infof("Destination %v already exists", relDest.LocalString())
+					log.Info("Do you want to remove? [y/N]")
+					var ans string
+					fmt.Scanln(&ans)
+					if ans != "y" && ans != "Y" {
+						return fmt.Errorf("aborted")
+					}
+				}
+
+				log.Infof("Removing destination %v", relDest.LocalString())
+
+				// Remove the destination if it exists.
+				if err := os.RemoveAll(relDest.LocalString()); err != nil {
+					return fmt.Errorf("failed to remove destination %v\n\t%w", relDest.LocalString(), err)
+				}
 			}
 
-			filePath, err := path.Parse(f.Name)
-			if err != nil {
-				return fmt.Errorf("failed to parse file path from %v\n\t%w", f.Name, err)
+			dest := workspaceDir.Join(relDest)
+
+			// Create the destination directory.
+			if err := os.MkdirAll(filepath.Dir(dest.LocalString()), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory\n\t%w", err)
 			}
+			debugLogger.Debugf("Created destination directory %v", filepath.Dir(dest.LocalString()))
 
-			if filePath.Equal(place.Src) {
-				// Open the source file.
-				rc, err := f.Open()
+			// Iterate through the files in the archive,
+			// and find the source file.
+			for f, err := tarR.Next(); err != io.EOF; f, err = tarR.Next() {
 				if err != nil {
-					return fmt.Errorf("failed to open source file\n\t%w", err)
+					return fmt.Errorf("failed to read tar\n\t%w", err)
+				}
+				// Skip directories.
+				if f.Typeflag == tar.TypeDir {
+					debugLogger.Debugf("Skipped %v because it is a directory", f.Name)
+
+					continue
 				}
 
-				fw, err := os.Create(dest.LocalString())
+				filePath, err := path.Parse(f.Name)
 				if err != nil {
-					return fmt.Errorf("failed to create destination file\n\t%w", err)
+					return fmt.Errorf("failed to parse file path from %v\n\t%w", f.Name, err)
 				}
+				if filePath.Equal(place.Src) {
+					// Open the source file.
+					fw, err := os.Create(dest.LocalString())
+					if err != nil {
+						return fmt.Errorf("failed to create destination file\n\t%w", err)
+					}
 
-				// Copy the file.
-				if _, err := io.Copy(fw, rc); err != nil {
-					return fmt.Errorf("failed to copy file\n\t%w", err)
+					// Copy the file.
+					if _, err := io.Copy(fw, tarR); err != nil {
+						return fmt.Errorf("failed to copy file\n\t%w", err)
+					}
+
+					// Close the files.
+					fw.Close()
+
+					debugLogger.Debugf("Placed file %v to %v", f.Name, dest.LocalString())
 				}
-
-				// Close the files.
-				rc.Close()
-				fw.Close()
-
-				debugLogger.Debugf("Placed file %v to %v", f.Name, dest.LocalString())
 			}
 		}
 	}
