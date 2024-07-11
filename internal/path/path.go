@@ -28,7 +28,6 @@ func Parse(path string) (Path, error) {
 	path = gopath.Clean(path)
 
 	pathItems := strings.Split(path, "/")
-
 	// Remove the last empty path item if the path ends with a slash.
 	if pathItems[len(pathItems)-1] == "" {
 		pathItems = pathItems[:len(pathItems)-1]
@@ -42,6 +41,10 @@ func Parse(path string) (Path, error) {
 		if err := module.CheckFilePath(pathItem); err != nil {
 			return Path{}, fmt.Errorf("invalid path item %v in path %v", pathItem, path)
 		}
+	}
+	// If path starts with '/', insert '/' at the begin of pathItems
+	if strings.HasPrefix(path, "/") {
+		pathItems = append([]string{"/"}, pathItems...)
 	}
 
 	return Path{
