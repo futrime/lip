@@ -77,6 +77,14 @@ func MakeArchive(archiveFilePath path.Path) (Archive, error) {
 		return Archive{}, fmt.Errorf("failed to parse tooth.json\n\t%w", err)
 	}
 
+	// Replace ${version} with metadata version in AssetURL
+
+	if metadata.rawMetadata.AssetURL != "" {
+		if strings.Contains(metadata.rawMetadata.AssetURL, "$(version)") {
+			metadata.rawMetadata.AssetURL = strings.ReplaceAll(metadata.rawMetadata.AssetURL, "$(version)", metadata.rawMetadata.Version)
+		}
+	}
+
 	// Convert to platform-specific metadata.
 	metadata, err = metadata.ToPlatformSpecific(runtime.GOOS, runtime.GOARCH)
 	if err != nil {
