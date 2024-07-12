@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2024-07-12
+
+### Fixed
+
+- Fix `.lip` path in linux [#129]
+- Fix unable to decompress .tar.gz [#140]
+- Delete surplus tabs (#139)
+
 ## [0.22.0] - 2024-03-23
 
 ### Added
@@ -422,7 +430,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Basic functions: cache, install, list, show, tooth init, and uninstall.
 
-[Unreleased]: https://github.com/lippkg/lip/compare/v0.21.2...HEAD
+[#129]: https://github.com/lippkg/lip/issues/129
+[#140]: https://github.com/lippkg/lip/issues/140
+
+[Unreleased]: https://github.com/lippkg/lip/compare/v0.22.1...HEAD
+[0.22.1]: https://github.com/lippkg/lip/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/lippkg/lip/compare/v0.21.2...v0.22.0
 [0.21.2]: https://github.com/lippkg/lip/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/lippkg/lip/compare/v0.21.0...v0.21.1
