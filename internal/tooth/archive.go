@@ -165,7 +165,6 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 			}
 
 		}
-		fmt.Println(filePaths)
 		filePathRoot := path.ExtractLongestCommonPath(filePaths...)
 
 		newMetadata := ar.metadata
@@ -222,7 +221,6 @@ func (ar Archive) ToAssetArchiveAttached(assetArchiveFilePath path.Path) (Archiv
 			}
 
 		}
-		fmt.Println(filePaths)
 
 		newMetadata := ar.metadata
 		newMetadataWildcardPopulated, err := newMetadata.ToWildcardPopulated(filePaths)
