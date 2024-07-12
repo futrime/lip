@@ -3,13 +3,13 @@ package main
 import (
 	"os"
 	"strings"
-
+	"reflect"
+	"runtime"
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
 	"github.com/lippkg/lip/internal/context"
 	"golang.org/x/term"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,24 +31,26 @@ func IsStdoutAndStderrSupportAnsi() bool {
 	if !term.IsTerminal(int(os.Stdout.Fd())) || !term.IsTerminal(int(os.Stderr.Fd())) {
 		return false
 	}
-	// {
-	// 	var st uint32
-	// 	if err := windows.GetConsoleMode(windows.Handle(int(os.Stdout.Fd())), &st); err != nil {
-	// 		return false
-	// 	}
-	// 	if (st | 0x4) != 0 {
-	// 		return false
-	// 	}
-	// }
-	// {
-	// 	var st uint32
-	// 	if err := windows.GetConsoleMode(windows.Handle(int(os.Stderr.Fd())), &st); err != nil {
-	// 		return false
-	// 	}
-	// 	if (st | 0x4) != 0 {
-	// 		return false
-	// 	}
-	// }
+	if runtime.GOOS == "windows" {
+		{
+			state, err := term.GetState(int(os.Stdout.Fd()))
+			if err != nil {
+				return false
+			}
+			if reflect.ValueOf(*state).Field(0).Field(0).Uint()&0x4 == 0 {
+				return false
+			}
+		}
+		{
+			state, err := term.GetState(int(os.Stderr.Fd()))
+			if err != nil {
+				return false
+			}
+			if reflect.ValueOf(*state).Field(0).Field(0).Uint()&0x4 == 0 {
+				return false
+			}
+		}
+	}
 	return true
 }
 
