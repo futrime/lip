@@ -56,7 +56,6 @@ func IsStdoutAndStderrSupportAnsi() bool {
 
 func main() {
 	if IsStdoutAndStderrSupportAnsi() {
-		log.Errorf("test")
 		log.SetFormatter(&nested.Formatter{NoColors: true})
 	} else {
 		log.SetFormatter(&nested.Formatter{})
