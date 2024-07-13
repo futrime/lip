@@ -213,7 +213,8 @@ Declares the URL of the tooth asset. If this field is set, lip will download the
 
 ### Syntax
 
-The URL should be a direct link to the asset file. The asset file should be a zip archive file.
+The URL should be a direct link to the asset file or Go Module URL. The asset file should be a zip archive file.  
+In lip 0.23.0 and above, you can use `$(version)` to refer to the `version` field above.
 
 ### Examples
 
