@@ -92,7 +92,7 @@ func Run(ctx *context.Context, args []string) error {
 
 	// Version flag has the second highest priority.
 	if flagDict.versionFlag {
-		fmt.Printf("lip %v from %v", ctx.LipVersion().String(), os.Args[0])
+		fmt.Printf("lip %v from %v\n", ctx.LipVersion().String(), os.Args[0])
 		return nil
 	}
 
