@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2024-07-28
+
+### Added
+
+- Add colorlog detector (#146)
+- Add a line break to the end of the output of `lip --version`
+
 ## [0.23.0] - 2024-07-12
 
 ### Added
@@ -438,7 +445,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#134]: https://github.com/lippkg/lip/issues/134
 [#140]: https://github.com/lippkg/lip/issues/140
 
-[Unreleased]: https://github.com/lippkg/lip/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/lippkg/lip/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/lippkg/lip/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/lippkg/lip/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/lippkg/lip/compare/v0.21.2...v0.22.0
 [0.21.2]: https://github.com/lippkg/lip/compare/v0.21.1...v0.21.2
