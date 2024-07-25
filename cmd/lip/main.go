@@ -2,15 +2,16 @@ package main
 
 import (
 	"os"
-	"strings"
 	"reflect"
 	"runtime"
+	"strings"
+
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/blang/semver/v4"
 	"github.com/lippkg/lip/internal/cmd/cmdlip"
 	"github.com/lippkg/lip/internal/context"
-	"golang.org/x/term"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/term"
 )
 
 var defaultConfig context.Config = context.Config{
@@ -19,7 +20,7 @@ var defaultConfig context.Config = context.Config{
 	ProxyURL:         "",
 }
 
-var lipVersion semver.Version = semver.MustParse("0.23.0")
+var lipVersion semver.Version = semver.MustParse("0.23.1")
 
 func IsStdoutAndStderrSupportAnsi() bool {
 	if os.Getenv("NO_COLOR") != "" {
