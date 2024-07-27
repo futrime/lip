@@ -30,6 +30,8 @@ Finally, add the location to PATH environment variable.
 
 To check if lip is installed successfully, run `lip --version` in your terminal. You should see the version of lip you just installed.
 
+If you are using Windows, you can also download `.exe` installer to install lip.
+
 ## Usage
 
 To install a online tooth (a package in lip), run `lip install <tooth>`. Here is an example:
