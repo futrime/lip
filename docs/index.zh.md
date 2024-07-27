@@ -30,6 +30,8 @@ lip是一个通用的软件包安装程序。您可以使用lip从任何Git存�
 
 要检查是否成功安装lip，请在终端中运行 `lip --version`。您应该看到刚刚安装的lip的版本。
 
+如果你使用的是Windows系统，你也可以在Assets中下载 `.exe` 后缀的安装程序来安装。
+
 ## 使用
 
 要安装在线tooth（lip中的软件包），运行 `lip install <tooth>`。以下是一个示例：

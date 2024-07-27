@@ -10,7 +10,7 @@ If you are using Windows, you can also download `.exe` installer to install lip.
 
 ## Upgrading lip
 
-You can just replace the lip.exe with the latest version to upgrade it.
+You can just replace the `lip.exe` with the latest version to upgrade it.
 
 If you installed lip via an installer, you can uninstall the previous version and installer the newer version with the newer installer.
 
