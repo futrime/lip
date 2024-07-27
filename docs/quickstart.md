@@ -3,7 +3,7 @@
 !!! tip
     Not accustomed to using command-line tools? You can use [LipUI](https://github.com/lippkg/LipUI).
 
-To get started with using lip, you should [have lip installed](installation.md) first. If you are not familiar with the command-line interface, you can also use [lipUI](lipui_quickstart.md) to manage your teeth.
+To get started with using lip, you should [have lip installed](install.md) first. If you are not familiar with the command-line interface, you can also use [lipUI](lipui_quickstart.md) to manage your teeth.
 
 ## Ensure you have a working lip
 
