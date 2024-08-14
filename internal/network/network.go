@@ -30,7 +30,7 @@ func DownloadFile(url *url.URL, proxyURL *url.URL, filePath path.Path, enablePro
 	if err != nil {
 		return fmt.Errorf("cannot create file\n\t%w", err)
 	}
-	defer os.Rename(filePath.LocalString()+".tmp", filePath.LocalString())
+	defer os.Rename(filePath.LocalString() + ".tmp", filePath.LocalString())
 	defer file.Close()
 
 	var writer io.Writer = file
