@@ -20,7 +20,7 @@ var defaultConfig context.Config = context.Config{
 	ProxyURL:         "",
 }
 
-var lipVersion semver.Version = semver.MustParse("0.23.1")
+var lipVersion semver.Version = semver.MustParse("0.23.2")
 
 func IsStdoutAndStderrSupportAnsi() bool {
 	if os.Getenv("NO_COLOR") != "" {
