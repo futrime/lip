@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] - 2024-08-17
+
+### Fixed
+
+- Partially resolved #157 by adding .tmp extension to incomplete downloads (#158)
+
 ## [0.23.1] - 2024-07-28
 
 ### Added
