@@ -2,8 +2,11 @@ package cmdlipinstall
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/lippkg/lip/internal/context"
+	"github.com/lippkg/lip/internal/path"
 	"github.com/lippkg/lip/internal/specifier"
 	"github.com/urfave/cli/v2"
 
@@ -46,11 +49,17 @@ func Command(ctx *context.Context) *cli.Command {
 				Usage:              "do not install dependencies. Also bypass prerequisite checks",
 				DisableDefaultText: true,
 			},
+			&cli.BoolFlag{
+				Name:               "specifiers",
+				Aliases:            []string{"s"},
+				Usage:              "install form specifiers.txt",
+				DisableDefaultText: true,
+			},
 		},
 		Action: func(cCtx *cli.Context) error {
 			debugLogger := log.WithFields(log.Fields{
 				"package": "cmdlipinstall",
-				"method":  "Run",
+				"method":  "Action",
 			})
 
 			// At least one specifier is required.
@@ -61,15 +70,51 @@ func Command(ctx *context.Context) *cli.Command {
 			log.Info("Downloading teeth and resolving dependencies...")
 
 			// Parse specifiers.
-
 			specifiers := make([]specifier.Specifier, 0)
-			for _, specifierString := range cCtx.Args().Slice() {
-				specifier, err := specifier.Parse(specifierString)
-				if err != nil {
-					return fmt.Errorf("failed to parse specifier\n\t%w", err)
+
+			if cCtx.Bool("specifiers") {
+				if cCtx.NArg() != 1 {
+					return fmt.Errorf("must give one specifiers.txt")
 				}
 
-				specifiers = append(specifiers, specifier)
+				inputPath, err := path.Parse(cCtx.Args().Get(0))
+				if err != nil {
+					return fmt.Errorf("failed to perse the path to specifiers.txt\n\t%w", err)
+				}
+
+				if _, err := os.Stat(inputPath.LocalString()); os.IsNotExist(err) {
+					return fmt.Errorf("the file %v not exist", inputPath.LocalString())
+				} else if err != nil {
+					return fmt.Errorf("failed to check if file exists\n\t%w", err)
+				}
+
+				bytes, err := os.ReadFile(inputPath.LocalString())
+
+				if err != nil {
+					return fmt.Errorf("cannot read the specifiers file at %v", inputPath.LocalString())
+				}
+
+				for _, specifierString := range strings.Split(string(bytes), "\n") {
+					if specifierString == "" {
+						continue
+					}
+					debugLogger.Debug(strings.Split(string(bytes), "\n"))
+					specifier, err := specifier.Parse(specifierString)
+					if err != nil {
+						return fmt.Errorf("failed to parse specifier\n\t%w", err)
+					}
+
+					specifiers = append(specifiers, specifier)
+				}
+			} else {
+				for _, specifierString := range cCtx.Args().Slice() {
+					specifier, err := specifier.Parse(specifierString)
+					if err != nil {
+						return fmt.Errorf("failed to parse specifier\n\t%w", err)
+					}
+
+					specifiers = append(specifiers, specifier)
+				}
 			}
 
 			debugLogger.Debug("Got specifiers from arguments:")

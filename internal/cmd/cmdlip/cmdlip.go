@@ -7,6 +7,7 @@ import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/lippkg/lip/internal/cmd/cmdlipcache"
 	"github.com/lippkg/lip/internal/cmd/cmdlipconfig"
+	"github.com/lippkg/lip/internal/cmd/cmdlipfreeze"
 	"github.com/lippkg/lip/internal/cmd/cmdlipinstall"
 	"github.com/lippkg/lip/internal/cmd/cmdliplist"
 	"github.com/lippkg/lip/internal/cmd/cmdlipshow"
@@ -127,6 +128,7 @@ Options:{{template "visibleFlagTemplate" .}}{{end}}
 			cmdlipuninstall.Command(ctx),
 			cmdliplist.Command(ctx),
 			cmdlipshow.Command(ctx),
+			cmdlipfreeze.Command(ctx),
 			cmdliptooth.Command(ctx),
 		},
 		CommandNotFound: func(cCtx *cli.Context, command string) {
