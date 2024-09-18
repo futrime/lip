@@ -74,7 +74,7 @@ func main() {
 		return
 	}
 
-	if err := cmdlip.Run(ctx, os.Args[1:]); err != nil {
+	if err := cmdlip.Run(ctx, os.Args); err != nil {
 		log.Errorf("\n\t%v", err.Error())
 		return
 	}

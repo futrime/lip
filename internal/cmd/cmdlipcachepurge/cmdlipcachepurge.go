@@ -1,62 +1,31 @@
 package cmdlipcachepurge
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
 	"github.com/lippkg/lip/internal/context"
+
+	"github.com/urfave/cli/v2"
 )
 
-type FlagDict struct {
-	helpFlag bool
-}
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "purge",
+		Usage:       "clear the cache",
+		Description: "Remove all items from the cache.",
+		Action: func(cCtx *cli.Context) error {
+			if cCtx.NArg() != 0 {
+				return fmt.Errorf("unexpected arguments: %v", cCtx.Args())
+			}
 
-const helpMessage = `
-Usage:
-  lip cache purge [options]
+			if err := purgeCache(ctx); err != nil {
+				return fmt.Errorf("failed to purge the cache\n\t%w", err)
+			}
 
-Description:
-  Remove all items from the cache.
-
-Options:
-  -h, --help                  Show help.
-`
-
-func Run(ctx *context.Context, args []string) error {
-	flagSet := flag.NewFlagSet("purge", flag.ContinueOnError)
-
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
-	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Check if there are unexpected arguments.
-	if flagSet.NArg() != 0 {
-		return fmt.Errorf("unexpected arguments: %v", flagSet.Args())
-	}
-
-	// Purge the cache.
-
-	if err := purgeCache(ctx); err != nil {
-		return fmt.Errorf("failed to purge the cache\n\t%w", err)
-	}
-
-	return nil
 }
 
 // ---------------------------------------------------------------------

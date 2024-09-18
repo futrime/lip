@@ -1,100 +1,75 @@
 package cmdlipuninstall
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/install"
 	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-type FlagDict struct {
-	helpFlag bool
-	yesFlag  bool
-}
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:      "uninstall",
+		Usage:     "uninstall a tooth",
+		ArgsUsage: "<tooth repository URL> [...]",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:               "yes",
+				Aliases:            []string{"y"},
+				Usage:              "skip confirmation",
+				DisableDefaultText: true,
+			},
+		},
+		Description: "Uninstall teeth.",
+		Action: func(cCtx *cli.Context) error {
+			// At least one specifier is required.
+			if cCtx.NArg() == 0 {
+				return fmt.Errorf("at least one specifier is required")
+			}
 
-const helpMessage = `
-Usage:
-  lip uninstall [options] <tooth repository URL> [...]
+			toothRepoPathList := cCtx.Args().Slice()
 
-Description:
-  Uninstall teeth.
+			// 1. Check if all teeth are installed.
 
-Options:
-  -h, --help                  Show help.
-  -y, --yes                   Skip confirmation.
-`
+			for _, toothRepoPath := range toothRepoPathList {
 
-func Run(ctx *context.Context, args []string) error {
+				isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
+				if err != nil {
+					return fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
+				}
 
-	flagSet := flag.NewFlagSet("uninstall", flag.ContinueOnError)
+				if !isInstalled {
+					return fmt.Errorf("tooth %v is not installed", toothRepoPath)
+				}
+			}
 
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			// 2. Prompt for confirmation.
+
+			if !cCtx.Bool("yes") {
+				err := askForConfirmation(ctx, toothRepoPathList)
+				if err != nil {
+					return err
+				}
+			}
+
+			// 3. Uninstall all teeth.
+
+			for _, toothRepoPath := range toothRepoPathList {
+				err := install.Uninstall(ctx, toothRepoPath)
+				if err != nil {
+					return fmt.Errorf("failed to uninstall tooth %v\n\t%w", toothRepoPath, err)
+				}
+			}
+
+			log.Info("Done.")
+
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	flagSet.BoolVar(&flagDict.yesFlag, "yes", false, "")
-	flagSet.BoolVar(&flagDict.yesFlag, "y", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// At least one specifier is required.
-	if flagSet.NArg() == 0 {
-		return fmt.Errorf("at least one specifier is required")
-	}
-
-	toothRepoPathList := flagSet.Args()
-
-	// 1. Check if all teeth are installed.
-
-	for _, toothRepoPath := range toothRepoPathList {
-
-		isInstalled, err := tooth.IsInstalled(ctx, toothRepoPath)
-		if err != nil {
-			return fmt.Errorf("failed to check if tooth is installed\n\t%w", err)
-		}
-
-		if !isInstalled {
-			return fmt.Errorf("tooth %v is not installed", toothRepoPath)
-		}
-	}
-
-	// 2. Prompt for confirmation.
-
-	if !flagDict.yesFlag {
-		err := askForConfirmation(ctx, toothRepoPathList)
-		if err != nil {
-			return err
-		}
-	}
-
-	// 3. Uninstall all teeth.
-
-	for _, toothRepoPath := range toothRepoPathList {
-		err := install.Uninstall(ctx, toothRepoPath)
-		if err != nil {
-			return fmt.Errorf("failed to uninstall tooth %v\n\t%w", toothRepoPath, err)
-		}
-	}
-
-	log.Info("Done.")
-
-	return nil
 }
 
 // ---------------------------------------------------------------------

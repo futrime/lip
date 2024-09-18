@@ -1,7 +1,6 @@
 package cmdlip
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -14,142 +13,125 @@ import (
 	"github.com/lippkg/lip/internal/cmd/cmdliptooth"
 	"github.com/lippkg/lip/internal/cmd/cmdlipuninstall"
 	"github.com/lippkg/lip/internal/context"
+	"github.com/urfave/cli/v2"
 
 	log "github.com/sirupsen/logrus"
 )
 
-type FlagDict struct {
-	helpFlag    bool
-	versionFlag bool
-	verboseFlag bool
-	quietFlag   bool
-	noColorFlag bool
-}
-
-const helpMessage = `
-Usage:
-  lip [options] [<command> [subcommand options]] ...
-
-Commands:
-  cache                       Inspect and manage lip's cache.
-  config                      Manage configuration.
-  install                     Install a tooth.
-  list                        List installed teeth.
-  show                        Show information about installed teeth.
-  tooth                       Maintain a tooth.
-  uninstall                   Uninstall a tooth.
-
-Options:
-  -h, --help                  Show help.
-  -V, --version               Show version and exit.
-  -v, --verbose               Show verbose output.
-  -q, --quiet                 Show only errors.
-  --no-color                  Disable color output.
-`
-
 func Run(ctx *context.Context, args []string) error {
-	flagSet := flag.NewFlagSet("lip", flag.ContinueOnError)
+	cli.AppHelpTemplate = `
+   {{.Name}} - {{.Usage}}{{if .Version}} - {{.Version}} {{end}}
 
-	// Rewrite the default messages.
-	flagSet.Usage = func() {
-		// Do nothing.
+Usage:
+   {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}
+   {{if len .Authors}}
+Author:
+   {{range .Authors}}{{ . }}{{end}}
+   {{end}}{{if .Commands}}
+Commands:
+{{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
+Global Options:
+   {{range .VisibleFlags}}{{.}}
+   {{end}}{{end}}{{if .Copyright }}
+Copyright:
+   {{.Copyright}}
+   {{end}}
+`
+	cli.CommandHelpTemplate = `
+{{.Usage}}
+
+Usage:
+   {{template "usageTemplate" .}}{{if .Category}}
+
+Catrogy:
+   {{.Category}}{{end}}{{if .Description}}
+
+Description:
+   {{template "descriptionTemplate" .}}{{end}}{{if .VisibleFlagCategories}}
+
+Options:{{template "visibleFlagCategoryTemplate" .}}{{else if .VisibleFlags}}
+
+Options:{{template "visibleFlagTemplate" .}}{{end}}
+`
+	cli.SubcommandHelpTemplate = `
+{{.Usage}}
+
+Usage:
+   {{template "usageTemplate" .}}{{if .Category}}
+
+Catrogy:
+   {{.Category}}{{end}}{{if .Description}}
+
+Description:
+   {{template "descriptionTemplate" .}}{{end}}{{if .VisibleCommands}}
+
+Commands:{{template "visibleCommandCategoryTemplate" .}}{{end}}{{if .VisibleFlagCategories}}
+
+Options:{{template "visibleFlagCategoryTemplate" .}}{{else if .VisibleFlags}}
+
+Options:{{template "visibleFlagTemplate" .}}{{end}}
+`
+	cli.VersionFlag = &cli.BoolFlag{
+		Name:               "verison",
+		Aliases:            []string{"V"},
+		Usage:              "print the version",
+		DisableDefaultText: true,
 	}
-
-	// Parse flags.
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	flagSet.BoolVar(&flagDict.versionFlag, "version", false, "")
-	flagSet.BoolVar(&flagDict.versionFlag, "V", false, "")
-	flagSet.BoolVar(&flagDict.verboseFlag, "verbose", false, "")
-	flagSet.BoolVar(&flagDict.verboseFlag, "v", false, "")
-	flagSet.BoolVar(&flagDict.quietFlag, "quiet", false, "")
-	flagSet.BoolVar(&flagDict.quietFlag, "q", false, "")
-	flagSet.BoolVar(&flagDict.noColorFlag, "no-color", false, "")
-
-	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("cannot parse flags\n\t%w", err)
-	}
-
-	if flagDict.noColorFlag {
-		log.SetFormatter(&nested.Formatter{NoColors: true})
-	}
-
-	// Set logging level.
-	if flagDict.verboseFlag {
-		log.SetLevel(log.DebugLevel)
-	} else if flagDict.quietFlag {
-		log.SetLevel(log.ErrorLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Version flag has the second highest priority.
-	if flagDict.versionFlag {
+	cli.VersionPrinter = func(cCtx *cli.Context) {
 		fmt.Printf("lip %v from %v\n", ctx.LipVersion().String(), os.Args[0])
-		return nil
 	}
+	return (&cli.App{
+		Name:    "lip",
+		Usage:   "A general package installer",
+		Version: ctx.LipVersion().String(),
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:               "verbose",
+				Aliases:            []string{"v"},
+				Usage:              "show verbose output",
+				DisableDefaultText: true,
+			},
+			&cli.BoolFlag{
+				Name:               "quiet",
+				Aliases:            []string{"q"},
+				Usage:              "show only errors",
+				DisableDefaultText: true,
+			},
+			&cli.BoolFlag{
+				Name:               "no-color",
+				Usage:              "disable color output",
+				DisableDefaultText: true,
+			},
+		},
+		Before: func(cCtx *cli.Context) error {
+			if cCtx.Bool("no-color") {
+				log.SetFormatter(&nested.Formatter{NoColors: true})
+			}
+			if cCtx.Bool("verbose") {
+				log.SetLevel(log.DebugLevel)
+			} else if cCtx.Bool("quiet") {
+				log.SetLevel(log.ErrorLevel)
+			} else {
+				log.SetLevel(log.InfoLevel)
+			}
 
-	// Verbose and quiet flags are mutually exclusive.
-	if flagDict.verboseFlag && flagDict.quietFlag {
-		return fmt.Errorf("verbose and quiet flags are mutually exclusive")
-	}
-
-	// If there is a subcommand, run it and exit.
-	if flagSet.NArg() >= 1 {
-		switch flagSet.Arg(0) {
-		case "cache":
-			if err := cmdlipcache.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
+			if cCtx.Bool("verbose") && cCtx.Bool("quiet") {
+				return fmt.Errorf("verbose and quiet flags are mutually exclusive")
 			}
 			return nil
+		},
+		Commands: []*cli.Command{
+			cmdlipcache.Command(ctx),
+			cmdlipconfig.Command(ctx),
+			cmdlipinstall.Command(ctx),
+			cmdlipuninstall.Command(ctx),
+			cmdliplist.Command(ctx),
+			cmdlipshow.Command(ctx),
+			cmdliptooth.Command(ctx),
+		},
+		CommandNotFound: func(cCtx *cli.Context, command string) {
+			log.Errorf("unknown command: lip %v", command)
+		},
+	}).Run(args)
 
-		case "config":
-			if err := cmdlipconfig.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		case "install":
-			if err := cmdlipinstall.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		case "list":
-			if err := cmdliplist.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		case "show":
-			if err := cmdlipshow.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		case "tooth":
-			if err := cmdliptooth.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		case "uninstall":
-			if err := cmdlipuninstall.Run(ctx, flagSet.Args()[1:]); err != nil {
-				return err
-			}
-			return nil
-
-		default:
-			return fmt.Errorf("unknown command: lip %v", flagSet.Arg(0))
-		}
-	}
-
-	return fmt.Errorf("no command specified. See 'lip --help' for more information")
 }

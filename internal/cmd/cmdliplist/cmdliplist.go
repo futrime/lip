@@ -2,81 +2,56 @@ package cmdliplist
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
 	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 
 	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
-type FlagDict struct {
-	helpFlag       bool
-	upgradableFlag bool
-	jsonFlag       bool
-}
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "list",
+		Usage:       "list installed teeth",
+		Description: "List installed teeth.",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:               "json",
+				Usage:              "output in JSON format",
+				DisableDefaultText: true,
+			},
+			&cli.BoolFlag{
+				Name:               "upgradable",
+				Usage:              "list upgradable teeth",
+				DisableDefaultText: true,
+			},
+		},
+		Action: func(cCtx *cli.Context) error {
+			// Check if there are unexpected arguments.
+			if cCtx.NArg() != 0 {
+				return fmt.Errorf("unexpected arguments: %v", cCtx.Args())
+			}
 
-const helpMessage = `
-Usage:
-  lip list [options]
+			if cCtx.Bool("upgradable") {
+				err := listUpgradable(ctx, cCtx.Bool("json"))
+				if err != nil {
+					return fmt.Errorf("failed to list upgradable teeth\n\t%w", err)
+				}
 
-Description:
-  List installed teeth.
+				return nil
+			} else {
+				err := listAll(ctx, cCtx.Bool("json"))
+				if err != nil {
+					return fmt.Errorf("failed to list all teeth\n\t%w", err)
+				}
 
-Options:
-  -h, --help                  Show help.
-  --upgradable                List upgradable teeth.
-  --json                      Output in JSON format.
-`
-
-func Run(ctx *context.Context, args []string) error {
-
-	flagSet := flag.NewFlagSet("list", flag.ContinueOnError)
-
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
-	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	flagSet.BoolVar(&flagDict.upgradableFlag, "upgradable", false, "")
-	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Check if there are unexpected arguments.
-	if flagSet.NArg() != 0 {
-		return fmt.Errorf("unexpected arguments: %v", flagSet.Args())
-	}
-
-	if flagDict.upgradableFlag {
-		err := listUpgradable(ctx, flagDict.jsonFlag)
-		if err != nil {
-			return fmt.Errorf("failed to list upgradable teeth\n\t%w", err)
-		}
-
-		return nil
-
-	} else {
-		err := listAll(ctx, flagDict.jsonFlag)
-		if err != nil {
-			return fmt.Errorf("failed to list all teeth\n\t%w", err)
-		}
-
-		return nil
+				return nil
+			}
+		},
 	}
 }
 

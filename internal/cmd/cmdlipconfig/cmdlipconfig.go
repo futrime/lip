@@ -1,7 +1,6 @@
 package cmdlipconfig
 
 import (
-	"flag"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -9,69 +8,43 @@ import (
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/olekukonko/tablewriter"
+	"github.com/urfave/cli/v2"
 )
 
-type FlagDict struct {
-	helpFlag bool
-}
-
-const helpMessage = `
-Usage:
-  lip config [options]
-  lip config [<key> [<value>]]
-
-Description:
-  Manage configuration.
+const descriptionText = `Manage configuration.
   
   - If no arguments are specified, list all configuration.
   - If a key is specified, print the value of the key.
-  - If a key and a value are specified, set the value of the key.
+  - If a key and a value are specified, set the value of the key.`
 
-Options:
-  -h, --help                  Show help.
-`
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "config",
+		Usage:       "manage configuration",
+		Description: descriptionText,
+		ArgsUsage:   "[<key> [<value>]]",
+		Action: func(cCtx *cli.Context) error {
+			switch cCtx.NArg() {
+			case 0:
+				showAllConfig(ctx)
 
-func Run(ctx *context.Context, args []string) error {
-	flagSet := flag.NewFlagSet("cache", flag.ContinueOnError)
+			case 1:
+				if err := showConfig(ctx, cCtx.Args().Get(0)); err != nil {
+					return fmt.Errorf("failed to show config\n\t%w", err)
+				}
 
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			case 2:
+				if err := setConfig(ctx, cCtx.Args().Get(0), cCtx.Args().Get(1)); err != nil {
+					return fmt.Errorf("failed to set config\n\t%w", err)
+				}
+
+			default:
+				return fmt.Errorf("too many arguments")
+			}
+
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-
-	if err := flagSet.Parse(args); err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	switch flagSet.NArg() {
-	case 0:
-		showAllConfig(ctx)
-
-	case 1:
-		if err := showConfig(ctx, flagSet.Arg(0)); err != nil {
-			return fmt.Errorf("failed to show config\n\t%w", err)
-		}
-
-	case 2:
-		if err := setConfig(ctx, flagSet.Arg(0), flagSet.Arg(1)); err != nil {
-			return fmt.Errorf("failed to set config\n\t%w", err)
-		}
-
-	default:
-		return fmt.Errorf("too many arguments")
-	}
-
-	return nil
 }
 
 func convertConfigToMap(config context.Config) map[string]interface{} {
