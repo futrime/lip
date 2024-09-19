@@ -2,31 +2,16 @@ package cmdliptoothinit
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 
 	"github.com/lippkg/lip/internal/tooth"
 )
-
-type FlagDict struct {
-	helpFlag bool
-}
-
-const helpMessage = `
-Usage:
-  lip tooth init [options]
-
-Description:
-  Initialize and writes a new tooth.json file in the current directory, in effect creating a new tooth rooted at the current directory.
-
-Options:
-  -h, --help                  Show help.
-`
 
 var metadataTemplate = tooth.RawMetadata{
 	FormatVersion: 2,
@@ -40,39 +25,25 @@ var metadataTemplate = tooth.RawMetadata{
 	},
 }
 
-func Run(ctx *context.Context, args []string) error {
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "init",
+		Usage:       "initialize and writes a new tooth.json file in the current directory",
+		Description: "Initialize and writes a new tooth.json file in the current directory, in effect creating a new tooth rooted at the current directory.",
+		Action: func(cCtx *cli.Context) error {
 
-	flagSet := flag.NewFlagSet("init", flag.ContinueOnError)
+			// Check if there are unexpected arguments.
+			if cCtx.NArg() != 0 {
+				return fmt.Errorf("unexpected arguments: %v", cCtx.Args())
+			}
 
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			if err := initTooth(ctx); err != nil {
+				return fmt.Errorf("failed to initialize the tooth\n\t%w", err)
+			}
+
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Check if there are unexpected arguments.
-	if flagSet.NArg() != 0 {
-		return fmt.Errorf("unexpected arguments: %v", flagSet.Args())
-	}
-
-	if err := initTooth(ctx); err != nil {
-		return fmt.Errorf("failed to initialize the tooth\n\t%w", err)
-	}
-
-	return nil
 }
 
 // ---------------------------------------------------------------------

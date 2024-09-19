@@ -2,72 +2,48 @@ package cmdlipshow
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"strings"
 
 	"github.com/lippkg/lip/internal/context"
+	"github.com/urfave/cli/v2"
 
 	"github.com/lippkg/lip/internal/tooth"
 	"github.com/olekukonko/tablewriter"
 )
 
-type FlagDict struct {
-	helpFlag      bool
-	availableFlag bool
-	jsonFlag      bool
-}
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "show",
+		Usage:       "show information about installed teeth",
+		Description: "Show information about an installed tooth.",
+		ArgsUsage:   "<tooth repository URL>",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:               "available",
+				Usage:              "show the full list of available versions",
+				DisableDefaultText: true,
+			},
+			&cli.BoolFlag{
+				Name:               "json",
+				Usage:              "output in JSON format",
+				DisableDefaultText: true,
+			},
+		},
+		Action: func(cCtx *cli.Context) error {
+			if cCtx.NArg() != 1 {
+				return fmt.Errorf("invalid number of arguments")
+			}
 
-const helpMessage = `
-Usage:
-  lip show [options] <tooth repository URL>
+			toothRepoPath := cCtx.Args().Get(0)
 
-Description:
-  Show information about an installed tooth.
+			if err := show(ctx, toothRepoPath, cCtx.Bool("available"), cCtx.Bool("json")); err != nil {
+				return fmt.Errorf("failed to show JSON\n\t%w", err)
+			}
 
-Options:
-  -h, --help                  Show help.
-  --available                 Show the full list of available versions.
-  --json                      Output in JSON format.
-`
-
-func Run(ctx *context.Context, args []string) error {
-
-	flagSet := flag.NewFlagSet("show", flag.ContinueOnError)
-
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	flagSet.BoolVar(&flagDict.availableFlag, "available", false, "")
-	flagSet.BoolVar(&flagDict.jsonFlag, "json", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Exactly one argument is required.
-	if flagSet.NArg() != 1 {
-		return fmt.Errorf("invalid number of arguments")
-	}
-
-	toothRepoPath := flagSet.Arg(0)
-
-	if err := show(ctx, toothRepoPath, flagDict.availableFlag, flagDict.jsonFlag); err != nil {
-		return fmt.Errorf("failed to show JSON\n\t%w", err)
-	}
-
-	return nil
 }
 
 // checkIsInstalledAndGetMetadata checks if the tooth is installed and returns

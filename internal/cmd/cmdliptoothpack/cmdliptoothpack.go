@@ -3,7 +3,6 @@ package cmdliptoothpack
 import (
 	"archive/zip"
 	"compress/flate"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -12,69 +11,42 @@ import (
 	"github.com/lippkg/lip/internal/context"
 	"github.com/lippkg/lip/internal/path"
 	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 
 	"github.com/lippkg/lip/internal/tooth"
 )
 
-type FlagDict struct {
-	helpFlag bool
-}
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:        "pack",
+		Usage:       "pack the current directory into a tooth file",
+		ArgsUsage:   "<output path>",
+		Description: "Pack the tooth into a tooth archive.",
+		Action: func(cCtx *cli.Context) error {
 
-const helpMessage = `
-Usage:
-  lip tooth pack [options] <output path>
+			// Exactly one argument is required.
+			if cCtx.NArg() != 1 {
+				return fmt.Errorf("expected exactly one argument")
+			}
 
-Description:
-  Pack the tooth into a tooth archive.
+			// Validate tooth.json.
+			if err := validateToothJSON(ctx); err != nil {
+				return fmt.Errorf("failed to validate tooth.json\n\t%w", err)
+			}
 
-Options:
-  -h, --help                  Show help.
-`
+			// Pack the tooth.
+			outputPath, err := path.Parse(cCtx.Args().Get(0))
+			if err != nil {
+				return fmt.Errorf("failed to parse output path %v\n\t%w", cCtx.Args().Get(0), err)
+			}
 
-func Run(ctx *context.Context, args []string) error {
+			if err := packTooth(ctx, outputPath); err != nil {
+				return fmt.Errorf("failed to pack tooth\n\t%w", err)
+			}
 
-	flagSet := flag.NewFlagSet("pack", flag.ContinueOnError)
-
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
+			return nil
+		},
 	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// Exactly one argument is required.
-	if flagSet.NArg() != 1 {
-		return fmt.Errorf("expected exactly one argument")
-	}
-
-	// Validate tooth.json.
-	if err := validateToothJSON(ctx); err != nil {
-		return fmt.Errorf("failed to validate tooth.json\n\t%w", err)
-	}
-
-	// Pack the tooth.
-	outputPath, err := path.Parse(flagSet.Arg(0))
-	if err != nil {
-		return fmt.Errorf("failed to parse output path %v\n\t%w", flagSet.Arg(0), err)
-	}
-
-	if err := packTooth(ctx, outputPath); err != nil {
-		return fmt.Errorf("failed to pack tooth\n\t%w", err)
-	}
-
-	return nil
 }
 
 // ---------------------------------------------------------------------

@@ -1,76 +1,28 @@
 package cmdliptooth
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/lippkg/lip/internal/cmd/cmdliptoothinit"
 	"github.com/lippkg/lip/internal/cmd/cmdliptoothpack"
 	"github.com/lippkg/lip/internal/context"
+	"github.com/urfave/cli/v2"
 )
 
-type FlagDict struct {
-	helpFlag bool
-}
-
-const helpMessage = `
-Usage:
-  lip tooth [options]
-  lip tooth <command> [subcommand options] ...
-
-Commands:
-  init                        Initialize and writes a new tooth.json file in the current directory.
-  pack                        Pack the current directory into a tooth file.
-
-Options:
-  -h, --help                  Show help.
-`
-
-func Run(ctx *context.Context, args []string) error {
-
-	flagSet := flag.NewFlagSet("tooth", flag.ContinueOnError)
-
-	// Rewrite the default usage message.
-	flagSet.Usage = func() {
-		// Do nothing.
-	}
-
-	var flagDict FlagDict
-	flagSet.BoolVar(&flagDict.helpFlag, "help", false, "")
-	flagSet.BoolVar(&flagDict.helpFlag, "h", false, "")
-	err := flagSet.Parse(args)
-	if err != nil {
-		return fmt.Errorf("failed to parse flags\n\t%w", err)
-	}
-
-	// Help flag has the highest priority.
-	if flagDict.helpFlag {
-		fmt.Print(helpMessage)
-		return nil
-	}
-
-	// If there is a subcommand, run it and exit.
-	if flagSet.NArg() >= 1 {
-		switch flagSet.Arg(0) {
-		case "init":
-			err := cmdliptoothinit.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
-				return err
+func Command(ctx *context.Context) *cli.Command {
+	return &cli.Command{
+		Name:  "tooth",
+		Usage: "maintain a tooth",
+		Subcommands: []*cli.Command{
+			cmdliptoothinit.Command(ctx),
+			cmdliptoothpack.Command(ctx),
+		},
+		Action: func(cCtx *cli.Context) error {
+			if cCtx.NArg() >= 1 {
+				return fmt.Errorf("unknown command: lip %v %v", cCtx.Command.Name, cCtx.Args().First())
 			}
-			return nil
-
-		case "pack":
-			err := cmdliptoothpack.Run(ctx, flagSet.Args()[1:])
-			if err != nil {
-				return err
-			}
-			return nil
-
-		default:
-			return fmt.Errorf("unknown command: lip tooth %v", flagSet.Arg(0))
-		}
+			return fmt.Errorf(
+				"no command specified. See 'lip %v --help' for more information", cCtx.Command.Name)
+		},
 	}
-
-	return fmt.Errorf(
-		"no command specified. See 'lip tooth --help' for more information")
 }
