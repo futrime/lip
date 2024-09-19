@@ -8,10 +8,10 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/schollz/progressbar/v3 v3.14.6
 	github.com/sirupsen/logrus v1.9.3
-	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/mod v0.20.0
-	golang.org/x/term v0.23.0
 	github.com/urfave/cli/v2 v2.27.4
+	github.com/xeipuuv/gojsonschema v1.2.0
+	golang.org/x/mod v0.21.0
+	golang.org/x/term v0.23.0
 )
 
 require (
