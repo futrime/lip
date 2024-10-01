@@ -1,5 +1,5 @@
 site_name: lip
-repo_url: https://github.com/lippkg/lip/
+repo_url: https://github.com/futrime/lip/
 
 nav:
   - Home: index.md
@@ -26,7 +26,7 @@ nav:
     - reference/lip_uninstall.md
     - reference/tooth_json_file_reference.md
 
-  - Packages: https://www.lippkg.com
+  - Packages: https://bedrinth.com
 
 theme:
   name: material
