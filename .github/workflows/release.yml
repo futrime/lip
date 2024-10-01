@@ -126,7 +126,7 @@ jobs:
 
       - name: Upload artifact to release (Windows)
         if: matrix.GOOS == 'windows'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.zip
@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload artifact to release (Others)
         if: matrix.GOOS != 'windows'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             lip-${{ matrix.GOOS }}-${{ matrix.GOARCH }}.tar.gz
