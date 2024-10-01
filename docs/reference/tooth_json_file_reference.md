@@ -163,7 +163,7 @@ Provide information about your tooth in the form of a JSON object with the follo
 - `name`: (required) the name of your tooth.
 - `description`: (required) a short description of your tooth.
 - `author`: (required) the author of your tooth.
-- `tags`: (required) an array of tags of your tooth. Only [a-z0-9-:] are allowed.
+- `tags`: (required) an array of tags of your tooth. Only [a-z0-9-] are allowed. A colon is allowed for splitting two parts.
 - `avatar_url`: the URL of the tooth's avatar. If not set, the default avatar will be used. If a relative path is provided, it will be regarded as a path relative to **the source repository path**.
 
 !!!tip
