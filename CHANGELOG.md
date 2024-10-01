@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.24.0] - 2024-10-01
+
+### Added
+
+- `specifiers.txt` support
+
+### Changed
+
+- Allow colons in tags
+- Parse arguments with `urfave/cli`
 
 ## [0.23.2] - 2024-08-17
 
 ### Fixed
 
-- Partially resolved #157 by adding .tmp extension to incomplete downloads (#158)
+- Partially resolved [#157] by adding .tmp extension to incomplete downloads (#158)
 
 ## [0.23.1] - 2024-07-28
 
@@ -450,8 +459,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#129]: https://github.com/lippkg/lip/issues/129
 [#134]: https://github.com/lippkg/lip/issues/134
 [#140]: https://github.com/lippkg/lip/issues/140
+[#157]: https://github.com/lippkg/lip/issues/157
 
-[Unreleased]: https://github.com/lippkg/lip/compare/v0.23.1...HEAD
+[0.24.0]: https://github.com/lippkg/lip/compare/v0.23.2...v0.24.0
+[0.23.2]: https://github.com/lippkg/lip/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/lippkg/lip/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/lippkg/lip/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/lippkg/lip/compare/v0.21.2...v0.22.0
