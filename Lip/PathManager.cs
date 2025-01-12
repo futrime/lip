@@ -8,13 +8,15 @@ public interface IPathManager
     string BaseCacheDir { get; }
     string BasePackageCacheDir { get; }
     string PackageManifestPath { get; }
+    string PackageRecordPath { get; }
+    string RuntimeConfigPath { get; }
     string WorkingDir { get; }
 
     string GetAssetCacheDir(string assetUrl);
     string GetPackageCacheDir(string packageName);
 }
 
-public class PathManager(IFileSystem fileSystem, RuntimeConfig? runtimeConfig = null) : IPathManager
+public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : IPathManager
 {
     private const string AssetCacheDirName = "assets";
     private const string PackageCacheDirName = "packages";
@@ -22,17 +24,20 @@ public class PathManager(IFileSystem fileSystem, RuntimeConfig? runtimeConfig = 
     private const string PackageRecordFileName = "tooth.lock";
 
     private readonly IFileSystem _fileSystem = fileSystem;
-    private readonly RuntimeConfig? _runtimeConfig = runtimeConfig;
+    private readonly string? _baseCacheDir = baseCacheDir;
 
     public string BaseAssetCacheDir => _fileSystem.Path.Join(BaseCacheDir, AssetCacheDirName);
 
-    public string BaseCacheDir => _fileSystem.Path.GetFullPath(_runtimeConfig?.Cache ?? throw new InvalidOperationException("Runtime configuration is not set."));
+    public string BaseCacheDir => _fileSystem.Path.GetFullPath(_baseCacheDir ?? throw new InvalidOperationException("Runtime configuration is not set."));
 
     public string BasePackageCacheDir => _fileSystem.Path.Join(BaseCacheDir, PackageCacheDirName);
 
     public string PackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
 
     public string PackageRecordPath => _fileSystem.Path.Join(WorkingDir, PackageRecordFileName);
+
+    public string RuntimeConfigPath => _fileSystem.Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json");
 
     public string WorkingDir => _fileSystem.Directory.GetCurrentDirectory();
 

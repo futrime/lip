@@ -6,6 +6,8 @@ For the complete JSON schema specification, see [tooth.v3.schema.json](../../sch
 
 In the documentation below, fields are marked as either (required) or (optional). Note that if a parent field is optional but contains required child fields, those child fields become mandatory only if the parent field is included. For example, while `variants` is optional, if you include it, each variant must specify a `platform`.
 
+Scriban expressions allow you to dynamically reference other fields within any string value, making package maintenance easier. For example, use `{{tooth}}` to reference the package's tooth path or `{{version}}` to access the package's version number. This dynamic referencing helps keep your package configurations DRY (Don't Repeat Yourself) and more maintainable.
+
 ## Fields
 
 ### format_version (required)
@@ -79,7 +81,7 @@ Note: For platform compatibility checks, lip ignores variants using glob pattern
 
 ### variants[].label (optional)
 
-The label for this variant. Users can install a specific variant by label with `lip install <tooth>#<label>@<version>`. Should either match `^[a-z0-9]+(_[a-z0-9]+)*$ or be a glob pattern. If omitted, the variant is considered the default.
+The label for this variant. Users can install a specific variant by label with `lip install <tooth>#<label>@<version>`. Should either match `^[a-z0-9]+(_[a-z0-9]+)*$ or be a glob pattern. If omitted or empty, the variant is considered the default.
 
 For a variant label to be recognized, there must be at least one variant with a non-globbed label defined in the variants array. Glob patterns in label fields only take effect when their corresponding non-globbed labels are also defined. For example:
 
@@ -106,6 +108,8 @@ For platform variant to be recognized, there must be at least one non-globbed pl
 - To support `linux-x64` and `linux-arm64`, you need either:
   - Two separate variants with exact platforms
   - One variant with exact platform and another with `linux-*`
+
+If omitted or empty, the variant is considered platform-agnostic, i.e.. glob pattern `*`.
 
 ### variants[].dependencies (optional)
 
@@ -181,7 +185,7 @@ Paths or glob patterns for files to remove during uninstallation. Cannot overlap
 
 ### variants[].scripts (optional)
 
-Commands to execute in the workspace. Define as key-value pairs where keys are script names and values are commands.
+Commands to execute in the workspace. Define as key-value pairs where keys are script names and values are commands. If more than matched variants define the same script, only the last one is used.
 
 Built-in script hooks:
 

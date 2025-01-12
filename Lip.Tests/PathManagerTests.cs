@@ -1,11 +1,11 @@
-using System.IO.Abstractions.TestingHelpers;
+﻿using System.IO.Abstractions.TestingHelpers;
 
 namespace Lip.Tests;
 
 public class PathManagerTests
 {
     private static readonly string s_cacheDir = OperatingSystem.IsWindows()
-        ? Path.Join("C:", "path", "to", "cache") 
+        ? Path.Join("C:", "path", "to", "cache")
         : Path.Join("/", "path", "to", "cache");
     private static readonly string s_workingDir = OperatingSystem.IsWindows()
         ? Path.Join("C:", "current", "dir")
@@ -35,7 +35,7 @@ public class PathManagerTests
             { s_cacheDir, new MockDirectoryData() },
         });
 
-        PathManager pathManager = new(fileSystem, new() { Cache = s_cacheDir });
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
         string baseAssetCacheDir = pathManager.BaseAssetCacheDir;
@@ -63,7 +63,7 @@ public class PathManagerTests
     {
         // Arrange.
         MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, new() { Cache = s_cacheDir });
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
         string baseCacheDir = pathManager.BaseCacheDir;
@@ -91,7 +91,7 @@ public class PathManagerTests
     {
         // Arrange.
         MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, new() { Cache = s_cacheDir });
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
         string basePackageCacheDir = pathManager.BasePackageCacheDir;
@@ -135,6 +135,22 @@ public class PathManagerTests
     }
 
     [Fact]
+    public void GetRuntimeConfigPath_WhenCalled_ReturnsCorrectPath()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        string runtimeConfigPath = pathManager.RuntimeConfigPath;
+
+        // Assert.
+        Assert.Equal(
+            Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json"),
+            runtimeConfigPath);
+    }
+
+    [Fact]
     public void GetWorkingDir_WhenCalled_ReturnsCurrentDirectory()
     {
         // Arrange.
@@ -163,7 +179,7 @@ public class PathManagerTests
     {
         // Arrange.
         MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, new() { Cache = s_cacheDir });
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
         string assetCacheDir = pathManager.GetAssetCacheDir(assetUrl);
@@ -186,7 +202,7 @@ public class PathManagerTests
     {
         // Arrange.
         MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, new() { Cache = s_cacheDir });
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
         string packageCacheDir = pathManager.GetPackageCacheDir(packageName);

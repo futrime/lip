@@ -1,6 +1,6 @@
-# .liprc
+# runtime_config.json
 
-The `.liprc` file serves as the configuration file for lip, enabling you to configure settings such as caching, proxies, and script execution. This JSON-formatted file is placed at `~/.liprc`.
+The `runtime_config.json` file serves as the configuration file for lip, enabling you to configure settings such as caching, proxies, and script execution. lip stores this file at `%APPDATA%\lip\runtime_config.json` for Windows and `~/.config/lip/runtime_config.json` for POSIX-like systems.
 
 Project-specific settings take precedence over user-wide settings. All configuration fields are optional.
 
@@ -9,7 +9,7 @@ Project-specific settings take precedence over user-wide settings. All configura
 ### cache
 
 - Type: `string`
-- Default: `%LocalAppData%\lip-cache` (Windows) or `~/.cache/lip` (POSIX-like systems)
+- Default: `%LocalAppData%\lip\cache` (Windows) or `~/.local/share/lip/cache` (POSIX-like systems)
 
 Defines the directory path for storing cached files.
 

@@ -3,17 +3,17 @@ using System.Text.Json;
 
 namespace Lip.Tests;
 
-public class PackageManifest_AssetTypeTests
+public class PackageManifestTests
 {
     [Fact]
-    public void Deserialize_MinimumJson_Passes()
+    public void AssetType_Deserialize_MinimumJson_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "type": "self"
-            }
-            """;
+        {
+            "type": "self"
+        }
+        """;
 
         // Act.
         PackageManifest.AssetType? asset = JsonSerializer.Deserialize<PackageManifest.AssetType>(json);
@@ -28,18 +28,18 @@ public class PackageManifest_AssetTypeTests
     }
 
     [Fact]
-    public void Deserialize_MaximumJson_Passes()
+    public void AssetType_Deserialize_MaximumJson_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "type": "self",
-                "urls": [],
-                "place": [],
-                "preserve": [],
-                "remove": []
-            }
-            """;
+        {
+            "type": "self",
+            "urls": [],
+            "place": [],
+            "preserve": [],
+            "remove": []
+        }
+        """;
 
         // Act.
         PackageManifest.AssetType? asset = JsonSerializer.Deserialize<PackageManifest.AssetType>(json);
@@ -52,12 +52,9 @@ public class PackageManifest_AssetTypeTests
         Assert.Equal([], asset.Preserve);
         Assert.Equal([], asset.Remove);
     }
-}
 
-public class PackageManifest_InfoTypeTests
-{
     [Fact]
-    public void Deserialize_MinimumJson_Passes()
+    public void InfoType_Deserialize_MinimumJson_Passes()
     {
         // Arrange.
         string json = "{}";
@@ -75,18 +72,18 @@ public class PackageManifest_InfoTypeTests
     }
 
     [Fact]
-    public void Deserialize_MaximumJson_Passes()
+    public void InfoType_Deserialize_MaximumJson_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "name": "",
-                "description": "",
-                "author": "",
-                "tags": ["tag", "tag:subtag"],
-                "avatar_url": ""
-            }
-            """;
+        {
+            "name": "",
+            "description": "",
+            "author": "",
+            "tags": ["tag", "tag:subtag"],
+            "avatar_url": ""
+        }
+        """;
 
         // Act.
         PackageManifest.InfoType? info = JsonSerializer.Deserialize<PackageManifest.InfoType>(json);
@@ -108,14 +105,14 @@ public class PackageManifest_InfoTypeTests
     [InlineData(":invalid-subtag")]
     [InlineData(":")]
     [InlineData("")]
-    public void Deserialize_InvalidTag_ThrowsArgumentException(string tag)
+    public void InfoType_Deserialize_InvalidTag_ThrowsArgumentException(string tag)
     {
         // Arrange.
         string json = $$"""
-            {
-                "tags": ["{{tag}}"]
-            }
-            """;
+        {
+            "tags": ["{{tag}}"]
+        }
+        """;
 
         // Act.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -124,21 +121,18 @@ public class PackageManifest_InfoTypeTests
         // Assert.
         Assert.Equal($"Tag {tag} is invalid. (Parameter 'value')", exception.Message);
     }
-}
 
-public class PackageManifest_PlaceTypeTests
-{
     [Fact]
-    public void Deserialize_CommonInput_Passes()
+    public void PlaceType_Deserialize_CommonInput_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "type": "file",
-                "src": "",
-                "dest": ""
-            }
-            """;
+        {
+            "type": "file",
+            "src": "",
+            "dest": ""
+        }
+        """;
 
         // Act.
         PackageManifest.PlaceType? place = JsonSerializer.Deserialize<PackageManifest.PlaceType>(json);
@@ -149,14 +143,11 @@ public class PackageManifest_PlaceTypeTests
         Assert.Equal("", place.Src);
         Assert.Equal("", place.Dest);
     }
-}
 
-public class PackageManifest_ScriptsTypeTests
-{
     [Theory]
     [InlineData("script")]
     [InlineData("additional_script")]
-    public void Constructor_AdditionalScriptsInitialized_Passes(string scriptName)
+    public void ScriptsType_Constructor_AdditionalScriptsInitialized_Passes(string scriptName)
     {
         // Arrange.
         Dictionary<string, List<string>> additionalScripts = new()
@@ -182,7 +173,7 @@ public class PackageManifest_ScriptsTypeTests
     [InlineData("invalid.script")]
     [InlineData("invalid script")]
     [InlineData("invalidScript")]
-    public void Constructor_InvalidAdditionalScriptName_ThrowsArgumentException(string scriptName)
+    public void ScriptsType_Constructor_InvalidAdditionalScriptName_ThrowsArgumentException(string scriptName)
     {
         // Arrange.
         Dictionary<string, List<string>> additionalScripts = new()
@@ -199,7 +190,7 @@ public class PackageManifest_ScriptsTypeTests
     }
 
     [Fact]
-    public void Deserialize_MinimumJson_Passes()
+    public void ScriptsType_Deserialize_MinimumJson_Passes()
     {
         // Arrange.
         string json = "{}";
@@ -222,24 +213,24 @@ public class PackageManifest_ScriptsTypeTests
     }
 
     [Fact]
-    public void Deserialize_MaximumJson_Passes()
+    public void ScriptsType_Deserialize_MaximumJson_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "pre_install": [],
-                "install": [],
-                "post_install": [],
-                "pre_pack": [],
-                "post_pack": [],
-                "pre_uninstall": [],
-                "uninstall": [],
-                "post_uninstall": [],
-                "additional_script": [
-                    "echo additional"
-                ]
-            }
-            """;
+        {
+            "pre_install": [],
+            "install": [],
+            "post_install": [],
+            "pre_pack": [],
+            "post_pack": [],
+            "pre_uninstall": [],
+            "uninstall": [],
+            "post_uninstall": [],
+            "additional_script": [
+                "echo additional"
+            ]
+        }
+        """;
 
         // Act.
         PackageManifest.ScriptsType? scripts = JsonSerializer.Deserialize<PackageManifest.ScriptsType>(json);
@@ -267,14 +258,14 @@ public class PackageManifest_ScriptsTypeTests
     [InlineData("invalid.script")]
     [InlineData("invalid script")]
     [InlineData("invalidScript")]
-    public void Deserialize_InvalidPropertyKey_Passes(string scriptName)
+    public void ScriptsType_Deserialize_InvalidPropertyKey_Passes(string scriptName)
     {
         // Arrange.
         string json = $$"""
-            {
-                "{{scriptName}}": []
-            }
-            """;
+        {
+            "{{scriptName}}": []
+        }
+        """;
 
         // Act.
         PackageManifest.ScriptsType? scripts = JsonSerializer.Deserialize<PackageManifest.ScriptsType>(json);
@@ -287,14 +278,14 @@ public class PackageManifest_ScriptsTypeTests
     }
 
     [Fact]
-    public void Deserialize_InvalidPropertyValueKind_Passes()
+    public void ScriptsType_Deserialize_InvalidPropertyValueKind_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "additional_script_1": null
-            }
-            """;
+        {
+            "additional_script_1": null
+        }
+        """;
 
         // Act.
         PackageManifest.ScriptsType? scripts = JsonSerializer.Deserialize<PackageManifest.ScriptsType>(json);
@@ -307,16 +298,16 @@ public class PackageManifest_ScriptsTypeTests
     }
 
     [Fact]
-    public void Deserialize_InvalidPropertyItemValueKind_Passes()
+    public void ScriptsType_Deserialize_InvalidPropertyItemValueKind_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "additional_script": [
-                    null
-                ]
-            }
-            """;
+        {
+            "additional_script": [
+                null
+            ]
+        }
+        """;
 
         // Act.
         PackageManifest.ScriptsType? scripts = JsonSerializer.Deserialize<PackageManifest.ScriptsType>(json);
@@ -327,12 +318,9 @@ public class PackageManifest_ScriptsTypeTests
         Assert.Single(scripts.AdditionalProperties);
         Assert.Equal([], scripts.AdditionalScripts);
     }
-}
 
-public class PackageManifest_VariantTypeTests
-{
     [Fact]
-    public void Deserialize_MinimumJson_Passes()
+    public void VariantType_Deserialize_MinimumJson_Passes()
     {
         // Arrange.
         string json = "{}";
@@ -349,18 +337,18 @@ public class PackageManifest_VariantTypeTests
     }
 
     [Fact]
-    public void Deserialize_MaximumJson_Passes()
+    public void VariantType_Deserialize_MaximumJson_Passes()
     {
         // Arrange.
         string json = """
-            {
-                "label": "",
-                "platform": "",
-                "dependencies": {},
-                "assets": [],
-                "scripts": {}
-            }
-            """;
+        {
+            "label": "",
+            "platform": "",
+            "dependencies": {},
+            "assets": [],
+            "scripts": {}
+        }
+        """;
 
         // Act.
         PackageManifest.VariantType? variant = JsonSerializer.Deserialize<PackageManifest.VariantType>(json);
@@ -373,10 +361,7 @@ public class PackageManifest_VariantTypeTests
         Assert.Equal([], variant.Assets);
         Assert.NotNull(variant.Scripts);
     }
-}
 
-public class PackageManifestTests
-{
     [Fact]
     public void FromBytes_MinimumJson_Passes()
     {
@@ -502,6 +487,374 @@ public class PackageManifestTests
     }
 
     [Fact]
+    public void GetSpecifiedVariant_NullVariants_ReturnsNull()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0"
+        };
+        string variantLabel = "";
+        string platform = "platform";
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+
+        // Assert.
+        Assert.Null(variant);
+    }
+
+    [Fact]
+    public void GetSpecifiedVariant_EmptyVariants_ReturnsNull()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants = []
+        };
+        string variantLabel = "";
+        string platform = "platform";
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+
+        // Assert.
+        Assert.Null(variant);
+    }
+
+    [Theory]
+    [InlineData("", "platform", null, "platform")]
+    [InlineData("", "platform", "", "platform")]
+    [InlineData("variant", "platform", "variant", "platform")]
+    public void GetSpecifiedVariant_SingleVariant_ReturnsVariant(
+        string variantLabel, string platform, string? manifestVariantLabel, string manifestPlatform)
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+                new PackageManifest.VariantType
+                {
+                    Label = manifestVariantLabel,
+                    Platform = manifestPlatform,
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+
+        // Assert.
+        Assert.NotNull(variant);
+        Assert.Equal(variantLabel, variant.Label);
+        Assert.Equal(platform, variant.Platform);
+        Assert.NotNull(variant.Dependencies);
+        Assert.Empty(variant.Dependencies);
+        Assert.NotNull(variant.Assets);
+        Assert.Empty(variant.Assets);
+        Assert.NotNull(variant.Scripts);
+        Assert.Null(variant.Scripts.PreInstall);
+        Assert.Null(variant.Scripts.Install);
+        Assert.Null(variant.Scripts.PostInstall);
+        Assert.Null(variant.Scripts.PrePack);
+        Assert.Null(variant.Scripts.PostPack);
+        Assert.Null(variant.Scripts.PreUninstall);
+        Assert.Null(variant.Scripts.Uninstall);
+        Assert.Null(variant.Scripts.PostUninstall);
+        Assert.Equal([], variant.Scripts.AdditionalProperties);
+        Assert.Equal([], variant.Scripts.AdditionalScripts);
+    }
+
+    [Fact]
+    public void GetSpecifiedVariant_SingleFullVariant_ReturnsVariant()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+                new PackageManifest.VariantType
+                {
+                    Platform = "platform",
+                    Dependencies = {},
+                    Assets = [],
+                    Scripts = new()
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
+
+        // Assert.
+        Assert.NotNull(variant);
+        Assert.Equal("", variant.Label);
+        Assert.Equal("platform", variant.Platform);
+        Assert.NotNull(variant.Dependencies);
+        Assert.Empty(variant.Dependencies);
+        Assert.NotNull(variant.Assets);
+        Assert.Empty(variant.Assets);
+        Assert.NotNull(variant.Scripts);
+        Assert.Null(variant.Scripts.PreInstall);
+        Assert.Null(variant.Scripts.Install);
+        Assert.Null(variant.Scripts.PostInstall);
+        Assert.Null(variant.Scripts.PrePack);
+        Assert.Null(variant.Scripts.PostPack);
+        Assert.Null(variant.Scripts.PreUninstall);
+        Assert.Null(variant.Scripts.Uninstall);
+        Assert.Null(variant.Scripts.PostUninstall);
+        Assert.Equal([], variant.Scripts.AdditionalProperties);
+        Assert.Equal([], variant.Scripts.AdditionalScripts);
+    }
+
+    [Fact]
+    public void GetSpecifiedVariant_SingleVariantWithScripts_ReturnsVariant()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+                new PackageManifest.VariantType
+                {
+                    Platform = "platform",
+                    Scripts = new()
+                    {
+                        PreInstall = [],
+                        Install = [],
+                        PostInstall = [],
+                        PrePack = [],
+                        PostPack = [],
+                        PreUninstall = [],
+                        Uninstall = [],
+                        PostUninstall = [],
+                        AdditionalProperties = {}
+                    }
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
+
+        // Assert.
+        Assert.NotNull(variant);
+        Assert.Equal("", variant.Label);
+        Assert.Equal("platform", variant.Platform);
+        Assert.NotNull(variant.Dependencies);
+        Assert.Empty(variant.Dependencies);
+        Assert.NotNull(variant.Assets);
+        Assert.Empty(variant.Assets);
+        Assert.NotNull(variant.Scripts);
+        Assert.Equal([], variant.Scripts.PreInstall);
+        Assert.Equal([], variant.Scripts.Install);
+        Assert.Equal([], variant.Scripts.PostInstall);
+        Assert.Equal([], variant.Scripts.PrePack);
+        Assert.Equal([], variant.Scripts.PostPack);
+        Assert.Equal([], variant.Scripts.PreUninstall);
+        Assert.Equal([], variant.Scripts.Uninstall);
+        Assert.Equal([], variant.Scripts.PostUninstall);
+        Assert.NotNull(variant.Scripts.AdditionalProperties);
+        Assert.Empty(variant.Scripts.AdditionalProperties);
+        Assert.NotNull(variant.Scripts.AdditionalScripts);
+        Assert.Empty(variant.Scripts.AdditionalScripts);
+    }
+
+    [Theory]
+    [InlineData("variant1", "platform", "variant*", "platform")]
+    [InlineData("", "platform", null, null)]
+    [InlineData("", "platform", null, "platform*")]
+    public void GetSpecifiedVariant_WildcardOnlySingleVariant_ReturnsNull(
+        string variantLabel, string platform, string? manifestVariantLabel, string? manifestPlatform)
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+                new PackageManifest.VariantType
+                {
+                    Label = manifestVariantLabel,
+                    Platform = manifestPlatform,
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+
+        // Assert.
+        Assert.Null(variant);
+    }
+
+    [Theory]
+    [InlineData("variant", "platform", null, "platform")]
+    [InlineData("variant", "platform", "mismatch*", "platform")]
+    [InlineData("", "platform", null, "mismatch*")]
+    public void GetSpecifiedVariant_MismatchedSingleVariant_ReturnsNull(
+            string variantLabel, string platform, string? manifestVariantLabel, string? manifestPlatform)
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+                new PackageManifest.VariantType
+                {
+                    Label = manifestVariantLabel,
+                    Platform = manifestPlatform,
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+
+        // Assert.
+        Assert.Null(variant);
+    }
+
+    [Fact]
+    public void GetSpecifiedVariant_MultipleVariants_ReturnsMergedVariant()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants =
+            [
+            new()
+            {
+                Platform = "platform",
+                Dependencies = new Dictionary<string, string>
+                {
+                { "dependency1", "1.0.0" }
+                },
+                Assets =
+                [
+                new()
+                {
+                    Type = PackageManifest.AssetType.TypeEnum.Self,
+                    Urls = ["url1"]
+                }
+                ],
+                Scripts = new PackageManifest.ScriptsType
+                {
+                PreInstall = ["echo pre-install"],
+                Install = ["echo install"],
+                PostInstall = ["echo post-install"],
+                PrePack = ["echo pre-pack"],
+                PostPack = ["echo post-pack"],
+                PreUninstall = ["echo pre-uninstall"],
+                Uninstall = ["echo uninstall"],
+                PostUninstall = ["echo post-uninstall"],
+                AdditionalScripts = new Dictionary<string, List<string>>
+                {
+                    { "same_script", new List<string> { "echo same" } },
+                    { "custom_script1", new List<string> { "echo custom1" } }
+                }
+                }
+            },
+            new()
+            {
+                Platform = "platform",
+                Dependencies = new Dictionary<string, string>
+                {
+                { "dependency2", "2.0.0" }
+                },
+                Assets =
+                [
+                new()
+                {
+                    Type = PackageManifest.AssetType.TypeEnum.Self,
+                    Urls = ["url2"]
+                }
+                ],
+                Scripts = new PackageManifest.ScriptsType
+                {
+                PreInstall = ["echo pre-install-2"],
+                Install = ["echo install-2"],
+                PostInstall = ["echo post-install-2"],
+                PrePack = ["echo pre-pack-2"],
+                PostPack = ["echo post-pack-2"],
+                PreUninstall = ["echo pre-uninstall-2"],
+                Uninstall = ["echo uninstall-2"],
+                PostUninstall = ["echo post-uninstall-2"],
+                AdditionalScripts = new Dictionary<string, List<string>>
+                {
+                    { "same_script", new List<string> { "echo same2" } },
+                    { "custom_script2", new List<string> { "echo custom2" } }
+                }
+                }
+            }
+            ]
+        };
+
+        // Act.
+        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
+
+        // Assert.
+        Assert.NotNull(variant);
+        Assert.Equal("", variant.Label);
+        Assert.Equal("platform", variant.Platform);
+        Assert.NotNull(variant.Dependencies);
+        Assert.Equal(2, variant.Dependencies.Count);
+        Assert.Equal("1.0.0", variant.Dependencies["dependency1"]);
+        Assert.Equal("2.0.0", variant.Dependencies["dependency2"]);
+        Assert.NotNull(variant.Assets);
+        Assert.Equal(2, variant.Assets.Count);
+        Assert.Equal(PackageManifest.AssetType.TypeEnum.Self, variant.Assets[0].Type);
+        Assert.Equal(["url1"], variant.Assets[0].Urls);
+        Assert.Equal(PackageManifest.AssetType.TypeEnum.Self, variant.Assets[1].Type);
+        Assert.Equal(["url2"], variant.Assets[1].Urls);
+        Assert.NotNull(variant.Scripts);
+        Assert.Equal(["echo pre-install-2"], variant.Scripts.PreInstall);
+        Assert.Equal(["echo install-2"], variant.Scripts.Install);
+        Assert.Equal(["echo post-install-2"], variant.Scripts.PostInstall);
+        Assert.Equal(["echo pre-pack-2"], variant.Scripts.PrePack);
+        Assert.Equal(["echo post-pack-2"], variant.Scripts.PostPack);
+        Assert.Equal(["echo pre-uninstall-2"], variant.Scripts.PreUninstall);
+        Assert.Equal(["echo uninstall-2"], variant.Scripts.Uninstall);
+        Assert.Equal(["echo post-uninstall-2"], variant.Scripts.PostUninstall);
+        Assert.NotNull(variant.Scripts.AdditionalScripts);
+        Assert.Equal(3, variant.Scripts.AdditionalScripts.Count);
+        Assert.Equal(["echo same2"], variant.Scripts.AdditionalScripts["same_script"]);
+        Assert.Equal(["echo custom1"], variant.Scripts.AdditionalScripts["custom_script1"]);
+        Assert.Equal(["echo custom2"], variant.Scripts.AdditionalScripts["custom_script2"]);
+    }
+
+    [Fact]
     public void ToBytes_MinimumJson_Passes()
     {
         // Arrange.
@@ -525,5 +878,73 @@ public class PackageManifestTests
                 "version": "1.0.0"
             }
             """.ReplaceLineEndings(), Encoding.UTF8.GetString(bytes).ReplaceLineEndings());
+    }
+
+    [Fact]
+    public void WithTemplateParsed_CommonInput_Passes()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants = [
+                new(){
+                    Assets = [
+                        new(){
+                            Type = PackageManifest.AssetType.TypeEnum.Zip,
+                            Urls = ["https://example.com/{{version}}.zip"]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Act.
+        PackageManifest result = manifest.WithTemplateParsed();
+
+        // Assert.
+        Assert.Equal(3, result.FormatVersion);
+        Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", result.FormatUuid);
+        Assert.Equal("", result.Tooth);
+        Assert.Equal("1.0.0", result.Version);
+        Assert.NotNull(result.Variants);
+        Assert.Single(result.Variants);
+        Assert.NotNull(result.Variants[0].Assets);
+        Assert.Single(result.Variants[0].Assets!);
+        Assert.Equal(new[] { "https://example.com/1.0.0.zip" }, result.Variants[0].Assets![0].Urls);
+    }
+
+    [Fact]
+    public void WithTemplateParsed_InvalidTemplate_ThrowsArgumentException()
+    {
+        // Arrange.
+        var manifest = new PackageManifest
+        {
+            FormatVersion = 3,
+            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            Tooth = "",
+            Version = "1.0.0",
+            Variants = [
+                new(){
+                    Assets = [
+                        new(){
+                            Type = PackageManifest.AssetType.TypeEnum.Zip,
+                            Urls = ["https://example.com/{{{invalid}}.zip"]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Act.
+        FormatException exception = Assert.Throws<FormatException>(() => manifest.WithTemplateParsed());
+
+        // Assert.
+        Assert.Equal(
+            "Failed to parse template: <input>(12,56) : error : Unexpected token `}` Expecting a colon : after identifier `invalid` for object initializer member name<input>(12,56) : error : Invalid token found `}`. Expecting <EOL>/end of line.",
+            exception.Message);
     }
 }

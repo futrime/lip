@@ -1,5 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotNet.Globbing;
+using Scriban;
+using Scriban.Parsing;
 
 namespace Lip;
 
@@ -260,7 +264,7 @@ public record PackageManifest
     public InfoType? Info { get; init; }
 
     [JsonPropertyName("variants")]
-    public VariantType[]? Variants { get; init; }
+    public List<VariantType>? Variants { get; init; }
 
     private string _version = "0.0.0"; // The default value does never get used.
 
@@ -280,6 +284,97 @@ public record PackageManifest
     }
 
     /// <summary>
+    /// Gets the specified variant.
+    /// </summary>
+    /// <param name="variantLabel">The label of the variant to specify.</param>
+    /// <param name="platform">The runtime identifier of the variant to specify.</param>
+    /// <returns></returns>
+    public VariantType? GetSpecifiedVariant(string variantLabel, string platform)
+    {
+        // Find the variant that matches the specified label and platform.
+        List<VariantType> matchedVariants = Variants?
+            .Where(variant =>
+            {
+                if (variant.Label is null || variant.Label == "")
+                {
+                    if ("" != variantLabel)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    var labelGlob = Glob.Parse(variant.Label!);
+
+                    if (!labelGlob.IsMatch(variantLabel))
+                    {
+                        return false;
+                    }
+                }
+
+                var platformGlob = Glob.Parse(variant.Platform ?? "*");
+
+                if (!platformGlob.IsMatch(platform))
+                {
+                    return false;
+                }
+
+                return true;
+            })
+            .ToList() ?? [];
+
+        // However, there must exist at least one variant that matches the specified label and platform without any wildcards.
+        if (!matchedVariants.Any(
+            variant => (variant.Label == variantLabel) || (variant.Label == null && variantLabel == "")))
+        {
+            return null;
+        }
+
+        if (!matchedVariants.Any(variant => variant.Platform == platform))
+        {
+            return null;
+        }
+
+        // Merge all matched variants into a single variant.
+        VariantType mergedVariant = new()
+        {
+            Label = variantLabel,
+            Platform = platform,
+            Dependencies = matchedVariants
+                .SelectMany(variant => variant.Dependencies ?? [])
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+            Assets = matchedVariants
+                .SelectMany(variant => variant.Assets ?? [])
+                .ToList(),
+            Scripts = new ScriptsType
+            {
+                PreInstall = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PreInstall is not null)?.Scripts!.PreInstall,
+                Install = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.Install is not null)?.Scripts!.Install,
+                PostInstall = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PostInstall is not null)?.Scripts!.PostInstall,
+                PrePack = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PrePack is not null)?.Scripts!.PrePack,
+                PostPack = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PostPack is not null)?.Scripts!.PostPack,
+                PreUninstall = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PreUninstall is not null)?.Scripts!.PreUninstall,
+                Uninstall = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.Uninstall is not null)?.Scripts!.Uninstall,
+                PostUninstall = matchedVariants
+                    .LastOrDefault(variant => variant.Scripts?.PostUninstall is not null)?.Scripts!.PostUninstall,
+                AdditionalProperties = matchedVariants
+                    .SelectMany(variant => variant.Scripts?.AdditionalProperties ?? [])
+                    .GroupBy(kvp => kvp.Key)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value)
+            }
+        };
+
+        return mergedVariant;
+    }
+
+    /// <summary>
     /// Serializes the package manifest to a byte array.
     /// </summary>
     /// <returns>The serialized package manifest.</returns>
@@ -287,5 +382,31 @@ public record PackageManifest
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
         return bytes;
+    }
+
+    /// <summary>
+    /// Parses the template and renders the package manifest.
+    /// </summary>
+    /// <returns>The rendered package manifest.</returns>
+    public PackageManifest WithTemplateParsed()
+    {
+        string templateText = Encoding.UTF8.GetString(ToBytes());
+        Template template = Template.Parse(templateText);
+
+        if (template.HasErrors)
+        {
+            StringBuilder sb = new();
+            foreach (LogMessage message in template.Messages)
+            {
+                sb.Append(message.ToString());
+            }
+            throw new FormatException($"Failed to parse template: {sb}");
+        }
+
+        JsonElement jsonElement = JsonSerializer.SerializeToElement(this);
+
+        string renderedText = template.Render(jsonElement);
+
+        return FromBytes(Encoding.UTF8.GetBytes(renderedText));
     }
 }

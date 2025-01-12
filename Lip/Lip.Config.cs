@@ -6,29 +6,76 @@ namespace Lip;
 
 public partial class Lip
 {
-    public record ConfigSetArgs
+    public record ConfigDeleteArgs { }
+    public record ConfigGetArgs { }
+    public record ConfigSetArgs { }
+
+    public async Task ConfigDelete(List<string> keys, ConfigDeleteArgs _)
     {
-        public List<Tuple<string, string>> ConfigItems { get; init; } = [];
+        if (keys.Count == 0)
+        {
+            throw new ArgumentException("No configuration keys provided.", nameof(keys));
+        }
+
+        Dictionary<string, string> allKeyValuePairs = typeof(RuntimeConfig).GetProperties()
+            .ToDictionary(
+                prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name,
+                prop => prop.GetValue(new RuntimeConfig())!.ToString()!
+            );
+
+        // Set the configuration keys to their default values.
+        Dictionary<string, string> keyValuePairs = keys.ToDictionary(
+            key => key,
+            key => allKeyValuePairs.GetValueOrDefault(key) ?? throw new ArgumentException($"Unknown configuration key: '{key}'.", nameof(keys))
+        );
+
+        await ConfigSet(keyValuePairs, new());
     }
 
-    private const string RuntimeConfigFileName = ".liprc";
-
-    public async Task ConfigSet(ConfigSetArgs args)
+    public Dictionary<string, string> ConfigGet(List<string> keys, ConfigGetArgs args)
     {
+        if (keys.Count == 0)
+        {
+            throw new ArgumentException("No configuration keys provided.", nameof(keys));
+        }
+
+        Dictionary<string, string> allKeyValuePairs = ConfigList(new());
+
+        Dictionary<string, string> keyValuePairs = keys.ToDictionary(
+            key => key,
+            key => allKeyValuePairs.GetValueOrDefault(key) ?? throw new ArgumentException($"Unknown configuration key: '{key}'.", nameof(keys))
+        );
+
+        return keyValuePairs;
+    }
+
+    public Dictionary<string, string> ConfigList(ConfigGetArgs _)
+    {
+        Dictionary<string, string> allKeyValuePairs = typeof(RuntimeConfig).GetProperties()
+            .ToDictionary(
+                prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name,
+                prop => prop.GetValue(_runtimeConfig)!.ToString()!
+            );
+
+        return allKeyValuePairs;
+    }
+
+    public async Task ConfigSet(Dictionary<string, string> keyValuePairs, ConfigSetArgs _)
+    {
+        if (keyValuePairs.Count == 0)
+        {
+            throw new ArgumentException("No configuration items provided.", nameof(keyValuePairs));
+        }
+
         // Clone the current runtime configuration to avoid modifying the original one.
         RuntimeConfig newRuntimeConfig = _runtimeConfig with { };
 
         // Update the configuration with the new values.
-        foreach ((string key, string value) in args.ConfigItems)
+        foreach ((string key, string value) in keyValuePairs)
         {
-            PropertyInfo[] properties = typeof(RuntimeConfig).GetProperties();
-
-            PropertyInfo? matchedProperty = properties.FirstOrDefault(prop =>
-            {
-                var attr = prop.GetCustomAttributes(typeof(JsonPropertyNameAttribute), false)
-                    .FirstOrDefault() as JsonPropertyNameAttribute;
-                return attr?.Name == key;
-            }) ?? throw new ArgumentException($"Unknown configuration key: {key}.", nameof(args));
+            PropertyInfo matchedProperty = typeof(RuntimeConfig).GetProperties()
+                .FirstOrDefault(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name == key)
+                ?? throw new ArgumentException($"Unknown configuration key: '{key}'.", nameof(keyValuePairs));
 
             object convertedValue = Convert.ChangeType(value, matchedProperty.PropertyType);
             matchedProperty.SetValue(newRuntimeConfig, convertedValue);
@@ -37,14 +84,8 @@ public partial class Lip
         await CreateOrUpdateRuntimeConfigurationFile(_fileSystem, newRuntimeConfig);
     }
 
-    private static async Task CreateOrUpdateRuntimeConfigurationFile(IFileSystem fileSystem, RuntimeConfig runtimeConfig)
+    private async Task CreateOrUpdateRuntimeConfigurationFile(IFileSystem fileSystem, RuntimeConfig runtimeConfig)
     {
-        string runtimeConfigPath = fileSystem.Path.Join(
-            fileSystem.Directory.GetCurrentDirectory(), RuntimeConfigFileName);
-
-        if (!fileSystem.File.Exists(runtimeConfigPath))
-        {
-            await fileSystem.File.WriteAllBytesAsync(runtimeConfigPath, runtimeConfig.ToBytes());
-        }
+        await fileSystem.File.WriteAllBytesAsync(_pathManager.RuntimeConfigPath, runtimeConfig.ToBytes());
     }
 }

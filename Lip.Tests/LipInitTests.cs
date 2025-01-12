@@ -4,9 +4,9 @@ using Moq;
 
 namespace Lip.Tests;
 
-public partial class LipTests
+public class LipInitTests
 {
-    public static readonly string WorkspacePath = OperatingSystem.IsWindows() ? Path.Join("C:", "path", "to", "workspace") : Path.Join("/", "path", "to", "workspace");
+    private static readonly string s_workspacePath = OperatingSystem.IsWindows() ? Path.Join("C:", "path", "to", "workspace") : Path.Join("/", "path", "to", "workspace");
 
     [Fact]
     public async Task Init_Interactive_Passes()
@@ -14,10 +14,13 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
+
+        Mock<IPathManager> pathManager = new();
+        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
 
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.PromptForInput(
@@ -37,7 +40,7 @@ public partial class LipTests
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(true);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new();
 
@@ -45,7 +48,7 @@ public partial class LipTests
         await lip.Init(args);
 
         // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(WorkspacePath, "tooth.json")));
+        Assert.True(fileSystem.File.Exists(Path.Join(s_workspacePath, "tooth.json")));
         Assert.Equal(
             """
             {
@@ -61,7 +64,7 @@ public partial class LipTests
                 }
             }
             """.ReplaceLineEndings(),
-            fileSystem.File.ReadAllText(Path.Join(WorkspacePath, "tooth.json")).ReplaceLineEndings());
+            fileSystem.File.ReadAllText(Path.Join(s_workspacePath, "tooth.json")).ReplaceLineEndings());
     }
 
     [Fact]
@@ -70,14 +73,17 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
 
+        Mock<IPathManager> pathManager = new();
+        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
+
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -88,7 +94,7 @@ public partial class LipTests
         await lip.Init(args);
 
         // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(WorkspacePath, "tooth.json")));
+        Assert.True(fileSystem.File.Exists(Path.Join(s_workspacePath, "tooth.json")));
         Assert.Equal("""
             {
                 "format_version": 3,
@@ -98,7 +104,7 @@ public partial class LipTests
                 "info": {}
             }
             """.ReplaceLineEndings(),
-            fileSystem.File.ReadAllText(Path.Join(WorkspacePath, "tooth.json")).ReplaceLineEndings());
+            fileSystem.File.ReadAllText(Path.Join(s_workspacePath, "tooth.json")).ReplaceLineEndings());
     }
 
     [Fact]
@@ -107,14 +113,17 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
 
+        Mock<IPathManager> pathManager = new();
+        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
+
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -131,7 +140,7 @@ public partial class LipTests
         await lip.Init(args);
 
         // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(WorkspacePath, "tooth.json")));
+        Assert.True(fileSystem.File.Exists(Path.Join(s_workspacePath, "tooth.json")));
         Assert.Equal("""
             {
                 "format_version": 3,
@@ -146,7 +155,7 @@ public partial class LipTests
                 }
             }
             """.ReplaceLineEndings(),
-            fileSystem.File.ReadAllText(Path.Join(WorkspacePath, "tooth.json")).ReplaceLineEndings());
+            fileSystem.File.ReadAllText(Path.Join(s_workspacePath, "tooth.json")).ReplaceLineEndings());
     }
 
     [Fact]
@@ -155,16 +164,18 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
+
+        Mock<IPathManager> pathManager = new();
 
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -186,17 +197,20 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-            { Path.Join(WorkspacePath, "tooth.json"), new MockFileData("content") },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+            { Path.Join(s_workspacePath, "tooth.json"), new MockFileData("content") },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
+
+        Mock<IPathManager> pathManager = new();
+        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
 
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -218,17 +232,20 @@ public partial class LipTests
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { WorkspacePath, new MockDirectoryData() },
-            { Path.Join(WorkspacePath, "tooth.json"), new MockFileData("content") },
-        }, currentDirectory: WorkspacePath);
+            { s_workspacePath, new MockDirectoryData() },
+            { Path.Join(s_workspacePath, "tooth.json"), new MockFileData("content") },
+        }, currentDirectory: s_workspacePath);
 
         Mock<ILogger> logger = new();
+
+        Mock<IPathManager> pathManager = new();
+        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
 
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -246,7 +263,7 @@ public partial class LipTests
         await lip.Init(args);
 
         // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(WorkspacePath, "tooth.json")));
+        Assert.True(fileSystem.File.Exists(Path.Join(s_workspacePath, "tooth.json")));
         Assert.Equal("""
             {
                 "format_version": 3,
@@ -261,6 +278,6 @@ public partial class LipTests
                 }
             }
             """.ReplaceLineEndings(),
-            fileSystem.File.ReadAllText(Path.Join(WorkspacePath, "tooth.json")).ReplaceLineEndings());
+            fileSystem.File.ReadAllText(Path.Join(s_workspacePath, "tooth.json")).ReplaceLineEndings());
     }
 }

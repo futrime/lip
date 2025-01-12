@@ -8,14 +8,6 @@ namespace Lip;
 /// </summary>
 public record RuntimeConfig
 {
-    private static readonly string s_defaultCache = OperatingSystem.IsWindows()
-        ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip-cache")
-        : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache", "lip");
-
-    private static readonly string s_defaultScriptShell = OperatingSystem.IsWindows()
-        ? "cmd.exe"
-        : "/bin/sh";
-
     private static readonly JsonSerializerOptions s_jsonSerializerOptions = new()
     {
         AllowTrailingCommas = true,
@@ -26,7 +18,8 @@ public record RuntimeConfig
     };
 
     [JsonPropertyName("cache")]
-    public string Cache { get; init; } = s_defaultCache;
+    public string Cache { get; init; } = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache");
 
     [JsonPropertyName("color")]
     public bool Color { get; init; } = true;
@@ -50,7 +43,9 @@ public record RuntimeConfig
     public string Proxy { get; init; } = "";
 
     [JsonPropertyName("script_shell")]
-    public string ScriptShell { get; init; } = s_defaultScriptShell;
+    public string ScriptShell { get; init; } = OperatingSystem.IsWindows()
+        ? "cmd.exe"
+        : "/bin/sh";
 
     public static RuntimeConfig FromBytes(byte[] bytes)
     {

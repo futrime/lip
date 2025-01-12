@@ -2,7 +2,7 @@
 
 namespace Lip.Tests;
 
-public class RuntimeConfigurationTests
+public class RuntimeConfigTests
 {
     [Fact]
     public void FromBytes_MinimumJson_Passes()
@@ -15,9 +15,7 @@ public class RuntimeConfigurationTests
 
         // Assert.
         Assert.Equal(
-            OperatingSystem.IsWindows()
-                ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip-cache")
-                : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache", "lip"),
+            Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache"),
             runtimeConfiguration.Cache
         );
         Assert.True(runtimeConfiguration.Color);
@@ -94,7 +92,7 @@ public class RuntimeConfigurationTests
         // Assert.
         Assert.Equal($$"""
             {
-                "cache": "{{(OperatingSystem.IsWindows() ? Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip-cache").Replace("\\", "\\\\") : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache", "lip"))}}",
+                "cache": "{{Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache").Replace("\\", "\\\\")}}",
                 "color": true,
                 "git": "git",
                 "github_proxy": "",
