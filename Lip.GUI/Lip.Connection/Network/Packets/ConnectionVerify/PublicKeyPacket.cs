@@ -4,7 +4,7 @@ namespace Lip.Connection.Network.Packets.ConnectionVerify;
 
 public class RSAPublicKeyPacket : IPacket<RSAPublicKeyPacket>
 {
-    public string Key { get; set; } = "";
+    public required string Key { get; set; }
 
     public static RSAPublicKeyPacket Deserialize(byte[] data) => new()
     {

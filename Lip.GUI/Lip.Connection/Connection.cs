@@ -14,7 +14,7 @@ public enum ConnectionMode { Server, Client }
 /// <summary>
 /// Represents a secure connection between two endpoints.
 /// </summary>
-public class Connection
+public partial class Connection
 {
     // Encoding used for converting strings to bytes
     private readonly UnicodeEncoding _encoding = new();
@@ -51,7 +51,7 @@ public class Connection
     /// <summary>
     /// Gets or sets the packet handler for incoming packets.
     /// </summary>
-    public IPacketHandler PacketHandler { get; init; }
+    public IPacketHandler? PacketHandler { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether the connection is verified.
@@ -66,13 +66,11 @@ public class Connection
     /// <param name="password">The password for authentication.</param>
     /// <param name="address">The IP address of the remote endpoint.</param>
     /// <param name="port">The port number of the remote endpoint.</param>
-    /// <param name="packetHandler">The packet handler for incoming packets.</param>
-    public Connection(ConnectionMode mode, string password, IPAddress address, int port, IPacketHandler packetHandler)
+    public Connection(ConnectionMode mode, string password, IPAddress address, int port)
     {
         HashedPassword = password;
         Mode = mode;
         _cryptoServiceProvider = new RSACryptoServiceProvider();
-        PacketHandler = packetHandler;
 
         if (mode is ConnectionMode.Server)
             _listener = TcpListener.Create(port);
@@ -87,7 +85,7 @@ public class Connection
     /// <exception cref="InvalidOperationException">Thrown when the connection mode is not server.</exception>
     public void StartListener(CancellationToken token = default)
     {
-        if (Mode is ConnectionMode.Client) throw new InvalidOperationException();
+        if (Mode is ConnectionMode.Client) throw new InvalidOperationException("Cannot start listener in client mode.");
         else
         {
             _listener!.Start();
@@ -104,7 +102,7 @@ public class Connection
 
                     // Get the network stream for the client
                     NetworkStream stream = client.GetStream();
-                    PacketHandler.Start(stream: stream, token: token);
+                    PacketHandler?.Start(stream: stream, token: token);
                 }
 
                 _listener.Stop();
@@ -119,7 +117,7 @@ public class Connection
     /// <param name="token">The cancellation token for the operation.</param>
     public async ValueTask ConnectToAsync(IPEndPoint remoteEP, CancellationToken token = default)
     {
-        if (Mode is ConnectionMode.Server) throw new InvalidOperationException();
+        if (Mode is ConnectionMode.Server) throw new InvalidOperationException("Server mode is not supported.");
         else
         {
             try

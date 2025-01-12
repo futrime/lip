@@ -4,7 +4,7 @@ namespace Lip.Connection.Network.Packets.ConnectionVerify;
 
 public class PasswordPacket : IPacket<PasswordPacket>
 {
-    public byte[] PasswordData { get; set; } = [];
+    public required byte[] PasswordData { get; set; }
 
     public static PasswordPacket Deserialize(byte[] data) => new()
     {

@@ -2,7 +2,7 @@
 
 public class AESKeyReceivedPacket : IPacket<AESKeyReceivedPacket>
 {
-    public bool Value { get; set; }
+    public required bool Value { get; set; }
 
     public static AESKeyReceivedPacket Deserialize(byte[] data) => new() { Value = BitConverter.ToBoolean(data) };
 

@@ -20,7 +20,7 @@ public class PacketReciver
         NetworkStream stream,
         CancellationToken token = default)
         where TPacketType : struct, Enum
-        where TPacket : class, IPacket<TPacket>, new()
+        where TPacket : class, IPacket<TPacket>
     {
         Span<byte> typeBuffer = stackalloc byte[4];
         Span<byte> lengthBuffer = stackalloc byte[4];

@@ -23,7 +23,7 @@ public class PacketSender
         TPacket packet,
         CancellationToken token = default)
         where TPacketType : struct, Enum
-        where TPacket : class, IPacket<TPacket>, new()
+        where TPacket : class, IPacket<TPacket>
     {
         byte[] serializedPacket = connection is null ?
             packet.Serialize() :

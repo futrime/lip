@@ -32,20 +32,21 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// Binds a packet handler to an action.
     /// </summary>
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
-    private sealed class PacketHandlerBinding<TPacket>(Action<TPacket> action)
-        where TPacket : class, IPacket<TPacket>, new()
+    private sealed class PacketHandlerBinding<TPacket>(Action<TPacketType, TPacket> action)
+        where TPacket : class, IPacket<TPacket>
     {
         /// <summary>
         /// Invokes the action with the specified packet.
         /// </summary>
         /// <param name="packet">The packet to handle.</param>
-        public void Invoke(IPacket packet) => action(Unsafe.As<TPacket>(packet));
+        public void Invoke(int type, IPacket packet)
+            => action((TPacketType)Enum.ToObject(typeof(TPacketType), type), (TPacket)packet);
     }
 
     /// <summary>
     /// A dictionary that maps packet types to their deserialization function pointers and handlers.
     /// </summary>
-    private readonly Dictionary<TPacketType, (DeserializeFunctionPointer fptr, Action<IPacket> action)> _handlers = [];
+    private readonly Dictionary<TPacketType, (DeserializeFunctionPointer fptr, Action<int, IPacket> action)> _handlers = [];
 
     /// <summary>
     /// Sets a handler for a specified packet type.
@@ -53,8 +54,8 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
     /// <param name="type">The packet type.</param>
     /// <param name="handler">The handler action.</param>
-    public void SetHandler<TPacket>(TPacketType type, Action<TPacket> handler)
-        where TPacket : class, IPacket<TPacket>, new()
+    public void SetHandler<TPacket>(TPacketType type, Action<TPacketType, TPacket> handler)
+        where TPacket : class, IPacket<TPacket>
     {
         _handlers[type] = (
             fptr: new DeserializeFunctionPointer() { Target = &TPacket.Deserialize },
@@ -66,10 +67,10 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// </summary>
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
     /// <param name="handlers">The packet handlers.</param>
-    public void SetHandlers<TPacket>(IDictionary<TPacketType, Action<TPacket>> handlers)
-        where TPacket : class, IPacket<TPacket>, new()
+    public void SetHandlers<TPacket>(IDictionary<TPacketType, Action<TPacketType, TPacket>> handlers)
+        where TPacket : class, IPacket<TPacket>
     {
-        foreach (KeyValuePair<TPacketType, Action<TPacket>> handler in handlers)
+        foreach (KeyValuePair<TPacketType, Action<TPacketType, TPacket>> handler in handlers)
             SetHandler(handler.Key, handler.Value);
     }
 
@@ -92,7 +93,8 @@ public class PacketHandler<TPacketType>(Connection connection)
             bytesReceived = stream.Read(lengthBuffer);
             if (bytesReceived is 0) break;
 
-            TPacketType type = (TPacketType)Enum.ToObject(typeof(TPacketType), BitConverter.ToInt32(typeBuffer));
+            int typeValue = BitConverter.ToInt32(typeBuffer);
+            TPacketType type = (TPacketType)Enum.ToObject(typeof(TPacketType), typeValue);
             int length = BitConverter.ToInt32(lengthBuffer);
 
             byte[] dataBuffer = new byte[length];
@@ -105,7 +107,7 @@ public class PacketHandler<TPacketType>(Connection connection)
 
             IPacket packet;
             unsafe { packet = _handlers[type].fptr.Target(connection.DecryptData(dataBuffer)); }
-            _ = Task.Run(() => _handlers[type].action(packet)).ConfigureAwait(false);
+            _ = Task.Run(() => _handlers[type].action(typeValue, packet)).ConfigureAwait(false);
         }
 
         onBytesRecived?.Invoke();
