@@ -1,0 +1,38 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "format_version": {
+            "type": "integer",
+            "const": 3
+        },
+        "format_uuid": {
+            "type": "string",
+            "const": "289f771f-2c9a-4d73-9f3f-8492495a924d"
+        },
+        "packages": {
+            "type": "array",
+            "items": {
+                "$ref": "tooth.v3.schema.json"
+            }
+        },
+        "locks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tooth": {
+                        "type": "string"
+                    },
+                    "variant": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string",
+                        "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+                    }
+                }
+            }
+        }
+    }
+}

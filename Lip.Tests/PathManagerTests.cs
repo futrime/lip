@@ -12,7 +12,7 @@ public class PathManagerTests
         : Path.Join("/", "current", "dir");
 
     [Fact]
-    public void GetBaseAssetCacheDir_WithoutRuntimeConfig_ThrowsInvalidOperationException()
+    public void GetBaseAssetCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -27,7 +27,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBaseAssetCacheDir_WithRuntimeConfig_ReturnsCorrectPath()
+    public void GetBaseAssetCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -45,7 +45,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBaseCacheDir_WithoutRuntimeConfig_ThrowsInvalidOperationException()
+    public void GetBaseCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -59,7 +59,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBaseCacheDir_WithRuntimeConfig_ReturnsFullPath()
+    public void GetBaseCacheDir_WithBaseCacheDir_ReturnsFullPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -73,7 +73,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBasePackageCacheDir_WithoutRuntimeConfig_ThrowsInvalidOperationException()
+    public void GetBasePackageCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -87,7 +87,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBasePackageCacheDir_WithRuntimeConfig_ReturnsCorrectPath()
+    public void GetBasePackageCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -128,10 +128,10 @@ public class PathManagerTests
         PathManager pathManager = new(fileSystem);
 
         // Act.
-        string recordPath = pathManager.PackageRecordPath;
+        string recordPath = pathManager.PackageLockPath;
 
         // Assert.
-        Assert.Equal(Path.Join(s_workingDir, "tooth.lock"), recordPath);
+        Assert.Equal(Path.Join(s_workingDir, "tooth_lock.json"), recordPath);
     }
 
     [Fact]

@@ -8,7 +8,7 @@ public interface IPathManager
     string BaseCacheDir { get; }
     string BasePackageCacheDir { get; }
     string PackageManifestPath { get; }
-    string PackageRecordPath { get; }
+    string PackageLockPath { get; }
     string RuntimeConfigPath { get; }
     string WorkingDir { get; }
 
@@ -21,7 +21,7 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : 
     private const string AssetCacheDirName = "assets";
     private const string PackageCacheDirName = "packages";
     private const string PackageManifestFileName = "tooth.json";
-    private const string PackageRecordFileName = "tooth.lock";
+    private const string PackageLockFileName = "tooth_lock.json";
 
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly string? _baseCacheDir = baseCacheDir;
@@ -34,7 +34,7 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : 
 
     public string PackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
 
-    public string PackageRecordPath => _fileSystem.Path.Join(WorkingDir, PackageRecordFileName);
+    public string PackageLockPath => _fileSystem.Path.Join(WorkingDir, PackageLockFileName);
 
     public string RuntimeConfigPath => _fileSystem.Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json");
