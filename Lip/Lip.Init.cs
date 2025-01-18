@@ -30,7 +30,7 @@ public partial class Lip
             {
                 FormatVersion = PackageManifest.DefaultFormatVersion,
                 FormatUuid = PackageManifest.DefaultFormatUuid,
-                Tooth = args.InitTooth ?? DefaultTooth,
+                ToothPath = args.InitTooth ?? DefaultTooth,
                 Version = args.InitVersion ?? DefaultVersion,
                 Info = new()
                 {
@@ -54,7 +54,7 @@ public partial class Lip
             {
                 FormatVersion = PackageManifest.DefaultFormatVersion,
                 FormatUuid = PackageManifest.DefaultFormatUuid,
-                Tooth = tooth,
+                ToothPath = tooth,
                 Version = version,
                 Info = new()
                 {
@@ -65,7 +65,7 @@ public partial class Lip
                 }
             };
 
-            string jsonString = Encoding.UTF8.GetString(manifest.ToBytes());
+            string jsonString = Encoding.UTF8.GetString(manifest.ToJsonBytes());
             if (!await _userInteraction.Confirm("Do you want to create the following package manifest file?\n{jsonString}", jsonString))
             {
                 throw new OperationCanceledException("Operation canceled by the user.");
@@ -86,7 +86,7 @@ public partial class Lip
             _logger.LogWarning("The file '{ManifestPath}' already exists. Overwriting it.", manifestPath);
         }
 
-        await _fileSystem.File.WriteAllBytesAsync(manifestPath, manifest.ToBytes());
+        await _fileSystem.File.WriteAllBytesAsync(manifestPath, manifest.ToJsonBytes());
 
         _logger.LogInformation("Successfully initialized the package manifest file '{ManifestPath}'.", manifestPath);
     }

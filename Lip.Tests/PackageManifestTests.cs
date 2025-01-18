@@ -355,7 +355,7 @@ public class PackageManifestTests
 
         // Assert.
         Assert.NotNull(variant);
-        Assert.Equal("", variant.Label);
+        Assert.Equal("", variant.VariantLabel);
         Assert.Equal("", variant.Platform);
         Assert.Equal([], variant.Dependencies);
         Assert.Equal([], variant.Assets);
@@ -376,12 +376,12 @@ public class PackageManifestTests
             """);
 
         // Act.
-        var manifest = PackageManifest.FromBytes(bytes);
+        var manifest = PackageManifest.FromJsonBytes(bytes);
 
         // Assert.
         Assert.Equal(3, manifest.FormatVersion);
         Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", manifest.FormatUuid);
-        Assert.Equal("", manifest.Tooth);
+        Assert.Equal("", manifest.ToothPath);
         Assert.Equal("1.0.0", manifest.Version);
     }
 
@@ -401,12 +401,12 @@ public class PackageManifestTests
             """);
 
         // Act.
-        var manifest = PackageManifest.FromBytes(bytes);
+        var manifest = PackageManifest.FromJsonBytes(bytes);
 
         // Assert.
         Assert.Equal(3, manifest.FormatVersion);
         Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", manifest.FormatUuid);
-        Assert.Equal("", manifest.Tooth);
+        Assert.Equal("", manifest.ToothPath);
         Assert.Equal("1.0.0", manifest.Version);
         Assert.NotNull(manifest.Info);
         Assert.NotNull(manifest.Variants);
@@ -420,7 +420,7 @@ public class PackageManifestTests
         byte[] bytes = Encoding.UTF8.GetBytes("null");
 
         // Act.
-        ArgumentException exception = Assert.Throws<ArgumentException>("bytes", () => PackageManifest.FromBytes(bytes));
+        ArgumentException exception = Assert.Throws<ArgumentException>("bytes", () => PackageManifest.FromJsonBytes(bytes));
 
         // Assert.
         Assert.Equal("Failed to deserialize package manifest. (Parameter 'bytes')", exception.Message);
@@ -440,7 +440,7 @@ public class PackageManifestTests
             """);
 
         // Act.
-        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromBytes(bytes));
+        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromJsonBytes(bytes));
 
         // Assert.
         Assert.Equal("Format version '0' is not equal to 3. (Parameter 'value')", exception.Message);
@@ -460,7 +460,7 @@ public class PackageManifestTests
             """);
 
         // Act.
-        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromBytes(bytes));
+        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromJsonBytes(bytes));
 
         // Assert.
         Assert.Equal("Format UUID 'invalid-uuid' is not equal to 289f771f-2c9a-4d73-9f3f-8492495a924d. (Parameter 'value')", exception.Message);
@@ -480,7 +480,7 @@ public class PackageManifestTests
             """);
 
         // Act.
-        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromBytes(bytes));
+        ArgumentException exception = Assert.Throws<ArgumentException>("value", () => PackageManifest.FromJsonBytes(bytes));
 
         // Assert.
         Assert.Equal("Version '0.0.0.0' is invalid. (Parameter 'value')", exception.Message);
@@ -494,7 +494,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0"
         };
         string variantLabel = "";
@@ -515,7 +515,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants = []
         };
@@ -541,13 +541,13 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
                 new PackageManifest.VariantType
                 {
-                    Label = manifestVariantLabel,
+                    VariantLabel = manifestVariantLabel,
                     Platform = manifestPlatform,
                 }
             ]
@@ -558,7 +558,7 @@ public class PackageManifestTests
 
         // Assert.
         Assert.NotNull(variant);
-        Assert.Equal(variantLabel, variant.Label);
+        Assert.Equal(variantLabel, variant.VariantLabel);
         Assert.Equal(platform, variant.Platform);
         Assert.NotNull(variant.Dependencies);
         Assert.Empty(variant.Dependencies);
@@ -585,7 +585,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
@@ -604,7 +604,7 @@ public class PackageManifestTests
 
         // Assert.
         Assert.NotNull(variant);
-        Assert.Equal("", variant.Label);
+        Assert.Equal("", variant.VariantLabel);
         Assert.Equal("platform", variant.Platform);
         Assert.NotNull(variant.Dependencies);
         Assert.Empty(variant.Dependencies);
@@ -631,7 +631,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
@@ -659,7 +659,7 @@ public class PackageManifestTests
 
         // Assert.
         Assert.NotNull(variant);
-        Assert.Equal("", variant.Label);
+        Assert.Equal("", variant.VariantLabel);
         Assert.Equal("platform", variant.Platform);
         Assert.NotNull(variant.Dependencies);
         Assert.Empty(variant.Dependencies);
@@ -692,13 +692,13 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
                 new PackageManifest.VariantType
                 {
-                    Label = manifestVariantLabel,
+                    VariantLabel = manifestVariantLabel,
                     Platform = manifestPlatform,
                 }
             ]
@@ -723,13 +723,13 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
                 new PackageManifest.VariantType
                 {
-                    Label = manifestVariantLabel,
+                    VariantLabel = manifestVariantLabel,
                     Platform = manifestPlatform,
                 }
             ]
@@ -750,7 +750,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants =
             [
@@ -826,7 +826,7 @@ public class PackageManifestTests
 
         // Assert.
         Assert.NotNull(variant);
-        Assert.Equal("", variant.Label);
+        Assert.Equal("", variant.VariantLabel);
         Assert.Equal("platform", variant.Platform);
         Assert.NotNull(variant.Dependencies);
         Assert.Equal(2, variant.Dependencies.Count);
@@ -862,12 +862,12 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0"
         };
 
         // Act.
-        byte[] bytes = manifest.ToBytes();
+        byte[] bytes = manifest.ToJsonBytes();
 
         // Assert.
         Assert.Equal("""
@@ -888,7 +888,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants = [
                 new(){
@@ -908,7 +908,7 @@ public class PackageManifestTests
         // Assert.
         Assert.Equal(3, result.FormatVersion);
         Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", result.FormatUuid);
-        Assert.Equal("", result.Tooth);
+        Assert.Equal("", result.ToothPath);
         Assert.Equal("1.0.0", result.Version);
         Assert.NotNull(result.Variants);
         Assert.Single(result.Variants);
@@ -925,7 +925,7 @@ public class PackageManifestTests
         {
             FormatVersion = 3,
             FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            Tooth = "",
+            ToothPath = "",
             Version = "1.0.0",
             Variants = [
                 new(){

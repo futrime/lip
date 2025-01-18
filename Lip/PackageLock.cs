@@ -7,14 +7,36 @@ public record PackageLock
 {
     public record LockType
     {
-        [JsonPropertyName("package")]
-        public required string Package { get; init; }
+        [JsonPropertyName("tooth")]
+        public string ToothPath
+        {
+            get => _tooth;
+            init => _tooth = !StringValidator.CheckToothPath(value)
+                ? value
+                : throw new SchemaViolationException("tooth", $"Invalid tooth path '{value}'.");
+        }
 
         [JsonPropertyName("variant")]
-        public required string Variant { get; init; }
+        public string VariantLabel
+        {
+            get => _variant;
+            init => _variant = !string.IsNullOrEmpty(value) && StringValidator.CheckVariantLabel(value)
+                ? value
+                : throw new SchemaViolationException("variant", $"Invalid variant label '{value}'.");
+        }
 
         [JsonPropertyName("version")]
-        public required string Version { get; init; }
+        public string Version
+        {
+            get => _version;
+            init => _version = !string.IsNullOrEmpty(value) && StringValidator.CheckVersion(value)
+                ? value
+                : throw new SchemaViolationException("version", $"Invalid version '{value}'.");
+        }
+
+        private string _tooth = "";
+        private string _variant = "";
+        private string _version = "";
     }
 
     public const int DefaultFormatVersion = 3;
@@ -34,7 +56,7 @@ public record PackageLock
     {
         get => DefaultFormatVersion;
         init => _ = value == DefaultFormatVersion ? 0
-            : throw new ArgumentException($"Format version '{value}' is not equal to {DefaultFormatVersion}.", nameof(value));
+            : throw new SchemaViolationException("format_version", $"Format version '{value}' is not equal to {DefaultFormatVersion}.");
     }
 
     [JsonPropertyName("format_uuid")]
@@ -42,7 +64,7 @@ public record PackageLock
     {
         get => DefaultFormatUuid;
         init => _ = value == DefaultFormatUuid ? 0
-            : throw new ArgumentException($"Format UUID '{value}' is not equal to {DefaultFormatUuid}.", nameof(value));
+            : throw new SchemaViolationException("format_uuid", $"Format UUID '{value}' is not equal to {DefaultFormatUuid}.");
     }
 
     [JsonPropertyName("packages")]
@@ -51,13 +73,20 @@ public record PackageLock
     [JsonPropertyName("locks")]
     public required List<LockType> Locks { get; init; }
 
-    public static PackageLock FromBytes(byte[] bytes)
+    public static PackageLock FromJsonBytes(byte[] bytes)
     {
-        return JsonSerializer.Deserialize<PackageLock>(bytes, s_jsonSerializerOptions)
-            ?? throw new ArgumentException("Failed to deserialize package manifest.", nameof(bytes));
+        try
+        {
+            return JsonSerializer.Deserialize<PackageLock>(bytes, s_jsonSerializerOptions)
+                ?? throw new JsonException("Package lock bytes deserialized to null.");
+        }
+        catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
+        {
+            throw new JsonException("Package lock bytes deserialization failed.", ex);
+        }
     }
 
-    public byte[] ToBytes()
+    public byte[] ToJsonBytes()
     {
         return JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
     }

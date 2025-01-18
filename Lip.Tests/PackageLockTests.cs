@@ -19,7 +19,7 @@ public class PackageLockTests
             """);
 
         // Act
-        var lockFile = PackageLock.FromBytes(bytes);
+        var lockFile = PackageLock.FromJsonBytes(bytes);
 
         // Assert
         Assert.Equal(3, lockFile.FormatVersion);
@@ -48,7 +48,7 @@ public class PackageLockTests
                 ],
                 "locks": [
                     {
-                        "package": "test/package",
+                        "tooth": "test/package",
                         "variant": "default",
                         "version": "1.0.0"
                     }
@@ -57,7 +57,7 @@ public class PackageLockTests
             """);
 
         // Act
-        var lockFile = PackageLock.FromBytes(bytes);
+        var lockFile = PackageLock.FromJsonBytes(bytes);
 
         // Assert
         Assert.Equal(3, lockFile.FormatVersion);
@@ -74,7 +74,7 @@ public class PackageLockTests
 
         // Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(
-            "bytes", () => PackageLock.FromBytes(bytes));
+            "bytes", () => PackageLock.FromJsonBytes(bytes));
         Assert.Equal("Failed to deserialize package manifest. (Parameter 'bytes')", exception.Message);
     }
 
@@ -93,7 +93,7 @@ public class PackageLockTests
 
         // Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(
-            "value", () => PackageLock.FromBytes(bytes));
+            "value", () => PackageLock.FromJsonBytes(bytes));
         Assert.Equal("Format version '0' is not equal to 3. (Parameter 'value')", exception.Message);
     }
 
@@ -112,7 +112,7 @@ public class PackageLockTests
 
         // Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(
-            "value", () => PackageLock.FromBytes(bytes));
+            "value", () => PackageLock.FromJsonBytes(bytes));
         Assert.Equal(
             "Format UUID 'invalid-uuid' is not equal to 289f771f-2c9a-4d73-9f3f-8492495a924d. (Parameter 'value')",
             exception.Message);
@@ -131,7 +131,7 @@ public class PackageLockTests
         };
 
         // Act
-        byte[] bytes = lockFile.ToBytes();
+        byte[] bytes = lockFile.ToJsonBytes();
 
         // Assert
         Assert.Equal("""
@@ -156,21 +156,21 @@ public class PackageLockTests
                 new() {
                     FormatVersion = 3,
                     FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                    Tooth = "test/package",
+                    ToothPath = "test/package",
                     Version = "1.0.0"
                 }
             ],
             Locks = [
                 new() {
-                    Package = "test/package",
-                    Variant = "default",
+                    ToothPath = "test/package",
+                    VariantLabel = "default",
                     Version = "1.0.0"
                 }
             ]
         };
 
         // Act
-        byte[] bytes = lockFile.ToBytes();
+        byte[] bytes = lockFile.ToJsonBytes();
 
         // Assert
         Assert.Equal("""
@@ -187,7 +187,7 @@ public class PackageLockTests
                 ],
                 "locks": [
                     {
-                        "package": "test/package",
+                        "tooth": "test/package",
                         "variant": "default",
                         "version": "1.0.0"
                     }
@@ -202,7 +202,7 @@ public class PackageLockTests
         // Arrange
         string json = """
             {
-                "package": "test/package",
+                "tooth": "test/package",
                 "variant": "default",
                 "version": "1.0.0"
             }
@@ -213,8 +213,8 @@ public class PackageLockTests
 
         // Assert
         Assert.NotNull(lockType);
-        Assert.Equal("test/package", lockType.Package);
-        Assert.Equal("default", lockType.Variant);
+        Assert.Equal("test/package", lockType.ToothPath);
+        Assert.Equal("default", lockType.VariantLabel);
         Assert.Equal("1.0.0", lockType.Version);
     }
 }

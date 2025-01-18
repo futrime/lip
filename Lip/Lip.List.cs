@@ -1,0 +1,52 @@
+﻿namespace Lip;
+
+public partial class Lip
+{
+    public record ListItem
+    {
+        public required PackageManifest Manifest { get; init; }
+        public required bool Locked { get; init; }
+    }
+
+    public record ListArgs { }
+
+    public async Task<List<ListItem>> List(ListArgs args)
+    {
+        PackageLock packageLock = await GetPackageLock();
+
+        List<ListItem> listItems = packageLock.Packages
+            .Select(package => new ListItem
+            {
+                Manifest = package,
+                Locked = packageLock.Locks.Any(l =>
+                {
+                    return package.ToothPath == l.ToothPath
+                        && package.Version == l.Version
+                        && package.Variants?.FirstOrDefault()?.VariantLabel == l.VariantLabel;
+                })
+            }).ToList();
+
+        return listItems;
+    }
+
+    private async Task<PackageLock> GetPackageLock()
+    {
+        string packageLockFilePath = _pathManager.PackageLockPath;
+
+        // If the package lock file does not exist, return an empty package lock.
+        if (!_fileSystem.File.Exists(packageLockFilePath))
+        {
+            return new()
+            {
+                FormatVersion = PackageLock.DefaultFormatVersion,
+                FormatUuid = PackageLock.DefaultFormatUuid,
+                Packages = [],
+                Locks = []
+            };
+        }
+
+        byte[] packageLockBytes = await _fileSystem.File.ReadAllBytesAsync(packageLockFilePath);
+
+        return PackageLock.FromJsonBytes(packageLockBytes);
+    }
+}

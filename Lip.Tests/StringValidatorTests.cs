@@ -7,7 +7,7 @@ public class StringValidatorTests
     [InlineData("script_name")]
     public void IsScriptNameValid_CommonInput_Passes(string scriptName)
     {
-        Assert.True(StringValidator.IsScriptNameValid(scriptName));
+        Assert.True(StringValidator.CheckScriptName(scriptName));
     }
 
     [Theory]
@@ -16,7 +16,7 @@ public class StringValidatorTests
     [InlineData("script_name!")]
     public void IsScriptNameValid_InvalidInput_Fails(string scriptName)
     {
-        Assert.False(StringValidator.IsScriptNameValid(scriptName));
+        Assert.False(StringValidator.CheckScriptName(scriptName));
     }
 
     [Theory]
@@ -24,7 +24,7 @@ public class StringValidatorTests
     [InlineData("tag:subtag")]
     public void IsTagValid_CommonInput_Passes(string tag)
     {
-        Assert.True(StringValidator.IsTagValid(tag));
+        Assert.True(StringValidator.CheckTag(tag));
     }
 
     [Theory]
@@ -32,7 +32,7 @@ public class StringValidatorTests
     [InlineData("tag!")]
     public void IsTagValid_InvalidInput_Fails(string tag)
     {
-        Assert.False(StringValidator.IsTagValid(tag));
+        Assert.False(StringValidator.CheckTag(tag));
     }
 
     [Theory]
@@ -40,7 +40,7 @@ public class StringValidatorTests
     [InlineData("1.0.0-alpha")]
     public void IsVersionValid_CommonInput_Passes(string version)
     {
-        Assert.True(StringValidator.IsVersionValid(version));
+        Assert.True(StringValidator.CheckVersion(version));
     }
 
     [Theory]
@@ -48,6 +48,6 @@ public class StringValidatorTests
     [InlineData("1.0.0-alpha!")]
     public void IsVersionValid_InvalidInput_Fails(string version)
     {
-        Assert.False(StringValidator.IsVersionValid(version));
+        Assert.False(StringValidator.CheckVersion(version));
     }
 }

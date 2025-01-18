@@ -20,15 +20,13 @@ The format's unique identifier. Currently only `289f771f-2c9a-4d73-9f3f-8492495a
 
 ### tooth (required)
 
-The package's tooth path, a unique identifier in Go module path format (a URL without scheme and suffix). You may optionally specify a subdirectory path.
+The package's tooth path, a unique identifier in Go module path format (a URL without scheme and suffix).
 
 Examples:
 
 - `github.com/LiteLDev/LeviLamina`
-- `github.com/futrime/example-package#cmd/example-package`
-- `github.com/LiteLDev/LegacyScriptEngine#quickjs`
 
-Note: To publish a package, its main identifier must match the repository URL where it's hosted.
+Note: To publish a package, its tooth path must match the repository URL where it's hosted.
 
 ### version (required)
 

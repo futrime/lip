@@ -33,16 +33,65 @@ public record PackageManifest
         public required TypeEnum Type { get; init; }
 
         [JsonPropertyName("urls")]
-        public List<string>? Urls { get; init; }
+        public List<string>? Urls
+        {
+            get => _urls;
+            init
+            {
+                value?.ForEach(url =>
+                {
+                    if (!StringValidator.CheckUrl(url))
+                    {
+                        throw new SchemaViolationException("urls", $"URL '{url}' is invalid.");
+                    }
+                });
+
+                _urls = value;
+            }
+        }
 
         [JsonPropertyName("place")]
         public List<PlaceType>? Place { get; init; }
 
         [JsonPropertyName("preserve")]
-        public List<string>? Preserve { get; init; }
+        public List<string>? Preserve
+        {
+            get => _preserve;
+            init
+            {
+                value?.ForEach(preserve =>
+                {
+                    if (!StringValidator.CheckSafePlacePath(preserve))
+                    {
+                        throw new SchemaViolationException("preserve", $"Path '{preserve}' is unsafe to preserve.");
+                    }
+                });
+
+                _preserve = value;
+            }
+        }
 
         [JsonPropertyName("remove")]
-        public List<string>? Remove { get; init; }
+        public List<string>? Remove
+        {
+            get => _remove;
+            init
+            {
+                value?.ForEach(remove =>
+                {
+                    if (!StringValidator.CheckSafePlacePath(remove))
+                    {
+                        throw new SchemaViolationException("remove", $"Path '{remove}' is unsafe to remove.");
+                    }
+                });
+
+                _remove = value;
+            }
+        }
+
+        private List<string>? _urls;
+        private List<string>? _preserve;
+        private List<string>? _remove;
     }
 
     public partial record InfoType
@@ -62,24 +111,41 @@ public record PackageManifest
             get => _tags;
             init
             {
-                if (value is not null)
+                value?.ForEach(tag =>
                 {
-                    foreach (string tag in value)
+                    if (!StringValidator.CheckTag(tag))
                     {
-                        if (!StringValidator.IsTagValid(tag))
-                        {
-                            throw new ArgumentException($"Tag {tag} is invalid.", nameof(value));
-                        }
+                        throw new SchemaViolationException("tags", $"Tag '{tag}' is invalid.");
                     }
-                }
+                });
+
                 _tags = value;
             }
         }
 
         [JsonPropertyName("avatar_url")]
-        public string? AvatarUrl { get; init; }
+        public string? AvatarUrl
+        {
+            get => _avatarUrl;
+            init
+            {
+                if (value is null)
+                {
+                    _avatarUrl = null;
+                    return;
+                }
+
+                if (!StringValidator.CheckUrl(value))
+                {
+                    throw new SchemaViolationException("avatar_url", $"Avatar URL '{value}' is invalid.");
+                }
+
+                _avatarUrl = value;
+            }
+        }
 
         private List<string>? _tags;
+        private string? _avatarUrl;
     }
 
     public record PlaceType
@@ -100,7 +166,21 @@ public record PackageManifest
         public required string Src { get; init; }
 
         [JsonPropertyName("dest")]
-        public required string Dest { get; init; }
+        public required string Dest
+        {
+            get => _dest;
+            init
+            {
+                if (!StringValidator.CheckSafePlacePath(value))
+                {
+                    throw new SchemaViolationException("dest", $"Path '{value}' is unsafe to place.");
+                }
+
+                _dest = value;
+            }
+        }
+
+        private string _dest = "";
     }
 
     public partial record ScriptsType
@@ -145,7 +225,7 @@ public record PackageManifest
 
                     // Ignore all properties that don't match the script name and value pattern.
 
-                    if (!StringValidator.IsScriptNameValid(key))
+                    if (!StringValidator.CheckScriptName(key))
                     {
                         continue;
                     }
@@ -182,9 +262,9 @@ public record PackageManifest
 
                 foreach (KeyValuePair<string, List<string>> kvp in value)
                 {
-                    if (!StringValidator.IsScriptNameValid(kvp.Key))
+                    if (!StringValidator.CheckScriptName(kvp.Key))
                     {
-                        throw new ArgumentException($"Script name {kvp.Key} is invalid.", nameof(value));
+                        throw new SchemaViolationException(kvp.Key, $"Script name {kvp.Key} is invalid.");
                     }
 
                     AdditionalProperties[kvp.Key] = JsonSerializer.SerializeToElement(kvp.Value);
@@ -196,19 +276,47 @@ public record PackageManifest
     public record VariantType
     {
         [JsonPropertyName("label")]
-        public string? Label { get; init; }
+        public string? VariantLabel { get; init; }
 
         [JsonPropertyName("platform")]
         public string? Platform { get; init; }
 
         [JsonPropertyName("dependencies")]
-        public Dictionary<string, string>? Dependencies { get; init; }
+        public Dictionary<string, string>? Dependencies
+        {
+            get => _dependencies;
+            set
+            {
+                if (value is null)
+                {
+                    _dependencies = null;
+                    return;
+                }
+
+                foreach (KeyValuePair<string, string> kvp in value)
+                {
+                    if (!StringValidator.CheckPackageSpecifierWithoutVersion(kvp.Key))
+                    {
+                        throw new SchemaViolationException("dependencies", $"Package specifier '{kvp.Key}' is invalid.");
+                    }
+
+                    if (!StringValidator.CheckVersionRange(kvp.Value))
+                    {
+                        throw new SchemaViolationException("dependencies", $"Version range '{kvp.Value}' is invalid.");
+                    }
+                }
+
+                _dependencies = value;
+            }
+        }
 
         [JsonPropertyName("assets")]
         public List<AssetType>? Assets { get; init; }
 
         [JsonPropertyName("scripts")]
         public ScriptsType? Scripts { get; init; }
+
+        private Dictionary<string, string>? _dependencies;
     }
 
     public const int DefaultFormatVersion = 3;
@@ -228,7 +336,7 @@ public record PackageManifest
     {
         get => DefaultFormatVersion;
         init => _ = value == DefaultFormatVersion ? 0
-            : throw new ArgumentException($"Format version '{value}' is not equal to {DefaultFormatVersion}.", nameof(value));
+            : throw new SchemaViolationException("format_version", $"Format version '{value}' is not equal to {DefaultFormatVersion}.");
     }
 
     [JsonPropertyName("format_uuid")]
@@ -236,11 +344,11 @@ public record PackageManifest
     {
         get => DefaultFormatUuid;
         init => _ = value == DefaultFormatUuid ? 0
-            : throw new ArgumentException($"Format UUID '{value}' is not equal to {DefaultFormatUuid}.", nameof(value));
+            : throw new SchemaViolationException("format_uuid", $"Format UUID '{value}' is not equal to {DefaultFormatUuid}.");
     }
 
     [JsonPropertyName("tooth")]
-    public required string Tooth { get; init; }
+    public required string ToothPath { get; init; }
 
     [JsonPropertyName("version")]
     public required string Version
@@ -251,9 +359,9 @@ public record PackageManifest
         }
         init
         {
-            if (!StringValidator.IsVersionValid(value))
+            if (!StringValidator.CheckVersion(value))
             {
-                throw new ArgumentException($"Version '{value}' is invalid.", nameof(value));
+                throw new SchemaViolationException("version", $"Version '{value}' is invalid.");
             }
 
             _version = value;
@@ -273,14 +381,17 @@ public record PackageManifest
     /// </summary>
     /// <param name="bytes">The byte array to deserialize.</param>
     /// <returns>The deserialized package manifest.</returns>
-    public static PackageManifest FromBytes(byte[] bytes)
+    public static PackageManifest FromJsonBytes(byte[] bytes)
     {
-        PackageManifest? manifest = JsonSerializer.Deserialize<PackageManifest>(
-            bytes,
-            s_jsonSerializerOptions
-        ) ?? throw new ArgumentException("Failed to deserialize package manifest.", nameof(bytes));
-
-        return manifest;
+        try
+        {
+            return JsonSerializer.Deserialize<PackageManifest>(bytes, s_jsonSerializerOptions)
+                ?? throw new JsonException("Package manifest bytes deserialized to null.");
+        }
+        catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
+        {
+            throw new JsonException("Package lock bytes deserialization failed.", ex);
+        }
     }
 
     /// <summary>
@@ -295,7 +406,7 @@ public record PackageManifest
         List<VariantType> matchedVariants = Variants?
             .Where(variant =>
             {
-                if (variant.Label is null || variant.Label == "")
+                if (variant.VariantLabel is null || variant.VariantLabel == "")
                 {
                     if ("" != variantLabel)
                     {
@@ -304,7 +415,7 @@ public record PackageManifest
                 }
                 else
                 {
-                    var labelGlob = Glob.Parse(variant.Label!);
+                    var labelGlob = Glob.Parse(variant.VariantLabel!);
 
                     if (!labelGlob.IsMatch(variantLabel))
                     {
@@ -325,7 +436,7 @@ public record PackageManifest
 
         // However, there must exist at least one variant that matches the specified label and platform without any wildcards.
         if (!matchedVariants.Any(
-            variant => (variant.Label == variantLabel) || (variant.Label == null && variantLabel == "")))
+            variant => (variant.VariantLabel == variantLabel) || (variant.VariantLabel == null && variantLabel == "")))
         {
             return null;
         }
@@ -338,7 +449,7 @@ public record PackageManifest
         // Merge all matched variants into a single variant.
         VariantType mergedVariant = new()
         {
-            Label = variantLabel,
+            VariantLabel = variantLabel,
             Platform = platform,
             Dependencies = matchedVariants
                 .SelectMany(variant => variant.Dependencies ?? [])
@@ -378,7 +489,7 @@ public record PackageManifest
     /// Serializes the package manifest to a byte array.
     /// </summary>
     /// <returns>The serialized package manifest.</returns>
-    public byte[] ToBytes()
+    public byte[] ToJsonBytes()
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
         return bytes;
@@ -390,7 +501,7 @@ public record PackageManifest
     /// <returns>The rendered package manifest.</returns>
     public PackageManifest WithTemplateParsed()
     {
-        string templateText = Encoding.UTF8.GetString(ToBytes());
+        string templateText = Encoding.UTF8.GetString(ToJsonBytes());
         Template template = Template.Parse(templateText);
 
         if (template.HasErrors)
@@ -407,6 +518,6 @@ public record PackageManifest
 
         string renderedText = template.Render(jsonElement);
 
-        return FromBytes(Encoding.UTF8.GetBytes(renderedText));
+        return FromJsonBytes(Encoding.UTF8.GetBytes(renderedText));
     }
 }
