@@ -42,4 +42,10 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <Color x:Key="LayerOnAcrylicFillColorDefault">#40FFFFFF</Color>
+    
+    <Color x:Key="BackgroundLight">#88FFFFFF</Color>
+    <Color x:Key="BackgroundDark">#881f1f1f</Color>
+
 </ResourceDictionary>

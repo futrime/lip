@@ -4,12 +4,36 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Lip.GUI"
+    xmlns:home="clr-namespace:Lip.GUI.Pages.Home"
+    xmlns:settings="clr-namespace:Lip.GUI.Pages.Settings"
+    xmlns:server="clr-namespace:Lip.GUI.Pages.Servers"
+    xmlns:fonts="clr-namespace:Fonts"
     Shell.FlyoutBehavior="Flyout"
     Title="Lip.GUI">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+
+        <Tab Title="Server"
+             Icon="fluent_remote_20_filled.png">
+
+            <ShellContent ContentTemplate="{DataTemplate server:ServersPage}" />
+
+        </Tab>
+
+        <Tab Title="Home"
+             Icon="fluent_home_32_regular.png">
+
+            <ShellContent ContentTemplate="{DataTemplate home:HomePage}" />
+
+        </Tab>
+
+        <Tab Title="Settings"
+             Icon="fluent_settings_24_regular.png">
+            
+            <ShellContent ContentTemplate="{DataTemplate settings:SettingsPage}" />
+
+        </Tab>
+
+    </TabBar>
 
 </Shell>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.Servers.AddServerButtonView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="_view"
+    Margin="10">
+
+    <Grid
+        x:Name="_grid"
+        ColumnDefinitions="*"
+        RowDefinitions="*">
+
+        <Button
+            x:Name="_button"
+            Background="{DynamicResource LayerOnAcrylicFillColorDefault}"
+            BorderColor="{AppThemeBinding Light={DynamicResource Magenta},
+                                          Dark={DynamicResource White}}"
+            BorderWidth="1"
+            Clicked="Button_Clicked"
+            HeightRequest="128"
+            Pressed="Button_Pressed"
+            Released="Button_Released"
+            WidthRequest="128">
+
+            <Button.ImageSource>
+
+                <FontImageSource
+                    FontFamily="Segoe Fluent Icons"
+                    Glyph="&#xE948;"
+                    Color="{AppThemeBinding Light={DynamicResource Magenta},
+                                            Dark={DynamicResource White}}" />
+
+            </Button.ImageSource>
+
+        </Button>
+
+    </Grid>
+
+</ContentView>

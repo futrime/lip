@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.Servers.AddServerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:acrylic="clr-namespace:Xe.AcrylicView"
+    Margin="20">
+
+
+    <acrylic:AcrylicView
+        BorderColor="{AppThemeBinding Light={DynamicResource SecondaryLightText},
+                                      Dark={DynamicResource SecondaryDarkText}}"
+        BorderThickness="1"
+        CornerRadius="20,20,20,20"
+        EffectStyle="Custom"
+        HorizontalOptions="Start"
+        TintColor="{AppThemeBinding Light={DynamicResource Primary},
+                                    Dark={DynamicResource PrimaryDark}}"
+        TintOpacity=".15 ">
+
+        <StackLayout
+            HorizontalOptions="Start"
+            Spacing="30"
+            VerticalOptions="Start">
+
+            <StackLayout HorizontalOptions="Start" VerticalOptions="Start">
+
+                <HorizontalStackLayout
+                    x:Name="_header"
+                    Padding="10,0,0,0"
+                    BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight},
+                                                      Dark={DynamicResource BackgroundDark}}"
+                    HeightRequest="50"
+                    HorizontalOptions="Fill"
+                    MinimumHeightRequest="40"
+                    Spacing="10">
+
+                    <Image
+                        x:Name="_addIconImage"
+                        HeightRequest="30"
+                        MinimumHeightRequest="30"
+                        MinimumWidthRequest="30"
+                        WidthRequest="30">
+
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="Segoe Fluent Icons"
+                                Glyph="&#xE948;"
+                                Size="30"
+                                Color="{AppThemeBinding Light={DynamicResource Magenta},
+                                                        Dark={DynamicResource White}}" />
+                        </Image.Source>
+                    </Image>
+
+                    <Label
+                        x:Name="_addServerText"
+                        FontSize="18"
+                        HeightRequest="30"
+                        HorizontalOptions="Fill"
+                        MinimumHeightRequest="30"
+                        Text="Add Server"
+                        VerticalTextAlignment="Center" />
+
+                </HorizontalStackLayout>
+
+                <ImageButton
+                    x:Name="_serverIcon"
+                    Margin="20"
+                    HeightRequest="128"
+                    HorizontalOptions="Start"
+                    MinimumHeightRequest="128"
+                    MinimumWidthRequest="128"
+                    VerticalOptions="Start"
+                    WidthRequest="128">
+
+                    <ImageButton.Source>
+                        <FontImageSource
+                            FontFamily="Segoe Fluent Icons"
+                            Glyph="&#xE91B;"
+                            Size="128"
+                            Color="{AppThemeBinding Light={DynamicResource Magenta},
+                                                    Dark={DynamicResource White}}" />
+                    </ImageButton.Source>
+
+                </ImageButton>
+
+                <HorizontalStackLayout Margin="5" Spacing="5">
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Text="Name"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center"
+                        WidthRequest="60" />
+
+                    <Entry
+                        x:Name="_nameEntry"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Completed="NameEntry_Completed"
+                        HorizontalOptions="Fill"
+                        Placeholder="Server name"
+                        VerticalOptions="Center"
+                        WidthRequest="120" />
+
+                    <Label
+                        x:Name="_isRemoteLabel"
+                        Grid.Column="0"
+                        Margin="10,0,0,0"
+                        HorizontalOptions="Start"
+                        Text="Is Remote"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center" />
+
+                    <CheckBox
+                        x:Name="_isRemoteCheckBox"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        CheckedChanged="IsRemoteCheckBox_CheckedChanged"
+                        HeightRequest="20"
+                        HorizontalOptions="Center"
+                        IsChecked="True"
+                        VerticalOptions="Center"
+                        WidthRequest="20" />
+
+                </HorizontalStackLayout>
+
+
+                <HorizontalStackLayout Margin="5" Spacing="5">
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Location"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center"
+                        WidthRequest="60" />
+
+                    <Entry
+                        x:Name="_locationEntry"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Completed="LocationEntry_Completed"
+                        HorizontalOptions="Fill"
+                        Placeholder="Location"
+                        VerticalOptions="Center"
+                        WidthRequest="120" />
+
+                    <Grid Margin="10,0,0,0" WidthRequest="70">
+
+                        <Entry
+                            x:Name="_portEntry"
+                            Grid.Column="0"
+                            Completed="PortEntry_Completed"
+                            HorizontalOptions="Fill"
+                            Placeholder="Port"
+                            VerticalOptions="Center" />
+
+                        <Button
+                            x:Name="_selectPathButton"
+                            Grid.Column="0"
+                            IsEnabled="False"
+                            Opacity="0">
+
+                            <Button.ImageSource>
+                                <FontImageSource
+                                    FontFamily="Segoe Fluent Icons"
+                                    Glyph="&#xE838;"
+                                    Size="20"
+                                    Color="{AppThemeBinding Light={DynamicResource Magenta},
+                                                            Dark={DynamicResource White}}" />
+                            </Button.ImageSource>
+
+                        </Button>
+
+
+                    </Grid>
+
+                </HorizontalStackLayout>
+
+            </StackLayout>
+
+            <Grid ColumnDefinitions="*,*" VerticalOptions="End">
+
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="Transparent"
+                    Clicked="CancelButton_Clicked"
+                    HorizontalOptions="Fill"
+                    Text="Cancel"
+                    TextColor="{AppThemeBinding Light={DynamicResource OffBlack},
+                                                Dark={DynamicResource SecondaryDarkText}}"
+                    VerticalOptions="Fill" />
+
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="Transparent"
+                    Clicked="ConfirmButton_Clicked"
+                    HorizontalOptions="Fill"
+                    Text="Confirm"
+                    TextColor="{AppThemeBinding Light={DynamicResource OffBlack},
+                                                Dark={DynamicResource SecondaryDarkText}}"
+                    VerticalOptions="Fill" />
+
+            </Grid>
+
+
+        </StackLayout>
+
+    </acrylic:AcrylicView>
+
+</ContentView>
