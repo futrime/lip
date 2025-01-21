@@ -2,7 +2,7 @@
 
 namespace Lip;
 
-public partial record PackageSpecifier
+public record PackageSpecifierWithoutVersion
 {
     public required string ToothPath
     {
@@ -11,7 +11,7 @@ public partial record PackageSpecifier
         {
             if (!StringValidator.CheckToothPath(value))
             {
-                throw new ArgumentException("Invalid tooth path.");
+                throw new ArgumentException("Invalid tooth path.", nameof(ToothPath));
             }
 
             _tooth = value;
@@ -24,31 +24,53 @@ public partial record PackageSpecifier
         {
             if (!StringValidator.CheckVariantLabel(value))
             {
-                throw new ArgumentException("Invalid variant label.");
+                throw new ArgumentException("Invalid variant label.", nameof(VariantLabel));
             }
 
             _variantLabel = value;
         }
     }
-    public required SemVersion Version { get; init; }
 
     private string _tooth = "";
     private string _variantLabel = "";
 
-    public static PackageSpecifier Parse(string specifierText)
+    public static PackageSpecifierWithoutVersion Parse(string specifierText)
+    {
+        if (!StringValidator.CheckPackageSpecifierWithoutVersion(specifierText))
+        {
+            throw new ArgumentException($"Invalid package specifier '{specifierText}'.", nameof(specifierText));
+        }
+
+        string[] parts = specifierText.Split('#');
+
+        return new PackageSpecifierWithoutVersion
+        {
+            ToothPath = parts[0],
+            VariantLabel = parts[1]
+        };
+    }
+}
+
+public record PackageSpecifier : PackageSpecifierWithoutVersion
+{
+
+    public required SemVersion Version { get; init; }
+
+    public static new PackageSpecifier Parse(string specifierText)
     {
         if (!StringValidator.CheckPackageSpecifier(specifierText))
         {
-            throw new ArgumentException("Invalid package specifier.", nameof(specifierText));
+            throw new ArgumentException($"Invalid package specifier '{specifierText}'.", nameof(specifierText));
         }
 
         string[] parts = specifierText.Split('@');
-        string[] toothPathAndVariantLabel = parts[0].Split('#');
+
+        PackageSpecifierWithoutVersion packageSpecifierWithoutVersion = PackageSpecifierWithoutVersion.Parse(parts[0]);
 
         return new PackageSpecifier
         {
-            ToothPath = toothPathAndVariantLabel[0],
-            VariantLabel = toothPathAndVariantLabel[1],
+            ToothPath = packageSpecifierWithoutVersion.ToothPath,
+            VariantLabel = packageSpecifierWithoutVersion.VariantLabel,
             Version = SemVersion.Parse(parts[1])
         };
     }

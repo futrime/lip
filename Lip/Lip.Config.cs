@@ -18,6 +18,7 @@ public partial class Lip
         }
 
         Dictionary<string, string> allKeyValuePairs = typeof(RuntimeConfig).GetProperties()
+            .Where(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>() != null)
             .ToDictionary(
                 prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name,
                 prop => prop.GetValue(new RuntimeConfig())!.ToString()!
@@ -52,6 +53,7 @@ public partial class Lip
     public Dictionary<string, string> ConfigList(ConfigGetArgs _)
     {
         Dictionary<string, string> allKeyValuePairs = typeof(RuntimeConfig).GetProperties()
+            .Where(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>() != null)
             .ToDictionary(
                 prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name,
                 prop => prop.GetValue(_runtimeConfig)!.ToString()!
@@ -74,6 +76,7 @@ public partial class Lip
         foreach ((string key, string value) in keyValuePairs)
         {
             PropertyInfo matchedProperty = typeof(RuntimeConfig).GetProperties()
+                .Where(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>() != null)
                 .FirstOrDefault(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name == key)
                 ?? throw new ArgumentException($"Unknown configuration key: '{key}'.", nameof(keyValuePairs));
 

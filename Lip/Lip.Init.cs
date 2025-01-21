@@ -31,7 +31,7 @@ public partial class Lip
                 FormatVersion = PackageManifest.DefaultFormatVersion,
                 FormatUuid = PackageManifest.DefaultFormatUuid,
                 ToothPath = args.InitTooth ?? DefaultTooth,
-                Version = args.InitVersion ?? DefaultVersion,
+                VersionText = args.InitVersion ?? DefaultVersion,
                 Info = new()
                 {
                     Name = args.InitName,
@@ -55,7 +55,7 @@ public partial class Lip
                 FormatVersion = PackageManifest.DefaultFormatVersion,
                 FormatUuid = PackageManifest.DefaultFormatUuid,
                 ToothPath = tooth,
-                Version = version,
+                VersionText = version,
                 Info = new()
                 {
                     Name = name,

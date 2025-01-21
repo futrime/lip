@@ -59,7 +59,8 @@ public static partial class StringValidator
     {
         // Split the package specifier into tooth path and variant label.
         string[] toothPathAndVariantLabel = packageSpecifier.Split('#');
-        if (toothPathAndVariantLabel.Length != 2)
+
+        if (toothPathAndVariantLabel.Length > 2)
         {
             return false;
         }
@@ -70,10 +71,13 @@ public static partial class StringValidator
             return false;
         }
 
-        string variantLabel = toothPathAndVariantLabel[1];
-        if (!CheckVariantLabel(variantLabel))
+        if (toothPathAndVariantLabel.Length == 2)
         {
-            return false;
+            string variantLabel = toothPathAndVariantLabel[1];
+            if (!CheckVariantLabel(variantLabel))
+            {
+                return false;
+            }
         }
 
         return true;
@@ -149,31 +153,6 @@ public static partial class StringValidator
         return Semver.SemVersionRange.TryParseNpm(versionRange, out _);
     }
 
-    /// <summary>
-    /// Checks if the lock type is valid.
-    /// </summary>
-    /// <param name="lockType">The lock type to validate.</param>
-    /// <returns>True if the lock type is valid; otherwise, false.</returns>
-    public static bool CheckLockType(PackageLock.LockType lockType)
-    {
-        if (!CheckToothPath(lockType.ToothPath))
-        {
-            return false;
-        }
-
-        if (!CheckVariantLabel(lockType.VariantLabel))
-        {
-            return false;
-        }
-
-        if (!CheckVersion(lockType.Version))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     [GeneratedRegex("^[a-z0-9]+(_[a-z0-9]+)*$")]
     private static partial Regex ScriptNameGeneratedRegex();
 
@@ -193,7 +172,7 @@ static file class GoModule
         "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
     };
 
-    public static bool CheckModPath(string path)
+    internal static bool CheckModPath(string path)
     {
         if (string.IsNullOrEmpty(path))
             return false;
@@ -214,8 +193,8 @@ static file class GoModule
         if (!first.Contains('.'))
             return false;
 
-        if (first[0] == '-')
-            return false;
+        // if (first[0] == '-')
+        //     return false;
 
         foreach (char c in first)
         {
@@ -234,18 +213,31 @@ static file class GoModule
     }
 
     private static bool IsFirstPathOk(char c)
-        => c is '-' or '.' or >= '0' and <= '9' or >= 'a' and <= 'z';
+    {
+        if (c == '-') return true;
+        if (c == '.') return true;
+        if (c >= '0' && c <= '9') return true;
+        if (c >= 'a' && c <= 'z') return true;
+        return false;
+    }
 
     private static bool IsModPathOk(char c)
-        => c is '-' or '.' or '_' or '~' or
-           >= '0' and <= '9' or
-           >= 'A' and <= 'Z' or
-           >= 'a' and <= 'z';
+    {
+        if (c == '-' || c == '.' || c == '_' || c == '~')
+            return true;
+        if (c >= '0' && c <= '9')
+            return true;
+        if (c >= 'A' && c <= 'Z')
+            return true;
+        if (c >= 'a' && c <= 'z')
+            return true;
+        return false;
+    }
 
     private static bool CheckElem(string elem)
     {
-        if (string.IsNullOrEmpty(elem))
-            return false;
+        // if (string.IsNullOrEmpty(elem))
+        //     return false;
 
         if (elem.All(c => c == '.'))
             return false;
@@ -277,7 +269,9 @@ static file class GoModule
         {
             string suffix = shortName[(tildeIndex + 1)..];
             if (suffix.All(char.IsDigit))
+            {
                 return false;
+            }
         }
 
         return true;

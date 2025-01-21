@@ -7,7 +7,7 @@ namespace Lip.Tests;
 public class LipConfigTests
 {
     private static readonly string s_runtimeConfigPath = Path.Join(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json");
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
 
     [Fact]
     public async Task ConfigDelete_SingleItem_ResetsToDefault()
@@ -25,11 +25,9 @@ public class LipConfigTests
         });
 
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act.
         await lip.ConfigDelete(["color"], new Lip.ConfigDeleteArgs());
@@ -69,11 +67,9 @@ public class LipConfigTests
         });
 
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act.
         await lip.ConfigDelete(["color", "git"], new Lip.ConfigDeleteArgs());
@@ -103,10 +99,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -121,10 +116,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -139,10 +133,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException argumentException = await Assert.ThrowsAsync<ArgumentException>(
@@ -162,11 +155,9 @@ public class LipConfigTests
         });
 
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(["cache"], new Lip.ConfigGetArgs());
@@ -192,11 +183,9 @@ public class LipConfigTests
         });
 
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(
@@ -216,10 +205,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -234,10 +222,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -252,10 +239,9 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -282,10 +268,9 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new();
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigList(new Lip.ConfigGetArgs());
@@ -316,12 +301,9 @@ public class LipConfigTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -362,12 +344,9 @@ public class LipConfigTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -416,12 +395,9 @@ public class LipConfigTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Dictionary<string, string> keyValuePairs = [];
 
@@ -445,12 +421,9 @@ public class LipConfigTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -477,11 +450,9 @@ public class LipConfigTests
         });
 
         Mock<ILogger> logger = new();
-        Mock<IPathManager> pathManager = new();
-        pathManager.SetupGet(pm => pm.RuntimeConfigPath).Returns(s_runtimeConfigPath);
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {

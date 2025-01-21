@@ -13,7 +13,7 @@ lip config list
 
 Manage the lip configuration files.
 
-lip stores configuration files at `%APPDATA%\lip\runtime_config.json` for Windows and `~/.config/lip/runtime_config.json` for POSIX-like systems.
+lip stores configuration files at `%APPDATA%\lip\liprc.json` for Windows and `~/.config/lip/liprc.json` for POSIX-like systems.
 
 ## Sub-commands
 

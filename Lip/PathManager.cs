@@ -4,52 +4,63 @@ namespace Lip;
 
 public interface IPathManager
 {
-    string BaseAssetCacheDir { get; }
+    string BaseDownloadedFileCacheDir { get; }
     string BaseCacheDir { get; }
-    string BasePackageCacheDir { get; }
+    string BaseGitRepoCacheDir { get; }
+    string BasePackageManifestCacheDir { get; }
     string PackageManifestPath { get; }
     string PackageLockPath { get; }
     string RuntimeConfigPath { get; }
     string WorkingDir { get; }
 
-    string GetAssetCacheDir(string assetUrl);
-    string GetPackageCacheDir(string packageName);
+    string GetDownloadedFileCachePath(string url);
+    string GetGitRepoCachePath(string repoUrl);
+    string GetPackageManifestCachePath(string packageName);
 }
 
 public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : IPathManager
 {
-    private const string AssetCacheDirName = "assets";
-    private const string PackageCacheDirName = "packages";
+    private const string DownloadedFileCacheDirName = "downloaded_files";
+    private const string GitRepoCacheDirName = "git_repos";
+    private const string PackageManifestCacheDirName = "package_manifests";
     private const string PackageManifestFileName = "tooth.json";
     private const string PackageLockFileName = "tooth_lock.json";
 
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly string? _baseCacheDir = baseCacheDir;
 
-    public string BaseAssetCacheDir => _fileSystem.Path.Join(BaseCacheDir, AssetCacheDirName);
+    public string BaseCacheDir => _fileSystem.Path.GetFullPath(_baseCacheDir ?? throw new InvalidOperationException("Base cache directory is not provided."));
 
-    public string BaseCacheDir => _fileSystem.Path.GetFullPath(_baseCacheDir ?? throw new InvalidOperationException("Runtime configuration is not set."));
+    public string BaseDownloadedFileCacheDir => _fileSystem.Path.Join(BaseCacheDir, DownloadedFileCacheDirName);
 
-    public string BasePackageCacheDir => _fileSystem.Path.Join(BaseCacheDir, PackageCacheDirName);
+    public string BaseGitRepoCacheDir => _fileSystem.Path.Join(BaseCacheDir, GitRepoCacheDirName);
+
+    public string BasePackageManifestCacheDir => _fileSystem.Path.Join(BaseCacheDir, PackageManifestCacheDirName);
 
     public string PackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
 
     public string PackageLockPath => _fileSystem.Path.Join(WorkingDir, PackageLockFileName);
 
     public string RuntimeConfigPath => _fileSystem.Path.Join(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json");
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
 
     public string WorkingDir => _fileSystem.Directory.GetCurrentDirectory();
 
-    public string GetAssetCacheDir(string assetUrl)
+    public string GetDownloadedFileCachePath(string url)
     {
-        string assetDirName = Uri.EscapeDataString(assetUrl);
-        return _fileSystem.Path.Join(BaseAssetCacheDir, assetDirName);
+        string assetDirName = Uri.EscapeDataString(url);
+        return _fileSystem.Path.Join(BaseDownloadedFileCacheDir, assetDirName);
     }
 
-    public string GetPackageCacheDir(string packageName)
+    public string GetGitRepoCachePath(string repoUrl)
     {
-        string packageDirName = Uri.EscapeDataString(packageName);
-        return _fileSystem.Path.Join(BasePackageCacheDir, packageDirName);
+        string repoDirName = Uri.EscapeDataString(repoUrl);
+        return _fileSystem.Path.Join(BaseGitRepoCacheDir, repoDirName);
+    }
+
+    public string GetPackageManifestCachePath(string packageName)
+    {
+        string packageDirName = Uri.EscapeDataString(packageName) + ".json";
+        return _fileSystem.Path.Join(BasePackageManifestCacheDir, packageDirName);
     }
 }

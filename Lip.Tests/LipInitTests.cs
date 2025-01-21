@@ -19,9 +19,6 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.PromptForInput(
             "Enter the tooth path (e.g. {DefaultTooth}):",
@@ -40,7 +37,7 @@ public class LipInitTests
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(true);
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new();
 
@@ -78,12 +75,9 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -118,12 +112,9 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
-
         Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -169,13 +160,11 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -203,14 +192,11 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {
@@ -238,14 +224,11 @@ public class LipInitTests
 
         Mock<ILogger> logger = new();
 
-        Mock<IPathManager> pathManager = new();
-        pathManager.Setup(x => x.PackageManifestPath).Returns(Path.Join(s_workspacePath, "tooth.json"));
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, pathManager.Object, userInteraction.Object);
+        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
 
         Lip.InitArgs args = new()
         {

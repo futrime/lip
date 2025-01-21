@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Semver;
 
 namespace Lip;
 
@@ -11,7 +12,7 @@ public record PackageLock
         public string ToothPath
         {
             get => _tooth;
-            init => _tooth = !StringValidator.CheckToothPath(value)
+            init => _tooth = StringValidator.CheckToothPath(value)
                 ? value
                 : throw new SchemaViolationException("tooth", $"Invalid tooth path '{value}'.");
         }
@@ -20,16 +21,19 @@ public record PackageLock
         public string VariantLabel
         {
             get => _variant;
-            init => _variant = !string.IsNullOrEmpty(value) && StringValidator.CheckVariantLabel(value)
+            init => _variant = StringValidator.CheckVariantLabel(value)
                 ? value
                 : throw new SchemaViolationException("variant", $"Invalid variant label '{value}'.");
         }
 
+        [JsonIgnore]
+        public SemVersion Version => SemVersion.Parse(VersionText);
+
         [JsonPropertyName("version")]
-        public string Version
+        public string VersionText
         {
             get => _version;
-            init => _version = !string.IsNullOrEmpty(value) && StringValidator.CheckVersion(value)
+            init => _version = StringValidator.CheckVersion(value)
                 ? value
                 : throw new SchemaViolationException("version", $"Invalid version '{value}'.");
         }
@@ -78,7 +82,7 @@ public record PackageLock
         try
         {
             return JsonSerializer.Deserialize<PackageLock>(bytes, s_jsonSerializerOptions)
-                ?? throw new JsonException("Package lock bytes deserialized to null.");
+                ?? throw new JsonException("JSON bytes deserialized to null.");
         }
         catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
         {

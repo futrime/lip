@@ -1,4 +1,6 @@
-﻿namespace Lip;
+﻿using System.Runtime.InteropServices;
+
+namespace Lip;
 
 public partial class Lip
 {
@@ -14,7 +16,7 @@ public partial class Lip
     {
         PackageLock packageLock = await GetPackageLock();
 
-        List<ListItem> listItems = packageLock.Packages
+        List<ListItem> listItems = [.. packageLock.Packages
             .Select(package => new ListItem
             {
                 Manifest = package,
@@ -22,9 +24,11 @@ public partial class Lip
                 {
                     return package.ToothPath == l.ToothPath
                         && package.Version == l.Version
-                        && package.Variants?.FirstOrDefault()?.VariantLabel == l.VariantLabel;
+                        && package.GetSpecifiedVariant(
+                            l.VariantLabel,
+                            _runtimeConfig.RuntimeIdentifier) is not null;
                 })
-            }).ToList();
+            })];
 
         return listItems;
     }

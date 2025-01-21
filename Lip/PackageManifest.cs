@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using DotNet.Globbing;
 using Scriban;
 using Scriban.Parsing;
+using Semver;
 
 namespace Lip;
 
@@ -264,7 +265,7 @@ public record PackageManifest
                 {
                     if (!StringValidator.CheckScriptName(kvp.Key))
                     {
-                        throw new SchemaViolationException(kvp.Key, $"Script name {kvp.Key} is invalid.");
+                        throw new SchemaViolationException(kvp.Key, $"Script name '{kvp.Key}' is invalid.");
                     }
 
                     AdditionalProperties[kvp.Key] = JsonSerializer.SerializeToElement(kvp.Value);
@@ -275,8 +276,11 @@ public record PackageManifest
 
     public record VariantType
     {
+        [JsonIgnore]
+        public string VariantLabel => VariantLabelRaw ?? "";
+
         [JsonPropertyName("label")]
-        public string? VariantLabel { get; init; }
+        public string? VariantLabelRaw { get; init; }
 
         [JsonPropertyName("platform")]
         public string? Platform { get; init; }
@@ -350,8 +354,11 @@ public record PackageManifest
     [JsonPropertyName("tooth")]
     public required string ToothPath { get; init; }
 
+    [JsonIgnore]
+    public SemVersion Version => SemVersion.Parse(VersionText);
+
     [JsonPropertyName("version")]
-    public required string Version
+    public required string VersionText
     {
         get
         {
@@ -386,11 +393,11 @@ public record PackageManifest
         try
         {
             return JsonSerializer.Deserialize<PackageManifest>(bytes, s_jsonSerializerOptions)
-                ?? throw new JsonException("Package manifest bytes deserialized to null.");
+                ?? throw new JsonException("JSON bytes deserialized to null.");
         }
         catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
         {
-            throw new JsonException("Package lock bytes deserialization failed.", ex);
+            throw new JsonException("Package manifest bytes deserialization failed.", ex);
         }
     }
 
@@ -406,26 +413,46 @@ public record PackageManifest
         List<VariantType> matchedVariants = Variants?
             .Where(variant =>
             {
-                if (variant.VariantLabel is null || variant.VariantLabel == "")
+                // Check if the variant label matches the specified label.
+                bool isVariantLabelMatched = false;
+
+                if (variant.VariantLabel == variantLabel)
                 {
-                    if ("" != variantLabel)
+                    isVariantLabelMatched = true;
+                }
+                else if (variant.VariantLabel.Length > 0)
+                {
+                    var labelGlob = Glob.Parse(variant.VariantLabel);
+
+                    if (labelGlob.IsMatch(variantLabel))
                     {
-                        return false;
+                        isVariantLabelMatched = true;
                     }
                 }
-                else
-                {
-                    var labelGlob = Glob.Parse(variant.VariantLabel!);
 
-                    if (!labelGlob.IsMatch(variantLabel))
+                if (!isVariantLabelMatched)
+                {
+                    return false;
+                }
+
+                // Check if the platform matches the specified platform.
+                bool isPlatformMatched = false;
+
+                if (variant.Platform == platform)
+                {
+                    isPlatformMatched = true;
+                }
+                else if (variant.Platform?.Length > 0 || variant.Platform is null)
+                {
+                    var platformGlob = Glob.Parse(variant.Platform ?? "*");
+
+                    if (platformGlob.IsMatch(platform))
                     {
-                        return false;
+                        isPlatformMatched = true;
                     }
                 }
 
-                var platformGlob = Glob.Parse(variant.Platform ?? "*");
-
-                if (!platformGlob.IsMatch(platform))
+                if (!isPlatformMatched)
                 {
                     return false;
                 }
@@ -436,7 +463,7 @@ public record PackageManifest
 
         // However, there must exist at least one variant that matches the specified label and platform without any wildcards.
         if (!matchedVariants.Any(
-            variant => (variant.VariantLabel == variantLabel) || (variant.VariantLabel == null && variantLabel == "")))
+            variant => variant.VariantLabel == variantLabel))
         {
             return null;
         }
@@ -449,7 +476,7 @@ public record PackageManifest
         // Merge all matched variants into a single variant.
         VariantType mergedVariant = new()
         {
-            VariantLabel = variantLabel,
+            VariantLabelRaw = variantLabel,
             Platform = platform,
             Dependencies = matchedVariants
                 .SelectMany(variant => variant.Dependencies ?? [])

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
 
 namespace Lip.Tests;
 
@@ -11,7 +13,7 @@ public class RuntimeConfigTests
         byte[] jsonBytes = Encoding.UTF8.GetBytes("{}");
 
         // Act.
-        var runtimeConfiguration = RuntimeConfig.FromBytes(jsonBytes);
+        var runtimeConfiguration = RuntimeConfig.FromJsonBytes(jsonBytes);
 
         // Assert.
         Assert.Equal(
@@ -25,6 +27,7 @@ public class RuntimeConfigTests
         Assert.Equal("", runtimeConfiguration.HttpsProxy);
         Assert.Equal("", runtimeConfiguration.NoProxy);
         Assert.Equal("", runtimeConfiguration.Proxy);
+        Assert.Equal(RuntimeInformation.RuntimeIdentifier, runtimeConfiguration.RuntimeIdentifier);
         Assert.Equal(
             OperatingSystem.IsWindows()
                 ? "cmd.exe"
@@ -53,7 +56,7 @@ public class RuntimeConfigTests
         );
 
         // Act.
-        var runtimeConfiguration = RuntimeConfig.FromBytes(jsonBytes);
+        var runtimeConfiguration = RuntimeConfig.FromJsonBytes(jsonBytes);
 
         // Arrange.
         Assert.Equal("cache", runtimeConfiguration.Cache);
@@ -64,20 +67,23 @@ public class RuntimeConfigTests
         Assert.Equal("https_proxy", runtimeConfiguration.HttpsProxy);
         Assert.Equal("noproxy", runtimeConfiguration.NoProxy);
         Assert.Equal("proxy", runtimeConfiguration.Proxy);
+        Assert.Equal(RuntimeInformation.RuntimeIdentifier, runtimeConfiguration.RuntimeIdentifier);
         Assert.Equal("script_shell", runtimeConfiguration.ScriptShell);
     }
 
     [Fact]
-    public void FromBytes_NullJson_ThrowsArgumentException()
+    public void FromBytes_NullJson_Throws()
     {
         // Arrange.
         byte[] jsonBytes = Encoding.UTF8.GetBytes("null");
 
         // Act.
-        ArgumentException exception = Assert.Throws<ArgumentException>("bytes", () => RuntimeConfig.FromBytes(jsonBytes));
+        JsonException exception = Assert.Throws<JsonException>(() => RuntimeConfig.FromJsonBytes(jsonBytes));
 
         // Assert.
-        Assert.Equal("Failed to deserialize runtime configuration. (Parameter 'bytes')", exception.Message);
+        Assert.Equal("Runtime config bytes deserialization failed.", exception.Message);
+        Assert.NotNull(exception.InnerException);
+        Assert.Equal("JSON bytes deserialized to null.", exception.InnerException.Message);
     }
 
     [Fact]

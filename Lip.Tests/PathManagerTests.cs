@@ -12,50 +12,15 @@ public class PathManagerTests
         : Path.Join("/", "current", "dir");
 
     [Fact]
-    public void GetBaseAssetCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-
-        PathManager pathManager = new(fileSystem);
-
-        // Act.
-        InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BaseAssetCacheDir);
-
-        // Assert.
-        Assert.Equal("Runtime configuration is not set.", invalidOperationException.Message);
-    }
-
-    [Fact]
-    public void GetBaseAssetCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
-        {
-            { s_cacheDir, new MockDirectoryData() },
-        });
-
-        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
-
-        // Act.
-        string baseAssetCacheDir = pathManager.BaseAssetCacheDir;
-
-        // Assert.
-        Assert.Equal(Path.Join(s_cacheDir, "assets"), baseAssetCacheDir);
-    }
-
-    [Fact]
-    public void GetBaseCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
+    public void GetBaseCacheDir_WithoutBaseCacheDir_Throws()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem);
 
-        // Act.
+        // Act & assert.
         InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BaseCacheDir);
-
-        // Assert.
-        Assert.Equal("Runtime configuration is not set.", invalidOperationException.Message);
+        Assert.Equal("Base cache directory is not provided.", invalidOperationException.Message);
     }
 
     [Fact]
@@ -73,31 +38,90 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetBasePackageCacheDir_WithoutBaseCacheDir_ThrowsInvalidOperationException()
+    public void GetBaseDownloadedFileCacheDir_WithoutBaseCacheDir_Throws()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+
+        PathManager pathManager = new(fileSystem);
+
+        // Act & assert.
+        InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BaseDownloadedFileCacheDir);
+        Assert.Equal("Base cache directory is not provided.", invalidOperationException.Message);
+    }
+
+    [Fact]
+    public void GetBaseDownloadedFileCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
+        {
+            { s_cacheDir, new MockDirectoryData() },
+        });
+
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
+
+        // Act.
+        string baseAssetCacheDir = pathManager.BaseDownloadedFileCacheDir;
+
+        // Assert.
+        Assert.Equal(Path.Join(s_cacheDir, "downloaded_files"), baseAssetCacheDir);
+    }
+
+    [Fact]
+    public void GetBaseGitRepoCacheDir_WithoutBaseCacheDir_Throws()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem);
 
-        // Act.
-        InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BasePackageCacheDir);
-
-        // Assert.
-        Assert.Equal("Runtime configuration is not set.", invalidOperationException.Message);
+        // Act & assert.
+        InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BaseGitRepoCacheDir);
+        Assert.Equal("Base cache directory is not provided.", invalidOperationException.Message);
     }
 
     [Fact]
-    public void GetBasePackageCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
+    public void GetBaseGitRepoCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
+        {
+            { s_cacheDir, new MockDirectoryData() },
+        });
+
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
+
+        // Act.
+        string baseGitRepoCacheDir = pathManager.BaseGitRepoCacheDir;
+
+        // Assert.
+        Assert.Equal(Path.Join(s_cacheDir, "git_repos"), baseGitRepoCacheDir);
+    }
+
+    [Fact]
+    public void GetBabsePackageManifestCacheDir_WithoutBaseCacheDir_Throws()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        // Act & assert.
+        InvalidOperationException invalidOperationException = Assert.Throws<InvalidOperationException>(() => pathManager.BasePackageManifestCacheDir);
+        Assert.Equal("Base cache directory is not provided.", invalidOperationException.Message);
+    }
+
+    [Fact]
+    public void GetBasePackageManifestCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string basePackageCacheDir = pathManager.BasePackageCacheDir;
+        string basePackageCacheDir = pathManager.BasePackageManifestCacheDir;
 
         // Assert.
-        Assert.Equal(Path.Join(s_cacheDir, "packages"), basePackageCacheDir);
+        Assert.Equal(Path.Join(s_cacheDir, "package_manifests"), basePackageCacheDir);
     }
 
     [Fact]
@@ -118,7 +142,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetPackageRecordPath_WhenCalled_ReturnsCorrectPath()
+    public void GetPackageLockPath_WhenCalled_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -146,7 +170,7 @@ public class PathManagerTests
 
         // Assert.
         Assert.Equal(
-            Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "runtime_config.json"),
+            Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json"),
             runtimeConfigPath);
     }
 
@@ -175,19 +199,19 @@ public class PathManagerTests
     [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29")]
     [InlineData("../path/test", "..%2Fpath%2Ftest")]
     [InlineData("\\special\\chars", "%5Cspecial%5Cchars")]
-    public void GetAssetCacheDir_ArbitraryString_ReturnsEscapedPath(string assetUrl, string expectedAssetDirName)
+    public void GetDownloadedFileCacheDir_ArbitraryString_ReturnsEscapedPath(string url, string expectedFileName)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string assetCacheDir = pathManager.GetAssetCacheDir(assetUrl);
+        string cachePath = pathManager.GetDownloadedFileCachePath(url);
 
         // Assert.
         Assert.Equal(
-            Path.Join(s_cacheDir, "assets", expectedAssetDirName),
-            assetCacheDir);
+            Path.Join(s_cacheDir, "downloaded_files", expectedFileName),
+            cachePath);
     }
 
     [Theory]
@@ -198,18 +222,41 @@ public class PathManagerTests
     [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29")]
     [InlineData("../path/test", "..%2Fpath%2Ftest")]
     [InlineData("\\special\\chars", "%5Cspecial%5Cchars")]
-    public void GetPackageCacheDir_ArbitraryString_ReturnsEscapedPath(string packageName, string expectedPackageDirName)
+    public void GetGitRepoCachePath_ArbitraryString_ReturnsEscapedPath(string repoUrl, string expectedDirName)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string packageCacheDir = pathManager.GetPackageCacheDir(packageName);
+        string repoCacheDir = pathManager.GetGitRepoCachePath(repoUrl);
 
         // Assert.
         Assert.Equal(
-            Path.Join(s_cacheDir, "packages", expectedPackageDirName),
+            Path.Join(s_cacheDir, "git_repos", expectedDirName),
+            repoCacheDir);
+    }
+
+    [Theory]
+    [InlineData("https://example.com/asset?v=1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1.json")]
+    [InlineData("/path/to/asset", "%2Fpath%2Fto%2Fasset.json")]
+    [InlineData("", ".json")]
+    [InlineData(" ", "%20.json")]
+    [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29.json")]
+    [InlineData("../path/test", "..%2Fpath%2Ftest.json")]
+    [InlineData("\\special\\chars", "%5Cspecial%5Cchars.json")]
+    public void GetPackageManifestCachePath_ArbitraryString_ReturnsEscapedPath(string packageName, string expectedFileName)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
+
+        // Act.
+        string packageCacheDir = pathManager.GetPackageManifestCachePath(packageName);
+
+        // Assert.
+        Assert.Equal(
+            Path.Join(s_cacheDir, "package_manifests", expectedFileName),
             packageCacheDir);
     }
 }

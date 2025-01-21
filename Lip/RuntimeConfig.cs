@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Lip;
@@ -42,17 +43,27 @@ public record RuntimeConfig
     [JsonPropertyName("proxy")]
     public string Proxy { get; init; } = "";
 
+    [JsonIgnore]
+    public string RuntimeIdentifier { get; init; } = RuntimeInformation.RuntimeIdentifier;
+
     [JsonPropertyName("script_shell")]
     public string ScriptShell { get; init; } = OperatingSystem.IsWindows()
         ? "cmd.exe"
         : "/bin/sh";
 
-    public static RuntimeConfig FromBytes(byte[] bytes)
+    public static RuntimeConfig FromJsonBytes(byte[] bytes)
     {
-        return JsonSerializer.Deserialize<RuntimeConfig>(
-            bytes,
-            s_jsonSerializerOptions
-        ) ?? throw new ArgumentException("Failed to deserialize runtime configuration.", nameof(bytes));
+        try
+        {
+            return JsonSerializer.Deserialize<RuntimeConfig>(
+                bytes,
+                s_jsonSerializerOptions
+            ) ?? throw new JsonException("JSON bytes deserialized to null.");
+        }
+        catch (Exception ex) when (ex is JsonException)
+        {
+            throw new JsonException("Runtime config bytes deserialization failed.", ex);
+        }
     }
 
     public byte[] ToBytes()
