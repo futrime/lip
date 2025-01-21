@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Xe.AcrylicView.Controls;
+﻿using Xe.AcrylicView.Controls;
 
 namespace Xe.AcrylicView
 {

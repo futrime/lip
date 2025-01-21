@@ -1,7 +1,5 @@
 ﻿using System.Text;
-using Lip.Connection.Network;
 using Lip.Connection.Operations;
-using static Lip.Connection.Operations.Operation;
 
 namespace Lip.Connection.Network.Packets.Operations;
 

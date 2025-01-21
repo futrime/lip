@@ -2,16 +2,16 @@
 using Lip.Connection.Operations;
 using Microsoft.Extensions.Logging;
 
-namespace Lip.Connection.ServerSide;
+namespace Lip.Daemon;
 
 internal static class PacketHandlers
 {
-    public static readonly ILogger<Connection> logger;
+    public static readonly ILogger<Connection.Connection> logger;
 
     static PacketHandlers()
     {
         ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        logger = loggerFactory.CreateLogger<Connection>();
+        logger = loggerFactory.CreateLogger<Connection.Connection>();
     }
 
     public static void OperationsHandler(OperationType type, OperationPacket packet)

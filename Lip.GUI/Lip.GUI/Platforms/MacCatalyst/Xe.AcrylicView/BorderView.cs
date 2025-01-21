@@ -1,13 +1,13 @@
 ﻿#nullable disable
 #pragma warning disable CA1422
 
+using System.Runtime.InteropServices;
 using CoreAnimation;
 using CoreGraphics;
 using Microsoft.Maui.Platform;
-using System.Runtime.InteropServices;
 using UIKit;
 
-namespace Xe.AcrylicView.Platforms.iOS
+namespace Xe.AcrylicView.Platforms.MacCatalyst
 {
     public class BorderView : UIView
     {
@@ -49,9 +49,17 @@ namespace Xe.AcrylicView.Platforms.iOS
             }
         }
 
-        internal Func<Rect, Size> CrossPlatformArrange { get; set; }
+        internal Func<Rect, Size> CrossPlatformArrange
+        {
+            get;
+            set;
+        }
 
-        internal Func<double, double, Size> CrossPlatformMeasure { get; set; }
+        internal Func<double, double, Size> CrossPlatformMeasure
+        {
+            get;
+            set;
+        }
 
         public override CGRect Frame
         {
@@ -76,15 +84,29 @@ namespace Xe.AcrylicView.Platforms.iOS
         {
             base.LayoutSubviews();
             Rect rectangle = Bounds.ToRectangle();
-            CrossPlatformMeasure?.Invoke(rectangle.Width, rectangle.Height);
-            CrossPlatformArrange?.Invoke(rectangle);
+            Func<double, double, Size> crossPlatformMeasure = CrossPlatformMeasure;
+            if (crossPlatformMeasure != null)
+            {
+                crossPlatformMeasure.Invoke(rectangle.Width, rectangle.Height);
+            }
+            else
+            {
+            }
+            Func<Rect, Size> crossPlatformArrange = CrossPlatformArrange;
+            if (crossPlatformArrange != null)
+            {
+                crossPlatformArrange.Invoke(rectangle);
+            }
+            else
+            {
+            }
             SetupBorderLayer();
         }
 
         public override bool PointInside(CGPoint point, UIEvent uievent)
         {
             UIView[] subviews = Subviews;
-            for (int i = 0; i < (int)subviews.Length; i++)
+            for (int i = 0; i < subviews.Length; i++)
             {
                 UIView uIView = subviews[i];
                 if (uIView.HitTest(ConvertPointToView(point, uIView), uievent) != null)
@@ -113,7 +135,6 @@ namespace Xe.AcrylicView.Platforms.iOS
             NFloat width = size.Width;
             size = layer.Bounds.Size;
             NFloat height = size.Height;
-
             NFloat x = layer.Bounds.X;
             NFloat y = layer.Bounds.Y;
             NFloat nFloat = x;
@@ -132,6 +153,7 @@ namespace Xe.AcrylicView.Platforms.iOS
             double num7 = (num2 > 0 ? num2 * Math.Min(1, width / num5) : num2);
             double num8 = (num3 > 0 ? num3 * Math.Min(1, height / num4) : num3);
             double num9 = (num > 0 ? num * Math.Min(1, width / num5) : num);
+
             Thickness cornerRadius = CornerRadius;
             NFloat left = (NFloat)cornerRadius.Left;
             NFloat top = (NFloat)cornerRadius.Top;

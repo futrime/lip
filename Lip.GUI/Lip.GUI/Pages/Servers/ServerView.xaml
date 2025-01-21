@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.Servers.ServerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    HeightRequest="128"
+    Loaded="ContentView_Loaded"
+    WidthRequest="128">
+
+    <Border
+        BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight},
+                                          Dark={DynamicResource BackgroundDark}}"
+        Stroke="{AppThemeBinding Light={DynamicResource Magenta},
+                                 Dark={DynamicResource White}}"
+        StrokeShape="RoundRectangle 10,10,10,10">
+
+        <Grid
+            x:Name="_grid"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill">
+
+            <Image
+                x:Name="_serverIcon"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" />
+
+            <Button
+                x:Name="_button"
+                Background="Transparent"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" />
+
+            <Grid
+                Padding="10"
+                ColumnDefinitions="4*,*"
+                ColumnSpacing="0"
+                HorizontalOptions="Fill"
+                RowDefinitions="*,*,*"
+                RowSpacing="-5"
+                VerticalOptions="End">
+
+                <Label
+                    x:Name="_serverNameLabel"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    HeightRequest="20"
+                    InputTransparent="True" />
+
+                <Label
+                    x:Name="_serverLocationLabel"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    HeightRequest="20"
+                    InputTransparent="True" />
+
+                <Label
+                    x:Name="_serverPortLabel"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    HeightRequest="16"
+                    InputTransparent="True" />
+
+                <Image
+                    x:Name="_statusImage"
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Grid.Column="1"
+                    HorizontalOptions="End"
+                    VerticalOptions="End" />
+
+            </Grid>
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

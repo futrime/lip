@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Lip.Daemon": {
+      "commandName": "Project",
+      "commandLineArgs": "start --port 2334 --password password --execute-path C:\\Users\\minec\\Desktop\\liptest"
+    }
+  }
+}

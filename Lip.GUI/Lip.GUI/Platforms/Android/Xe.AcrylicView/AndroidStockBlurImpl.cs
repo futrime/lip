@@ -25,7 +25,7 @@ namespace Xe.AcrylicView.Platforms.Android
             if (_mRenderScript == null)
             {
                 try
-                { 
+                {
                     _mRenderScript = RenderScript.Create(context);
                     _mBlurScript = ScriptIntrinsicBlur.Create(_mRenderScript, Element.U8_4(_mRenderScript));
                 }

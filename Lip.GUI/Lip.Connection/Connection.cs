@@ -39,7 +39,15 @@ public partial class Connection
     /// </summary>
     public string HashedPassword
     {
-        get => _encoding.GetString(_hashedPassword);
+        get
+        {
+            var stringBuilder = new StringBuilder(_hashedPassword.Length * 2);
+
+            foreach (byte b in _hashedPassword)
+                stringBuilder.Append(b.ToString("X2")).Append(' ');
+
+            return stringBuilder.ToString();
+        }
         private init => _hashedPassword = SHA256.HashData(_encoding.GetBytes(value));
     }
 
@@ -75,38 +83,48 @@ public partial class Connection
         if (mode is ConnectionMode.Server)
             _listener = TcpListener.Create(port);
         else
-            _client = new TcpClient(new IPEndPoint(address, port));
-    }
+        {
+            _client = new TcpClient(new IPEndPoint(address, port))
+#if DEBUG
+            {
+                ReceiveTimeout = 5000,
+                SendTimeout = 5000
+            }
+#endif
+            ;
 
+        }
+    }
     /// <summary>
     /// Starts the listener asynchronously.
     /// </summary>
     /// <param name="token">The cancellation token for the operation.</param>
     /// <exception cref="InvalidOperationException">Thrown when the connection mode is not server.</exception>
-    public void StartListener(CancellationToken token = default)
+    public async ValueTask StartListener(CancellationToken token = default)
     {
         if (Mode is ConnectionMode.Client) throw new InvalidOperationException("Cannot start listener in client mode.");
         else
         {
             _listener!.Start();
-            Task.Run(async () =>
+            while (true)
             {
-                while (true)
-                {
-                    if (token.IsCancellationRequested) break;
+                if (token.IsCancellationRequested) break;
 
-                    // Accept incoming connections
-                    TcpClient client = await _listener.AcceptTcpClientAsync();
-                    await VerifyClientAsync(client.GetStream(), token);
-                    if (Verified is false) throw new Exception("Failed to verify connection.");
+                // Accept incoming connections
+                TcpClient client = await _listener.AcceptTcpClientAsync(token);
+#if DEBUG
+                client.ReceiveTimeout = int.MaxValue;
+                client.SendTimeout = int.MaxValue;
+#endif
+                await VerifyClientAsync(client.GetStream(), token);
+                if (Verified is false) throw new Exception("Failed to verify connection.");
 
-                    // Get the network stream for the client
-                    NetworkStream stream = client.GetStream();
-                    PacketHandler?.Start(stream: stream, token: token);
-                }
+                // Get the network stream for the client
+                NetworkStream stream = client.GetStream();
+                PacketHandler?.Start(stream: stream, token: token);
+            }
 
-                _listener.Stop();
-            }, token);
+            _listener.Stop();
         }
     }
 
@@ -138,7 +156,7 @@ public partial class Connection
     /// Verifies the server connection asynchronously.
     /// </summary>
     /// <param name="token">The cancellation token for the operation.</param>
-    private async ValueTask VerifyServerAsync(NetworkStream stream, CancellationToken token = default)
+    public async ValueTask VerifyServerAsync(NetworkStream stream, CancellationToken token = default)
     {
         if (Mode is ConnectionMode.Server) throw new InvalidOperationException("Server mode is not supported.");
 
@@ -161,11 +179,11 @@ public partial class Connection
 
         // Recive and decrypt aes key
         (type, AESKeyPacket aesKeyPacket) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, AESKeyPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.AesKeyReceived) throw new InvalidOperationException("Failed to recive aes key.");
+        if (type is not ConnectionVerifyPackets.AesKey) throw new InvalidOperationException("Failed to recive aes key.");
         byte[] key = _cryptoServiceProvider.Decrypt(aesKeyPacket.Key, false);
 
         // Send aes received packet
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.AesKey, new AESKeyPacket { Key = key }, token);
+        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.AesKey, new AESKeyReceivedPacket() { Value = true }, token);
 
         _aesKey = key;
     }
@@ -184,7 +202,7 @@ public partial class Connection
         // Recive and verify the password
         (ConnectionVerifyPackets type, PasswordPacket password) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, PasswordPacket>(null, stream, token);
         if (type is not ConnectionVerifyPackets.Password) throw new InvalidOperationException("Failed to recive password.");
-        bool passwordVerified = password.Verify(_hashedPassword, _cryptoServiceProvider) is false;
+        bool passwordVerified = password.Verify(_hashedPassword, _cryptoServiceProvider);
 
         // Send the password verification
         await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.PasswordVerified, new PasswordVerifiedPacket { Value = passwordVerified }, token);

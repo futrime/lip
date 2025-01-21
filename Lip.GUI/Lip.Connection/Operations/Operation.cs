@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using static Lip.Connection.Operations.Operation;
 
 namespace Lip.Connection.Operations;
 
@@ -11,7 +10,7 @@ public enum OperationType
 
 public sealed partial class Operation
 {
-    private static readonly ConcurrentDictionary<OperationType, Operation> s_operations =[];
+    private static readonly ConcurrentDictionary<OperationType, Operation> s_operations = [];
 
     public static IReadOnlyDictionary<OperationType, Operation> Operations => s_operations;
 

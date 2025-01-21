@@ -1,6 +1,4 @@
-﻿using Fonts;
-
-namespace Lip.GUI;
+﻿namespace Lip.GUI;
 
 public partial class AppShell : Shell
 {

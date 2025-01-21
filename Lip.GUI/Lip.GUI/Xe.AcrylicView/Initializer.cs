@@ -10,7 +10,7 @@ namespace Xe.AcrylicView
             builder.ConfigureMauiHandlers(handlers =>
                          {
 #if ANDROID || WINDOWS || IOS || MACCATALYST
-                         
+
                              handlers.AddHandler<AcrylicView, AcrylicViewHandler>();
 #endif
                          });

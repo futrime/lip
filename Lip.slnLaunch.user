@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "新建配置文件",
+    "Projects": [
+      {
+        "Path": "Lip.GUI\\Lip.Connection.ServerSide\\Lip.Daemon.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Lip.GUI\\Lip.GUI\\Lip.GUI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,6 +1,6 @@
 ﻿namespace Lip.GUI.Controls;
 
-internal class MainSearchHandler: SearchHandler
+internal class MainSearchHandler : SearchHandler
 {
     protected override void OnQueryChanged(string oldValue, string newValue)
     {

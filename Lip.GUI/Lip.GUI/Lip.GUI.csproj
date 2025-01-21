@@ -18,6 +18,8 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<!-- Display name -->
 		<ApplicationTitle>Lip.GUI</ApplicationTitle>
@@ -63,6 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.30" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.30" />
@@ -73,6 +76,17 @@
     <MauiImage Include="Resources\Icons\fluent_remote_20_filled.svg" />
     <MauiImage Include="Resources\Icons\fluent_settings_24_regular.svg" />
     <MauiImage Include="Resources\Icons\fluent_image_48_regular.svg" BaseSize="128,128" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Lip\Lip.csproj" />
+    <ProjectReference Include="..\Lip.Connection\Lip.Connection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <MauiXaml Update="Pages\Servers\ServerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
   </ItemGroup>
 
 </Project>

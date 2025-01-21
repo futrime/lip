@@ -3,8 +3,11 @@
     x:Class="Lip.GUI.Pages.Servers.ServersPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:layouts="clr-namespace:Lip.GUI.Layouts"
     xmlns:local="clr-namespace:Lip.GUI.Pages.Servers"
+    xmlns:models="clr-namespace:Lip.GUI"
     Title="Server"
+    x:DataType="local:ServersPage"
     Loaded="ContentPage_Loaded">
 
     <Grid
@@ -12,22 +15,21 @@
         ColumnDefinitions="*"
         RowDefinitions="*">
 
-        <Image Aspect="AspectFill" Source="test_background.png" />
+        <Image Aspect="AspectFill" Source="test_background_dark.png" />
 
         <ScrollView>
 
-            <FlexLayout
-                x:Name="_serversFlexLayout"
+            <layouts:WrapLayout
+                x:Name="_viewsLayout"
                 Margin="10"
-                AlignContent="Start"
-                AlignItems="Start"
-                Direction="Row"
-                JustifyContent="Start"
-                Wrap="Wrap">
+                HorizontalOptions="Start"
+                Orientation="Horizontal"
+                Spacing="20"
+                VerticalOptions="Start">
 
                 <local:AddServerButtonView />
 
-            </FlexLayout>
+            </layouts:WrapLayout>
 
         </ScrollView>
 

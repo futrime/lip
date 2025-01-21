@@ -4,11 +4,11 @@ using Lip.Connection;
 using Lip.Connection.Network;
 using Lip.Connection.Network.Packets.Operations;
 using Lip.Connection.Operations;
-using Lip.Connection.ServerSide;
+using Lip.Daemon;
 using Microsoft.Extensions.Logging;
 
 var cancelTokenSource = new CancellationTokenSource();
-var token = cancelTokenSource.Token;
+CancellationToken token = cancelTokenSource.Token;
 
 var portOption = new Option<int>("--port", "The port to listen on.");
 var passwordOption = new Option<string>("--password", "The password to use.");
@@ -22,7 +22,7 @@ var startCommand = new Command("start", "Starts the server.")
 
 };
 
-startCommand.SetHandler((port, password, path) =>
+startCommand.SetHandler(async (port, password, path) =>
 {
     try
     {
@@ -33,7 +33,7 @@ startCommand.SetHandler((port, password, path) =>
 
         connection.PacketHandler = handler;
 
-        connection.StartListener(token);
+        await connection.StartListener(token);
     }
     catch (Exception ex)
     {

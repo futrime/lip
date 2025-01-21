@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 
 namespace Lip.Connection.Network;
 

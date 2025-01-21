@@ -61,7 +61,7 @@ namespace Xe.AcrylicView.Platforms.Android
         /// </summary>
         public Action<bool> SetContentVisible;
 
-        [Obsolete("此类库 在>=Android12 已经不再使用，谷歌已经更新了一套新的模糊操作类库")]
+        //[Obsolete("此类库 在>=Android12 已经不再使用，谷歌已经更新了一套新的模糊操作类库")]
         public RealtimeBlurView(Context context, Action<bool> visibleAction, string formsId = null) : base(context)
         {
             // provide your own by override getBlurImpl()

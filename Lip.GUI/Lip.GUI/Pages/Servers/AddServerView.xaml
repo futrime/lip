@@ -18,54 +18,52 @@
                                     Dark={DynamicResource PrimaryDark}}"
         TintOpacity=".15 ">
 
-        <StackLayout
-            HorizontalOptions="Start"
-            Spacing="30"
-            VerticalOptions="Start">
+        <StackLayout HorizontalOptions="Fill" VerticalOptions="Start">
 
-            <StackLayout HorizontalOptions="Start" VerticalOptions="Start">
+            <HorizontalStackLayout
+                x:Name="_header"
+                Padding="10,0,0,0"
+                BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight},
+                                                  Dark={DynamicResource BackgroundDark}}"
+                HeightRequest="50"
+                HorizontalOptions="Fill"
+                MinimumHeightRequest="40"
+                Spacing="10">
 
-                <HorizontalStackLayout
-                    x:Name="_header"
-                    Padding="10,0,0,0"
-                    BackgroundColor="{AppThemeBinding Light={DynamicResource BackgroundLight},
-                                                      Dark={DynamicResource BackgroundDark}}"
-                    HeightRequest="50"
+                <Image
+                    x:Name="_addIconImage"
+                    HeightRequest="30"
+                    MinimumHeightRequest="30"
+                    MinimumWidthRequest="30"
+                    WidthRequest="30">
+
+                    <Image.Source>
+                        <FontImageSource
+                            FontFamily="Segoe Fluent Icons"
+                            Glyph="&#xE948;"
+                            Size="30"
+                            Color="{AppThemeBinding Light={DynamicResource Magenta},
+                                                    Dark={DynamicResource White}}" />
+                    </Image.Source>
+                </Image>
+
+                <Label
+                    x:Name="_addServerText"
+                    FontSize="18"
+                    HeightRequest="30"
                     HorizontalOptions="Fill"
-                    MinimumHeightRequest="40"
-                    Spacing="10">
+                    MinimumHeightRequest="30"
+                    Text="Add Server"
+                    VerticalTextAlignment="Center" />
 
-                    <Image
-                        x:Name="_addIconImage"
-                        HeightRequest="30"
-                        MinimumHeightRequest="30"
-                        MinimumWidthRequest="30"
-                        WidthRequest="30">
+            </HorizontalStackLayout>
 
-                        <Image.Source>
-                            <FontImageSource
-                                FontFamily="Segoe Fluent Icons"
-                                Glyph="&#xE948;"
-                                Size="30"
-                                Color="{AppThemeBinding Light={DynamicResource Magenta},
-                                                        Dark={DynamicResource White}}" />
-                        </Image.Source>
-                    </Image>
-
-                    <Label
-                        x:Name="_addServerText"
-                        FontSize="18"
-                        HeightRequest="30"
-                        HorizontalOptions="Fill"
-                        MinimumHeightRequest="30"
-                        Text="Add Server"
-                        VerticalTextAlignment="Center" />
-
-                </HorizontalStackLayout>
+            <StackLayout HorizontalOptions="Start" VerticalOptions="Fill">
 
                 <ImageButton
                     x:Name="_serverIcon"
                     Margin="20"
+                    Clicked="ServerIcon_Clicked"
                     HeightRequest="128"
                     HorizontalOptions="Start"
                     MinimumHeightRequest="128"
@@ -87,17 +85,14 @@
                 <HorizontalStackLayout Margin="5" Spacing="5">
 
                     <Label
-                        Grid.Row="0"
-                        Grid.Column="0"
                         Text="Name"
                         VerticalOptions="Center"
                         VerticalTextAlignment="Center"
-                        WidthRequest="60" />
+                        WidthRequest="65" />
 
                     <Entry
                         x:Name="_nameEntry"
-                        Grid.Row="0"
-                        Grid.Column="1"
+                        ClearButtonVisibility="WhileEditing"
                         Completed="NameEntry_Completed"
                         HorizontalOptions="Fill"
                         Placeholder="Server name"
@@ -106,23 +101,46 @@
 
                     <Label
                         x:Name="_isRemoteLabel"
-                        Grid.Column="0"
                         Margin="10,0,0,0"
                         HorizontalOptions="Start"
-                        Text="Is Remote"
+                        Text="Remote"
                         VerticalOptions="Center"
                         VerticalTextAlignment="Center" />
 
                     <CheckBox
                         x:Name="_isRemoteCheckBox"
-                        Grid.Row="0"
-                        Grid.Column="2"
                         CheckedChanged="IsRemoteCheckBox_CheckedChanged"
                         HeightRequest="20"
                         HorizontalOptions="Center"
                         IsChecked="True"
+                        IsEnabled="{OnPlatform Default=False,
+                                               WinUI=True}"
                         VerticalOptions="Center"
                         WidthRequest="20" />
+
+                </HorizontalStackLayout>
+
+
+                <HorizontalStackLayout
+                    x:Name="_passwordLayout"
+                    Margin="5"
+                    IsVisible="True"
+                    Spacing="5">
+
+                    <Label
+                        Text="Password"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center"
+                        WidthRequest="65" />
+
+                    <Entry
+                        x:Name="_passwordEntry"
+                        ClearButtonVisibility="WhileEditing"
+                        Completed="PasswordEntry_Completed"
+                        HorizontalOptions="Fill"
+                        Placeholder="Password"
+                        VerticalOptions="Center"
+                        WidthRequest="120" />
 
                 </HorizontalStackLayout>
 
@@ -134,12 +152,13 @@
                         Text="Location"
                         VerticalOptions="Center"
                         VerticalTextAlignment="Center"
-                        WidthRequest="60" />
+                        WidthRequest="65" />
 
                     <Entry
                         x:Name="_locationEntry"
                         Grid.Row="1"
                         Grid.Column="1"
+                        ClearButtonVisibility="WhileEditing"
                         Completed="LocationEntry_Completed"
                         HorizontalOptions="Fill"
                         Placeholder="Location"
@@ -153,13 +172,18 @@
                             Grid.Column="0"
                             Completed="PortEntry_Completed"
                             HorizontalOptions="Fill"
+                            Keyboard="Numeric"
+                            MaxLength="5"
                             Placeholder="Port"
+                            TextChanged="PortEntry_TextChanged"
                             VerticalOptions="Center" />
 
                         <Button
                             x:Name="_selectPathButton"
                             Grid.Column="0"
                             IsEnabled="False"
+                            IsVisible="{OnPlatform Default=False,
+                                                   WinUI=True}"
                             Opacity="0">
 
                             <Button.ImageSource>
@@ -178,9 +202,36 @@
 
                 </HorizontalStackLayout>
 
+                <HorizontalStackLayout Margin="5" Spacing="5">
+
+                    <Label
+                        Text="Text color"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center"
+                        WidthRequest="65" />
+
+                    <Entry
+                        x:Name="_textColorEntry"
+                        ClearButtonVisibility="WhileEditing"
+                        HorizontalOptions="Fill"
+                        Placeholder="Text color"
+                        TextChanged="TextColorEntry_TextChanged"
+                        VerticalOptions="Center"
+                        WidthRequest="120" />
+
+                    <BoxView
+                        x:Name="_textColorBox"
+                        Margin="10,0,0,0"
+                        BackgroundColor="Transparent"
+                        HeightRequest="20"
+                        VerticalOptions="Center"
+                        WidthRequest="20" />
+
+                </HorizontalStackLayout>
+
             </StackLayout>
 
-            <Grid ColumnDefinitions="*,*" VerticalOptions="End">
+            <Grid ColumnDefinitions="*,*" HorizontalOptions="Fill">
 
                 <Button
                     Grid.Column="0"
@@ -188,8 +239,8 @@
                     Clicked="CancelButton_Clicked"
                     HorizontalOptions="Fill"
                     Text="Cancel"
-                    TextColor="{AppThemeBinding Light={DynamicResource OffBlack},
-                                                Dark={DynamicResource SecondaryDarkText}}"
+                    TextColor="{AppThemeBinding Light={DynamicResource Magenta},
+                                                Dark={DynamicResource AddServerButtonBackgroundColorLight}}"
                     VerticalOptions="Fill" />
 
                 <Button
@@ -198,8 +249,8 @@
                     Clicked="ConfirmButton_Clicked"
                     HorizontalOptions="Fill"
                     Text="Confirm"
-                    TextColor="{AppThemeBinding Light={DynamicResource OffBlack},
-                                                Dark={DynamicResource SecondaryDarkText}}"
+                    TextColor="{AppThemeBinding Light={DynamicResource Magenta},
+                                                Dark={DynamicResource AddServerButtonBackgroundColorLight}}"
                     VerticalOptions="Fill" />
 
             </Grid>
