@@ -1,4 +1,4 @@
-﻿namespace Lip;
+﻿namespace Lip.Context;
 
 /// <summary>
 /// Represents a user interaction interface.
@@ -16,22 +16,22 @@ public interface IUserInteraction
     /// Prompts user for text input.
     /// </summary>
     /// <param name="format">The prompt message</param>
-    /// <param name="defaultValue">Optional default value</param>
     /// <returns>User input as string</returns>
     Task<string?> PromptForInput(string format, params object[] args);
 
     /// <summary>
     /// Prompts user to select from multiple options.
     /// </summary>
-    /// <param name="format">The prompt message</param>
     /// <param name="options">Available options</param>
+    /// <param name="format">The prompt message</param>
     /// <returns>Selected option</returns>
     Task<string> PromptForSelection(IEnumerable<string> options, string format, params object[] args);
 
     /// <summary>
     /// Shows progress for long-running operations.
     /// </summary>
-    /// <param name="format">Progress message</param>
+    /// <param name="id">Progress ID</param>
     /// <param name="progress">Progress value (0.0-1.0)</param>
-    Task UpdateProgress(float progress, string format, params object[] args);
+    /// <param name="format">Progress message</param>
+    Task UpdateProgress(string id, float progress, string format, params object[] args);
 }

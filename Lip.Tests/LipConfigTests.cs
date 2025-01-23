@@ -1,4 +1,5 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
+using Lip.Context;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -24,10 +25,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
         await lip.ConfigDelete(["color"], new Lip.ConfigDeleteArgs());
@@ -66,10 +67,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
         await lip.ConfigDelete(["color", "git"], new Lip.ConfigDeleteArgs());
@@ -97,11 +98,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -114,11 +114,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -131,11 +130,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException argumentException = await Assert.ThrowsAsync<ArgumentException>(
@@ -154,10 +152,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(["cache"], new Lip.ConfigGetArgs());
@@ -182,10 +180,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(
@@ -203,11 +201,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -220,11 +217,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -237,11 +233,10 @@ public class LipConfigTests
     {
         // Arrange.
         RuntimeConfig initialRuntimeConfig = new();
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -266,11 +261,9 @@ public class LipConfigTests
             ScriptShell = "/custom/shell"
         };
 
-        MockFileSystem fileSystem = new();
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigList(new Lip.ConfigGetArgs());
@@ -299,11 +292,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -342,11 +334,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -393,11 +384,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = [];
 
@@ -419,11 +409,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -449,10 +438,10 @@ public class LipConfigTests
             { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
         });
 
-        Mock<ILogger> logger = new();
-        Mock<IUserInteraction> userInteraction = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {

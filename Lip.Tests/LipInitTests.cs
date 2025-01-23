@@ -1,4 +1,5 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
+using Lip.Context;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -16,8 +17,6 @@ public class LipInitTests
         {
             { s_workspacePath, new MockDirectoryData() },
         }, currentDirectory: s_workspacePath);
-
-        Mock<ILogger> logger = new();
 
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.PromptForInput(
@@ -37,12 +36,14 @@ public class LipInitTests
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(true);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
 
-        Lip.InitArgs args = new();
+        Lip lip = new(new(), context.Object);
 
         // Act.
-        await lip.Init(args);
+        await lip.Init(new());
 
         // Assert.
         Assert.True(fileSystem.File.Exists(Path.Join(s_workspacePath, "tooth.json")));
@@ -73,11 +74,10 @@ public class LipInitTests
             { s_workspacePath, new MockDirectoryData() },
         }, currentDirectory: s_workspacePath);
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -110,11 +110,10 @@ public class LipInitTests
             { s_workspacePath, new MockDirectoryData() },
         }, currentDirectory: s_workspacePath);
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -158,13 +157,15 @@ public class LipInitTests
             { s_workspacePath, new MockDirectoryData() },
         }, currentDirectory: s_workspacePath);
 
-        Mock<ILogger> logger = new();
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
+
+        Lip lip = new(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -190,13 +191,15 @@ public class LipInitTests
             { Path.Join(s_workspacePath, "tooth.json"), new MockFileData("content") },
         }, currentDirectory: s_workspacePath);
 
-        Mock<ILogger> logger = new();
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
+
+        Lip lip = new(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -222,13 +225,16 @@ public class LipInitTests
             { Path.Join(s_workspacePath, "tooth.json"), new MockFileData("content") },
         }, currentDirectory: s_workspacePath);
 
-        Mock<ILogger> logger = new();
-
         Mock<IUserInteraction> userInteraction = new();
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(false);
 
-        Lip lip = new(new(), fileSystem, logger.Object, userInteraction.Object);
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(new Mock<ILogger>().Object);
+        context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
+
+        Lip lip = new(new(), context.Object);
 
         Lip.InitArgs args = new()
         {

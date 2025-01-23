@@ -1,4 +1,5 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
+using Flurl;
 
 namespace Lip.Tests;
 
@@ -125,7 +126,7 @@ public class PathManagerTests
     }
 
     [Fact]
-    public void GetPackageManifestPath_WhenCalled_ReturnsCorrectPath()
+    public void GetCurrentPackageManifestPath_WhenCalled_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -135,14 +136,14 @@ public class PathManagerTests
         PathManager pathManager = new(fileSystem);
 
         // Act.
-        string manifestPath = pathManager.PackageManifestPath;
+        string manifestPath = pathManager.CurrentPackageManifestPath;
 
         // Assert.
         Assert.Equal(Path.Join(s_workingDir, "tooth.json"), manifestPath);
     }
 
     [Fact]
-    public void GetPackageLockPath_WhenCalled_ReturnsCorrectPath()
+    public void GetCurrentPackageLockPath_WhenCalled_ReturnsCorrectPath()
     {
         // Arrange.
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -152,7 +153,7 @@ public class PathManagerTests
         PathManager pathManager = new(fileSystem);
 
         // Act.
-        string recordPath = pathManager.PackageLockPath;
+        string recordPath = pathManager.CurrentPackageLockPath;
 
         // Assert.
         Assert.Equal(Path.Join(s_workingDir, "tooth_lock.json"), recordPath);
@@ -191,22 +192,63 @@ public class PathManagerTests
         Assert.Equal(s_workingDir, workingDir);
     }
 
+    [Fact]
+    public void CreateParentDirectory_WhenPathIsRoot_DoesNotCreateParentDirectory()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        pathManager.CreateParentDirectory("/");
+
+        // Assert.
+        Assert.False(fileSystem.Directory.Exists("/"));
+    }
+
+    [Fact]
+    public void CreateParentDirectory_WhenParentDirectoryDoesNotExist_CreatesParentDirectory()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        pathManager.CreateParentDirectory("/path/to/file");
+
+        // Assert.
+        Assert.True(fileSystem.Directory.Exists("/path/to"));
+    }
+
+    [Fact]
+    public void CreateParentDirectory_WhenParentDirectoryExists_DoesNotCreateParentDirectory()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
+        {
+            { "/path/to", new MockDirectoryData() },
+        });
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        pathManager.CreateParentDirectory("/path/to/file");
+
+        // Assert.
+        Assert.True(fileSystem.Directory.Exists("/path/to"));
+    }
+
     [Theory]
     [InlineData("https://example.com/asset?v=1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1")]
-    [InlineData("/path/to/asset", "%2Fpath%2Fto%2Fasset")]
-    [InlineData("", "")]
-    [InlineData(" ", "%20")]
-    [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29")]
-    [InlineData("../path/test", "..%2Fpath%2Ftest")]
-    [InlineData("\\special\\chars", "%5Cspecial%5Cchars")]
-    public void GetDownloadedFileCacheDir_ArbitraryString_ReturnsEscapedPath(string url, string expectedFileName)
+    [InlineData("https://example.com/path/to/asset", "https%3A%2F%2Fexample.com%2Fpath%2Fto%2Fasset")]
+    [InlineData("https://example.com/", "https%3A%2F%2Fexample.com%2F")]
+    public void GetDownloadedFileCachePath_ArbitraryString_ReturnsEscapedPath(string url, string expectedFileName)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string cachePath = pathManager.GetDownloadedFileCachePath(url);
+        string cachePath = pathManager.GetDownloadedFileCachePath(Url.Parse(url));
 
         // Assert.
         Assert.Equal(
@@ -215,25 +257,29 @@ public class PathManagerTests
     }
 
     [Theory]
-    [InlineData("https://example.com/asset?v=1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1")]
-    [InlineData("/path/to/asset", "%2Fpath%2Fto%2Fasset")]
-    [InlineData("", "")]
-    [InlineData(" ", "%20")]
-    [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29")]
-    [InlineData("../path/test", "..%2Fpath%2Ftest")]
-    [InlineData("\\special\\chars", "%5Cspecial%5Cchars")]
-    public void GetGitRepoCachePath_ArbitraryString_ReturnsEscapedPath(string repoUrl, string expectedDirName)
+    [InlineData("https://example.com/asset?v=1", "v1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1", "v1")]
+    [InlineData("/path/to/asset", "tag", "%2Fpath%2Fto%2Fasset", "tag")]
+    [InlineData("", "default", "", "default")]
+    [InlineData(" ", "space", "%20", "space")]
+    [InlineData("!@#$%^&*()", "special", "%21%40%23%24%25%5E%26%2A%28%29", "special")]
+    [InlineData("../path/test", "test", "..%2Fpath%2Ftest", "test")]
+    [InlineData("\\special\\chars", "chars", "%5Cspecial%5Cchars", "chars")]
+    public void GetGitRepoDirCachePath_ArbitraryString_ReturnsEscapedPath(
+        string repoUrl,
+        string tag,
+        string expectedRepoDir,
+        string expectedTagDir)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string repoCacheDir = pathManager.GetGitRepoCachePath(repoUrl);
+        string repoCacheDir = pathManager.GetGitRepoDirCachePath(repoUrl, tag);
 
         // Assert.
         Assert.Equal(
-            Path.Join(s_cacheDir, "git_repos", expectedDirName),
+            Path.Join(s_cacheDir, "git_repos", expectedRepoDir, expectedTagDir),
             repoCacheDir);
     }
 
@@ -245,18 +291,37 @@ public class PathManagerTests
     [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29.json")]
     [InlineData("../path/test", "..%2Fpath%2Ftest.json")]
     [InlineData("\\special\\chars", "%5Cspecial%5Cchars.json")]
-    public void GetPackageManifestCachePath_ArbitraryString_ReturnsEscapedPath(string packageName, string expectedFileName)
+    public void GetPackageManifestCachePath_ArbitraryString_ReturnsEscapedPath(string toothPath, string expectedFileName)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string packageCacheDir = pathManager.GetPackageManifestCachePath(packageName);
+        string packageCacheDir = pathManager.GetPackageManifestCachePath(toothPath);
 
         // Assert.
         Assert.Equal(
             Path.Join(s_cacheDir, "package_manifests", expectedFileName),
             packageCacheDir);
+    }
+
+    [Theory]
+    [InlineData("C:/path/to/cache")]
+    [InlineData("/path/to/cache")]
+    public void GetPackageManifestPath_WhenCalled_ReturnsCorrectPath(string baseDir)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
+        {
+            { baseDir, new MockDirectoryData() },
+        }, baseDir);
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        string manifestPath = pathManager.GetPackageManifestPath(baseDir);
+
+        // Assert.
+        Assert.Equal(Path.Join(baseDir, "tooth.json"), manifestPath);
     }
 }

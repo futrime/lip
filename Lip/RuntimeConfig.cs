@@ -43,9 +43,6 @@ public record RuntimeConfig
     [JsonPropertyName("proxy")]
     public string Proxy { get; init; } = "";
 
-    [JsonIgnore]
-    public string RuntimeIdentifier { get; init; } = RuntimeInformation.RuntimeIdentifier;
-
     [JsonPropertyName("script_shell")]
     public string ScriptShell { get; init; } = OperatingSystem.IsWindows()
         ? "cmd.exe"

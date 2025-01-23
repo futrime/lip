@@ -84,7 +84,7 @@ public partial class Lip
             matchedProperty.SetValue(newRuntimeConfig, convertedValue);
         }
 
-        await CreateOrUpdateRuntimeConfigurationFile(_fileSystem, newRuntimeConfig);
+        await CreateOrUpdateRuntimeConfigurationFile(_context.FileSystem, newRuntimeConfig);
     }
 
     private async Task CreateOrUpdateRuntimeConfigurationFile(IFileSystem fileSystem, RuntimeConfig runtimeConfig)

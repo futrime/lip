@@ -1,5 +1,6 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.InteropServices;
+using Lip.Context;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -10,8 +11,6 @@ public class LipListTests
     [Fact]
     public async Task List_ReturnsListItems()
     {
-        RuntimeConfig initialRuntimeConfig = new();
-
         // Arrange.
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -56,15 +55,10 @@ public class LipListTests
             """) }
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(
-            initialRuntimeConfig,
-            fileSystem,
-            logger.Object,
-            userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         // Act.
         List<Lip.ListItem> listItems = await lip.List(new());
@@ -84,16 +78,13 @@ public class LipListTests
     [Fact]
     public async Task List_LockFileNotExists_ReturnsEmptyList()
     {
-        RuntimeConfig initialRuntimeConfig = new();
-
         // Arrange.
         var fileSystem = new MockFileSystem();
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         // Act.
         List<Lip.ListItem> listItems = await lip.List(new());
@@ -105,12 +96,10 @@ public class LipListTests
     [Fact]
     public async Task List_MismatchedToothPath_ReturnsListItems()
     {
-        RuntimeConfig initialRuntimeConfig = new();
-
         // Arrange.
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { "tooth_lock.json", new MockFileData("""
+            { "tooth_lock.json", new MockFileData($$"""
             {
                 "format_version": 3,
                 "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
@@ -122,7 +111,8 @@ public class LipListTests
                         "version": "1.0.0",
                         "variants": [
                             {
-                                "label": "variant1"
+                                "label": "variant1",
+                                "platform": "{{RuntimeInformation.RuntimeIdentifier}}"
                             }
                         ]
                     }
@@ -138,11 +128,10 @@ public class LipListTests
             """) }
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         // Act.
         List<Lip.ListItem> listItems = await lip.List(new());
@@ -158,12 +147,10 @@ public class LipListTests
     [Fact]
     public async Task List_MismatchedVersion_ReturnsListItems()
     {
-        RuntimeConfig initialRuntimeConfig = new();
-
         // Arrange.
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { "tooth_lock.json", new MockFileData("""
+            { "tooth_lock.json", new MockFileData($$"""
             {
                 "format_version": 3,
                 "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
@@ -175,7 +162,8 @@ public class LipListTests
                         "version": "1.0.0",
                         "variants": [
                             {
-                                "label": "variant1"
+                                "label": "variant1",
+                                "platform": "{{RuntimeInformation.RuntimeIdentifier}}"
                             }
                         ]
                     }
@@ -191,11 +179,10 @@ public class LipListTests
             """) }
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         // Act.
         List<Lip.ListItem> listItems = await lip.List(new());
@@ -211,12 +198,10 @@ public class LipListTests
     [Fact]
     public async Task List_MismatchedVariantLabel_ReturnsListItems()
     {
-        RuntimeConfig initialRuntimeConfig = new();
-
         // Arrange.
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { "tooth_lock.json", new MockFileData("""
+            { "tooth_lock.json", new MockFileData($$"""
             {
                 "format_version": 3,
                 "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
@@ -228,7 +213,8 @@ public class LipListTests
                         "version": "1.0.0",
                         "variants": [
                             {
-                                "label": "variant1"
+                                "label": "variant1",
+                                "platform": "{{RuntimeInformation.RuntimeIdentifier}}"
                             }
                         ]
                     }
@@ -244,11 +230,10 @@ public class LipListTests
             """) }
         });
 
-        Mock<ILogger> logger = new();
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Mock<IUserInteraction> userInteraction = new();
-
-        Lip lip = new(initialRuntimeConfig, fileSystem, logger.Object, userInteraction.Object);
+        Lip lip = new(new(), context.Object);
 
         // Act.
         List<Lip.ListItem> listItems = await lip.List(new());

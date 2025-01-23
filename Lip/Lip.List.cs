@@ -26,7 +26,7 @@ public partial class Lip
                         && package.Version == l.Version
                         && package.GetSpecifiedVariant(
                             l.VariantLabel,
-                            _runtimeConfig.RuntimeIdentifier) is not null;
+                            RuntimeInformation.RuntimeIdentifier) is not null;
                 })
             })];
 
@@ -35,10 +35,10 @@ public partial class Lip
 
     private async Task<PackageLock> GetPackageLock()
     {
-        string packageLockFilePath = _pathManager.PackageLockPath;
+        string packageLockFilePath = _pathManager.CurrentPackageLockPath;
 
         // If the package lock file does not exist, return an empty package lock.
-        if (!_fileSystem.File.Exists(packageLockFilePath))
+        if (!_context.FileSystem.File.Exists(packageLockFilePath))
         {
             return new()
             {
@@ -49,7 +49,7 @@ public partial class Lip
             };
         }
 
-        byte[] packageLockBytes = await _fileSystem.File.ReadAllBytesAsync(packageLockFilePath);
+        byte[] packageLockBytes = await _context.FileSystem.File.ReadAllBytesAsync(packageLockFilePath);
 
         return PackageLock.FromJsonBytes(packageLockBytes);
     }

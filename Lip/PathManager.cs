@@ -1,30 +1,15 @@
 ﻿using System.IO.Abstractions;
+using Flurl;
 
 namespace Lip;
 
-public interface IPathManager
-{
-    string BaseDownloadedFileCacheDir { get; }
-    string BaseCacheDir { get; }
-    string BaseGitRepoCacheDir { get; }
-    string BasePackageManifestCacheDir { get; }
-    string PackageManifestPath { get; }
-    string PackageLockPath { get; }
-    string RuntimeConfigPath { get; }
-    string WorkingDir { get; }
-
-    string GetDownloadedFileCachePath(string url);
-    string GetGitRepoCachePath(string repoUrl);
-    string GetPackageManifestCachePath(string packageName);
-}
-
-public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : IPathManager
+public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null)
 {
     private const string DownloadedFileCacheDirName = "downloaded_files";
     private const string GitRepoCacheDirName = "git_repos";
+    private const string PackageLockFileName = "tooth_lock.json";
     private const string PackageManifestCacheDirName = "package_manifests";
     private const string PackageManifestFileName = "tooth.json";
-    private const string PackageLockFileName = "tooth_lock.json";
 
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly string? _baseCacheDir = baseCacheDir;
@@ -37,30 +22,54 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null) : 
 
     public string BasePackageManifestCacheDir => _fileSystem.Path.Join(BaseCacheDir, PackageManifestCacheDirName);
 
-    public string PackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
+    public string CurrentPackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
 
-    public string PackageLockPath => _fileSystem.Path.Join(WorkingDir, PackageLockFileName);
+    public string CurrentPackageLockPath => _fileSystem.Path.Join(WorkingDir, PackageLockFileName);
+
 
     public string RuntimeConfigPath => _fileSystem.Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
 
     public string WorkingDir => _fileSystem.Directory.GetCurrentDirectory();
 
-    public string GetDownloadedFileCachePath(string url)
+    public void CreateParentDirectory(string path)
     {
-        string assetDirName = Uri.EscapeDataString(url);
-        return _fileSystem.Path.Join(BaseDownloadedFileCacheDir, assetDirName);
+        string? parentDirPath = _fileSystem.Path.GetDirectoryName(path);
+
+        // If path is a root directory, do not need to create parent directory.
+        if (parentDirPath is null)
+        {
+            return;
+        }
+
+        if (!_fileSystem.Directory.Exists(parentDirPath))
+        {
+            _fileSystem.Directory.CreateDirectory(parentDirPath);
+        }
     }
 
-    public string GetGitRepoCachePath(string repoUrl)
+    public string GetDownloadedFileCachePath(Url url)
     {
-        string repoDirName = Uri.EscapeDataString(repoUrl);
-        return _fileSystem.Path.Join(BaseGitRepoCacheDir, repoDirName);
+        string downloadedFileName = Url.Encode(url);
+        return _fileSystem.Path.Join(BaseDownloadedFileCacheDir, downloadedFileName);
+    }
+
+    public string GetGitRepoDirCachePath(string repoUrl, string tag)
+    {
+        string repoDirName = Url.Encode(repoUrl);
+        string tagDirName = Url.Encode(tag);
+        return _fileSystem.Path.Join(BaseGitRepoCacheDir, repoDirName, tagDirName);
     }
 
     public string GetPackageManifestCachePath(string packageName)
     {
-        string packageDirName = Uri.EscapeDataString(packageName) + ".json";
-        return _fileSystem.Path.Join(BasePackageManifestCacheDir, packageDirName);
+        string escapedPackageName = Url.Encode(packageName);
+        string packageManifestFileName = $"{escapedPackageName}.json";
+        return _fileSystem.Path.Join(BasePackageManifestCacheDir, packageManifestFileName);
+    }
+
+    public string GetPackageManifestPath(string baseDir)
+    {
+        return _fileSystem.Path.Join(baseDir, PackageManifestFileName);
     }
 }

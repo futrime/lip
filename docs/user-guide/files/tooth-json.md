@@ -141,7 +141,7 @@ The asset type:
 - `uncompressed`: Single uncompressed file
 - `zip`: ZIP archive
 
-### variants[].assets[].urls (required)
+### variants[].assets[].urls (optional)
 
 Download URLs for the asset, tried in order. For `self` type assets, this should be empty.
 
