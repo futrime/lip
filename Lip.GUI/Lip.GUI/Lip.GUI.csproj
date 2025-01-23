@@ -84,6 +84,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <MauiXaml Update="Pages\Servers\ServerInfoPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Pages\Servers\ServerView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>

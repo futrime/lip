@@ -3,7 +3,8 @@
     x:Class="Lip.GUI.Pages.Servers.ServersPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:layouts="clr-namespace:Lip.GUI.Layouts"
+    xmlns:controls="clr-namespace:Lip.GUI.Controls"
+    xmlns:layouts="clr-namespace:Lip.GUI.Controls.Layouts"
     xmlns:local="clr-namespace:Lip.GUI.Pages.Servers"
     xmlns:models="clr-namespace:Lip.GUI"
     Title="Server"
@@ -21,7 +22,7 @@
 
             <layouts:WrapLayout
                 x:Name="_viewsLayout"
-                Margin="10"
+                Margin="20"
                 HorizontalOptions="Start"
                 Orientation="Horizontal"
                 Spacing="20"
@@ -39,6 +40,7 @@
             IsVisible="False"
             VerticalOptions="Start" />
 
+        <controls:InfoBar x:Name="_infoBar" Margin="10" />
     </Grid>
 
 </ContentPage>

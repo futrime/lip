@@ -12,7 +12,7 @@ public partial class AddServerButtonView : ContentView
 
     private async void Button_Pressed(object sender, EventArgs e)
     {
-        await _button.ScaleTo(1.2, 100, Easing.CubicOut);
+        await _button.ScaleTo(1.1, 100, Easing.CubicOut);
     }
 
     private void Button_Released(object sender, EventArgs e)

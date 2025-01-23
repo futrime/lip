@@ -174,7 +174,7 @@ public partial class AddServerView : ContentView
         }
         catch (Exception ex)
         {
-            await ServersPage.Current.DisplayAlert("Error", ex.ToString(), "OK");
+            ServersPage.Current.InfoBar.Show(ex, containsStacktrace: true);
         }
         await ExitAnimation();
         ServersPage.IsButtonsEnabled = true;

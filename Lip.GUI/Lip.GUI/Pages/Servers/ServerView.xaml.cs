@@ -165,9 +165,7 @@ public partial class ServerView : ContentView
         {
             await CancelVerifyAnimation(task, cancellationTokenSource);
             await VerifyAnimation(VerifyStatus.Failed);
-            if (ServersPage.Current is not null)
-                await this.ExecuteInUIThreadAsync(valueTask: async ()
-                    => await ServersPage.Current.DisplayAlert("Error", ex.ToString(), "OK"));
+            ServersPage.Current?.InfoBar.Show(ex, containsStacktrace: true);
             return false;
         }
 

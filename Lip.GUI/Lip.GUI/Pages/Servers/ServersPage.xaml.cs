@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net;
+using Lip.GUI.Controls;
 
 namespace Lip.GUI.Pages.Servers;
 
@@ -127,4 +128,6 @@ public partial class ServersPage : ContentPage
             }
         }).ConfigureAwait(false);
     }
+
+    public InfoBar InfoBar => _infoBar;
 }

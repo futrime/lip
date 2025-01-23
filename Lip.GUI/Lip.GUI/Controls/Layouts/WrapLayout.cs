@@ -1,6 +1,6 @@
 ﻿using Microsoft.Maui.Layouts;
 
-namespace Lip.GUI.Layouts;
+namespace Lip.GUI.Controls.Layouts;
 
 public partial class WrapLayout : Layout
 {

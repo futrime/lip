@@ -43,8 +43,8 @@
 
     <Color x:Key="LayerOnAcrylicFillColorDefault">#40FFFFFF</Color>
 
-    <Color x:Key="BackgroundLight">#66FFFFFF</Color>
-    <Color x:Key="BackgroundDark">#661f1f1f</Color>
+    <Color x:Key="BackgroundLight">#CCFFFFFF</Color>
+    <Color x:Key="BackgroundDark">#CC1f1f1f</Color>
 
     <Color x:Key="AddServerButtonBackgroundColorDark">#90EE90</Color>
     <Color x:Key="AddServerButtonBackgroundColorLight">#F297ED</Color>
