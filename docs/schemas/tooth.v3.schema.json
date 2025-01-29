@@ -26,9 +26,6 @@
                 "description": {
                     "type": "string"
                 },
-                "author": {
-                    "type": "string"
-                },
                 "tags": {
                     "type": "array",
                     "items": {

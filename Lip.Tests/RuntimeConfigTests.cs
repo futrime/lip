@@ -21,17 +21,11 @@ public class RuntimeConfigTests
             runtimeConfiguration.Cache
         );
         Assert.True(runtimeConfiguration.Color);
-        Assert.Equal("git", runtimeConfiguration.Git);
         Assert.Equal("", runtimeConfiguration.GitHubProxy);
         Assert.Equal("https://goproxy.io", runtimeConfiguration.GoModuleProxy);
         Assert.Equal("", runtimeConfiguration.HttpsProxy);
         Assert.Equal("", runtimeConfiguration.NoProxy);
         Assert.Equal("", runtimeConfiguration.Proxy);
-        Assert.Equal(
-            OperatingSystem.IsWindows()
-                ? "cmd.exe"
-                : "/bin/sh", runtimeConfiguration.ScriptShell
-        );
     }
 
     [Fact]
@@ -43,13 +37,11 @@ public class RuntimeConfigTests
             {
                 ""cache"": ""cache"",
                 ""color"": false,
-                ""git"": ""git"",
                 ""github_proxy"": ""github_proxy"",
                 ""go_module_proxy"": ""go_module_proxy"",
                 ""https_proxy"": ""https_proxy"",
                 ""noproxy"": ""noproxy"",
-                ""proxy"": ""proxy"",
-                ""script_shell"": ""script_shell""
+                ""proxy"": ""proxy""
             }
             "
         );
@@ -60,13 +52,11 @@ public class RuntimeConfigTests
         // Arrange.
         Assert.Equal("cache", runtimeConfiguration.Cache);
         Assert.False(runtimeConfiguration.Color);
-        Assert.Equal("git", runtimeConfiguration.Git);
         Assert.Equal("github_proxy", runtimeConfiguration.GitHubProxy);
         Assert.Equal("go_module_proxy", runtimeConfiguration.GoModuleProxy);
         Assert.Equal("https_proxy", runtimeConfiguration.HttpsProxy);
         Assert.Equal("noproxy", runtimeConfiguration.NoProxy);
         Assert.Equal("proxy", runtimeConfiguration.Proxy);
-        Assert.Equal("script_shell", runtimeConfiguration.ScriptShell);
     }
 
     [Fact]
@@ -91,20 +81,18 @@ public class RuntimeConfigTests
         var runtimeConfiguration = new RuntimeConfig();
 
         // Act.
-        byte[] jsonBytes = runtimeConfiguration.ToBytes();
+        byte[] jsonBytes = runtimeConfiguration.ToJsonBytes();
 
         // Assert.
         Assert.Equal($$"""
             {
                 "cache": "{{Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache").Replace("\\", "\\\\")}}",
                 "color": true,
-                "git": "git",
                 "github_proxy": "",
                 "go_module_proxy": "https://goproxy.io",
                 "https_proxy": "",
                 "noproxy": "",
-                "proxy": "",
-                "script_shell": "{{(OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/sh")}}"
+                "proxy": ""
             }
             """.ReplaceLineEndings(), Encoding.UTF8.GetString(jsonBytes).ReplaceLineEndings());
     }

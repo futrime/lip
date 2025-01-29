@@ -15,10 +15,13 @@ env:
   DOTNET_VERSION: 9.0.x
 
 jobs:
-  build-lip:
+  build-lib:
     strategy:
       fail-fast: false
       matrix:
+        project:
+          - Lip.CLI
+          - Lip.Context
         include:
           - runtime: linux-arm64
             runs-on: ubuntu-22.04
@@ -41,8 +44,9 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - run: >
-          dotnet build Lip
+          dotnet build ${{ matrix.project }}
           --configuration Release
+          --runtime ${{ matrix.runtime }}
 
   build-app:
     strategy:
@@ -133,6 +137,7 @@ jobs:
           - Lip
           - Lip.Tests
           - Lip.CLI
+          - Lip.Context
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

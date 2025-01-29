@@ -13,11 +13,10 @@ public static class ConditionWaiter
     /// Waits for the specified condition to be met.
     /// </summary>
     /// <param name="condition">The condition to wait for.</param>
-    /// <param name="timeout">The timeout to wait for the condition to be met.</param>
-    /// <param name="interval">The interval to check the condition.</param>
+    /// <param name="timeout">The timeout to wait for the condition to be met. If null, the method will wait indefinitely.</param>
     /// <returns></returns>
     /// <exception cref="TimeoutException"></exception>
-    public static async Task WaitFor(Func<bool> condition, TimeSpan? timeout = null, TimeSpan? interval = null)
+    public static async Task WaitFor(Func<bool> condition, TimeSpan? timeout)
     {
         var sw = Stopwatch.StartNew();
         while (!condition())
@@ -27,7 +26,7 @@ public static class ConditionWaiter
                 throw new TimeoutException("The condition was not met within the specified timeout.");
             }
 
-            await Task.Delay(interval ?? s_defaultInterval);
+            await Task.Delay(s_defaultInterval);
         }
     }
 }

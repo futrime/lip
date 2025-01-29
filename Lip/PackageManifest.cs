@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using DotNet.Globbing;
 using Scriban;
@@ -102,9 +103,6 @@ public record PackageManifest
 
         [JsonPropertyName("description")]
         public string? Description { get; init; }
-
-        [JsonPropertyName("author")]
-        public string? Author { get; init; }
 
         [JsonPropertyName("tags")]
         public List<string>? Tags
@@ -383,6 +381,11 @@ public record PackageManifest
 
     private string _version = "0.0.0"; // The default value does never get used.
 
+    public static PackageManifest FromJsonBytesParsed(byte[] bytes)
+    {
+        return FromJsonBytes(bytes).WithTemplateParsed();
+    }
+
     /// <summary>
     /// Deserializes a package manifest from the specified byte array.
     /// </summary>
@@ -518,8 +521,16 @@ public record PackageManifest
     /// <returns>The serialized package manifest.</returns>
     public byte[] ToJsonBytes()
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
-        return bytes;
+        return JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
+    }
+
+    /// <summary>
+    /// Serializes the package manifest to a JSON element.
+    /// </summary>
+    /// <returns>The serialized package manifest.</returns>
+    public JsonElement ToJsonElement()
+    {
+        return JsonSerializer.SerializeToElement(this, s_jsonSerializerOptions);
     }
 
     /// <summary>
@@ -541,9 +552,9 @@ public record PackageManifest
             throw new FormatException($"Failed to parse template: {sb}");
         }
 
-        JsonElement jsonElement = JsonSerializer.SerializeToElement(this);
+        JsonElement json = ToJsonElement();
 
-        string renderedText = template.Render(jsonElement);
+        string renderedText = template.Render(json);
 
         return FromJsonBytes(Encoding.UTF8.GetBytes(renderedText));
     }

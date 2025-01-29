@@ -31,4 +31,3 @@ Attempt to update the specified packages to the specified versions. If no packag
 - `--save`
 
   Save the updated packages to `tooth.json`.
-

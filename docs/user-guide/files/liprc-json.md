@@ -20,13 +20,6 @@ Defines the directory path for storing cached files.
 
 Controls colored output in the terminal. Note: The `NO_COLOR` environment variable, if set, will override this setting.
 
-### git
-
-- Type: `string`
-- Default: `git`
-
-Specifies the path to your Git executable.
-
 ### github_proxy
 
 - Type: `string`
@@ -61,10 +54,3 @@ Lists domains that should bypass the proxy. The `NO_PROXY` environment variable 
 - Default: "" (empty string)
 
 Defines a general proxy URL for all connections. The `HTTP_PROXY` or `http_proxy` environment variable will take precedence if set.
-
-### script_shell
-
-- Type: `string`
-- Default: `cmd.exe` (Windows) or `/bin/sh` (POSIX-like systems)
-
-Specifies which shell to use when executing scripts.

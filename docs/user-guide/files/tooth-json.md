@@ -52,10 +52,6 @@ The display name of the package.
 
 A brief description of the package.
 
-### info.author (optional)
-
-The package author's name.
-
 ### info.tags (optional)
 
 Package tags in either of these formats:

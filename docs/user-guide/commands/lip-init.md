@@ -32,7 +32,6 @@ Initialization with specific values:
 # Create a new project with initial values
 lip init --init-name "my-mod" \
     --init-description "A cool LeviLamina mod" \
-    --init-author "developer" \
     --init-tooth "github.com/developer/my-mod" \
     --init-version "0.1.0"
 ```
@@ -42,10 +41,6 @@ lip init --init-name "my-mod" \
 - `-f, --force`
 
   Overwrite the existing tooth.json file.
-
-- `--init-author <author>`
-
-  The author to use.
 
 - `--init-avatar-url <avatar-url>`
 

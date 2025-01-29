@@ -90,6 +90,6 @@ public partial class Lip
 
     private async Task CreateOrUpdateRuntimeConfigurationFile(IFileSystem fileSystem, RuntimeConfig runtimeConfig)
     {
-        await fileSystem.File.WriteAllBytesAsync(_pathManager.RuntimeConfigPath, runtimeConfig.ToBytes());
+        await fileSystem.File.WriteAllBytesAsync(_pathManager.RuntimeConfigPath, runtimeConfig.ToJsonBytes());
     }
 }

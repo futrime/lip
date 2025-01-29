@@ -1,7 +1,6 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.InteropServices;
 using Lip.Context;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Lip.Tests;

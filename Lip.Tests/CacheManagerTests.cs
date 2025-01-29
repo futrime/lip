@@ -5,7 +5,6 @@ using Flurl;
 using Lip.Context;
 using Moq;
 using Semver;
-using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 
 namespace Lip.Tests;
@@ -15,6 +14,49 @@ public class CacheManagerTests
     private static readonly string s_cacheDir = OperatingSystem.IsWindows()
         ? Path.Join("C:", "path", "to", "cache")
         : Path.Join("/", "path", "to", "cache");
+
+    [Fact]
+    public async Task Clean_BaseCacheDirExists_Passes()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { s_cacheDir, new MockDirectoryData() }
+        });
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        await cacheManager.Clean();
+
+        // Assert.
+        Assert.False(fileSystem.Directory.Exists(s_cacheDir));
+    }
+
+    [Fact]
+    public async Task Clean_BaseCacheDirNotExists_Passes()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        await cacheManager.Clean();
+
+        // Assert.
+        Assert.False(fileSystem.Directory.Exists(s_cacheDir));
+    }
 
     [Fact]
     public async Task GetDownloadedFile_ValidUrl_ReturnsStream()
@@ -518,6 +560,110 @@ public class CacheManagerTests
         // Act & assert.
         ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
         Assert.Equal("version", ex.ParamName);
+    }
+
+    [Fact]
+    public async Task List_NoCacheDirectories_ReturnsEmptyList()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        CacheManager.ListResult listResult = await cacheManager.List();
+
+        // Assert.
+        Assert.Empty(listResult.DownloadedFiles);
+        Assert.Empty(listResult.GitRepos);
+        Assert.Empty(listResult.PackageManifestFiles);
+    }
+
+    [Fact]
+    public async Task List_DownloadedFileExists_ReturnsListResult()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file"), new MockFileData("test") }
+        });
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        CacheManager.ListResult listResult = await cacheManager.List();
+
+        // Assert.
+        Assert.Single(listResult.DownloadedFiles);
+        Assert.Equal("https://example.com/test.file", listResult.DownloadedFiles.Keys.Single());
+        Assert.Equal("test", new StreamReader(listResult.DownloadedFiles.Values.Single().OpenRead()).ReadToEnd());
+        Assert.Empty(listResult.GitRepos);
+        Assert.Empty(listResult.PackageManifestFiles);
+    }
+
+    [Fact]
+    public async Task List_GitRepoExists_ReturnsListResult()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), new MockDirectoryData() }
+        });
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        CacheManager.ListResult listResult = await cacheManager.List();
+
+        // Assert.
+        Assert.Empty(listResult.DownloadedFiles);
+        Assert.Single(listResult.GitRepos);
+        Assert.Equal("https://example.com/repo", listResult.GitRepos.Keys.Single().Url);
+        Assert.Equal("v1.0.0", listResult.GitRepos.Keys.Single().Tag);
+        Assert.Equal(Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), listResult.GitRepos.Values.Single().FullName);
+        Assert.Empty(listResult.PackageManifestFiles);
+    }
+
+    [Fact]
+    public async Task List_PackageManifestFileExists_ReturnsListResult()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData("test") }
+        });
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager);
+
+        // Act.
+        CacheManager.ListResult listResult = await cacheManager.List();
+
+        // Assert.
+        Assert.Empty(listResult.DownloadedFiles);
+        Assert.Empty(listResult.GitRepos);
+        Assert.Single(listResult.PackageManifestFiles);
+        Assert.Equal("example.com/repo@1.0.0", listResult.PackageManifestFiles.Keys.Single().SpecifierWithoutVariant);
+        Assert.Equal("test", new StreamReader(listResult.PackageManifestFiles.Values.Single().OpenRead()).ReadToEnd());
     }
 
     private static byte[] CreateSampleGoModuleProxyArchive(string goModulePath, SemVersion version, bool isEmpty)

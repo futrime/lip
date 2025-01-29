@@ -29,7 +29,7 @@ public class PackageSpecifierWithoutVersionTests
             ToothPath = "invalid/tooth",
             VariantLabel = "variant",
         });
-        Assert.Equal("Invalid tooth path. (Parameter 'ToothPath')", exception.Message);
+        Assert.Equal("ToothPath", exception.ParamName);
     }
 
     [Fact]

@@ -29,9 +29,7 @@ public class LipInitTests
             .Returns("Example Package");
         userInteraction.Setup(u => u.PromptForInput("Enter the package description:").Result)
             .Returns("An example package.");
-        userInteraction.Setup(u => u.PromptForInput("Enter the package author:").Result)
-            .Returns("Example Author");
-        userInteraction.Setup(u => u.PromptForInput("Enter the author's avatar URL:").Result)
+        userInteraction.Setup(u => u.PromptForInput("Enter the package's avatar URL:").Result)
             .Returns("https://example.com/avatar.png");
         userInteraction.Setup(u => u.Confirm("Do you want to create the following package manifest file?\n{jsonString}", It.IsAny<string>()).Result)
             .Returns(true);
@@ -57,7 +55,6 @@ public class LipInitTests
                 "info": {
                     "name": "Example Package",
                     "description": "An example package.",
-                    "author": "Example Author",
                     "avatar_url": "https://example.com/avatar.png"
                 }
             }
@@ -117,7 +114,6 @@ public class LipInitTests
 
         Lip.InitArgs args = new()
         {
-            InitAuthor = "Example Author",
             InitAvatarUrl = "https://example.com/avatar.png",
             InitDescription = "An example package.",
             InitName = "Example Package",
@@ -140,7 +136,6 @@ public class LipInitTests
                 "info": {
                     "name": "Example Package",
                     "description": "An example package.",
-                    "author": "Example Author",
                     "avatar_url": "https://example.com/avatar.png"
                 }
             }
@@ -169,7 +164,6 @@ public class LipInitTests
 
         Lip.InitArgs args = new()
         {
-            InitAuthor = "Example Author",
             InitAvatarUrl = "https://example.com/avatar.png",
             InitDescription = "An example package.",
             InitName = "Example Package",
@@ -203,7 +197,6 @@ public class LipInitTests
 
         Lip.InitArgs args = new()
         {
-            InitAuthor = "Example Author",
             InitAvatarUrl = "https://example.com/avatar.png",
             InitDescription = "An example package.",
             InitName = "Example Package",
@@ -239,7 +232,6 @@ public class LipInitTests
         Lip.InitArgs args = new()
         {
             Force = true,
-            InitAuthor = "Example Author",
             InitAvatarUrl = "https://example.com/avatar.png",
             InitDescription = "An example package.",
             InitName = "Example Package",
@@ -262,7 +254,6 @@ public class LipInitTests
                 "info": {
                     "name": "Example Package",
                     "description": "An example package.",
-                    "author": "Example Author",
                     "avatar_url": "https://example.com/avatar.png"
                 }
             }

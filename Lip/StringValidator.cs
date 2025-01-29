@@ -9,26 +9,6 @@ namespace Lip;
 public static partial class StringValidator
 {
     /// <summary>
-    /// Checks if the path is safe to place files to.
-    /// </summary>
-    /// <param name="path">The path to validate.</param>
-    /// <returns>True if the path is safe to place files to; otherwise, false.</returns>
-    public static bool CheckSafePlacePath(string path)
-    {
-        if (Path.IsPathFullyQualified(path) || Path.IsPathRooted(path))
-        {
-            return false;
-        }
-
-        if (path.Contains(".."))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
     /// Checks if the package specifier is valid.
     /// </summary>
     /// <param name="packageSpecifier">The package specifier to validate.</param>
@@ -79,6 +59,26 @@ public static partial class StringValidator
             {
                 return false;
             }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Checks if the path is safe to place files to.
+    /// </summary>
+    /// <param name="path">The path to validate.</param>
+    /// <returns>True if the path is safe to place files to; otherwise, false.</returns>
+    public static bool CheckSafePlacePath(string path)
+    {
+        if (Path.IsPathFullyQualified(path) || Path.IsPathRooted(path))
+        {
+            return false;
+        }
+
+        if (path.Contains(".."))
+        {
+            return false;
         }
 
         return true;

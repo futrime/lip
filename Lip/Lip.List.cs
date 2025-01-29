@@ -38,7 +38,7 @@ public partial class Lip
         string packageLockFilePath = _pathManager.CurrentPackageLockPath;
 
         // If the package lock file does not exist, return an empty package lock.
-        if (!_context.FileSystem.File.Exists(packageLockFilePath))
+        if (!await _context.FileSystem.File.ExistsAsync(packageLockFilePath))
         {
             return new()
             {

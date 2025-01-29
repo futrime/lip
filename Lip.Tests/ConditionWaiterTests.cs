@@ -9,7 +9,7 @@ public class ConditionWaiterTests
         static bool condition() => true;
 
         // Act.
-        await ConditionWaiter.WaitFor(condition);
+        await ConditionWaiter.WaitFor(condition, timeout: null);
 
         // No assertion is needed.
     }
@@ -28,7 +28,7 @@ public class ConditionWaiterTests
 
         // Act.
         var task = Task.Run(delayAndSetCondition);
-        await ConditionWaiter.WaitFor(condition);
+        await ConditionWaiter.WaitFor(condition, timeout: null);
         await task;
 
         // No assertion is needed.
@@ -91,27 +91,5 @@ public class ConditionWaiterTests
 
         // Assert.
         Assert.Equal("The condition was not met within the specified timeout.", exception.Message);
-    }
-
-    [Fact]
-    public async Task WaitAsync_FalseConditionTurnsTrueBeforeTimeoutWithInterval_Passes()
-    {
-        // Arrange.
-        bool innerCondition = false;
-        async Task delayAndSetCondition()
-        {
-            await Task.Delay(500);
-            innerCondition = true;
-        }
-        bool condition() => innerCondition;
-        TimeSpan timeout = TimeSpan.FromMilliseconds(1000);
-        TimeSpan interval = TimeSpan.FromMilliseconds(50);
-
-        // Act
-        var task = Task.Run(delayAndSetCondition);
-        await ConditionWaiter.WaitFor(condition, timeout, interval);
-        await task;
-
-        // No assertion is needed.
     }
 }

@@ -8,9 +8,6 @@
         "color": {
             "type": "boolean"
         },
-        "git": {
-            "type": "string"
-        },
         "github_proxy": {
             "type": "string"
         },
@@ -24,9 +21,6 @@
             "type": "string"
         },
         "proxy": {
-            "type": "string"
-        },
-        "script_shell": {
             "type": "string"
         }
     }

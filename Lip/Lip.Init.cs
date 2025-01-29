@@ -8,7 +8,6 @@ public partial class Lip
     public record InitArgs
     {
         public bool Force { get; init; } = false;
-        public string? InitAuthor { get; init; }
         public string? InitAvatarUrl { get; init; }
         public string? InitDescription { get; init; }
         public string? InitName { get; init; }
@@ -36,7 +35,6 @@ public partial class Lip
                 {
                     Name = args.InitName,
                     Description = args.InitDescription,
-                    Author = args.InitAuthor,
                     AvatarUrl = args.InitAvatarUrl
                 }
             };
@@ -47,8 +45,7 @@ public partial class Lip
             string version = args.InitVersion ?? await _context.UserInteraction.PromptForInput("Enter the package version (e.g. {DefaultVersion}):", DefaultVersion) ?? DefaultVersion;
             string? name = args.InitName ?? await _context.UserInteraction.PromptForInput("Enter the package name:");
             string? description = args.InitDescription ?? await _context.UserInteraction.PromptForInput("Enter the package description:");
-            string? author = args.InitAuthor ?? await _context.UserInteraction.PromptForInput("Enter the package author:");
-            string? avatarUrl = args.InitAvatarUrl ?? await _context.UserInteraction.PromptForInput("Enter the author's avatar URL:");
+            string? avatarUrl = args.InitAvatarUrl ?? await _context.UserInteraction.PromptForInput("Enter the package's avatar URL:");
 
             manifest = new()
             {
@@ -60,7 +57,6 @@ public partial class Lip
                 {
                     Name = name,
                     Description = description,
-                    Author = author,
                     AvatarUrl = avatarUrl
                 }
             };
@@ -76,7 +72,7 @@ public partial class Lip
         string manifestPath = _pathManager.CurrentPackageManifestPath;
 
         // Check if the manifest file already exists.
-        if (_context.FileSystem.File.Exists(manifestPath))
+        if (await _context.FileSystem.File.ExistsAsync(manifestPath))
         {
             if (!args.Force)
             {
