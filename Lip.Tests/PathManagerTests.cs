@@ -160,6 +160,20 @@ public class PathManagerTests
     }
 
     [Fact]
+    public void GetPackageManifestFileName_WhenCalled_ReturnsCorrectFileName()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        // Act.
+        string manifestFileName = pathManager.PackageManifestFileName;
+
+        // Assert.
+        Assert.Equal("tooth.json", manifestFileName);
+    }
+
+    [Fact]
     public void GetRuntimeConfigPath_WhenCalled_ReturnsCorrectPath()
     {
         // Arrange.
@@ -190,51 +204,6 @@ public class PathManagerTests
 
         // Assert.
         Assert.Equal(s_workingDir, workingDir);
-    }
-
-    [Fact]
-    public void CreateParentDirectory_WhenPathIsRoot_DoesNotCreateParentDirectory()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem);
-
-        // Act.
-        pathManager.CreateParentDirectory("/");
-
-        // Assert.
-        Assert.False(fileSystem.Directory.Exists("/"));
-    }
-
-    [Fact]
-    public void CreateParentDirectory_WhenParentDirectoryDoesNotExist_CreatesParentDirectory()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem);
-
-        // Act.
-        pathManager.CreateParentDirectory("/path/to/file");
-
-        // Assert.
-        Assert.True(fileSystem.Directory.Exists("/path/to"));
-    }
-
-    [Fact]
-    public void CreateParentDirectory_WhenParentDirectoryExists_DoesNotCreateParentDirectory()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
-        {
-            { "/path/to", new MockDirectoryData() },
-        });
-        PathManager pathManager = new(fileSystem);
-
-        // Act.
-        pathManager.CreateParentDirectory("/path/to/file");
-
-        // Assert.
-        Assert.True(fileSystem.Directory.Exists("/path/to"));
     }
 
     [Theory]
@@ -306,12 +275,13 @@ public class PathManagerTests
             packageCacheDir);
     }
 
-    [Theory]
-    [InlineData("C:/path/to/cache")]
-    [InlineData("/path/to/cache")]
-    public void GetPackageManifestPath_WhenCalled_ReturnsCorrectPath(string baseDir)
+    [Fact]
+    public void GetPackageManifestPath_WhenCalled_ReturnsCorrectPath()
     {
         // Arrange.
+        string baseDir = OperatingSystem.IsWindows()
+            ? Path.Join("C:", "path", "to", "cache")
+            : Path.Join("/", "path", "to", "cache");
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
             { baseDir, new MockDirectoryData() },

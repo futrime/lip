@@ -45,6 +45,23 @@ public class PackageSpecifierWithoutVersionTests
     }
 
     [Fact]
+    public void GetSpecifier_ValidValues_Passes()
+    {
+        // Arrange
+        var packageSpecifier = new PackageSpecifierWithoutVersion
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+        };
+
+        // Act
+        string specifier = packageSpecifier.Specifier;
+
+        // Assert
+        Assert.Equal("example.com/pkg#variant", specifier);
+    }
+
+    [Fact]
     public void Parse_ValidSpecifierText_Passes()
     {
         // Arrange & Act
@@ -62,6 +79,23 @@ public class PackageSpecifierWithoutVersionTests
         // Arrange & Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(() => PackageSpecifierWithoutVersion.Parse("invalid"));
         Assert.Equal("Invalid package specifier 'invalid'. (Parameter 'specifierText')", exception.Message);
+    }
+
+    [Fact]
+    public void ToString_ValidValues_Passes()
+    {
+        // Arrange
+        var packageSpecifier = new PackageSpecifierWithoutVersion
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+        };
+
+        // Act
+        string specifierText = packageSpecifier.ToString();
+
+        // Assert
+        Assert.Equal("example.com/pkg#variant", specifierText);
     }
 }
 
@@ -86,6 +120,42 @@ public class PackageSpecifierTests
     }
 
     [Fact]
+    public void GetSpecifier_ValidValues_Passes()
+    {
+        // Arrange
+        var packageSpecifier = new PackageSpecifier
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+            Version = SemVersion.Parse("1.0.0")
+        };
+
+        // Act
+        string specifier = packageSpecifier.Specifier;
+
+        // Assert
+        Assert.Equal("example.com/pkg#variant@1.0.0", specifier);
+    }
+
+    [Fact]
+    public void GetSpecifierWithoutVariant_ValidValues_Passes()
+    {
+        // Arrange
+        var packageSpecifier = new PackageSpecifier
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+            Version = SemVersion.Parse("1.0.0")
+        };
+
+        // Act
+        string specifier = packageSpecifier.SpecifierWithoutVariant;
+
+        // Assert
+        Assert.Equal("example.com/pkg@1.0.0", specifier);
+    }
+
+    [Fact]
     public void Parse_ValidSpecifierText_Passes()
     {
         // Arrange & Act
@@ -99,11 +169,42 @@ public class PackageSpecifierTests
     }
 
     [Fact]
+    public void Parse_EmptyVariantLabel_Passes()
+    {
+        // Arrange & Act
+        var packageSpecifier = PackageSpecifier.Parse("example.com/pkg@1.0.0");
+
+        // Assert
+        Assert.Equal("example.com/pkg@1.0.0", packageSpecifier.Specifier);
+        Assert.Equal("example.com/pkg", packageSpecifier.ToothPath);
+        Assert.Equal("", packageSpecifier.VariantLabel);
+        Assert.Equal("1.0.0", packageSpecifier.Version.ToString());
+    }
+
+    [Fact]
     public void Parse_InvalidSpecifierText_Throws()
     {
         // Arrange & Act & Assert
         ArgumentException exception = Assert.Throws<ArgumentException>(() => PackageSpecifier.Parse("invalid"));
         Assert.Equal("Invalid package specifier 'invalid'. (Parameter 'specifierText')", exception.Message);
+    }
+
+    [Fact]
+    public void ToString_ValidValues_Passes()
+    {
+        // Arrange
+        var packageSpecifier = new PackageSpecifier
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+            Version = SemVersion.Parse("1.0.0")
+        };
+
+        // Act
+        string specifierText = packageSpecifier.ToString();
+
+        // Assert
+        Assert.Equal("example.com/pkg#variant@1.0.0", specifierText);
     }
 
     [Fact]

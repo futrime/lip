@@ -9,7 +9,6 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null)
     private const string GitRepoCacheDirName = "git_repos";
     private const string PackageLockFileName = "tooth_lock.json";
     private const string PackageManifestCacheDirName = "package_manifests";
-    private const string PackageManifestFileName = "tooth.json";
 
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly string? _baseCacheDir = baseCacheDir;
@@ -26,27 +25,12 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null)
 
     public string CurrentPackageLockPath => _fileSystem.Path.Join(WorkingDir, PackageLockFileName);
 
+    public string PackageManifestFileName => "tooth.json";
 
     public string RuntimeConfigPath => _fileSystem.Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
 
     public string WorkingDir => _fileSystem.Directory.GetCurrentDirectory();
-
-    public void CreateParentDirectory(string path)
-    {
-        string? parentDirPath = _fileSystem.Path.GetDirectoryName(path);
-
-        // If path is a root directory, do not need to create parent directory.
-        if (parentDirPath is null)
-        {
-            return;
-        }
-
-        if (!_fileSystem.Directory.Exists(parentDirPath))
-        {
-            _fileSystem.Directory.CreateDirectory(parentDirPath);
-        }
-    }
 
     public string GetDownloadedFileCachePath(Url url)
     {

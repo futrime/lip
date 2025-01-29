@@ -10,12 +10,16 @@ public class StringValidatorTests
         Assert.True(StringValidator.CheckSafePlacePath(path));
     }
 
-    [Theory]
-    [InlineData("C:/absolute/path")]
-    [InlineData("/root/path")]
-    [InlineData("folder/../escape")]
-    public void CheckSafePlacePath_UnsafePath_ReturnsFalse(string path)
+    [Fact]
+    public void CheckSafePlacePath_PathWithDoubleDots_ReturnsFalse()
     {
+        Assert.False(StringValidator.CheckSafePlacePath("folder/../escape"));
+    }
+
+    [Fact]
+    public void CheckSafePlacePath_PathWithRoot_ReturnsFalse()
+    {
+        string path = OperatingSystem.IsWindows() ? "C:\\root" : "/root";
         Assert.False(StringValidator.CheckSafePlacePath(path));
     }
 

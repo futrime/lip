@@ -8,6 +8,7 @@ public partial class Lip
 {
     public record ConfigDeleteArgs { }
     public record ConfigGetArgs { }
+    public record ConfigListArgs { }
     public record ConfigSetArgs { }
 
     public async Task ConfigDelete(List<string> keys, ConfigDeleteArgs _)
@@ -50,7 +51,7 @@ public partial class Lip
         return keyValuePairs;
     }
 
-    public Dictionary<string, string> ConfigList(ConfigGetArgs _)
+    public Dictionary<string, string> ConfigList(ConfigListArgs _)
     {
         Dictionary<string, string> allKeyValuePairs = typeof(RuntimeConfig).GetProperties()
             .Where(prop => prop.GetCustomAttribute<JsonPropertyNameAttribute>() != null)

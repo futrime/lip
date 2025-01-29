@@ -266,7 +266,7 @@ public class LipConfigTests
         Lip lip = new(initialRuntimeConfig, context.Object);
 
         // Act.
-        Dictionary<string, string> result = lip.ConfigList(new Lip.ConfigGetArgs());
+        Dictionary<string, string> result = lip.ConfigList(new Lip.ConfigListArgs());
 
         // Assert.
         Assert.Equal(9, result.Count);

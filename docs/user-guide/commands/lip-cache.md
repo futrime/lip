@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-lip cache add <package-spec-without-variant>
+lip cache add <package-spec>
 lip cache clean
 lip cache list
 ```
@@ -19,20 +19,20 @@ lip stores cache data in `%LocalAppData%\lip\cache` for Windows and `~/.local/sh
 ### add
 
 ```shell
-lip cache add <package-spec-without-variant>
+lip cache add <package-spec>
 ```
 
-Add a package to the cache. `<package-spec-without-variant>` is a [package specifier](./lip-install.md#package-specifier) without variant label, e.g. `github.com/futrime/example-package@1.0.0`.
+Add a package to the cache. `<package-spec>` is a [package specifier](./lip-install.md#package-specifier).
 
 If a Go module proxy is set in configuration, lip will download the package via Goproxy. Otherwise, lip will download the package directly from the Git repository.
 
 ### clean
 
 ```shell
-lip cache clean [<package-spec-without-variant> [<package-spec-without-variant> ...]]
+lip cache clean
 ```
 
-Remove all items from the cache, or if `<package-spec-without-variant>` is specified, remove the specified item.
+Remove all items from the cache, or if `<package-spec>` is specified, remove the specified item.
 
 ### list
 

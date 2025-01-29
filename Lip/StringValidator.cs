@@ -160,6 +160,6 @@ public static partial class StringValidator
     [GeneratedRegex("^[a-z0-9-]+(:[a-z0-9-]+)?$")]
     private static partial Regex TagGeneratedRegex();
 
-    [GeneratedRegex("^[a-z0-9]+(_[a-z0-9]+)*$")]
+    [GeneratedRegex("^([a-z0-9]+(_[a-z0-9]+)*)?$")]
     private static partial Regex VariantLabelGeneratedRegex();
 }
