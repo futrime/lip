@@ -1,5 +1,5 @@
-﻿using Lip.Connection.Network.Packets.Operations;
-using Lip.Connection.Operations;
+﻿using Lip.Connection.Network;
+using Lip.Connection.Network.Packets.LipOperation;
 using Microsoft.Extensions.Logging;
 
 namespace Lip.Daemon;
@@ -8,25 +8,19 @@ internal static class PacketHandlers
 {
     public static readonly ILogger<Connection.Connection> logger;
 
+    private static Lip? s_lip;
+
     static PacketHandlers()
     {
         ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
         logger = loggerFactory.CreateLogger<Connection.Connection>();
     }
 
-    public static void OperationsHandler(OperationType type, OperationPacket packet)
+    public static void LipConstructionPacketHandler(
+        PacketHandler<LipOperationPackets> handler,
+        LipOperationPackets type,
+        LipConstructPacket packet)
     {
-        switch (type)
-        {
-            case OperationType.Init:
-
-                //var lipInstance = new Lip(
-                //    runtimeConfig: new(),
-                //    fileSystem: new System.IO.Abstractions.FileSystem(),
-                //    logger: logger,
-                //    )
-
-                break;
-        }
+        s_lip = new Lip(packet.Config, new ContextImpl());
     }
 }

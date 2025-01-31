@@ -4,60 +4,73 @@ public static class ViewExtensions
 {
     public static async ValueTask ExecuteInUIThreadAsync(this View view, Func<ValueTask> valueTask)
     {
-        await Task.Run(() =>
+        var tcs = new TaskCompletionSource();
+        view.Dispatcher.Dispatch(async () =>
         {
-            AutoResetEvent resetEvent = new(false);
-            view.Dispatcher.Dispatch(async () =>
+            try
             {
                 await valueTask();
-                resetEvent.Set();
-            });
-            resetEvent.WaitOne();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
         });
+        await tcs.Task;
     }
 
     public static async ValueTask ExecuteInUIThreadAsync(this View view, Func<Task> task)
     {
-        await Task.Run(() =>
+        var tcs = new TaskCompletionSource();
+        view.Dispatcher.Dispatch(async () =>
         {
-            AutoResetEvent resetEvent = new(false);
-            view.Dispatcher.Dispatch(async () =>
+            try
             {
                 await task();
-                resetEvent.Set();
-            });
-            resetEvent.WaitOne();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
         });
+        await tcs.Task;
     }
 
     public static async ValueTask ExecuteInUIThreadAsync(this Page view, Func<Task> task)
     {
-        await Task.Run(() =>
+        var tcs = new TaskCompletionSource();
+        view.Dispatcher.Dispatch(async () =>
         {
-            AutoResetEvent resetEvent = new(false);
-            view.Dispatcher.Dispatch(async () =>
+            try
             {
                 await task();
-                resetEvent.Set();
-            });
-            resetEvent.WaitOne();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
         });
+        await tcs.Task;
     }
-
 
     public static async ValueTask ExecuteInUIThreadAsync(this Page view, Func<ValueTask> valueTask)
     {
-        await Task.Run(() =>
+        var tcs = new TaskCompletionSource();
+        view.Dispatcher.Dispatch(async () =>
         {
-            AutoResetEvent resetEvent = new(false);
-            view.Dispatcher.Dispatch(async () =>
+            try
             {
                 await valueTask();
-                resetEvent.Set();
-            });
-            resetEvent.WaitOne();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
         });
+        await tcs.Task;
     }
-
-
 }

@@ -16,7 +16,10 @@
         ColumnDefinitions="*"
         RowDefinitions="*">
 
-        <Image Aspect="AspectFill" Source="test_background_dark.png" />
+        <Image
+            x:Name="_background"
+            Aspect="AspectFill"
+            Source="test_background_dark.png" />
 
         <ScrollView>
 

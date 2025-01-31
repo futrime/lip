@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using Lip.Connection.Network;
+using Lip.Connection.Network.Packets;
 using Lip.Connection.Network.Packets.ConnectionVerify;
 
 namespace Lip.Connection;
@@ -16,6 +18,10 @@ public enum ConnectionMode { Server, Client }
 /// </summary>
 public partial class Connection
 {
+    private PacketSender? _sender;
+
+    private PacketReceiver? _reciver;
+
     // Encoding used for converting strings to bytes
     private readonly UnicodeEncoding _encoding = new();
 
@@ -41,7 +47,7 @@ public partial class Connection
     {
         get
         {
-            var stringBuilder = new StringBuilder(_hashedPassword.Length * 2);
+            var stringBuilder = new StringBuilder(_hashedPassword.Length * 3);
 
             foreach (byte b in _hashedPassword)
                 stringBuilder.Append(b.ToString("X2")).Append(' ');
@@ -51,15 +57,12 @@ public partial class Connection
         private init => _hashedPassword = SHA256.HashData(_encoding.GetBytes(value));
     }
 
+    private Lock NetworkStreamLock { get; } = new();
+
     /// <summary>
     /// Gets or sets the connection mode (server or client).
     /// </summary>
     public ConnectionMode Mode { get; init; }
-
-    /// <summary>
-    /// Gets or sets the packet handler for incoming packets.
-    /// </summary>
-    public IPacketHandler? PacketHandler { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether the connection is verified.
@@ -95,6 +98,7 @@ public partial class Connection
 
         }
     }
+
     /// <summary>
     /// Starts the listener asynchronously.
     /// </summary>
@@ -116,12 +120,15 @@ public partial class Connection
                 client.ReceiveTimeout = int.MaxValue;
                 client.SendTimeout = int.MaxValue;
 #endif
-                await VerifyClientAsync(client.GetStream(), token);
+
+                _sender = new PacketSender(this);
+                _reciver = new PacketReceiver(this);
+                await VerifyClientAsync(token);
                 if (Verified is false) throw new Exception("Failed to verify connection.");
 
                 // Get the network stream for the client
                 NetworkStream stream = client.GetStream();
-                PacketHandler?.Start(stream: stream, token: token);
+                StartPacketHandler(stream, token);
             }
 
             _listener.Stop();
@@ -133,6 +140,7 @@ public partial class Connection
     /// </summary>
     /// <param name="remoteEP">The remote endpoint to connect to.</param>
     /// <param name="token">The cancellation token for the operation.</param>
+    [MemberNotNull(nameof(_sender), nameof(_reciver))]
     public async ValueTask ConnectToAsync(IPEndPoint remoteEP, CancellationToken token = default)
     {
         if (Mode is ConnectionMode.Server) throw new InvalidOperationException("Server mode is not supported.");
@@ -141,7 +149,9 @@ public partial class Connection
             try
             {
                 _client!.Connect(remoteEP);
-                await VerifyServerAsync(_client.GetStream(), token);
+                _sender = new PacketSender(this);
+                _reciver = new PacketReceiver(this);
+                await VerifyServerAsync(token);
                 if (Verified is false) throw new Exception("Failed to verify connection.");
             }
             catch (Exception)
@@ -156,34 +166,40 @@ public partial class Connection
     /// Verifies the server connection asynchronously.
     /// </summary>
     /// <param name="token">The cancellation token for the operation.</param>
-    public async ValueTask VerifyServerAsync(NetworkStream stream, CancellationToken token = default)
+    public async ValueTask VerifyServerAsync(CancellationToken token = default)
     {
         if (Mode is ConnectionMode.Server) throw new InvalidOperationException("Server mode is not supported.");
 
         // Recive server public key
-        (ConnectionVerifyPackets type, RSAPublicKeyPacket rsaPublicKey) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, RSAPublicKeyPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.RSAPublicKey) throw new InvalidOperationException("Failed to recive server public key.");
+        RSAPublicKeyPacket rsaPublicKey = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, RSAPublicKeyPacket>(
+            ConnectionVerifyPackets.RSAPublicKey,
+            token);
+        //if (type is not ConnectionVerifyPackets.RSAPublicKey) throw new InvalidOperationException("Failed to recive server public key.");
 
         // Send password
         using var rsa = new RSACryptoServiceProvider();
         rsa.FromXmlString(rsaPublicKey.Key);
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.Password, new PasswordPacket { PasswordData = rsa.Encrypt(_hashedPassword, false) }, token);
+        await _sender!.SendPacketAsync(ConnectionVerifyPackets.Password, new PasswordPacket { PasswordData = rsa.Encrypt(_hashedPassword, false) }, false, token);
 
         // Recive password verification
-        (type, PasswordVerifiedPacket passwordVerified) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, PasswordVerifiedPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.PasswordVerified) throw new InvalidOperationException("Failed to recive password verification.");
+        PasswordVerifiedPacket passwordVerified = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, PasswordVerifiedPacket>(
+            ConnectionVerifyPackets.PasswordVerified,
+            token);
+        //if (type is not ConnectionVerifyPackets.PasswordVerified) throw new InvalidOperationException("Failed to recive password verification.");
         if (passwordVerified.Value is false) throw new InvalidOperationException("Password verification failed.");
 
         // Send client public key
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.RSAPublicKey, new RSAPublicKeyPacket { Key = _cryptoServiceProvider.ToXmlString(false) }, token);
+        await _sender.SendPacketAsync(ConnectionVerifyPackets.RSAPublicKey, new RSAPublicKeyPacket { Key = _cryptoServiceProvider.ToXmlString(false) }, false, token);
 
         // Recive and decrypt aes key
-        (type, AESKeyPacket aesKeyPacket) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, AESKeyPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.AesKey) throw new InvalidOperationException("Failed to recive aes key.");
+        AESKeyPacket aesKeyPacket = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, AESKeyPacket>(
+            ConnectionVerifyPackets.AesKey,
+            token);
+        //if (type is not ConnectionVerifyPackets.AesKey) throw new InvalidOperationException("Failed to recive aes key.");
         byte[] key = _cryptoServiceProvider.Decrypt(aesKeyPacket.Key, false);
 
         // Send aes received packet
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.AesKey, new AESKeyReceivedPacket() { Value = true }, token);
+        await _sender.SendPacketAsync(ConnectionVerifyPackets.AesKey, new AESKeyReceivedPacket() { Value = true }, false, token);
 
         _aesKey = key;
     }
@@ -192,35 +208,41 @@ public partial class Connection
     /// Verifies the client connection asynchronously.
     /// </summary>
     /// <param name="token">The cancellation token for the operation.</param>
-    public async ValueTask VerifyClientAsync(NetworkStream stream, CancellationToken token = default)
+    public async ValueTask VerifyClientAsync(CancellationToken token = default)
     {
         if (Mode is ConnectionMode.Client) throw new InvalidOperationException("Client mode is not supported.");
 
         // Send the public key
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.RSAPublicKey, new RSAPublicKeyPacket { Key = _cryptoServiceProvider.ToXmlString(false) }, token);
+        await _sender!.SendPacketAsync(ConnectionVerifyPackets.RSAPublicKey, new RSAPublicKeyPacket { Key = _cryptoServiceProvider.ToXmlString(false) }, false, token);
 
         // Recive and verify the password
-        (ConnectionVerifyPackets type, PasswordPacket password) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, PasswordPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.Password) throw new InvalidOperationException("Failed to recive password.");
+        PasswordPacket password = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, PasswordPacket>(
+            ConnectionVerifyPackets.Password,
+            token);
+        //if (type is not ConnectionVerifyPackets.Password) throw new InvalidOperationException("Failed to recive password.");
         bool passwordVerified = password.Verify(_hashedPassword, _cryptoServiceProvider);
 
         // Send the password verification
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.PasswordVerified, new PasswordVerifiedPacket { Value = passwordVerified }, token);
+        await _sender.SendPacketAsync(ConnectionVerifyPackets.PasswordVerified, new PasswordVerifiedPacket { Value = passwordVerified }, false, token);
         if (passwordVerified is false) return;
 
         // Recive client public key
-        (type, RSAPublicKeyPacket rsaPublicKey) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, RSAPublicKeyPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.RSAPublicKey) throw new Exception("Failed to recive client public key.");
+        RSAPublicKeyPacket rsaPublicKey = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, RSAPublicKeyPacket>(
+            ConnectionVerifyPackets.RSAPublicKey,
+            token);
+        //if (type is not ConnectionVerifyPackets.RSAPublicKey) throw new Exception("Failed to recive client public key.");
 
         // Generate AES key and send
         using var rsa = new RSACryptoServiceProvider();
         rsa.FromXmlString(rsaPublicKey.Key);
         byte[] key = Guid.NewGuid().ToByteArray();
-        await PacketSender.SendPacketAsync(null, stream, ConnectionVerifyPackets.AesKey, new AESKeyPacket { Key = rsa.Encrypt(key, false) }, token);
+        await _sender.SendPacketAsync(ConnectionVerifyPackets.AesKey, new AESKeyPacket { Key = rsa.Encrypt(key, false) }, false, token);
 
         // Recive AesReceived packet
-        (type, AESKeyReceivedPacket aesKeyReceived) = await PacketReciver.RecivePacketAsync<ConnectionVerifyPackets, AESKeyReceivedPacket>(null, stream, token);
-        if (type is not ConnectionVerifyPackets.AesKeyReceived && aesKeyReceived.Value is false) throw new Exception("Failed to recive AES key.");
+        AESKeyReceivedPacket aesKeyReceived = await _reciver!.RecivePacketAsync<ConnectionVerifyPackets, AESKeyReceivedPacket>(
+            ConnectionVerifyPackets.AesKeyReceived,
+            token);
+        if (/*type is not ConnectionVerifyPackets.AesKeyReceived && */aesKeyReceived.Value is false) throw new Exception("Failed to recive AES key.");
 
         _aesKey = key;
     }
@@ -262,13 +284,137 @@ public partial class Connection
         using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
         using MemoryStream ms = new();
         csDecrypt.CopyTo(ms);
+        aes.Clear();
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Disposes the connection and releases all resources.
+    /// </summary>
     public void Dispose()
     {
         _listener?.Dispose();
         _client?.Dispose();
         _cryptoServiceProvider.Dispose();
+
+    }
+
+    private readonly Dictionary<string, Type> _packetTypes = [];
+
+    private readonly ConcurrentDictionary<Type, List<IPacketHandler>> _handlers = [];
+
+    private readonly ConcurrentDictionary<Enum, List<Action<byte[]>>> _packetRequests = [];
+
+    private readonly Queue<(Packet, Action)> _packetsToSend = [];
+
+    /// <summary>
+    /// Starts the packet handler to process incoming packets.
+    /// </summary>
+    /// <param name="stream">The network stream to read packets from.</param>
+    /// <param name="token">The cancellation token for the operation.</param>
+    private void StartPacketHandler(NetworkStream stream, CancellationToken token = default) => Task.Run(async () =>
+    {
+        Span<byte> lengthBuffer = stackalloc byte[4];
+        Span<byte> isEncryptedBuffer = stackalloc byte[1];
+        Span<byte> typeBuffer = stackalloc byte[4];
+
+        while (true)
+        {
+            if (token.IsCancellationRequested) return;
+
+            Lock.Scope scope = NetworkStreamLock.EnterScope();
+            try
+            {
+
+                Packet packet = await Packet.ReadAsync(stream, this);
+                if (_packetTypes.TryGetValue(packet.PacketIdTypeName, out Type? type))
+                {
+
+                    var enumVal = (Enum)Enum.ToObject(type, packet.PacketId);
+
+                    if (_packetRequests.TryGetValue(enumVal, out List<Action<byte[]>>? handlers))
+                    {
+                        foreach (Action<byte[]> handler in handlers) handler(packet.Data);
+                        handlers.Clear();
+                    }
+
+
+                    if (_handlers.TryGetValue(type, out List<IPacketHandler>? handlerList))
+                    {
+                        foreach (IPacketHandler handler in handlerList)
+                            handler.OnPacketReceived(enumVal, packet.Data);
+                    }
+                }
+
+                while (_packetsToSend.TryDequeue(out (Packet packet, Action action) p))
+                {
+                    await p.packet.WriteAsync(stream, this);
+                    p.action();
+                }
+            }
+            finally
+            {
+                scope.Dispose();
+            }
+
+
+        }
+    }, token);
+
+    /// <summary>
+    /// Requests a packet asynchronously.
+    /// </summary>
+    /// <typeparam name="TPacket">The type of the packet.</typeparam>
+    /// <typeparam name="TPacketType">The type of the packet type enum.</typeparam>
+    /// <param name="type">The packet type to request.</param>
+    /// <returns>The requested packet.</returns>
+    public async ValueTask<TPacket> RequestPacketAsync<TPacketType, TPacket>(TPacketType type)
+        where TPacketType : Enum
+        where TPacket : class, IPacket<TPacket>
+    {
+        var tcs = new TaskCompletionSource<TPacket>();
+        if (_packetRequests.TryGetValue(type, out List<Action<byte[]>>? handlers) is false)
+            _packetRequests[type] = handlers = [];
+
+        handlers.Add(bytes =>
+        {
+            var packet = TPacket.Deserialize(bytes);
+            tcs.SetResult(packet);
+        });
+
+        return await tcs.Task;
+    }
+
+    /// <summary>
+    /// Sends a packet asynchronously.
+    /// </summary>
+    /// <typeparam name="TPacket">The type of the packet.</typeparam>
+    /// <typeparam name="TPacketType">The type of the packet type enum.</typeparam>
+    /// <param name="packetType">The packet type to send.</param>
+    /// <param name="packet">The packet to send.</param>
+    /// <param name="encryptData">Whether to encrypt the data.</param>
+    /// <param name="token">The cancellation token for the operation.</param>
+    public async ValueTask SendPacketAsync<TPacketType, TPacket>(
+        TPacketType packetType,
+        TPacket packet,
+        bool encryptData = true,
+        CancellationToken token = default)
+        where TPacketType : Enum
+        where TPacket : class, IPacket<TPacket>
+    {
+        byte[] data = packet.Serialize();
+
+        var p = new Packet()
+        {
+            PacketIdTypeName = $"{packetType.GetType().Assembly.FullName}:{packetType.GetType().FullName}",
+            PacketId = Convert.ToInt64(packetType),
+            Length = data.Length,
+            IsEncrypted = encryptData,
+            Data = data
+        };
+
+        var tcs = new TaskCompletionSource();
+        _packetsToSend.Enqueue((p, tcs.SetResult));
+        await tcs.Task;
     }
 }

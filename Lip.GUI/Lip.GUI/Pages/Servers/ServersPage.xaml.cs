@@ -1,12 +1,18 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net;
 using Lip.GUI.Controls;
+using Lip.GUI.Themes;
 
 namespace Lip.GUI.Pages.Servers;
 
 
-public partial class ServersPage : ContentPage
+public partial class ServersPage : ContentPage, IBackgroundImageHandler
 {
+    public ImageSource BackgroundImage
+    {
+        get => _background.Source;
+        set => _background.Source = value;
+    }
 
     public ServersPage()
     {
@@ -118,7 +124,7 @@ public partial class ServersPage : ContentPage
                         ServerPort = server.ServerPort,
                         ServerIconId = server.ServerIconId,
                         ServerPassword = server.ServerPassword,
-                        TextColor = Color.Parse(server.TextColor?? "#00000000")
+                        TextColor = Color.Parse(server.TextColor ?? "#00000000")
                     };
 
                     _serverViews.Add(server.ServerName, view);

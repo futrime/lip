@@ -4,7 +4,10 @@ namespace Lip.Connection.Network;
 
 public interface IPacketHandler
 {
-    public void Start(NetworkStream stream, Action? onBytesRecived = null, CancellationToken token = default);
+    //public void Start(NetworkStream stream, Action? onBytesRecived = null, CancellationToken token = default);
+    public Type PacketType { get; }
+
+    public void OnPacketReceived(Enum type, byte[] data);
 }
 
 
@@ -12,10 +15,12 @@ public interface IPacketHandler
 /// Handles packets of a specified type.
 /// </summary>
 /// <typeparam name="TPacketType">The type of the packet.</typeparam>
-public class PacketHandler<TPacketType>(Connection connection)
+public class PacketHandler<TPacketType>
     : IPacketHandler
     where TPacketType : Enum
 {
+    public Type PacketType => typeof(TPacketType);
+
     /// <summary>
     /// A record struct that holds a function pointer for deserialization.
     /// </summary>
@@ -31,21 +36,21 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// Binds a packet handler to an action.
     /// </summary>
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
-    private sealed class PacketHandlerBinding<TPacket>(Action<TPacketType, TPacket> action)
+    private sealed class PacketHandlerBinding<TPacket>(Action<PacketHandler<TPacketType>, TPacketType, TPacket> action)
         where TPacket : class, IPacket<TPacket>
     {
         /// <summary>
         /// Invokes the action with the specified packet.
         /// </summary>
         /// <param name="packet">The packet to handle.</param>
-        public void Invoke(int type, IPacket packet)
-            => action((TPacketType)Enum.ToObject(typeof(TPacketType), type), (TPacket)packet);
+        public void Invoke(PacketHandler<TPacketType> handler, Enum type, IPacket packet)
+            => action(handler, (TPacketType)type, (TPacket)packet);
     }
 
     /// <summary>
     /// A dictionary that maps packet types to their deserialization function pointers and handlers.
     /// </summary>
-    private readonly Dictionary<TPacketType, (DeserializeFunctionPointer fptr, Action<int, IPacket> action)> _handlers = [];
+    private readonly Dictionary<TPacketType, (DeserializeFunctionPointer fptr, Action<PacketHandler<TPacketType>, Enum, IPacket> action)> _handlers = [];
 
     /// <summary>
     /// Sets a handler for a specified packet type.
@@ -53,7 +58,7 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
     /// <param name="type">The packet type.</param>
     /// <param name="handler">The handler action.</param>
-    public void SetHandler<TPacket>(TPacketType type, Action<TPacketType, TPacket> handler)
+    public void SetHandler<TPacket>(TPacketType type, Action<PacketHandler<TPacketType>, TPacketType, TPacket> handler)
         where TPacket : class, IPacket<TPacket>
     {
         _handlers[type] = (
@@ -66,10 +71,10 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// </summary>
     /// <typeparam name="TPacket">The type of the packet.</typeparam>
     /// <param name="handlers">The packet handlers.</param>
-    public void SetHandlers<TPacket>(IDictionary<TPacketType, Action<TPacketType, TPacket>> handlers)
+    public void SetHandlers<TPacket>(IDictionary<TPacketType, Action<PacketHandler<TPacketType>, TPacketType, TPacket>> handlers)
         where TPacket : class, IPacket<TPacket>
     {
-        foreach (KeyValuePair<TPacketType, Action<TPacketType, TPacket>> handler in handlers)
+        foreach (var handler in handlers)
             SetHandler(handler.Key, handler.Value);
     }
 
@@ -78,37 +83,10 @@ public class PacketHandler<TPacketType>(Connection connection)
     /// </summary>
     /// <param name="stream">The network stream.</param>
     /// <param name="token">The cancellation token.</param>
-    public void Start(NetworkStream stream, Action? onBytesRecived = null, CancellationToken token = default) => Task.Run(() =>
+    public unsafe void OnPacketReceived(Enum type, byte[] data)
     {
-        Span<byte> typeBuffer = stackalloc byte[4];
-        Span<byte> lengthBuffer = stackalloc byte[4];
-
-        while (true)
-        {
-            if (token.IsCancellationRequested) return;
-
-            int bytesReceived = stream.Read(typeBuffer);
-            if (bytesReceived is 0) break;
-            bytesReceived = stream.Read(lengthBuffer);
-            if (bytesReceived is 0) break;
-
-            int typeValue = BitConverter.ToInt32(typeBuffer);
-            TPacketType type = (TPacketType)Enum.ToObject(typeof(TPacketType), typeValue);
-            int length = BitConverter.ToInt32(lengthBuffer);
-
-            byte[] dataBuffer = new byte[length];
-            int bytesRead = 0;
-
-            while (bytesRead < length) bytesRead += stream.Read(
-                dataBuffer,
-                bytesRead,
-                dataBuffer.Length - bytesRead);
-
-            IPacket packet;
-            unsafe { packet = _handlers[type].fptr.Target(connection.DecryptData(dataBuffer)); }
-            _ = Task.Run(() => _handlers[type].action(typeValue, packet)).ConfigureAwait(false);
-        }
-
-        onBytesRecived?.Invoke();
-    }, token);
+        (DeserializeFunctionPointer fptr, Action<PacketHandler<TPacketType>, Enum, IPacket> action) = _handlers[(TPacketType)type];
+        IPacket packet = fptr.Target(data);
+        Task.Run(() => _handlers[(TPacketType)type].action(this, type, packet));
+    }
 }
