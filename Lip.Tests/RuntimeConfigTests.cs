@@ -1,11 +1,20 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 namespace Lip.Tests;
 
 public class RuntimeConfigTests
 {
+    [Fact]
+    public void With_Passes()
+    {
+        // Arrange.
+        RuntimeConfig runtimeConfig = new();
+
+        // Act.
+        runtimeConfig = runtimeConfig with { };
+    }
+
     [Fact]
     public void FromBytes_MinimumJson_Passes()
     {

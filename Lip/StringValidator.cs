@@ -6,7 +6,7 @@ namespace Lip;
 /// <summary>
 /// Provides utility methods for validating various strings.
 /// </summary>
-public static partial class StringValidator
+public static class StringValidator
 {
     /// <summary>
     /// Checks if the package specifier is valid.
@@ -69,7 +69,7 @@ public static partial class StringValidator
     /// </summary>
     /// <param name="path">The path to validate.</param>
     /// <returns>True if the path is safe to place files to; otherwise, false.</returns>
-    public static bool CheckSafePlacePath(string path)
+    public static bool CheckPlaceDestPath(string path)
     {
         if (Path.IsPathFullyQualified(path) || Path.IsPathRooted(path))
         {
@@ -91,7 +91,7 @@ public static partial class StringValidator
     /// <returns>True if the script name is valid; otherwise, false.</returns>
     public static bool CheckScriptName(string scriptName)
     {
-        return ScriptNameGeneratedRegex().IsMatch(scriptName);
+        return new Regex("^[a-z0-9]+(_[a-z0-9]+)*$").IsMatch(scriptName);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public static partial class StringValidator
     /// <returns>True if the tag is valid; otherwise, false.</returns>
     public static bool CheckTag(string tag)
     {
-        return TagGeneratedRegex().IsMatch(tag);
+        return new Regex("^[a-z0-9-]+(:[a-z0-9-]+)?$").IsMatch(tag);
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public static partial class StringValidator
     /// <returns>True if the variant label is valid; otherwise, false.</returns>
     public static bool CheckVariantLabel(string variantLabel)
     {
-        return VariantLabelGeneratedRegex().IsMatch(variantLabel);
+        return new Regex("^([a-z0-9]+(_[a-z0-9]+)*)?$").IsMatch(variantLabel);
     }
 
     /// <summary>
@@ -153,13 +153,4 @@ public static partial class StringValidator
     {
         return Semver.SemVersionRange.TryParseNpm(versionRange, out _);
     }
-
-    [GeneratedRegex("^[a-z0-9]+(_[a-z0-9]+)*$")]
-    private static partial Regex ScriptNameGeneratedRegex();
-
-    [GeneratedRegex("^[a-z0-9-]+(:[a-z0-9-]+)?$")]
-    private static partial Regex TagGeneratedRegex();
-
-    [GeneratedRegex("^([a-z0-9]+(_[a-z0-9]+)*)?$")]
-    private static partial Regex VariantLabelGeneratedRegex();
 }

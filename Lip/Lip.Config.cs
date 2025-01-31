@@ -1,5 +1,4 @@
-﻿using System.IO.Abstractions;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace Lip;
@@ -85,11 +84,6 @@ public partial class Lip
             matchedProperty.SetValue(newRuntimeConfig, convertedValue);
         }
 
-        await CreateOrUpdateRuntimeConfigurationFile(_context.FileSystem, newRuntimeConfig);
-    }
-
-    private async Task CreateOrUpdateRuntimeConfigurationFile(IFileSystem fileSystem, RuntimeConfig runtimeConfig)
-    {
-        await fileSystem.File.WriteAllBytesAsync(_pathManager.RuntimeConfigPath, runtimeConfig.ToJsonBytes());
+        await _context.FileSystem.File.WriteAllBytesAsync(_pathManager.RuntimeConfigPath, newRuntimeConfig.ToJsonBytes());
     }
 }

@@ -15,13 +15,13 @@ public class StandaloneFileSource(IFileSystem fileSystem, string filePath) : IFi
     private readonly string _filePath = fileSystem.Path.GetFullPath(filePath);
     private readonly IFileSystem _fileSystem = fileSystem;
 
-    public async Task<List<IFileSourceEntry>> GetAllFiles()
+    public async Task<List<IFileSourceEntry>> GetAllEntries()
     {
         await Task.Delay(0); // To avoid warning.
         return [new StandaloneFileSourceEntry(_fileSystem, _filePath)];
     }
 
-    public async Task<IFileSourceEntry?> GetFile(string key)
+    public async Task<IFileSourceEntry?> GetEntry(string key)
     {
         await Task.Delay(0); // To avoid warning.
         return (key == string.Empty)

@@ -16,7 +16,7 @@ public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) :
     private readonly string _archiveFilePath = fileSystem.Path.GetFullPath(archiveFilePath);
     private readonly IFileSystem _fileSystem = fileSystem;
 
-    public async Task<List<IFileSourceEntry>> GetAllFiles()
+    public async Task<List<IFileSourceEntry>> GetAllEntries()
     {
         using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
 
@@ -32,7 +32,7 @@ public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) :
         return entries;
     }
 
-    public async Task<IFileSourceEntry?> GetFile(string key)
+    public async Task<IFileSourceEntry?> GetEntry(string key)
     {
         using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
 

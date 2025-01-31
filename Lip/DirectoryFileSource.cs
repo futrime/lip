@@ -15,11 +15,14 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
     private readonly string _rootDirPath = fileSystem.Path.GetFullPath(rootDirPath);
     private readonly IFileSystem _fileSystem = fileSystem;
 
-    public async Task<List<IFileSourceEntry>> GetAllFiles()
+    public async Task<List<IFileSourceEntry>> GetAllEntries()
     {
         await Task.Delay(0); // To avoid warning.
 
-        return [.. _fileSystem.Directory.EnumerateFiles(_rootDirPath)
+        return [.. _fileSystem.Directory.EnumerateFiles(
+            _rootDirPath,
+            "*",
+            SearchOption.AllDirectories)
             .Select(filePath => new DirectoryFileSourceEntry(
                 _fileSystem,
                 filePath,
@@ -28,9 +31,9 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
             .Cast<IFileSourceEntry>()];
     }
 
-    public async Task<IFileSourceEntry?> GetFile(string key)
+    public async Task<IFileSourceEntry?> GetEntry(string key)
     {
-        if (!StringValidator.CheckSafePlacePath(key))
+        if (!StringValidator.CheckPlaceDestPath(key))
         {
             return null;
         }

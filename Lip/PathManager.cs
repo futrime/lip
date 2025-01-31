@@ -1,6 +1,8 @@
 ﻿using System.IO.Abstractions;
 using System.Text.RegularExpressions;
+using DotNet.Globbing;
 using Flurl;
+using Semver;
 
 namespace Lip;
 
@@ -15,7 +17,6 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
     private const string DownloadedFileCacheDirName = "downloaded_files";
     private const string GitRepoCacheDirName = "git_repos";
     private const string PackageLockFileName = "tooth_lock.json";
-    private const string PackageManifestCacheDirName = "package_manifests";
 
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly string? _baseCacheDir = baseCacheDir;
@@ -26,8 +27,6 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
     public string BaseDownloadedFileCacheDir => _fileSystem.Path.Join(BaseCacheDir, DownloadedFileCacheDirName);
 
     public string BaseGitRepoCacheDir => _fileSystem.Path.Join(BaseCacheDir, GitRepoCacheDirName);
-
-    public string BasePackageManifestCacheDir => _fileSystem.Path.Join(BaseCacheDir, PackageManifestCacheDirName);
 
     public string CurrentPackageManifestPath => _fileSystem.Path.Join(WorkingDir, PackageManifestFileName);
 
@@ -53,16 +52,65 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
         return _fileSystem.Path.Join(BaseGitRepoCacheDir, repoDirName, tagDirName);
     }
 
-    public string GetPackageManifestCachePath(string packageName)
+    public string GetGoModuleArchiveEntryKey(PackageSpecifier packageSpecifier, string relativePath)
     {
-        string escapedPackageName = Url.Encode(packageName);
-        string packageManifestFileName = $"{escapedPackageName}.json";
-        return _fileSystem.Path.Join(BasePackageManifestCacheDir, packageManifestFileName);
+        SemVersion version = packageSpecifier.Version;
+
+        relativePath = relativePath.Replace(_fileSystem.Path.DirectorySeparatorChar, '/');
+
+        return $"{packageSpecifier.ToothPath}@v{version}{(version.Major >= 2 ? "+incompatible" : string.Empty)}/{relativePath}";
     }
 
     public string GetPackageManifestPath(string baseDir)
     {
         return _fileSystem.Path.Join(baseDir, PackageManifestFileName);
+    }
+
+    public string? GetPlacementRelativePath(PackageManifest.PlaceType placement, string fileSourceEntryKey)
+    {
+        if (placement.Type == PackageManifest.PlaceType.TypeEnum.File)
+        {
+            string fileName = _fileSystem.Path.GetFileName(fileSourceEntryKey);
+
+            if (fileSourceEntryKey == placement.Src)
+            {
+                // The destination is the file path, so leave empty.
+                return string.Empty;
+            }
+            else if (placement.Src != string.Empty)
+            {
+                Glob glob = Glob.Parse(placement.Src);
+
+                if (glob.IsMatch(fileSourceEntryKey))
+                {
+                    // The destination is the directory path.
+                    return fileName;
+                }
+            }
+
+            return null;
+        }
+        else if (placement.Type == PackageManifest.PlaceType.TypeEnum.Dir)
+        {
+            string placementSrc = placement.Src;
+
+            if (placementSrc != string.Empty && !placementSrc.EndsWith('/'))
+            {
+                placementSrc += '/';
+            }
+
+            if (fileSourceEntryKey.StartsWith(placementSrc))
+            {
+                // The destination is the directory root.
+                return fileSourceEntryKey[placementSrc.Length..];
+            }
+
+            return null;
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public Url ParseDownloadedFileCachePath(string downloadedFileCachePath)
@@ -90,16 +138,5 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
             Url = Url.Decode(match.Groups[1].Value, true),
             Tag = Url.Decode(match.Groups[2].Value, true)
         };
-    }
-
-    public string ParsePackageManifestCachePath(string packageManifestCachePath)
-    {
-        Regex pattern = new($"{Regex.Escape(BasePackageManifestCacheDir)}{Regex.Escape(_fileSystem.Path.DirectorySeparatorChar.ToString())}(.*)\\.json");
-        Match match = pattern.Match(packageManifestCachePath);
-        if (!match.Success)
-        {
-            throw new InvalidOperationException($"Invalid package manifest cache path: {packageManifestCachePath}");
-        }
-        return Url.Decode(match.Groups[1].Value, true);
     }
 }

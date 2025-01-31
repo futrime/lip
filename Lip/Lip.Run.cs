@@ -6,7 +6,7 @@ public partial class Lip
 {
     public record RunArgs
     {
-        public string VariantLabel { get; init; } = "";
+        public string VariantLabel { get; init; } = string.Empty;
     }
 
     public async Task<int> Run(string scriptName, RunArgs args)

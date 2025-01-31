@@ -18,7 +18,7 @@ public class StandaloneFileSourceTests
         var source = new StandaloneFileSource(fileSystem, filePath);
 
         // Act
-        List<IFileSourceEntry> entries = await source.GetAllFiles();
+        List<IFileSourceEntry> entries = await source.GetAllEntries();
 
         // Assert
         Assert.Single(entries);
@@ -39,7 +39,7 @@ public class StandaloneFileSourceTests
         var source = new StandaloneFileSource(fileSystem, filePath);
 
         // Act
-        IFileSourceEntry? entry = await source.GetFile(string.Empty);
+        IFileSourceEntry? entry = await source.GetEntry(string.Empty);
 
         // Assert
         Assert.NotNull(entry);
@@ -60,7 +60,7 @@ public class StandaloneFileSourceTests
         var source = new StandaloneFileSource(fileSystem, filePath);
 
         // Act
-        IFileSourceEntry? entry = await source.GetFile("non-empty-key");
+        IFileSourceEntry? entry = await source.GetEntry("non-empty-key");
 
         // Assert
         Assert.Null(entry);

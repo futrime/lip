@@ -11,14 +11,17 @@ public partial class Lip
     {
         public required List<string> DownloadedFiles { get; init; }
         public required List<string> GitRepos { get; init; }
-        public required List<string> PackageManifestFiles { get; init; }
     }
 
     public async Task CacheAdd(string packageSpecifierText, CacheAddArgs _)
     {
         var packageSpecifier = PackageSpecifier.Parse(packageSpecifierText);
 
-        using Stream packageManifestFileStream = await _cacheManager.GetPackageManifestFile(packageSpecifier);
+        IFileSource packageFileSource = await _cacheManager.GetPackageFileSource(packageSpecifier);
+
+        using Stream packageManifestFileStream = await packageFileSource.GetFileStream(_pathManager.PackageManifestFileName)
+            ?? throw new InvalidOperationException($"Package manifest file not found in package '{packageSpecifier}'.");
+
         PackageManifest packageManifest = PackageManifest.FromJsonBytesParsed(await packageManifestFileStream.ReadAsync());
 
         if (packageManifest.ToothPath != packageSpecifier.ToothPath)
@@ -36,11 +39,7 @@ public partial class Lip
 
         foreach (PackageManifest.AssetType asset in variant?.Assets ?? [])
         {
-            if (asset.Type == PackageManifest.AssetType.TypeEnum.Self)
-            {
-                await _cacheManager.GetGitRepoDir(packageSpecifier);
-            }
-            else
+            if (asset.Type != PackageManifest.AssetType.TypeEnum.Self)
             {
                 foreach (string url in asset.Urls ?? [])
                 {
@@ -57,12 +56,11 @@ public partial class Lip
 
     public async Task<CacheListResult> CacheList(CacheListArgs _)
     {
-        CacheManager.ListResult listResult = await _cacheManager.List();
+        CacheManager.CacheSummary listResult = await _cacheManager.List();
         return new CacheListResult
         {
             DownloadedFiles = [.. listResult.DownloadedFiles.Keys],
             GitRepos = [.. listResult.GitRepos.Keys.Select(repo => $"{repo.Url} {repo.Tag}")],
-            PackageManifestFiles = [.. listResult.PackageManifestFiles.Keys.Select(package => package.SpecifierWithoutVariant)],
         };
     }
 }

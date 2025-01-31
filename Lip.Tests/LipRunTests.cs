@@ -12,6 +12,16 @@ public class LipRunTests
         : Path.Join("/", "path", "to", "work");
 
     [Fact]
+    public void RunArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.RunArgs runArgs = new();
+
+        // Act.
+        runArgs = runArgs with { };
+    }
+
+    [Fact]
     public async Task Run_ValidScript_Passes()
     {
         // Arrange.

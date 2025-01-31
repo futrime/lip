@@ -35,7 +35,7 @@ public class ArchiveFileSourceTests
         ArchiveFileSource fileSource = new(fileSystem, "archive");
 
         // Act.
-        List<IFileSourceEntry> files = await fileSource.GetAllFiles();
+        List<IFileSourceEntry> files = await fileSource.GetAllEntries();
 
         // Assert.
         Assert.Collection(
@@ -79,7 +79,7 @@ public class ArchiveFileSourceTests
         ArchiveFileSource fileSource = new(fileSystem, "archive");
 
         // Act.
-        IFileSourceEntry? file = await fileSource.GetFile("path/to/entry1");
+        IFileSourceEntry? file = await fileSource.GetEntry("path/to/entry1");
 
         // Assert.
         Assert.NotNull(file);
@@ -106,7 +106,7 @@ public class ArchiveFileSourceTests
         ArchiveFileSource fileSource = new(fileSystem, "archive");
 
         // Act.
-        IFileSourceEntry? file = await fileSource.GetFile("path/to/entry3");
+        IFileSourceEntry? file = await fileSource.GetEntry("path/to/entry3");
 
         // Assert.
         Assert.Null(file);
@@ -118,12 +118,12 @@ public class ArchiveFileSourceTests
         // Arrange.
         MockFileSystem fileSystem = new();
 
-        CreateTestFiles(fileSystem, ArchiveType.Tar, CompressionType.None, new());
+        CreateTestFiles(fileSystem, ArchiveType.Tar, CompressionType.None, []);
 
         ArchiveFileSource fileSource = new(fileSystem, "archive");
 
         // Act.
-        IFileSourceEntry? file = await fileSource.GetFile("path/to/entry");
+        IFileSourceEntry? file = await fileSource.GetEntry("path/to/entry");
 
         // Assert.
         Assert.Null(file);

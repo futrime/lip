@@ -13,18 +13,23 @@ public class DirectoryFileSourceTests
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             { $"{rootDirPath}/file1", new MockFileData("Test content 1") },
-            { $"{rootDirPath}/file2", new MockFileData("Test content 2") }
+            { $"{rootDirPath}/file2", new MockFileData("Test content 2") },
+            { $"{rootDirPath}/dir/file3", new MockFileData("Test content 3") }
         });
 
         var source = new DirectoryFileSource(fileSystem, rootDirPath);
 
         // Act
-        List<IFileSourceEntry> entries = await source.GetAllFiles();
+        List<IFileSourceEntry> entries = await source.GetAllEntries();
 
         // Assert
-        Assert.Equal(2, entries.Count);
+        Assert.Equal(3, entries.Count);
+        Assert.Equal("file1", entries[0].Key);
+        Assert.Equal("file2", entries[1].Key);
+        Assert.Equal("dir/file3", entries[2].Key);
         Assert.Equal("Test content 1", new StreamReader(await entries[0].OpenRead()).ReadToEnd());
         Assert.Equal("Test content 2", new StreamReader(await entries[1].OpenRead()).ReadToEnd());
+        Assert.Equal("Test content 3", new StreamReader(await entries[2].OpenRead()).ReadToEnd());
     }
 
     [Fact]
@@ -41,7 +46,7 @@ public class DirectoryFileSourceTests
         var source = new DirectoryFileSource(fileSystem, filePath);
 
         // Act
-        IFileSourceEntry? entry = await source.GetFile(string.Empty);
+        IFileSourceEntry? entry = await source.GetEntry(string.Empty);
 
         // Assert
         Assert.NotNull(entry);
@@ -62,7 +67,7 @@ public class DirectoryFileSourceTests
         var source = new DirectoryFileSource(fileSystem, filePath);
 
         // Act
-        IFileSourceEntry? entry = await source.GetFile("non-empty-key");
+        IFileSourceEntry? entry = await source.GetEntry("non-empty-key");
 
         // Assert
         Assert.Null(entry);
@@ -85,7 +90,7 @@ public class DirectoryFileSourceTests
         var source = new DirectoryFileSource(fileSystem, rootDirPath);
 
         // Act
-        IFileSourceEntry? entry = await source.GetFile(key);
+        IFileSourceEntry? entry = await source.GetEntry(key);
 
         // Assert
         Assert.Null(entry);

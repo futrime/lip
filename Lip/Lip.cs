@@ -10,6 +10,7 @@ public partial class Lip
 {
     private readonly CacheManager _cacheManager;
     private readonly IContext _context;
+    private readonly PackageManager _packageManager;
     private readonly PathManager _pathManager;
     private readonly RuntimeConfig _runtimeConfig;
 
@@ -20,8 +21,10 @@ public partial class Lip
 
         _pathManager = new(context.FileSystem, baseCacheDir: runtimeConfig.Cache, workingDir: context.WorkingDir);
 
-        Url? githubProxyUrl = runtimeConfig.GitHubProxy.Length > 0 ? Url.Parse(runtimeConfig.GitHubProxy) : null;
-        Url? goModuleProxyUrl = runtimeConfig.GoModuleProxy.Length > 0 ? Url.Parse(runtimeConfig.GoModuleProxy) : null;
-        _cacheManager = new(context, _pathManager, githubProxyUrl, goModuleProxyUrl);
+        Url? githubProxyUrl = runtimeConfig.GitHubProxy != string.Empty ? Url.Parse(runtimeConfig.GitHubProxy) : null;
+        Url? goModuleProxyUrl = runtimeConfig.GoModuleProxy != string.Empty ? Url.Parse(runtimeConfig.GoModuleProxy) : null;
+        _cacheManager = new(_context, _pathManager, githubProxyUrl, goModuleProxyUrl);
+
+        _packageManager = new(_context, _cacheManager, _pathManager);
     }
 }

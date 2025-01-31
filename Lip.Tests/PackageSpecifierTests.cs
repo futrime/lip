@@ -5,6 +5,20 @@ namespace Lip.Tests;
 public class PackageSpecifierWithoutVersionTests
 {
     [Fact]
+    public void With_Passes()
+    {
+        // Arrange.
+        PackageSpecifierWithoutVersion packageSpecifier = new()
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+        };
+
+        // Act.
+        packageSpecifier = packageSpecifier with { };
+    }
+
+    [Fact]
     public void Constructor_ValidValues_Passes()
     {
         // Arrange & Act
@@ -44,33 +58,37 @@ public class PackageSpecifierWithoutVersionTests
         Assert.Equal("Invalid variant label. (Parameter 'VariantLabel')", exception.Message);
     }
 
-    [Fact]
-    public void GetSpecifier_ValidValues_Passes()
+    [Theory]
+    [InlineData("example.com/pkg", "variant", "example.com/pkg#variant")]
+    [InlineData("example.com/pkg", "", "example.com/pkg")]
+    public void GetSpecifier_ValidValues_Passes(string toothPath, string variantLabel, string specifier)
     {
         // Arrange
         var packageSpecifier = new PackageSpecifierWithoutVersion
         {
-            ToothPath = "example.com/pkg",
-            VariantLabel = "variant",
+            ToothPath = toothPath,
+            VariantLabel = variantLabel,
         };
 
         // Act
-        string specifier = packageSpecifier.Specifier;
+        string result = packageSpecifier.Specifier;
 
         // Assert
-        Assert.Equal("example.com/pkg#variant", specifier);
+        Assert.Equal(specifier, result);
     }
 
-    [Fact]
-    public void Parse_ValidSpecifierText_Passes()
+    [Theory]
+    [InlineData("example.com/pkg#variant", "example.com/pkg", "variant")]
+    [InlineData("example.com/pkg", "example.com/pkg", "")]
+    public void Parse_ValidSpecifierText_Passes(string specifier, string toothPath, string variantLabel)
     {
         // Arrange & Act
-        var packageSpecifier = PackageSpecifierWithoutVersion.Parse("example.com/pkg#variant");
+        var packageSpecifier = PackageSpecifierWithoutVersion.Parse(specifier);
 
         // Assert
-        Assert.Equal("example.com/pkg#variant", packageSpecifier.Specifier);
-        Assert.Equal("example.com/pkg", packageSpecifier.ToothPath);
-        Assert.Equal("variant", packageSpecifier.VariantLabel);
+        Assert.Equal(specifier, packageSpecifier.Specifier);
+        Assert.Equal(toothPath, packageSpecifier.ToothPath);
+        Assert.Equal(variantLabel, packageSpecifier.VariantLabel);
     }
 
     [Fact]
@@ -101,6 +119,21 @@ public class PackageSpecifierWithoutVersionTests
 
 public class PackageSpecifierTests
 {
+    [Fact]
+    public void With_Passes()
+    {
+        // Arrange.
+        PackageSpecifier packageSpecifier = new()
+        {
+            ToothPath = "example.com/pkg",
+            VariantLabel = "variant",
+            Version = SemVersion.Parse("1.0.0")
+        };
+
+        // Act.
+        packageSpecifier = packageSpecifier with { };
+    }
+
     [Fact]
     public void Constructor_ValidValues_Passes()
     {

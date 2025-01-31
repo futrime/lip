@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Semver;
 
 namespace Lip;
 
@@ -8,17 +7,14 @@ public record PackageLock
 {
     public record LockType
     {
-        [JsonPropertyName("tooth")]
-        public string ToothPath
-        {
-            get => _tooth;
-            init => _tooth = StringValidator.CheckToothPath(value)
-                ? value
-                : throw new SchemaViolationException("tooth", $"Invalid tooth path '{value}'.");
-        }
+        [JsonPropertyName("locked")]
+        public required bool Locked { get; init; }
+
+        [JsonPropertyName("package")]
+        public required PackageManifest Package { get; init; }
 
         [JsonPropertyName("variant")]
-        public string VariantLabel
+        public required string VariantLabel
         {
             get => _variant;
             init => _variant = StringValidator.CheckVariantLabel(value)
@@ -26,21 +22,7 @@ public record PackageLock
                 : throw new SchemaViolationException("variant", $"Invalid variant label '{value}'.");
         }
 
-        [JsonIgnore]
-        public SemVersion Version => SemVersion.Parse(VersionText);
-
-        [JsonPropertyName("version")]
-        public string VersionText
-        {
-            get => _version;
-            init => _version = StringValidator.CheckVersion(value)
-                ? value
-                : throw new SchemaViolationException("version", $"Invalid version '{value}'.");
-        }
-
-        private string _tooth = "";
-        private string _variant = "";
-        private string _version = "";
+        private string _variant = string.Empty;
     }
 
     public const int DefaultFormatVersion = 3;
@@ -71,9 +53,6 @@ public record PackageLock
             : throw new SchemaViolationException("format_uuid", $"Format UUID '{value}' is not equal to {DefaultFormatUuid}.");
     }
 
-    [JsonPropertyName("packages")]
-    public required List<PackageManifest> Packages { get; init; }
-
     [JsonPropertyName("locks")]
     public required List<LockType> Locks { get; init; }
 
@@ -84,7 +63,7 @@ public record PackageLock
             return JsonSerializer.Deserialize<PackageLock>(bytes, s_jsonSerializerOptions)
                 ?? throw new JsonException("JSON bytes deserialized to null.");
         }
-        catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
+        catch (Exception ex) when (ex is JsonException)
         {
             throw new JsonException("Package lock bytes deserialization failed.", ex);
         }

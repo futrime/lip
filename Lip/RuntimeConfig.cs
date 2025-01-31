@@ -26,19 +26,19 @@ public record RuntimeConfig
     public bool Color { get; init; } = true;
 
     [JsonPropertyName("github_proxy")]
-    public string GitHubProxy { get; init; } = "";
+    public string GitHubProxy { get; init; } = string.Empty;
 
     [JsonPropertyName("go_module_proxy")]
     public string GoModuleProxy { get; init; } = "https://goproxy.io";
 
     [JsonPropertyName("https_proxy")]
-    public string HttpsProxy { get; init; } = "";
+    public string HttpsProxy { get; init; } = string.Empty;
 
     [JsonPropertyName("noproxy")]
-    public string NoProxy { get; init; } = "";
+    public string NoProxy { get; init; } = string.Empty;
 
     [JsonPropertyName("proxy")]
-    public string Proxy { get; init; } = "";
+    public string Proxy { get; init; } = string.Empty;
 
     public static RuntimeConfig FromJsonBytes(byte[] bytes)
     {

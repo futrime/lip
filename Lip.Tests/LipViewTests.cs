@@ -40,6 +40,16 @@ public class LipViewTests
         """.ReplaceLineEndings();
 
     [Fact]
+    public void ViewArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.ViewArgs viewArgs = new();
+
+        // Act.
+        viewArgs = viewArgs with { };
+    }
+
+    [Fact]
     public async Task View_EmptyPath_ReturnsFullManifest()
     {
         // Arrange.
@@ -50,11 +60,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -79,11 +93,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -105,11 +123,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -131,11 +153,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Finvalid%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Finvalid", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -154,11 +180,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%402.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v2.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -177,11 +207,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
@@ -200,11 +234,15 @@ public class LipViewTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData(s_packageManifestData) },
+        {
+                Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"),
+                new MockFileData(s_packageManifestData)
+        },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
 
         Lip lip = new(runtimeConfig, context.Object);
 
