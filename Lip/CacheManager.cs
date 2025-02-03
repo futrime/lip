@@ -1,6 +1,7 @@
 ﻿using System.IO.Abstractions;
 using Flurl;
 using Lip.Context;
+using Microsoft.Extensions.Logging;
 using Semver;
 
 namespace Lip;
@@ -30,23 +31,51 @@ public class CacheManager(
         }
     }
 
-    public async Task<IFileInfo> GetDownloadedFile(Url url)
+    public async Task<IFileInfo> GetDownloadedFile(Url url) => await GetDownloadedFile([url]);
+
+    public async Task<IFileInfo> GetDownloadedFile(List<Url> originalUrls)
     {
-        if (url.Host == "github.com" && _githubProxy is not null)
+        // Apply GitHub proxy to GitHub URLs.
+        List<Url> actualUrls = [.. originalUrls.Select(url =>
         {
-            url = _githubProxy.AppendPathSegment(url.Path).SetQueryParams(url.QueryParams);
+            if (url.Host == "github.com" && _githubProxy is not null)
+            {
+                return _githubProxy.AppendPathSegment(url.Path).SetQueryParams(url.QueryParams);
+            }
+
+            return url;
+        })];
+
+        foreach (Url url in actualUrls)
+        {
+            string filePath = _pathManager.GetDownloadedFileCachePath(url);
+
+            if (await _context.FileSystem.File.ExistsAsync(filePath))
+            {
+                return _context.FileSystem.FileInfo.New(filePath);
+            }
         }
 
-        string filePath = _pathManager.GetDownloadedFileCachePath(url);
-
-        if (!await _context.FileSystem.File.ExistsAsync(filePath))
+        foreach (Url url in actualUrls)
         {
+            string filePath = _pathManager.GetDownloadedFileCachePath(url);
+
             await _context.FileSystem.CreateParentDirectoryAsync(filePath);
 
-            await _context.Downloader.DownloadFile(url, filePath);
+            try
+            {
+                await _context.Downloader.DownloadFile(url, filePath);
+
+                return _context.FileSystem.FileInfo.New(filePath);
+
+            }
+            catch (Exception ex)
+            {
+                _context.Logger.LogWarning(ex, "Failed to download {Url}. Attempting next URL.", url);
+            }
         }
 
-        return _context.FileSystem.FileInfo.New(filePath);
+        throw new InvalidOperationException("All download attempts failed.");
     }
 
     public async Task<IFileSource> GetPackageFileSource(PackageSpecifier packageSpecifier)
@@ -61,7 +90,11 @@ public class CacheManager(
         {
             IFileInfo goModuleArchive = await GetGoModuleArchive(packageSpecifier);
 
-            return new ArchiveFileSource(_context.FileSystem, goModuleArchive.FullName);
+            return new GoModuleArchiveFileSource(
+                _context.FileSystem,
+                goModuleArchive.FullName,
+                packageSpecifier.ToothPath,
+                packageSpecifier.Version);
         }
         else
         {
@@ -101,11 +134,6 @@ public class CacheManager(
 
     private async Task<IDirectoryInfo> GetGitRepoDir(PackageSpecifier packageSpecifier)
     {
-        if (_context.Git is null)
-        {
-            throw new InvalidOperationException("Git client is not available.");
-        }
-
         string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
         string tag = $"v{packageSpecifier.Version}";
 
@@ -115,16 +143,11 @@ public class CacheManager(
             Tag = tag
         });
 
-        if (await _context.FileSystem.File.ExistsAsync(repoDirPath))
-        {
-            throw new InvalidOperationException($"Attempt to get Git repo directory at '{repoDirPath}' where is a file.");
-        }
-
         if (!await _context.FileSystem.Directory.ExistsAsync(repoDirPath))
         {
             await _context.FileSystem.CreateParentDirectoryAsync(repoDirPath);
 
-            await _context.Git.Clone(
+            await _context.Git!.Clone(
                 repoUrl,
                 repoDirPath,
                 branch: tag,
@@ -136,24 +159,13 @@ public class CacheManager(
 
     private async Task<IFileInfo> GetGoModuleArchive(PackageSpecifier packageSpecifier)
     {
-        if (_goModuleProxy is null)
-        {
-            throw new InvalidOperationException("Go module proxy is not available.");
-        }
-
         SemVersion version = packageSpecifier.Version;
 
-        // Reference: https://go.dev/ref/mod#glos-canonical-version
-        if (version.Metadata != string.Empty)
-        {
-            throw new ArgumentException("Go module proxy does not accept version with build metadata.", nameof(packageSpecifier));
-        }
-
-        // Reference: https://go.dev/ref/mod#non-module-compat
-        string archiveFileNameInUrl = $"v{version}{(version.Major >= 2 ? "+incompatible" : string.Empty)}.zip";
-
-        string escapedGoModulePath = GoModule.EscapePath(packageSpecifier.ToothPath);
-        Url archiveFileUrl = _goModuleProxy!.Clone().AppendPathSegments(escapedGoModulePath, "@v", archiveFileNameInUrl);
+        Url archiveFileUrl = _goModuleProxy!.Clone()
+            .AppendPathSegments(
+            GoModule.EscapePath(packageSpecifier.ToothPath),
+            "@v",
+            GoModule.EscapeVersion(GoModule.CanonicalVersion(version.ToString())) + ".zip");
 
         return await GetDownloadedFile(archiveFileUrl);
     }

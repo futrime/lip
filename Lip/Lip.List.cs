@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Lip;
+﻿namespace Lip;
 
 public partial class Lip
 {

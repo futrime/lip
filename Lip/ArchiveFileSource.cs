@@ -13,10 +13,10 @@ namespace Lip;
 /// <param name="archiveFilePath">The archive file path.</param>
 public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) : IFileSource
 {
-    private readonly string _archiveFilePath = fileSystem.Path.GetFullPath(archiveFilePath);
+    private readonly string _archiveFilePath = archiveFilePath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
-    public async Task<List<IFileSourceEntry>> GetAllEntries()
+    public virtual async Task<List<IFileSourceEntry>> GetAllEntries()
     {
         using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
 
@@ -32,7 +32,7 @@ public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) :
         return entries;
     }
 
-    public async Task<IFileSourceEntry?> GetEntry(string key)
+    public virtual async Task<IFileSourceEntry?> GetEntry(string key)
     {
         using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
 
@@ -61,10 +61,11 @@ public class ArchiveFileSourceEntry(
     string archiveFilePath,
     string key) : IFileSourceEntry
 {
-    private readonly string _archiveFilePath = fileSystem.Path.GetFullPath(archiveFilePath);
+    private readonly string _archiveFilePath = archiveFilePath;
     private readonly IFileSystem _fileSystem = fileSystem;
+    private readonly string _key = key;
 
-    public string Key { get; } = key;
+    public virtual string Key => _key;
 
     public async Task<Stream> OpenRead()
     {
@@ -74,7 +75,7 @@ public class ArchiveFileSourceEntry(
 
         while (reader.MoveToNextEntry())
         {
-            if (reader.Entry.Key == Key)
+            if (reader.Entry.Key == _key)
             {
                 MemoryStream memoryStream = new();
 

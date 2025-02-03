@@ -171,11 +171,11 @@ Destination path:
 
 ### variants[].assets[].preserve (optional)
 
-Paths or glob patterns for files to keep during uninstallation. Cannot overlap with `remove` patterns.
+Paths or glob patterns for files to keep during uninstallation.
 
 ### variants[].assets[].remove (optional)
 
-Paths or glob patterns for files to remove during uninstallation. Cannot overlap with `preserve` patterns.
+Paths or glob patterns for files to remove during uninstallation. This will override `preserve` settings.
 
 ### variants[].scripts (optional)
 

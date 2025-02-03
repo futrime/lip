@@ -3,6 +3,21 @@
 public class GoModuleTests
 {
     [Theory]
+    [InlineData("v0.0.0", "v0.0.0")]
+    [InlineData("v1.0.0", "v1.0.0")]
+    [InlineData("1.0.0", "v1.0.0")]
+    [InlineData("v1.0.0+build", "v1.0.0")]
+    [InlineData("v2.0.0", "v2.0.0+incompatible")]
+    public void CanonicalVersion_VariousVersionStrings_ReturnsCanonicalVersion(string version, string expectedCanonicalVersion)
+    {
+        // Act.
+        string result = GoModule.CanonicalVersion(version);
+
+        // Assert.
+        Assert.Equal(expectedCanonicalVersion, result);
+    }
+
+    [Theory]
     [InlineData("example123.example-domain/example-pkg.example_pkg~Example123")]
     [InlineData("example.com/~a12")]
     [InlineData("github.com/user/repo")]
@@ -57,6 +72,28 @@ public class GoModuleTests
     {
         // Act & assert.
         ArgumentException ex = Assert.Throws<ArgumentException>(() => GoModule.EscapePath(path));
-        Assert.Equal($"{path} is not a valid Go module path. (Parameter 'path')", ex.Message);
+        Assert.Equal("path", ex.ParamName);
+    }
+
+    [Theory]
+    [InlineData("v1.0.0", "v1.0.0")]
+    [InlineData("v1.0.0-BETA", "v1.0.0-!b!e!t!a")]
+    public void EscapeVersion_ValidVersion_ReturnsEscapedVersion(string version, string expectedEscapedVersion)
+    {
+        // Act.
+        string result = GoModule.EscapeVersion(version);
+
+        // Assert.
+        Assert.Equal(expectedEscapedVersion, result);
+    }
+
+    [Theory]
+    [InlineData("v1.0.0!")]
+    [InlineData(".v1.0.0beta")]
+    public void EscapeVersion_InvalidVersion_Throws(string version)
+    {
+        // Act & assert.
+        ArgumentException ex = Assert.Throws<ArgumentException>(() => GoModule.EscapeVersion(version));
+        Assert.Equal("v", ex.ParamName);
     }
 }

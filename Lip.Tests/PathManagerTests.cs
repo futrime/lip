@@ -258,29 +258,6 @@ public class PathManagerTests
             repoCacheDir);
     }
 
-    [Theory]
-    [InlineData("1.0.0", "example.com/pkg@v1.0.0/path/to/file")]
-    [InlineData("2.0.0", "example.com/pkg@v2.0.0+incompatible/path/to/file")]
-    public void GetGoModuleArchiveEntryKey_ValidPackageSpecifier_ReturnsCorrectKey(string version, string expectedKey)
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/pkg",
-            VariantLabel = "",
-            Version = SemVersion.Parse(version),
-        };
-
-        // Act.
-        string key = pathManager.GetGoModuleArchiveEntryKey(packageSpecifier, "path/to/file");
-
-        // Assert.
-        Assert.Equal(expectedKey, key);
-    }
-
     [Fact]
     public void GetPackageManifestPath_WhenCalled_ReturnsCorrectPath()
     {

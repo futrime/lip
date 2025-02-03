@@ -12,7 +12,7 @@ namespace Lip;
 /// <param name="rootDirPath">The root directory path of all files.</param>
 public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : IFileSource
 {
-    private readonly string _rootDirPath = fileSystem.Path.GetFullPath(rootDirPath);
+    private readonly string _rootDirPath = rootDirPath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
     public async Task<List<IFileSourceEntry>> GetAllEntries()
@@ -39,7 +39,6 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
         }
 
         string filePath = _fileSystem.Path.Join(_rootDirPath, key);
-        filePath = _fileSystem.Path.GetFullPath(filePath);
 
         if (await _fileSystem.File.ExistsAsync(filePath))
         {
@@ -52,7 +51,7 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
 
 public class DirectoryFileSourceEntry(IFileSystem fileSystem, string filePath, string key) : IFileSourceEntry
 {
-    private readonly string _filePath = fileSystem.Path.GetFullPath(filePath);
+    private readonly string _filePath = filePath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
     public string Key { get; } = key;

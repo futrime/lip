@@ -54,7 +54,7 @@ Examples:
 
 - `-f, --force`
 
-  Force the installation of the package. When a dependency is already installed but its version is not compatible with the specified version, lip will uninstall the existing dependency and install the new version.
+  Force the installation of the package. When a dependency is already installed but its version is not compatible with the specified version, lip will ignore the conflict and treat the dependency as installed.
 
   This may break the dependency graph and cause all future installations and updates without `--force` to fail.
 

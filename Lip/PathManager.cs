@@ -52,15 +52,6 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
         return _fileSystem.Path.Join(BaseGitRepoCacheDir, repoDirName, tagDirName);
     }
 
-    public string GetGoModuleArchiveEntryKey(PackageSpecifier packageSpecifier, string relativePath)
-    {
-        SemVersion version = packageSpecifier.Version;
-
-        relativePath = relativePath.Replace(_fileSystem.Path.DirectorySeparatorChar, '/');
-
-        return $"{packageSpecifier.ToothPath}@v{version}{(version.Major >= 2 ? "+incompatible" : string.Empty)}/{relativePath}";
-    }
-
     public string GetPackageManifestPath(string baseDir)
     {
         return _fileSystem.Path.Join(baseDir, PackageManifestFileName);

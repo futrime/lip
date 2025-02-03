@@ -12,7 +12,7 @@ namespace Lip;
 /// <param name="filePath">The path of the file.</param>
 public class StandaloneFileSource(IFileSystem fileSystem, string filePath) : IFileSource
 {
-    private readonly string _filePath = fileSystem.Path.GetFullPath(filePath);
+    private readonly string _filePath = filePath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
     public async Task<List<IFileSourceEntry>> GetAllEntries()
@@ -32,7 +32,7 @@ public class StandaloneFileSource(IFileSystem fileSystem, string filePath) : IFi
 
 public class StandaloneFileSourceEntry(IFileSystem fileSystem, string filePath) : IFileSourceEntry
 {
-    private readonly string _filePath = fileSystem.Path.GetFullPath(filePath);
+    private readonly string _filePath = filePath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
     public string Key => string.Empty;

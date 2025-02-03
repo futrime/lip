@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-lip uninstall <package-spec>
+lip uninstall <package-spec-without-version>
 ```
 
 ## Description
