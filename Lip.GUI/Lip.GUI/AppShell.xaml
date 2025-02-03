@@ -9,20 +9,27 @@
     xmlns:local="clr-namespace:Lip.GUI"
     xmlns:server="clr-namespace:Lip.GUI.Pages.Servers"
     xmlns:settings="clr-namespace:Lip.GUI.Pages.Settings"
+    xmlns:tasks="clr-namespace:Lip.GUI.Pages.Tasks"
     Title="Lip.GUI"
-    Shell.FlyoutBehavior="Flyout">
+    Shell.FlyoutBehavior="Disabled">
 
     <TabBar>
+
+        <Tab Title="Servers" Icon="fluent_remote_20_filled.png">
+
+            <ShellContent ContentTemplate="{DataTemplate server:ServersPage}" />
+
+        </Tab>
+
+        <Tab Title="Tasks" Icon="fluent_list_bar_20_filled.png">
+
+            <ShellContent ContentTemplate="{DataTemplate tasks:TasksPage}" />
+
+        </Tab>
 
         <Tab Title="Home" Icon="fluent_home_32_regular.png">
 
             <ShellContent ContentTemplate="{DataTemplate home:HomePage}" />
-
-        </Tab>
-
-        <Tab Title="Server" Icon="fluent_remote_20_filled.png">
-
-            <ShellContent ContentTemplate="{DataTemplate server:ServersPage}" />
 
         </Tab>
 

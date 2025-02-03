@@ -6,7 +6,7 @@
 
         public bool TryGetTarget(out T target)
         {
-            target = null;
+            target = null!;
             if (_reference.TryGetTarget(out var innerTarget))
             {
                 if (innerTarget.Handle != IntPtr.Zero)

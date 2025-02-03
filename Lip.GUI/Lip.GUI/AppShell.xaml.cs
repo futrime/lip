@@ -1,19 +1,24 @@
-﻿namespace Lip.GUI;
+﻿using Lip.GUI.Pages.PackageDetails;
+
+namespace Lip.GUI;
 
 public partial class AppShell : Shell
 {
     public AppShell()
     {
-
+        this.
         InitializeComponent();
+
+        Routing.RegisterRoute(nameof(PackageDetailsPage), typeof(PackageDetailsPage));
     }
 
-    protected override async void OnNavigated(ShellNavigatedEventArgs args)
-    {
-        base.OnNavigated(args);
+    //protected override async void OnNavigated(ShellNavigatedEventArgs args)
+    //{
+    //    await CurrentPage.FadeTo(0, 150);
 
-        Page currentPage = CurrentPage;
-        await currentPage.FadeTo(0, 0);
-        await currentPage.FadeTo(1, 250);
-    }
+    //    base.OnNavigated(args);
+    //    Current.Opacity = 0;
+
+    //    await CurrentPage.FadeTo(1, 150);
+    //}
 }

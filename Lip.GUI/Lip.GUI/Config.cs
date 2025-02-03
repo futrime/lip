@@ -28,7 +28,7 @@ public partial class ServerInfo : ObservableObject
     public required partial Guid? ServerIconId { get; set; }
 
     [ObservableProperty]
-    [JsonPropertyName("icon")]
+    [JsonPropertyName("text_color")]
     public required partial string? TextColor { get; set; }
 }
 

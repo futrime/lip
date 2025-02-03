@@ -49,4 +49,6 @@
     <Color x:Key="AddServerButtonBackgroundColorDark">#90EE90</Color>
     <Color x:Key="AddServerButtonBackgroundColorLight">#F297ED</Color>
 
+    <Color x:Key="LayerOnBackgroundColorDefault">#AA1f1f1f</Color>
+
 </ResourceDictionary>

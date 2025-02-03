@@ -18,19 +18,20 @@ partial class MauiProgram
         public const string IconsDirectory = DataDirectory + "/icons";
     }
 
-
     static MauiProgram() => Initialize();
 
     internal static Config Config
     {
-        get => field ?? throw new NullReferenceException();
+        get => field;
         private set
         {
             if (field is not null)
                 field.PropertyChanged -= ConfigPropertyChanged;
 
             field = value;
-            field.PropertyChanged += ConfigPropertyChanged;
+
+            if (field is not null)
+                field.PropertyChanged += ConfigPropertyChanged;
         }
     }
 
@@ -44,14 +45,13 @@ partial class MauiProgram
     public static string IconsDirectory { get; private set; }
 
 
-    private static bool s_configChanged = false;
-    private static uint s_configEditCount = 0;
+    private static bool s_configChanged = true;
     private static readonly Lock s_lock = new();
     private static bool s_isSaving = false;
     private static bool s_isSaveRequesting = false;
 
     [MemberNotNull(nameof(Config), nameof(WorkingDirectory), nameof(ProgramDirectory), nameof(IconsDirectory))]
-    private static void Initialize()
+    internal static void Initialize()
     {
         InitializeWorkingDir();
         InitializeConfig();
@@ -60,7 +60,13 @@ partial class MauiProgram
     [MemberNotNull(nameof(WorkingDirectory), nameof(ProgramDirectory), nameof(IconsDirectory))]
     private static void InitializeWorkingDir()
     {
-        string currentDir = FileSystem.Current.AppDataDirectory;
+        string currentDir;
+
+#if WINDOWS
+        currentDir = new FileInfo(Environment.ProcessPath!).Directory!.FullName;
+#else
+        currentDir = FileSystem.Current.AppDataDirectory;
+#endif
 
         ProgramDirectory = currentDir;
 
@@ -82,7 +88,7 @@ partial class MauiProgram
     [MemberNotNull(nameof(Config))]
     private static void InitializeConfig()
     {
-        string path = Path.Combine(WorkingDirectory, DefaultSettings.ConfigFileName);
+        string path = Path.Combine(WorkingDirectory ?? throw new NullReferenceException(), DefaultSettings.ConfigFileName);
         if (File.Exists(path))
         {
             string str = File.ReadAllText(path);
@@ -96,7 +102,7 @@ partial class MauiProgram
 
     private static void ConfigChanged()
     {
-        //s_configChanged = true;
+        s_configChanged = true;
         //s_configEditCount++;
 
         //if (s_configEditCount >= 0xf)
@@ -116,16 +122,15 @@ partial class MauiProgram
             s_isSaving = true;
             if (s_configChanged)
             {
-                string path = Path.Combine(WorkingDirectory, DefaultSettings.ConfigFileName);
+                string path = Path.Combine(WorkingDirectory ?? throw new NullReferenceException(), DefaultSettings.ConfigFileName);
                 if (File.Exists(path)) File.Delete(path);
 
                 using FileStream file = File.Create(path);
                 using var writer = new StreamWriter(file);
 
-                writer.Write(Config.Serialize());
+                writer.Write(Config?.Serialize() ?? throw new NullReferenceException());
 
                 s_configChanged = false;
-                s_configEditCount = 0;
             }
 
             if (s_isSaveRequesting)

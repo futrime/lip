@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Lip.GUI.Pages.PackageDetails.PackageDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:layout="clr-namespace:Lip.GUI.Controls.Layouts"
+    xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
+    xmlns:root="clr-namespace:Lip.GUI"
+    x:Name="_packageDetailsPage"
+    x:DataType="local:PackageDetailsPage"
+    BindingContext="{x:Reference _packageDetailsPage}"
+    Loaded="PackageDetails_Loaded">
+
+    <ScrollView>
+
+        <VerticalStackLayout Padding="5" Spacing="5">
+
+            <Label
+                x:Name="_name"
+                FontAttributes="Bold"
+                FontSize="Title" />
+
+            <Image
+                x:Name="_avatar"
+                Aspect="AspectFill"
+                HeightRequest="128"
+                HorizontalOptions="Start"
+                VerticalOptions="Start"
+                WidthRequest="128" />
+
+            <Grid
+                ColumnDefinitions="Auto,*"
+                ColumnSpacing="10"
+                RowDefinitions="*,*,*,*,*"
+                RowSpacing="5">
+
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Text="Description:" />
+
+                <Label
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Text="Author:" />
+
+                <Label
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Text="Hotness:" />
+
+                <Label
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Text="Updated:" />
+
+                <Label
+                    Grid.Row="4"
+                    Grid.Column="0"
+                    Text="Project URL:" />
+
+
+                <Label
+                    x:Name="_description"
+                    Grid.Row="0"
+                    Grid.Column="1" />
+
+                <Label
+                    x:Name="_author"
+                    Grid.Row="1"
+                    Grid.Column="1" />
+
+                <Label
+                    x:Name="_hotness"
+                    Grid.Row="2"
+                    Grid.Column="1" />
+
+                <Label
+                    x:Name="_updated"
+                    Grid.Row="3"
+                    Grid.Column="1" />
+
+                <Label
+                    x:Name="_projectUrl"
+                    Grid.Row="4"
+                    Grid.Column="1" />
+
+            </Grid>
+
+            <layout:WrapLayout
+                x:Name="_tagsLayout"
+                HorizontalOptions="Start"
+                Orientation="Horizontal"
+                Spacing="5"
+                VerticalOptions="Start" />
+
+            <local:PackageInstallationView BindingContext="{x:Reference _packageDetailsPage}" />
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentPage>

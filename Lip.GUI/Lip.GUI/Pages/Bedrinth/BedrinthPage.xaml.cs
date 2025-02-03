@@ -1,13 +1,28 @@
 ﻿using System.Collections.ObjectModel;
 using Bedrinth;
+using Lip.GUI.Pages.PackageDetails;
 
 namespace Lip.GUI.Pages.Bedrinth;
 
 public class BedrinthItem
 {
+    public required string Identifier { get; set; }
+
+    public required string Avatar { get; set; }
+
     public required string Name { get; set; }
 
     public required string Description { get; set; }
+
+    public required string Author { get; set; }
+
+    public required double Hotness { get; set; }
+
+    public required string Updated { get; set; }
+
+    public required string ProjectUrl { get; set; }
+
+    public required IEnumerable<string> Tags { get; set; }
 }
 
 public partial class BedrinthPage : ContentPage
@@ -29,18 +44,10 @@ public partial class BedrinthPage : ContentPage
     {
         Dispatcher.Dispatch(async () =>
         {
-            Content = _activityIndicator;
+            //Content = _activityIndicator;
             await LoadMore();
-            Content = _BedrinthListView;
+            //Content = _bedrinthListView;
         });
-    }
-
-    private void ListView_Scrolled(object sender, ScrolledEventArgs e)
-    {
-        if (e.ScrollY >= _BedrinthListView.Height - _BedrinthListView.Bounds.Height)
-        {
-            Task.Run(LoadMore);
-        }
     }
 
     private async Task LoadMore()
@@ -54,12 +61,28 @@ public partial class BedrinthPage : ContentPage
         {
             Items.Add(new BedrinthItem
             {
+                Identifier = package.Identifier,
+                Avatar = package.AvatarUrl,
                 Name = package.Name,
-                Description = package.Description
+                Description = package.Description,
+                Author = package.Author,
+                Hotness = package.Hotness,
+                Updated = package.Updated,
+                ProjectUrl = package.ProjectUrl,
+                Tags = package.Tags
             });
         }
 
         await LoadMore();
+    }
+
+    private void BedrinthListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+    {
+        var item = e.SelectedItem as BedrinthItem;
+
+        if (item is null) return;
+
+        Navigation.PushAsync(new PackageDetailsPage(item));
     }
 
     /* TODO Implement pagination

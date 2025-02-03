@@ -42,7 +42,7 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
 
     internal AddServerView AddServerView => _addServerView;
 
-    internal static ServersPage? Current { get; private set; }
+    internal static ServersPage Current { get; private set; } = null!;
 
     public static bool IsButtonsEnabled
     {
@@ -56,8 +56,11 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
 
     public static event EventHandler<bool>? ButtonsEnabledChanged;
 
-    private void ContentPage_Loaded(object sender, EventArgs e)
-        => Current = this;
+    private async void ContentPage_Loaded(object sender, EventArgs e)
+    {
+        Current = this;
+        await UpdateAllServersAsync(MauiProgram.Config.Servers);
+    }
 
     public static async ValueTask CreateServerAsync(
         string name,
@@ -121,7 +124,7 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
                     {
                         ServerName = server.ServerName,
                         ServerHost = server.ServerHost,
-                        ServerPort = server.ServerPort,
+                        ServerPort = server.ServerPort, 
                         ServerIconId = server.ServerIconId,
                         ServerPassword = server.ServerPassword,
                         TextColor = Color.Parse(server.TextColor ?? "#00000000")
@@ -134,6 +137,8 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
             }
         }).ConfigureAwait(false);
     }
+
+    public IReadOnlyDictionary<string, ServerView> ServerViews => _serverViews;
 
     public InfoBar InfoBar => _infoBar;
 }

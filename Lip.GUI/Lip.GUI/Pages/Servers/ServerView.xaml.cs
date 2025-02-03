@@ -67,7 +67,7 @@ public partial class ServerView : ContentView
             var view = (ServerView)bindable;
             var id = (Guid?)newValue;
             view._serverIcon.Source = id is null ? DefualtServerIcon :
-            MauiProgram.Config.LoadServerIcon(id.Value);
+            MauiProgram.Config!.LoadServerIcon(id.Value);
         });
 
     public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
@@ -135,7 +135,7 @@ public partial class ServerView : ContentView
         Task.Run(VerifyRemoteServer);
     }
 
-    private Connection.Connection? _connection = null;
+    public Connection.Connection? Connection { get; private set; } = null;
 
     private enum VerifyStatus { Verifying, Verified, Failed }
 
@@ -150,16 +150,16 @@ public partial class ServerView : ContentView
         CancellationTokenSource cancellationTokenSource = new();
         Task task = VerifyAnimation(VerifyStatus.Verifying, cancellationTokenSource.Token).AsTask();
 
-        _connection = new Connection.Connection(
+        Connection = new Connection.Connection(
             ConnectionMode.Client,
             ServerPassword ?? "",
             IPAddress.Any,
-            MauiProgram.Config.Port);
+            MauiProgram.Config!.Port);
 
         try
         {
-            await Task.Delay(10000);
-            await _connection.ConnectToAsync(new(IPAddress.Parse(ServerHost), ServerPort!.Value));
+            //await Task.Delay(10000);
+            await Connection.ConnectToAsync(new(IPAddress.Parse(ServerHost), ServerPort!.Value));
         }
         catch (Exception ex)
         {

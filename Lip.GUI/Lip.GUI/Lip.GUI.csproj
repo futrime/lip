@@ -76,24 +76,13 @@
     <MauiImage Include="Resources\Icons\fluent_remote_20_filled.svg" />
     <MauiImage Include="Resources\Icons\fluent_settings_24_regular.svg" />
     <MauiImage Include="Resources\Icons\fluent_apps_48_filled.svg" />
+    <MauiImage Include="Resources\Icons\fluent_list_bar_20_filled.svg" />
     <MauiImage Include="Resources\Icons\fluent_image_48_regular.svg" BaseSize="128,128" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Lip\Lip.csproj" />
     <ProjectReference Include="..\Lip.Connection\Lip.Connection.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <MauiXaml Update="Pages\Bedrinth\BedrinthPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
-    <MauiXaml Update="Pages\Servers\ServerInfoPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
-    <MauiXaml Update="Pages\Servers\ServerView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
   </ItemGroup>
 
 </Project>

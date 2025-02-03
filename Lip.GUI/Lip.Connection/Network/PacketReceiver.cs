@@ -21,6 +21,6 @@ public class PacketReceiver(Connection connection)
         where TPacketType : struct, Enum
         where TPacket : class, IPacket<TPacket>
     {
-        return await connection.RequestPacketAsync<TPacket, TPacketType>(type);
+        return await connection.RequestPacketAsync<TPacketType, TPacket>(type);
     }
 }

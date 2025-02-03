@@ -26,5 +26,5 @@ public partial class LipListPacket : IPacket<LipListPacket>
     }
 
     public byte[] Serialize() =>
-        JsonSerializer.SerializeToUtf8Bytes(this, ListArgsSourceGenerationContext.Default.ListArgs);
+        JsonSerializer.SerializeToUtf8Bytes<ListArgs>(Args, ListArgsSourceGenerationContext.Default.ListArgs);
 }

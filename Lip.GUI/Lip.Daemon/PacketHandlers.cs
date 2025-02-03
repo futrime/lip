@@ -1,4 +1,6 @@
-﻿using Lip.Connection.Network;
+﻿using Lip.Connection;
+using Lip.Connection.Network;
+using Lip.Connection.Network.Packets.CustomOperation;
 using Lip.Connection.Network.Packets.LipOperation;
 using Microsoft.Extensions.Logging;
 
@@ -17,10 +19,24 @@ internal static class PacketHandlers
     }
 
     public static void LipConstructionPacketHandler(
-        PacketHandler<LipOperationPackets> handler,
+        Connection.Connection connection,
         LipOperationPackets type,
         LipConstructPacket packet)
     {
         s_lip = new Lip(packet.Config, new ContextImpl());
+    }
+
+    public static void TestPackageInstalledPacketHandler(
+        Connection.Connection connection,
+        CustomOperationPackets type,
+        TestPackageInstalledPacket packet)
+    {
+        //TODO
+        connection.EnqueuePacketToSend<CustomOperationPackets, TestPackageInstalledResponsePacket>(
+            CustomOperationPackets.TestPackageInstalledResponse,
+            new TestPackageInstalledResponsePacket()
+            {
+                Manifest = null
+            });
     }
 }

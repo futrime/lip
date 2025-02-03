@@ -2,6 +2,7 @@
 using System.Net;
 using Lip.Connection;
 using Lip.Connection.Network;
+using Lip.Connection.Network.Packets.CustomOperation;
 using Lip.Connection.Network.Packets.LipOperation;
 using Lip.Daemon;
 using Microsoft.Extensions.Logging;
@@ -26,11 +27,14 @@ startCommand.SetHandler(async (port, password, path) =>
     try
     {
         var connection = new Connection(ConnectionMode.Server, password, IPAddress.Any, port);
-        var handler = new PacketHandler<LipOperationPackets>(connection);
+        var lipOperationHandler = new PacketHandler<LipOperationPackets>();
+        var customOperationHandler = new PacketHandler<CustomOperationPackets>();
 
-        handler.SetHandler<LipConstructPacket>(LipOperationPackets.Construct, PacketHandlers.LipConstructionPacketHandler);
+        lipOperationHandler.SetHandler<LipConstructPacket>(LipOperationPackets.Construct, PacketHandlers.LipConstructionPacketHandler);
+        customOperationHandler.SetHandler<TestPackageInstalledPacket>(CustomOperationPackets.TestPackageInstalled, PacketHandlers.TestPackageInstalledPacketHandler);
 
-        connection.PacketHandler = handler;
+        connection.AddPacketHandler(lipOperationHandler);
+        connection.AddPacketHandler(customOperationHandler);
 
         await connection.StartListener(token);
     }

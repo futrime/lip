@@ -5,48 +5,62 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:bedrinth="clr-namespace:Lip.GUI.Pages.Bedrinth"
     x:Name="_bedrinthPage"
-    Title="BedrinthPage"
+    Title="Bedrinth"
     x:DataType="bedrinth:BedrinthPage"
     BindingContext="{x:Reference _bedrinthPage}"
     Loaded="BedrinthPage_Loaded">
 
-    <StackLayout>
+    <ListView
+        x:Name="_bedrinthListView"
+        ItemSelected="BedrinthListView_ItemSelected"
+        ItemsSource="{Binding Items}"
+        RowHeight="80"
+        SeparatorVisibility="None">
 
-        <ListView x:Name="_BedrinthListView" ItemsSource="{Binding Items}">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="bedrinth:BedrinthItem">
-                    <ViewCell>
-                        <Grid Padding="10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Label
-                                Grid.Column="1"
-                                FontAttributes="Bold"
-                                Text="{Binding Name}" />
-                            <Label
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                FontAttributes="Italic"
-                                Text="{Binding Description}"
-                                VerticalOptions="End" />
-                        </Grid>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <ListView.ItemTemplate>
 
-        <HorizontalStackLayout
-            x:Name="_buttonsLayout"
-            HeightRequest="50"
-            HorizontalOptions="Center"
-            VerticalOptions="End" />
+            <DataTemplate x:DataType="bedrinth:BedrinthItem">
 
-    </StackLayout>
+                <ViewCell>
+
+                    <Grid Padding="10" ColumnSpacing="5">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="2*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Image
+                            Grid.RowSpan="2"
+                            Aspect="AspectFill"
+                            HeightRequest="70"
+                            Source="{Binding Avatar}"
+                            WidthRequest="70" />
+
+                        <Label
+                            Grid.Column="1"
+                            FontAttributes="Bold"
+                            Text="{Binding Name}" />
+
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            FontAttributes="Italic"
+                            Text="{Binding Description}"
+                            VerticalOptions="End" />
+
+                    </Grid>
+
+                </ViewCell>
+
+            </DataTemplate>
+
+        </ListView.ItemTemplate>
+
+    </ListView>
 
 </ContentPage>
