@@ -21,9 +21,10 @@ public partial class Lip
 
         _pathManager = new(context.FileSystem, baseCacheDir: runtimeConfig.Cache, workingDir: context.WorkingDir);
 
-        Url? githubProxyUrl = runtimeConfig.GitHubProxy != string.Empty ? Url.Parse(runtimeConfig.GitHubProxy) : null;
-        Url? goModuleProxyUrl = runtimeConfig.GoModuleProxy != string.Empty ? Url.Parse(runtimeConfig.GoModuleProxy) : null;
-        _cacheManager = new(_context, _pathManager, githubProxyUrl, goModuleProxyUrl);
+        List<Url> gitHubProxies = [.. runtimeConfig.GitHubProxies.Select(url => new Url(url))];
+        List<Url> goModuleProxies = [.. runtimeConfig.GoModuleProxies.Select(url => new Url(url))];
+
+        _cacheManager = new(_context, _pathManager, gitHubProxies, goModuleProxies);
 
         _packageManager = new(_context, _cacheManager, _pathManager);
     }

@@ -22,7 +22,7 @@ public class PackageManager(
         string packageLockFilePath = _pathManager.CurrentPackageLockPath;
 
         // If the package lock file does not exist, return an empty package lock.
-        if (!await _context.FileSystem.File.ExistsAsync(packageLockFilePath))
+        if (!_context.FileSystem.File.Exists(packageLockFilePath))
         {
             return new()
             {
@@ -61,7 +61,7 @@ public class PackageManager(
         return PackageManifest.FromJsonBytesWithTemplate(packageManifestBytes);
     }
 
-    public async Task<SemVersion?> GetInstalledPackageVersion(string toothPath, string variantLabel)
+    public async Task<PackageManifest?> GetInstalledPackageManifest(string toothPath, string variantLabel)
     {
         PackageLock packageLock = await GetCurrentPackageLock();
 
@@ -74,7 +74,7 @@ public class PackageManager(
         }
         else
         {
-            return locks[0].Package.Version;
+            return locks[0].Package;
         }
     }
 
@@ -95,7 +95,9 @@ public class PackageManager(
         // If the package has already been installed, skip installing. Or if the package has been
         // installed with a different version, throw exception.
 
-        SemVersion? installedVersion = await GetInstalledPackageVersion(packageSpecifier.ToothPath, packageSpecifier.VariantLabel);
+        SemVersion? installedVersion = (await GetInstalledPackageManifest(
+            packageSpecifier.ToothPath,
+            packageSpecifier.VariantLabel))?.Version;
 
         if (installedVersion == packageSpecifier.Version)
         {
@@ -204,9 +206,7 @@ public class PackageManager(
             Locked = locked
         });
 
-        await _context.FileSystem.File.WriteAllBytesAsync(
-            _pathManager.CurrentPackageLockPath,
-            packageLock.ToJsonBytes());
+        await SaveCurrentPackageLock(packageLock);
 
         // Run post-install scripts.
 
@@ -230,9 +230,25 @@ public class PackageManager(
         _context.Logger.LogInformation("Package {packageSpecifier} installed.", packageSpecifier);
     }
 
+    public async Task SaveCurrentPackageLock(PackageLock packageLock)
+    {
+        await _context.FileSystem.File.WriteAllBytesAsync(
+            _pathManager.CurrentPackageLockPath,
+            packageLock.ToJsonBytes());
+    }
+
+    public async Task SaveCurrentPackageManifest(PackageManifest packageManifest)
+    {
+        await _context.FileSystem.File.WriteAllBytesAsync(
+            _pathManager.CurrentPackageManifestPath,
+            packageManifest.ToJsonBytes());
+    }
+
     public async Task Uninstall(PackageSpecifierWithoutVersion packageSpecifierWithoutVersion, bool dryRun, bool ignoreScripts)
     {
-        SemVersion? installedVersion = await GetInstalledPackageVersion(packageSpecifierWithoutVersion.ToothPath, packageSpecifierWithoutVersion.VariantLabel);
+        SemVersion? installedVersion = (await GetInstalledPackageManifest(
+            packageSpecifierWithoutVersion.ToothPath,
+            packageSpecifierWithoutVersion.VariantLabel))?.Version;
 
         // If the package is not installed, skip uninstalling.
 
@@ -370,9 +386,7 @@ public class PackageManager(
             && @lock.Package.Version == packageSpecifier.Version
             && @lock.VariantLabel == packageSpecifier.VariantLabel);
 
-        await _context.FileSystem.File.WriteAllBytesAsync(
-            _pathManager.CurrentPackageLockPath,
-            packageLock.ToJsonBytes());
+        await SaveCurrentPackageLock(packageLock);
 
         // Run post-uninstall scripts.
 
@@ -421,7 +435,7 @@ public class PackageManager(
     {
         string packageManifestFilePath = _pathManager.CurrentPackageManifestPath;
 
-        if (!await _context.FileSystem.File.ExistsAsync(packageManifestFilePath))
+        if (!_context.FileSystem.File.Exists(packageManifestFilePath))
         {
             return null;
         }

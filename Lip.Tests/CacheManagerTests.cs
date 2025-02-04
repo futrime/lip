@@ -49,7 +49,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         await cacheManager.Clean();
@@ -69,7 +69,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         await cacheManager.Clean();
@@ -96,7 +96,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url = Url.Parse("https://example.com/test.file");
 
@@ -132,7 +132,8 @@ public class CacheManagerTests
         CacheManager cacheManager = new(
             context.Object,
             pathManager,
-            Url.Parse("https://example.com/github-proxy"));
+            [Url.Parse("https://example.com/github-proxy")],
+            []);
 
         Url url = Url.Parse("https://github.com/user/repo/test.file");
 
@@ -163,7 +164,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url = Url.Parse("https://example.com/test.file");
 
@@ -198,7 +199,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url1 = Url.Parse("https://example.com/test.file");
         Url url2 = Url.Parse("https://backup.example.com/test.file");
@@ -236,7 +237,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url1 = Url.Parse("https://example.com/test.file");
         Url url2 = Url.Parse("https://backup.example.com/test.file");
@@ -274,7 +275,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url1 = Url.Parse("https://example.com/test.file");
         Url url2 = Url.Parse("https://backup.example.com/test.file");
@@ -294,7 +295,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
@@ -317,7 +318,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
@@ -349,7 +350,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
@@ -384,7 +385,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager, goModuleProxy: Url.Parse("https://example.com/go-proxy"));
+        CacheManager cacheManager = new(context.Object, pathManager, [], [Url.Parse("https://example.com/go-proxy")]);
 
         var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
@@ -406,7 +407,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         CacheManager.CacheSummary listResult = await cacheManager.List();
@@ -430,7 +431,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         CacheManager.CacheSummary listResult = await cacheManager.List();
@@ -456,7 +457,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         CacheManager.CacheSummary listResult = await cacheManager.List();
@@ -483,7 +484,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         CacheManager.CacheSummary listResult = await cacheManager.List();

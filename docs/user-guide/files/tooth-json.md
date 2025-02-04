@@ -6,7 +6,7 @@ For the complete JSON schema specification, see [tooth.v3.schema.json](../../sch
 
 In the documentation below, fields are marked as either (required) or (optional). Note that if a parent field is optional but contains required child fields, those child fields become mandatory only if the parent field is included. For example, while `variants` is optional, if you include it, each variant must specify a `platform`.
 
-Scriban expressions allow you to dynamically reference other fields within any string value, making package maintenance easier. For example, use `{{tooth}}` to reference the package's tooth path or `{{version}}` to access the package's version number. This dynamic referencing helps keep your package configurations DRY (Don't Repeat Yourself) and more maintainable.
+Scriban expressions allow you to dynamically reference other fields within any string value, making package maintenance easier. For example, use `{{tooth}}` to reference the package's tooth path or `{{version}}` to access the package's version number. This dynamic referencing helps keep your package configurations DRY (Don't Repeat Yourself) and more maintainable. However, some package manifest manipulation commands (e.g. commands with `--save` option) may not support Scriban expressions.
 
 ## Fields
 

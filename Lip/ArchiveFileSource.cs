@@ -18,7 +18,9 @@ public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) :
 
     public virtual async Task<List<IFileSourceEntry>> GetAllEntries()
     {
-        using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
+        await Task.Delay(0); // Suppress warning.
+
+        using FileSystemStream fileStream = _fileSystem.File.OpenRead(_archiveFilePath);
 
         using IReader reader = ReaderFactory.Open(fileStream);
 
@@ -34,7 +36,9 @@ public class ArchiveFileSource(IFileSystem fileSystem, string archiveFilePath) :
 
     public virtual async Task<IFileSourceEntry?> GetEntry(string key)
     {
-        using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
+        await Task.Delay(0); // Suppress warning.
+
+        using FileSystemStream fileStream = _fileSystem.File.OpenRead(_archiveFilePath);
 
         using IReader reader = ReaderFactory.Open(fileStream);
 
@@ -69,7 +73,9 @@ public class ArchiveFileSourceEntry(
 
     public async Task<Stream> OpenRead()
     {
-        using FileSystemStream fileStream = await _fileSystem.File.OpenReadAsync(_archiveFilePath);
+        await Task.Delay(0); // Suppress warning.
+
+        using FileSystemStream fileStream = _fileSystem.File.OpenRead(_archiveFilePath);
 
         using IReader reader = ReaderFactory.Open(fileStream);
 

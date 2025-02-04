@@ -25,14 +25,14 @@ Controls colored output in the terminal. Note: The `NO_COLOR` environment variab
 - Type: `string`
 - Default: "" (empty string)
 
-Sets a proxy URL for GitHub connections. When left empty, lip connects to GitHub directly.
+Sets proxy URLs (separated by commas) for GitHub connections. When left empty, lip connects to GitHub directly.
 
 ### go_module_proxy
 
 - Type: `string`
-- Default: `https://goproxy.io`
+- Default: `https://proxy.golang.org`
 
-Defines the proxy URL for Go module downloads.
+Defines Go module proxy URLs (separated by commas) for Go module downloads.
 
 ### https_proxy
 
@@ -46,7 +46,7 @@ Sets the HTTPS proxy URL. Environment variables (`HTTPS_PROXY`, `https_proxy`, `
 - Type: `string`
 - Default: "" (empty string)
 
-Lists domains that should bypass the proxy. The `NO_PROXY` environment variable will override this setting if set.
+Lists domains that should bypass the proxy. The `no_proxy` and `NO_PROXY` environment variable will override this setting if set.
 
 ### proxy
 

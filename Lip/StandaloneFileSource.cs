@@ -39,6 +39,8 @@ public class StandaloneFileSourceEntry(IFileSystem fileSystem, string filePath) 
 
     public async Task<Stream> OpenRead()
     {
-        return await _fileSystem.File.OpenReadAsync(_filePath);
+        await Task.Delay(0); // To avoid warning.
+
+        return _fileSystem.File.OpenRead(_filePath);
     }
 }

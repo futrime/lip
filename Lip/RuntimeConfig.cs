@@ -25,11 +25,25 @@ public record RuntimeConfig
     [JsonPropertyName("color")]
     public bool Color { get; init; } = true;
 
-    [JsonPropertyName("github_proxy")]
-    public string GitHubProxy { get; init; } = string.Empty;
+    [JsonIgnore]
+    public List<string> GitHubProxies
+    {
+        get => [.. GitHubProxiesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+        init => GitHubProxiesText = string.Join(',', value);
+    }
 
-    [JsonPropertyName("go_module_proxy")]
-    public string GoModuleProxy { get; init; } = "https://goproxy.io";
+    [JsonPropertyName("github_proxies")]
+    public string GitHubProxiesText { get; init; } = "";
+
+    [JsonIgnore]
+    public List<string> GoModuleProxies
+    {
+        get => [.. GoModuleProxiesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+        init => GoModuleProxiesText = string.Join(',', value);
+    }
+
+    [JsonPropertyName("go_module_proxies")]
+    public string GoModuleProxiesText { get; init; } = "https://proxy.golang.org";
 
     [JsonPropertyName("https_proxy")]
     public string HttpsProxy { get; init; } = string.Empty;

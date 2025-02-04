@@ -30,4 +30,4 @@ Attempt to update the specified packages to the specified versions. If no packag
 
 - `--save`
 
-  Save the updated packages to `tooth.json`.
+  Save the updated packages to `tooth.json`. Only apply to default variant.

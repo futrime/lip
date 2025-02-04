@@ -56,6 +56,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -89,6 +90,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -119,6 +121,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -149,6 +152,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -176,6 +180,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -203,6 +208,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -230,6 +236,7 @@ public class LipViewTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>

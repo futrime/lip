@@ -95,6 +95,7 @@ public class LipCacheTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new();
@@ -150,6 +151,7 @@ public class LipCacheTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new();
@@ -194,6 +196,7 @@ public class LipCacheTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
@@ -230,6 +233,7 @@ public class LipCacheTests
         RuntimeConfig runtimeConfig = new()
         {
             Cache = s_cacheDir,
+            GoModuleProxies = []
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>

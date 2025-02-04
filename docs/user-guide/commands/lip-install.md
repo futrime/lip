@@ -68,4 +68,4 @@ Examples:
 
 - `--save`
 
-  Save the installed packages to the `tooth.json` file as dependencies.
+  Save the installed packages to the `tooth.json` file as dependencies. Only apply to default variant.

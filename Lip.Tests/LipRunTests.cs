@@ -81,7 +81,7 @@ public class LipRunTests
         Lip lip = new(new(), context.Object);
 
         // Act & Assert.
-        await Assert.ThrowsAsync<FileNotFoundException>(() => lip.Run("test", new()));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => lip.Run("test", new()));
     }
 
     [Fact]

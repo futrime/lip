@@ -318,6 +318,55 @@ public record PackageManifest
         public ScriptsType? Scripts { get; init; }
 
         private Dictionary<string, string>? _dependencies;
+
+        public bool Match(string variantLabel, string platform)
+        {
+            // Check if the variant label matches the specified label.
+            bool isVariantLabelMatched = false;
+
+            if (VariantLabel == variantLabel)
+            {
+                isVariantLabelMatched = true;
+            }
+            else if (VariantLabel != string.Empty)
+            {
+                var labelGlob = Glob.Parse(VariantLabel);
+
+                if (labelGlob.IsMatch(variantLabel))
+                {
+                    isVariantLabelMatched = true;
+                }
+            }
+
+            if (!isVariantLabelMatched)
+            {
+                return false;
+            }
+
+            // Check if the platform matches the specified platform.
+            bool isPlatformMatched = false;
+
+            if (Platform == platform)
+            {
+                isPlatformMatched = true;
+            }
+            else if (Platform != string.Empty || Platform is null)
+            {
+                var platformGlob = Glob.Parse(Platform ?? "*");
+
+                if (platformGlob.IsMatch(platform))
+                {
+                    isPlatformMatched = true;
+                }
+            }
+
+            if (!isPlatformMatched)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 
     public const int DefaultFormatVersion = 3;
@@ -413,54 +462,7 @@ public record PackageManifest
     {
         // Find the variant that matches the specified label and platform.
         List<VariantType> matchedVariants = Variants?
-            .Where(variant =>
-            {
-                // Check if the variant label matches the specified label.
-                bool isVariantLabelMatched = false;
-
-                if (variant.VariantLabel == variantLabel)
-                {
-                    isVariantLabelMatched = true;
-                }
-                else if (variant.VariantLabel != string.Empty)
-                {
-                    var labelGlob = Glob.Parse(variant.VariantLabel);
-
-                    if (labelGlob.IsMatch(variantLabel))
-                    {
-                        isVariantLabelMatched = true;
-                    }
-                }
-
-                if (!isVariantLabelMatched)
-                {
-                    return false;
-                }
-
-                // Check if the platform matches the specified platform.
-                bool isPlatformMatched = false;
-
-                if (variant.Platform == platform)
-                {
-                    isPlatformMatched = true;
-                }
-                else if (variant.Platform != string.Empty || variant.Platform is null)
-                {
-                    var platformGlob = Glob.Parse(variant.Platform ?? "*");
-
-                    if (platformGlob.IsMatch(platform))
-                    {
-                        isPlatformMatched = true;
-                    }
-                }
-
-                if (!isPlatformMatched)
-                {
-                    return false;
-                }
-
-                return true;
-            })
+            .Where(variant => variant.Match(variantLabel, platform))
             .ToList() ?? [];
 
         // However, there must exist at least one variant that matches the specified label and platform without any wildcards.
@@ -483,9 +485,7 @@ public record PackageManifest
             Dependencies = matchedVariants
                 .SelectMany(variant => variant.Dependencies ?? [])
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            Assets = matchedVariants
-                .SelectMany(variant => variant.Assets ?? [])
-                .ToList(),
+            Assets = [.. matchedVariants.SelectMany(variant => variant.Assets ?? [])],
             Scripts = new ScriptsType
             {
                 PreInstall = matchedVariants

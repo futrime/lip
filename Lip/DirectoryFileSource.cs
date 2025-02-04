@@ -33,6 +33,8 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
 
     public async Task<IFileSourceEntry?> GetEntry(string key)
     {
+        await Task.Delay(0); // To avoid warning.
+
         if (!StringValidator.CheckPlaceDestPath(key))
         {
             return null;
@@ -40,7 +42,7 @@ public class DirectoryFileSource(IFileSystem fileSystem, string rootDirPath) : I
 
         string filePath = _fileSystem.Path.Join(_rootDirPath, key);
 
-        if (await _fileSystem.File.ExistsAsync(filePath))
+        if (_fileSystem.File.Exists(filePath))
         {
             return new DirectoryFileSourceEntry(_fileSystem, filePath, key);
         }
@@ -58,6 +60,8 @@ public class DirectoryFileSourceEntry(IFileSystem fileSystem, string filePath, s
 
     public async Task<Stream> OpenRead()
     {
-        return await _fileSystem.File.OpenReadAsync(_filePath);
+        await Task.Delay(0); // To avoid warning.
+
+        return _fileSystem.File.OpenRead(_filePath);
     }
 }

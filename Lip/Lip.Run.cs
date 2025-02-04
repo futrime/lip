@@ -11,16 +11,9 @@ public partial class Lip
 
     public async Task<int> Run(string scriptName, RunArgs args)
     {
-        string currentPackageManifestPath = _pathManager.CurrentPackageManifestPath;
+        PackageManifest? packageManifest = await _packageManager.GetCurrentPackageManifestParsed()
+            ?? throw new InvalidOperationException("No package manifest found.");
 
-        if (!await _context.FileSystem.File.ExistsAsync(currentPackageManifestPath))
-        {
-            throw new FileNotFoundException($"Package manifest not found at {currentPackageManifestPath}");
-        }
-
-        byte[] packageManifestBytes = await _context.FileSystem.File.ReadAllBytesAsync(currentPackageManifestPath);
-
-        PackageManifest packageManifest = PackageManifest.FromJsonBytesParsed(packageManifestBytes);
         PackageManifest.VariantType? variant = packageManifest.GetSpecifiedVariant(
             args.VariantLabel,
             RuntimeInformation.RuntimeIdentifier)

@@ -30,8 +30,8 @@ public class RuntimeConfigTests
             runtimeConfiguration.Cache
         );
         Assert.True(runtimeConfiguration.Color);
-        Assert.Equal("", runtimeConfiguration.GitHubProxy);
-        Assert.Equal("https://goproxy.io", runtimeConfiguration.GoModuleProxy);
+        Assert.Equal([], runtimeConfiguration.GitHubProxies);
+        Assert.Equal(["https://proxy.golang.org"], runtimeConfiguration.GoModuleProxies);
         Assert.Equal("", runtimeConfiguration.HttpsProxy);
         Assert.Equal("", runtimeConfiguration.NoProxy);
         Assert.Equal("", runtimeConfiguration.Proxy);
@@ -46,8 +46,8 @@ public class RuntimeConfigTests
             {
                 ""cache"": ""cache"",
                 ""color"": false,
-                ""github_proxy"": ""github_proxy"",
-                ""go_module_proxy"": ""go_module_proxy"",
+                ""github_proxies"": ""github_proxy"",
+                ""go_module_proxies"": ""go_module_proxy"",
                 ""https_proxy"": ""https_proxy"",
                 ""noproxy"": ""noproxy"",
                 ""proxy"": ""proxy""
@@ -61,8 +61,8 @@ public class RuntimeConfigTests
         // Arrange.
         Assert.Equal("cache", runtimeConfiguration.Cache);
         Assert.False(runtimeConfiguration.Color);
-        Assert.Equal("github_proxy", runtimeConfiguration.GitHubProxy);
-        Assert.Equal("go_module_proxy", runtimeConfiguration.GoModuleProxy);
+        Assert.Equal(["github_proxy"], runtimeConfiguration.GitHubProxies);
+        Assert.Equal(["go_module_proxy"], runtimeConfiguration.GoModuleProxies);
         Assert.Equal("https_proxy", runtimeConfiguration.HttpsProxy);
         Assert.Equal("noproxy", runtimeConfiguration.NoProxy);
         Assert.Equal("proxy", runtimeConfiguration.Proxy);
@@ -97,8 +97,8 @@ public class RuntimeConfigTests
             {
                 "cache": "{{Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache").Replace("\\", "\\\\")}}",
                 "color": true,
-                "github_proxy": "",
-                "go_module_proxy": "https://goproxy.io",
+                "github_proxies": "",
+                "go_module_proxies": "https://proxy.golang.org",
                 "https_proxy": "",
                 "noproxy": "",
                 "proxy": ""
