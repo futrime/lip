@@ -8,7 +8,7 @@ public partial class Lip
 {
     public record ViewArgs { }
 
-    public async Task<string> View(string packageSpecifierText, string path, ViewArgs args)
+    public async Task<string> View(string packageSpecifierText, string? path, ViewArgs args)
     {
         var packageSpecifier = PackageSpecifier.Parse(packageSpecifierText);
 
@@ -29,7 +29,7 @@ public partial class Lip
             throw new InvalidOperationException($"Version in package manifest '{packageManifest.Version}' does not match package specifier '{packageSpecifier.Version}'.");
         }
 
-        if (path == string.Empty)
+        if (path is null)
         {
             byte[] jsonBytes = packageManifest.ToJsonBytes();
             return Encoding.UTF8.GetString(jsonBytes);

@@ -230,13 +230,6 @@ public class PackageManager(
         _context.Logger.LogInformation("Package {packageSpecifier} installed.", packageSpecifier);
     }
 
-    public async Task SaveCurrentPackageLock(PackageLock packageLock)
-    {
-        await _context.FileSystem.File.WriteAllBytesAsync(
-            _pathManager.CurrentPackageLockPath,
-            packageLock.ToJsonBytes());
-    }
-
     public async Task SaveCurrentPackageManifest(PackageManifest packageManifest)
     {
         await _context.FileSystem.File.WriteAllBytesAsync(
@@ -416,7 +409,7 @@ public class PackageManager(
             return await _cacheManager.GetPackageFileSource(packageSpecifier);
         }
 
-        List<Url> urls = asset.Urls?.Select(url => new Url(url)).ToList()
+        List<Url> urls = asset.Urls?.ConvertAll(url => new Url(url))
             ?? throw new InvalidOperationException("Asset URLs are not specified.");
 
         IFileInfo assetFile = await _cacheManager.GetDownloadedFile(urls);
@@ -461,5 +454,12 @@ public class PackageManager(
 
             parentDir = _context.FileSystem.Path.GetDirectoryName(parentDir);
         }
+    }
+
+    private async Task SaveCurrentPackageLock(PackageLock packageLock)
+    {
+        await _context.FileSystem.File.WriteAllBytesAsync(
+            _pathManager.CurrentPackageLockPath,
+            packageLock.ToJsonBytes());
     }
 }

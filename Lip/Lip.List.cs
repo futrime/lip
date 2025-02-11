@@ -14,12 +14,12 @@ public partial class Lip
     {
         PackageLock packageLock = await _packageManager.GetCurrentPackageLock();
 
-        List<ListResultItem> listItems = [.. packageLock.Locks
-            .Select(@lock => new ListResultItem
+        List<ListResultItem> listItems = packageLock.Locks
+            .ConvertAll(@lock => new ListResultItem
             {
                 Manifest = @lock.Package,
                 Locked = @lock.Locked
-            })];
+            });
 
         return listItems;
     }

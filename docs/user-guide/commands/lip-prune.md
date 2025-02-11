@@ -3,12 +3,12 @@
 ## Usage
 
 ```shell
-lip prune [<package-spec>...]
+lip prune
 ```
 
 ## Description
 
-Remove unused packages. When run without arguments, removes all unused packages. Packages specified as arguments that are not installed will be ignored. Dependencies of other packages will be preserved and skipped during pruning.
+Remove all unused packages. Dependencies of other packages will be preserved and skipped during pruning.
 
 ## Options
 

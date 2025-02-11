@@ -11,10 +11,10 @@ public partial class Lip
         public required bool Save { get; init; }
     }
 
-    public async Task Uninstall(List<string> packageTexts, UninstallArgs args)
+    public async Task Uninstall(List<string> packageSpecifierTexts, UninstallArgs args)
     {
-        List<PackageSpecifierWithoutVersion> packageSpecifiers = [.. packageTexts
-            .Select(PackageSpecifierWithoutVersion.Parse)];
+        List<PackageSpecifierWithoutVersion> packageSpecifiers = packageSpecifierTexts
+            .ConvertAll(PackageSpecifierWithoutVersion.Parse);
 
         // Check if all packages to uninstall are installed.
 
@@ -35,25 +35,6 @@ public partial class Lip
             await _packageManager.Uninstall(packageSpecifier, args.DryRun, args.IgnoreScripts);
         }
 
-        // Update the package lock file.
-
-        PackageLock packageLock = await _packageManager.GetCurrentPackageLock();
-
-        PackageLock newPackageLock = packageLock with
-        {
-            Locks = [.. packageLock.Locks
-                    .Where(lockType => !packageSpecifiers.Contains(new()
-                    {
-                        ToothPath = lockType.Package.ToothPath,
-                        VariantLabel = lockType.VariantLabel
-                    }))]
-        };
-
-        if (!args.DryRun)
-        {
-            await _packageManager.SaveCurrentPackageLock(newPackageLock);
-        }
-
         // If to save, update the package manifest file.
 
         if (args.Save)
@@ -64,11 +45,11 @@ public partial class Lip
             PackageManifest newPackagemanifest = packageManifest with
             {
                 Variants = packageManifest.Variants?
-                    .Select(variant =>
+                    .ConvertAll(variant =>
                     {
-                        if (!packageSpecifiers.Any(packageSpecifier => variant.Match(
+                        if (!variant.Match(
                             string.Empty,
-                            RuntimeInformation.RuntimeIdentifier)))
+                            RuntimeInformation.RuntimeIdentifier))
                         {
                             return variant;
                         }
@@ -80,7 +61,7 @@ public partial class Lip
                                     packageSpecifier => packageSpecifier.ToothPath == dependency.Key))
                                 .ToDictionary()
                         };
-                    }).ToList()
+                    })
             };
 
             if (!args.DryRun)

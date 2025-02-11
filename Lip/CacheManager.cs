@@ -57,6 +57,7 @@ public class CacheManager(
     public async Task<IFileSource> GetPackageFileSource(PackageSpecifier packageSpecifier)
     {
         // First, try to get the package from the Go module proxy.
+
         if (_goModuleProxies.Count != 0)
         {
             IFileInfo goModuleArchive = await GetGoModuleArchive(packageSpecifier);
@@ -69,6 +70,7 @@ public class CacheManager(
         }
 
         // Next, try to get the package from the Git repository.
+
         if (_context.Git is not null)
         {
             IDirectoryInfo repoDir = await GetGitRepoDir(packageSpecifier);
@@ -152,7 +154,7 @@ public class CacheManager(
 
     private async Task<IDirectoryInfo> GetGitRepoDir(PackageSpecifier packageSpecifier)
     {
-        string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
+        string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}.git");
         string tag = $"v{packageSpecifier.Version}";
 
         string repoDirPath = _pathManager.GetGitRepoDirCachePath(new()
@@ -180,14 +182,14 @@ public class CacheManager(
     {
         SemVersion version = packageSpecifier.Version;
 
-        List<Url> archiveFileUrls = [.. _goModuleProxies.Select(proxy =>
+        List<Url> archiveFileUrls = _goModuleProxies.ConvertAll(proxy =>
             proxy.Clone()
                 .AppendPathSegments(
                     GoModule.EscapePath(packageSpecifier.ToothPath),
                     "@v",
                     GoModule.EscapeVersion(GoModule.CanonicalVersion(version.ToString())) + ".zip"
                 )
-        )];
+        );
 
         return await GetDownloadedFile(archiveFileUrls);
     }
