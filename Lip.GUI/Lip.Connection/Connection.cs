@@ -156,7 +156,7 @@ public partial class Connection
             try
             {
                 _client!.Connect(remoteEP);
-                var stream = _client.GetStream();
+                NetworkStream stream = _client.GetStream();
 #if DEBUG
                 stream.ReadTimeout = int.MaxValue;
                 stream.WriteTimeout = int.MaxValue;

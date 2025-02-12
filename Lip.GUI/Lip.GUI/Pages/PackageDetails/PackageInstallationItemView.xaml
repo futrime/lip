@@ -5,12 +5,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
     x:DataType="local:PackageInstallationItemView"
-    HeightRequest="30"
+    HeightRequest="32"
     Loaded="ContentView_Loaded">
 
     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="5">
 
-        <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Start">
+        <HorizontalStackLayout
+            Grid.Column="0"
+            HorizontalOptions="Start"
+            Spacing="3">
 
             <Label
                 x:Name="_name"
@@ -30,7 +33,6 @@
             Grid.Column="1"
             FontSize="12"
             HorizontalOptions="Start"
-            Text="1.0.0"
             VerticalTextAlignment="Center" />
 
         <CheckBox

@@ -19,6 +19,8 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
         InitializeComponent();
         MauiProgram.Config.PropertyChanged += Config_PropertyChanged;
         MauiProgram.Config.Servers.CollectionChanged += Servers_CollectionChanged;
+
+        Current = this;
     }
 
     private static ObservableCollection<ServerInfo>? s_servers = null;
@@ -58,7 +60,6 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
-        Current = this;
         await UpdateAllServersAsync(MauiProgram.Config.Servers);
     }
 
@@ -66,6 +67,7 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
         string name,
         string location,
         string? portStr,
+        string? clientPortStr,
         string? password,
         FileResult? iconImage,
         Color? textColor)
@@ -77,7 +79,8 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
         {
             ServerName = name,
             ServerHost = location.Trim() is "localhost" ? "127.0.0.1" : location,
-            ServerPort = null,
+            ServerPort = int.Parse(portStr ?? throw new ArgumentNullException(nameof(portStr))),
+            ClientPort = int.Parse(clientPortStr ?? throw new ArgumentNullException(nameof(clientPortStr))),
             ServerIconId = null,
             ServerPassword = null,
             TextColor = textColor?.ToHex()
@@ -124,7 +127,8 @@ public partial class ServersPage : ContentPage, IBackgroundImageHandler
                     {
                         ServerName = server.ServerName,
                         ServerHost = server.ServerHost,
-                        ServerPort = server.ServerPort, 
+                        ClientPort = server.ClientPort,
+                        ServerPort = server.ServerPort,
                         ServerIconId = server.ServerIconId,
                         ServerPassword = server.ServerPassword,
                         TextColor = Color.Parse(server.TextColor ?? "#00000000")

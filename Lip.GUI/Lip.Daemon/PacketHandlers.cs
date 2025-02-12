@@ -32,6 +32,9 @@ internal static class PacketHandlers
         TestPackageInstalledPacket packet)
     {
         //TODO
+
+        //var packages = s_lip.List(new());
+
         connection.EnqueuePacketToSend<CustomOperationPackets, TestPackageInstalledResponsePacket>(
             CustomOperationPackets.TestPackageInstalledResponse,
             new TestPackageInstalledResponsePacket()

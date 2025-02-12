@@ -5,6 +5,7 @@ namespace Bedrinth;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(SearchPackagesResponse))]
+[JsonSerializable(typeof(GetPackageResponse))]
 [JsonSerializable(typeof(PackageInfo))]
 internal partial class BedrinthSourceGenerationContext : JsonSerializerContext
 {
@@ -44,15 +45,19 @@ public class BedrinthServicesProvider
             BedrinthSourceGenerationContext.Default.SearchPackagesResponse);
     }
 
-    public async Task<PackageInfo?> GetPackageAsync(string source, string identifier)
+    public async Task<GetPackageResponse?> GetPackageAsync(string identifier)
     {
-        HttpResponseMessage response = await _httpClient.GetAsync($"/packages/{source}/{identifier}");
+        string url = $"{Uri}/packages/{identifier}";
+
+        HttpResponseMessage response = await _httpClient.GetAsync(url);
+
         response.EnsureSuccessStatusCode();
 
         string content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<PackageInfo>(
+        return JsonSerializer.Deserialize<GetPackageResponse>(
             content,
-            BedrinthSourceGenerationContext.Default.PackageInfo);
+            BedrinthSourceGenerationContext.Default.GetPackageResponse);
+
     }
 }
 
@@ -75,6 +80,16 @@ public class SearchPackagesResponse
         [JsonPropertyName("items")]
         public List<PackageInfo> Items { get; set; } = [];
     }
+}
+
+public class GetPackageResponse
+{
+    [JsonPropertyName("apiVersion")]
+    public string ApiVersion { get; set; } = string.Empty;
+
+
+    [JsonPropertyName("data")]
+    public PackageInfo Data { get; set; } = new();
 }
 
 public class PackageInfo

@@ -11,6 +11,7 @@ public static partial class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseAcrylicView()
+            .UseVirtualListView()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

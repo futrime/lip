@@ -1,4 +1,5 @@
-﻿using Lip.GUI.Pages.Bedrinth;
+﻿using Bedrinth;
+using Lip.GUI.Pages.Bedrinth;
 
 namespace Lip.GUI.Pages.PackageDetails;
 
@@ -15,8 +16,13 @@ public partial class PackageDetailsPage
         InitializeComponent();
     }
 
-    private void PackageDetails_Loaded(object sender, EventArgs e)
+    private async void PackageDetails_Loaded(object sender, EventArgs e)
     {
+        GetPackageResponse? temp = await BedrinthPage.Current!.BedrinthServicesProvider.GetPackageAsync(Item.Identifier) ??
+            throw new Exception("Package not found");
+
+        Item = temp.Data;
+
         _avatar.Source = Item.Avatar;
         _name.Text = Item.Name;
         _description.Text = Item.Description;
@@ -25,10 +31,9 @@ public partial class PackageDetailsPage
         _updated.Text = Item.Updated;
         _projectUrl.Text = Item.ProjectUrl;
 
+        _installationView.Item = Item;
+
         foreach (string tag in Item.Tags)
-            _tagsLayout.Children.Add(new TagView()
-            {
-                Text = tag
-            });
+            _tagsLayout.Children.Add(new TagView() { Text = tag });
     }
 }

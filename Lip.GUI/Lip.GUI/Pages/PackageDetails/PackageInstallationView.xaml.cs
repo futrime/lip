@@ -10,16 +10,46 @@ public partial class PackageInstallationView : ContentView
         InitializeComponent();
     }
 
-    private void ContentView_Loaded(object sender, EventArgs e)
+    public BedrinthItem? Item
     {
-        CreateViews(ServersPage.Current.ServerViews, ((PackageDetailsPage)BindingContext).Item);
+        get => field;
+        set
+        {
+            field = value;
+
+            Dispatcher.Dispatch(() =>
+            {
+                if (Item is null) return;
+
+                _picker.ItemsSource = Item.Versions.ToList();
+                _picker.SelectedIndex = 0;
+
+                CreateViews(ServersPage.Current.ServerViews, Item);
+            });
+        }
     }
+
+    private List<PackageInstallationItemView> _installationItemViews = [];
 
     private void CreateViews(IReadOnlyDictionary<string, ServerView> views, BedrinthItem item)
     {
-        foreach (var view in views)
+        _itemsLayout.Children.Clear();
+
+        foreach (KeyValuePair<string, ServerView> view in views)
         {
-            _itemsLayout.Children.Add(new PackageInstallationItemView(this, view.Value, item));
+            var installationItemView = new PackageInstallationItemView(this, view.Value, item);
+            _installationItemViews.Add(installationItemView);
+            _itemsLayout.Children.Add(installationItemView);
         }
+    }
+
+    public void ItemViewCheckBoxChanged(PackageInstallationItemView sender, EventArgs args)
+    {
+        _button.IsEnabled = true;
+    }
+
+    private void ApplyButton_Clicked(object sender, EventArgs e)
+    {
+
     }
 }

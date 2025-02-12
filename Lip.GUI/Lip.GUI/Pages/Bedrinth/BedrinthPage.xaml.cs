@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Bedrinth;
 using Lip.GUI.Pages.PackageDetails;
+using static Bedrinth.PackageInfo;
 
 namespace Lip.GUI.Pages.Bedrinth;
 
@@ -23,6 +24,25 @@ public class BedrinthItem
     public required string ProjectUrl { get; set; }
 
     public required IEnumerable<string> Tags { get; set; }
+
+    public required IEnumerable<string> Versions { get; set; }
+
+    public required PackageInfo Original { get; set; }
+
+    public static implicit operator BedrinthItem(PackageInfo package) => new()
+    {
+        Identifier = package.Identifier,
+        Avatar = package.AvatarUrl,
+        Name = package.Name,
+        Description = package.Description,
+        Author = package.Author,
+        Hotness = package.Hotness,
+        Updated = package.Updated,
+        ProjectUrl = package.ProjectUrl,
+        Tags = package.Tags,
+        Versions = from version in package.Versions ?? [] select version.Version,
+        Original = package,
+    };
 }
 
 public partial class BedrinthPage : ContentPage
@@ -30,9 +50,13 @@ public partial class BedrinthPage : ContentPage
     public BedrinthPage()
     {
         InitializeComponent();
+
+        Current = this;
     }
 
-    private readonly BedrinthServicesProvider _bedrinthServicesProvider = new();
+    public static BedrinthPage? Current { get; private set; }
+
+    public BedrinthServicesProvider BedrinthServicesProvider { get; } = new();
 
     private int _pageIndex = 1;
 
@@ -52,25 +76,14 @@ public partial class BedrinthPage : ContentPage
 
     private async Task LoadMore()
     {
-        SearchPackagesResponse? response = await _bedrinthServicesProvider.SearchPackagesAsync(page: _pageIndex);
+        SearchPackagesResponse? response = await BedrinthServicesProvider.SearchPackagesAsync(page: _pageIndex);
 
         if (response is null || _pageIndex > response.Data.TotalPages) return;
 
         _pageIndex++;
         foreach (PackageInfo package in response.Data.Items)
         {
-            Items.Add(new BedrinthItem
-            {
-                Identifier = package.Identifier,
-                Avatar = package.AvatarUrl,
-                Name = package.Name,
-                Description = package.Description,
-                Author = package.Author,
-                Hotness = package.Hotness,
-                Updated = package.Updated,
-                ProjectUrl = package.ProjectUrl,
-                Tags = package.Tags
-            });
+            Items.Add(package);
         }
 
         await LoadMore();

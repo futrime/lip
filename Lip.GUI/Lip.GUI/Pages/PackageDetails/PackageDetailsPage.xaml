@@ -94,7 +94,7 @@
                 Spacing="5"
                 VerticalOptions="Start" />
 
-            <local:PackageInstallationView BindingContext="{x:Reference _packageDetailsPage}" />
+            <local:PackageInstallationView x:Name="_installationView" BindingContext="{x:Reference _packageDetailsPage}" />
 
         </VerticalStackLayout>
 

@@ -9,11 +9,13 @@ public partial class PackageInstallationItemView
 {
     private readonly ServerView _view;
     private readonly BedrinthItem _item;
+    private readonly PackageInstallationView _packageInstallationView;
 
     public PackageInstallationItemView(PackageInstallationView installationView, ServerView view, BedrinthItem item)
     {
         _view = view;
         _item = item;
+        _packageInstallationView = installationView;
 
         InitializeComponent();
 
@@ -51,7 +53,7 @@ public partial class PackageInstallationItemView
         else
         {
             SetStatus(Status.Installed);
-            //Dispatcher.Dispatch(() => _version.Text = response.Manifest.VersionText);
+            _version.Text = response.Manifest.VersionText;
         }
     }
 
@@ -106,6 +108,11 @@ public partial class PackageInstallationItemView
 
     private void Checkbox_CheckedChanged(object sender, CheckedChangedEventArgs e)
     {
-
+        CheckBoxChanged = true;
+        _packageInstallationView.ItemViewCheckBoxChanged(this, EventArgs.Empty);
     }
+
+    public bool CheckBoxChanged { get; private set; }
+
+    public bool CheckBoxValue => _checkbox.IsChecked;
 }

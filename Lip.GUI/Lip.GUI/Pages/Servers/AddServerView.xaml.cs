@@ -168,6 +168,7 @@ public partial class AddServerView : ContentView
                _nameEntry.Text,
                _locationEntry.Text,
                _isRemoteCheckBox.IsChecked ? _portEntry.Text : null,
+               _isRemoteCheckBox.IsChecked ? _portEntry.Text : null,
                _isRemoteCheckBox.IsChecked ? _passwordEntry.Text : null,
                _iconImage,
                _color);

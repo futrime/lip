@@ -1,6 +1,4 @@
 ﻿#nullable disable
-using Lip.GUI.Controls.Layouts;
-using Lip.GUI.Pages.Servers;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace Lip.GUI.Controls;
@@ -360,23 +358,25 @@ public partial class InfoBar : ContentView
         _cts?.Cancel();
     }
 
-    public event EventHandler Closing;
-    public event EventHandler Closed;
+#nullable enable
 
-    private record struct InfoBarTask(
-        ManualResetEvent Mre,
-        string Title,
-        string Message,
+    public event EventHandler? Closing;
+    public event EventHandler? Closed;
+
+    private record InfoBarTask(
+        TaskCompletionSource CompletionSource,
+        string? Title,
+        string? Message,
         InfoBarSeverity Severity,
         TimeSpan Interval,
-        View Content,
-        Action Completed,
+        View? Content,
+        Action? Completed,
         bool IsClosable,
-        CancellationTokenSource source);
+        CancellationTokenSource CancellationSource);
 
     private bool _isInfoBarTaskHandlerRunning = false;
     private readonly Queue<InfoBarTask> _infoBarTaskQueue = new();
-    private CancellationTokenSource _cts;
+    private CancellationTokenSource? _cts;
 
     private void ShowInfoBar(InfoBarTask task)
     {
@@ -388,10 +388,10 @@ public partial class InfoBar : ContentView
             IsClosable = task.IsClosable;
             Content = task.Content;
 
-            void set(object sender, object e)
+            void set(object? sender, object e)
             {
                 Closed -= set;
-                task.Mre.Set();
+                if (task.CompletionSource.Task.IsCompleted is false) task.CompletionSource.SetResult();
             }
             Closed += set;
 
@@ -399,14 +399,14 @@ public partial class InfoBar : ContentView
         });
     }
 
-    private void CloseInfoBar(ManualResetEvent mre)
+    private void CloseInfoBar(TaskCompletionSource source)
     {
         IsOpen = false;
 
-        void task(object sender, object e)
+        void task(object? sender, object e)
         {
             Closed -= task;
-            mre.Set();
+            if (source.Task.IsCompleted is false) source.SetResult();
         }
         Closed += task;
     }
@@ -414,86 +414,81 @@ public partial class InfoBar : ContentView
     private void StartInfoBarTaskHandler()
         => Task.Run(async () =>
         {
-            InfoBarTask task;
+            InfoBarTask? task;
             bool dequeued;
 
             _isInfoBarTaskHandlerRunning = true;
-        LOOP:
-            lock (_infoBarTaskQueue)
+
+            while (_infoBarTaskQueue.Count > 0)
             {
-                dequeued = _infoBarTaskQueue.TryDequeue(out task);
-            }
-
-            if (dequeued)
-            {
-                _cts = task.source;
-
-                Dispatcher.Dispatch(() => ShowInfoBar(task));
-
-                try
+                lock (_infoBarTaskQueue)
                 {
-                    await Task.Delay(task.Interval, task.source.Token);
+                    dequeued = _infoBarTaskQueue.TryDequeue(out task);
                 }
-                catch (TaskCanceledException) { }
 
-                _cts = null;
+                if (dequeued && task != null)
+                {
+                    _cts = task.CancellationSource;
 
-                task.Mre.Reset();
-                Dispatcher.Dispatch(() => CloseInfoBar(task.Mre));
-                task.Mre.WaitOne();
-                task.Completed?.Invoke();
-                task.Mre.Dispose();
+                    Dispatcher.Dispatch(() => ShowInfoBar(task));
 
-                goto LOOP;
+                    try
+                    {
+                        await Task.Delay(task.Interval, task.CancellationSource.Token);
+                    }
+                    catch (TaskCanceledException) { }
+
+                    _cts = null;
+
+                    Dispatcher.Dispatch(() => CloseInfoBar(task.CompletionSource));
+                    await task.CompletionSource.Task;
+                    task.Completed?.Invoke();
+                }
+                else break;
             }
+
             _isInfoBarTaskHandlerRunning = false;
         });
 
     private CancellationTokenSource ShowInternal(
-        string title,
-        string message,
+        string? title,
+        string? message,
         InfoBarSeverity severity,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null,
-        Action completed = null)
+        View? barContent = null,
+        Action? completed = null)
     {
         CancellationTokenSource source = new();
-        Task.Run(() =>
-        {
-            var mre = new ManualResetEvent(false);
-            _infoBarTaskQueue.Enqueue(new(
-                mre,
-                title,
-                message,
-                severity,
-                interval,
-                barContent,
-                completed,
-                isClosable,
-                source));
-            if (_isInfoBarTaskHandlerRunning is false)
-                StartInfoBarTaskHandler();
-            mre.WaitOne();
-        });
-
+        var completionSource = new TaskCompletionSource();
+        _infoBarTaskQueue.Enqueue(new(
+            completionSource,
+            title,
+            message,
+            severity,
+            interval,
+            barContent,
+            completed,
+            isClosable,
+            source));
+        if (_isInfoBarTaskHandlerRunning is false)
+            StartInfoBarTaskHandler();
+        completionSource.Task.Wait();
         return source;
     }
 
     private async ValueTask<CancellationTokenSource> ShowInternalAsync(
-        string title,
-        string message,
+        string? title,
+        string? message,
         InfoBarSeverity severity,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null)
+        View? barContent = null)
     {
         CancellationTokenSource source = new();
-        await Task.Run(() =>
-        {
-            var mre = new ManualResetEvent(false);
+            var completionSource = new TaskCompletionSource();
             _infoBarTaskQueue.Enqueue(new(
-                mre,
+                completionSource,
                 title,
                 message,
                 severity,
@@ -504,18 +499,17 @@ public partial class InfoBar : ContentView
                 source));
             if (_isInfoBarTaskHandlerRunning is false)
                 StartInfoBarTaskHandler();
-            mre.WaitOne();
-        });
+        await completionSource.Task;
         return source;
     }
 
     public async ValueTask<CancellationTokenSource> ShowAsync(
-        string title = null,
-        string message = null,
+        string? title = null,
+        string? message = null,
         InfoBarSeverity severity = InfoBarSeverity.Informational,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null)
+        View? barContent = null)
     {
         if (interval == default)
             interval = TimeSpan.FromSeconds(3);
@@ -535,7 +529,7 @@ public partial class InfoBar : ContentView
         InfoBarSeverity severity = InfoBarSeverity.Error,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null,
+        View? barContent = null,
         CancellationToken cancellationToken = default)
     {
         if (interval == default)
@@ -551,13 +545,13 @@ public partial class InfoBar : ContentView
     }
 
     public CancellationTokenSource Show(
-        string title = null,
-        string message = null,
+        string? title = null,
+        string? message = null,
         InfoBarSeverity severity = InfoBarSeverity.Informational,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null,
-        Action completed = null)
+        View? barContent = null,
+        Action? completed = null)
     {
         if (interval == default)
             interval = TimeSpan.FromSeconds(3);
@@ -578,8 +572,8 @@ public partial class InfoBar : ContentView
         InfoBarSeverity severity = InfoBarSeverity.Error,
         TimeSpan interval = default,
         bool isClosable = true,
-        View barContent = null,
-        Action completed = null)
+        View? barContent = null,
+        Action? completed = null)
     {
         if (interval == default)
             interval = TimeSpan.FromSeconds(5);

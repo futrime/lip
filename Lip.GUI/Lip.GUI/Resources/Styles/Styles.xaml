@@ -29,7 +29,7 @@
         <Setter Property="BorderWidth" Value="0" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="7,5" />
-        <Setter Property="MinimumHeightRequest" Value="25" />
+        <Setter Property="MinimumHeightRequest" Value="40" />
         <Setter Property="MinimumWidthRequest" Value="44" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
@@ -49,8 +49,8 @@
 
     <Style TargetType="CheckBox">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
-        <Setter Property="MinimumHeightRequest" Value="20" />
-        <Setter Property="MinimumWidthRequest" Value="20" />
+        <Setter Property="MinimumHeightRequest" Value="22" />
+        <Setter Property="MinimumWidthRequest" Value="22" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">

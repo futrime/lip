@@ -4,8 +4,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
+    x:Name="_view"
     x:DataType="local:PackageInstallationView"
-    Loaded="ContentView_Loaded">
+    BindingContext="{x:Reference _view}">
 
     <Border
         Padding="5"
@@ -61,10 +62,7 @@
                     StrokeShape="Rectangle"
                     StrokeThickness="0.5">
 
-                    <Picker
-                        x:Name="_picker"
-                        BackgroundColor="Transparent"
-                        VerticalOptions="Center" />
+                    <Picker x:Name="_picker" VerticalOptions="Center" />
 
                 </Border>
 
@@ -76,12 +74,12 @@
 
                     <Button
                         x:Name="_button"
-                        BackgroundColor="Transparent"
                         BorderColor="Transparent"
+                        Clicked="ApplyButton_Clicked"
+                        CornerRadius="0"
                         IsEnabled="False"
+                        MinimumHeightRequest="25"
                         Text="Apply"
-                        TextColor="{AppThemeBinding Light={DynamicResource OffBlack},
-                                                    Dark={DynamicResource White}}"
                         VerticalOptions="Center" />
                 </Border>
 

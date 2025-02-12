@@ -16,8 +16,12 @@ public partial class ServerInfo : ObservableObject
     public required partial string ServerHost { get; set; }
 
     [ObservableProperty]
+    [JsonPropertyName("client_port")]
+    public required partial int ClientPort { get; set; }
+
+    [ObservableProperty]
     [JsonPropertyName("port")]
-    public required partial int? ServerPort { get; set; }
+    public required partial int ServerPort { get; set; }
 
     [ObservableProperty]
     [JsonPropertyName("password")]

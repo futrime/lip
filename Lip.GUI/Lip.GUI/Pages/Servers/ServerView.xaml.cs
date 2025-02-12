@@ -57,6 +57,12 @@ public partial class ServerView : ContentView
             view._serverPortLabel.Text = (int?)newValue is not null ? $"{(int)newValue}" : "Local";
         });
 
+    public static readonly BindableProperty ClientPortProperty = BindableProperty.Create(
+    nameof(ClientPort),
+    typeof(int?),
+    typeof(ServerView),
+    null);
+
     public static readonly BindableProperty ServerIconIdProperty = BindableProperty.Create(
         nameof(ServerIconId),
         typeof(Guid?),
@@ -106,6 +112,12 @@ public partial class ServerView : ContentView
         set => SetValue(ServerPortProperty, value);
     }
 
+    public int? ClientPort
+    {
+        get => (int?)GetValue(ClientPortProperty);
+        set => SetValue(ClientPortProperty, value);
+    }
+
     public Guid? ServerIconId
     {
         get => (Guid?)GetValue(ServerIconIdProperty);
@@ -129,9 +141,14 @@ public partial class ServerView : ContentView
         InitializeComponent();
     }
 
+    private bool _verified = false;
+
     private void ContentView_Loaded(object sender, EventArgs e)
     {
         _button.IsEnabled = false;
+
+        if (_verified) return;
+        _verified = true;
         Task.Run(VerifyRemoteServer);
     }
 
@@ -150,14 +167,14 @@ public partial class ServerView : ContentView
         CancellationTokenSource cancellationTokenSource = new();
         Task task = VerifyAnimation(VerifyStatus.Verifying, cancellationTokenSource.Token).AsTask();
 
-        Connection = new Connection.Connection(
-            ConnectionMode.Client,
-            ServerPassword ?? "",
-            IPAddress.Any,
-            MauiProgram.Config!.Port);
-
         try
         {
+            Connection = new Connection.Connection(
+                ConnectionMode.Client,
+                ServerPassword ?? "",
+                IPAddress.Any,
+                ClientPort!.Value);
+
             //await Task.Delay(10000);
             await Connection.ConnectToAsync(new(IPAddress.Parse(ServerHost), ServerPort!.Value));
         }

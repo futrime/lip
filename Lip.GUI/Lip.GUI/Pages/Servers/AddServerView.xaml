@@ -145,6 +145,30 @@
                 </HorizontalStackLayout>
 
 
+                <HorizontalStackLayout
+                    x:Name="_clientPortLayout"
+                    Margin="5"
+                    IsVisible="True"
+                    Spacing="5">
+
+                    <Label
+                        Text="Client port"
+                        VerticalOptions="Center"
+                        VerticalTextAlignment="Center"
+                        WidthRequest="65" />
+
+                    <Entry
+                        x:Name="_clientPortEntry"
+                        ClearButtonVisibility="WhileEditing"
+                        Completed="PasswordEntry_Completed"
+                        HorizontalOptions="Fill"
+                        Placeholder="Password"
+                        VerticalOptions="Center"
+                        WidthRequest="120" />
+
+                </HorizontalStackLayout>
+
+
                 <HorizontalStackLayout Margin="5" Spacing="5">
                     <Label
                         Grid.Row="1"
