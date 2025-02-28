@@ -1,168 +1,117 @@
-﻿using System.Text;
-using System.Text.Json;
+using Flurl;
 using Semver;
+using System.Text;
+using System.Text.Json;
 
 namespace Lip.Tests;
 
 public class PackageManifestTests
 {
-    [Theory]
-    [InlineData(null, null, null)]
-    [InlineData(new string[] { "https://example.com" }, new string[] { "preserve" }, new string[] { "remove" })]
-    public void AssetType_Constructor_ValidValues_Passes(
-        string[]? urls,
-        string[]? preserve,
-        string[]? remove)
+    [Fact]
+    public void Asset_Constructor_ValidValues_ReturnsCorrectInstance()
     {
         // Arrange & Act.
-        var asset = new PackageManifest.AssetType
+        PackageManifest.Asset asset = new()
         {
-            Type = PackageManifest.AssetType.TypeEnum.Self,
-            Urls = urls?.ToList(),
-            Place = null,
-            Preserve = preserve?.ToList(),
-            Remove = remove?.ToList()
+            Type = PackageManifest.Asset.TypeEnum.Self,
+            Urls = [],
+            Placements = []
         };
 
+        PackageManifest.Asset newAsset = asset with { };
+
         // Assert.
-        Assert.Equal(PackageManifest.AssetType.TypeEnum.Self, asset.Type);
-        Assert.Equal(urls, asset.Urls);
-        Assert.Null(asset.Place);
-        Assert.Equal(preserve, asset.Preserve);
-        Assert.Equal(remove, asset.Remove);
+        Assert.Equal(PackageManifest.Asset.TypeEnum.Self, newAsset.Type);
+        Assert.Empty(newAsset.Urls);
+        Assert.Empty(newAsset.Placements);
     }
 
     [Fact]
-    public void AssetType_Constructor_InvalidUrl_Throws()
+    public void InfoType_Constructor_ValidValues_ReturnsCorrectInstance()
     {
         // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.AssetType
-            {
-                Type = PackageManifest.AssetType.TypeEnum.Self,
-                Urls = ["invalid"]
-            });
+        List<string> tags = ["tag1", "tag2"];
+        Url avatarUrl = new();
 
-        // Assert.
-        Assert.Equal("urls", exception.Key);
-        Assert.Equal("URL 'invalid' is invalid.", exception.Message);
-    }
-
-    [Fact]
-    public void AssetType_Constructor_UnsafePreserve_Throws()
-    {
-        // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.AssetType
-            {
-                Type = PackageManifest.AssetType.TypeEnum.Self,
-                Preserve = ["/invalid"]
-            });
-
-        // Assert.
-        Assert.Equal("preserve", exception.Key);
-        Assert.Equal("Path '/invalid' is unsafe to preserve.", exception.Message);
-    }
-
-    [Fact]
-    public void AssetType_Constructor_UnsafeRemove_Throws()
-    {
-        // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.AssetType
-            {
-                Type = PackageManifest.AssetType.TypeEnum.Self,
-                Remove = ["/invalid"]
-            });
-
-        // Assert.
-        Assert.Equal("remove", exception.Key);
-        Assert.Equal("Path '/invalid' is unsafe to remove.", exception.Message);
-    }
-
-    [Theory]
-    [InlineData(null, null)]
-    [InlineData(new string[] { "tag" }, "https://example.com")]
-    public void InfoType_Constructor_ValidValues_Passes(string[]? tags, string? avatarUrl)
-    {
-        // Arrange & Act.
-        var info = new PackageManifest.InfoType
+        PackageManifest.InfoType info = new()
         {
-            Name = "name",
-            Description = "description",
-            Tags = tags?.ToList(),
-            AvatarUrl = avatarUrl
+            Name = string.Empty,
+            Description = string.Empty,
+            Tags = tags,
+            AvatarUrl = avatarUrl,
         };
 
+        PackageManifest.InfoType newInfo = info with { };
+
         // Assert.
-        Assert.Equal("name", info.Name);
-        Assert.Equal("description", info.Description);
-        Assert.Equal(tags, info.Tags);
-        Assert.Equal(avatarUrl, info.AvatarUrl);
+        Assert.Empty(newInfo.Name);
+        Assert.Empty(newInfo.Description);
+        Assert.Equal(tags, newInfo.Tags);
+        Assert.Equal(avatarUrl, newInfo.AvatarUrl);
     }
 
     [Fact]
-    public void InfoType_Constructor_InvalidTag_Throws()
+    public void InfoType_Constructor_InvalidTags_ThrowsSchemaViolationException()
     {
-        // Arrange & Act.
+        // Arrange & Act & Assert.
         SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.InfoType { Tags = ["invalid.tag"] });
-
-        // Assert.
-        Assert.Equal("Tag 'invalid.tag' is invalid.", exception.Message);
-    }
-
-    [Fact]
-    public void InfoType_Constructor_InvalidAvatarUrl_Throws()
-    {
-        // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.InfoType { AvatarUrl = "invalid" });
-
-        // Assert.
-        Assert.Equal("avatar_url", exception.Key);
-        Assert.Equal("Avatar URL 'invalid' is invalid.", exception.Message);
-    }
-
-    [Fact]
-    public void PlaceType_Constructor_ValidValues_Passes()
-    {
-        // Arrange & Act.
-        var place = new PackageManifest.PlaceType
-        {
-            Type = PackageManifest.PlaceType.TypeEnum.File,
-            Src = "/path/to/src",
-            Dest = "path/to/dest"
-        };
-
-        // Assert.
-        Assert.Equal(PackageManifest.PlaceType.TypeEnum.File, place.Type);
-        Assert.Equal("/path/to/src", place.Src);
-        Assert.Equal("path/to/dest", place.Dest);
-    }
-
-    [Fact]
-    public void PlaceType_Constructor_UnsafeDest_Throws()
-    {
-        // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.PlaceType
+            () => new PackageManifest.InfoType
             {
-                Type = PackageManifest.PlaceType.TypeEnum.File,
-                Src = "/path/to/src",
-                Dest = "/path/to/dest"
+                Name = string.Empty,
+                Description = string.Empty,
+                Tags = ["invalid.tag"],
+                AvatarUrl = new(),
             });
 
-        // Assert.
-        Assert.Equal("dest", exception.Key);
-        Assert.Equal("Path '/path/to/dest' is unsafe to place.", exception.Message);
+        Assert.Equal("info.tags[]", exception.Key);
     }
 
     [Fact]
-    public void ScriptsType_Constructor_Trivial_Passes()
+    public void Placement_Constructor_ValidValues_ReturnsCorrectInstance()
     {
         // Arrange & Act.
-        var scripts = new PackageManifest.ScriptsType()
+        string dest = "path/to/dest";
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.File,
+            Src = string.Empty,
+            Dest = dest,
+        };
+
+        PackageManifest.Placement newPlacement = placement with { };
+
+        // Assert.
+        Assert.Equal(PackageManifest.Placement.TypeEnum.File, newPlacement.Type);
+        Assert.Empty(newPlacement.Src);
+        Assert.Equal(dest, newPlacement.Dest);
+    }
+
+    [Fact]
+    public void Placement_Constructor_InvalidDest_ThrowsSchemaViolationException()
+    {
+        // Arrange & Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => new PackageManifest.Placement
+            {
+                Type = PackageManifest.Placement.TypeEnum.File,
+                Src = string.Empty,
+                Dest = "/invalid/dest"
+            });
+
+        Assert.Equal("variants[].assets[].placements[].dest", exception.Key);
+    }
+
+    [Fact]
+    public void ScriptsType_Constructor_ValidValues_ReturnsCorrectInstance()
+    {
+        // Arrange & Act.
+        Dictionary<string, List<string>> additionalScripts = new()
+        {
+            ["key"] = [string.Empty]
+        };
+
+        PackageManifest.ScriptsType scripts = new()
         {
             PreInstall = [],
             Install = [],
@@ -171,775 +120,648 @@ public class PackageManifestTests
             PostPack = [],
             PreUninstall = [],
             Uninstall = [],
-            PostUninstall = []
+            PostUninstall = [],
+            AdditionalScripts = additionalScripts,
         };
 
+        PackageManifest.ScriptsType newScripts = scripts with { };
+
         // Assert.
-        Assert.Empty(scripts.PreInstall);
-        Assert.Empty(scripts.Install);
-        Assert.Empty(scripts.PostInstall);
-        Assert.Empty(scripts.PrePack);
-        Assert.Empty(scripts.PostPack);
-        Assert.Empty(scripts.PreUninstall);
-        Assert.Empty(scripts.Uninstall);
-        Assert.Empty(scripts.PostUninstall);
-        Assert.Empty(scripts.AdditionalScripts);
+        Assert.Empty(newScripts.PreInstall);
+        Assert.Empty(newScripts.Install);
+        Assert.Empty(newScripts.PostInstall);
+        Assert.Empty(newScripts.PrePack);
+        Assert.Empty(newScripts.PostPack);
+        Assert.Empty(newScripts.PreUninstall);
+        Assert.Empty(newScripts.Uninstall);
+        Assert.Empty(newScripts.PostUninstall);
+        Assert.Equal(additionalScripts, newScripts.AdditionalScripts);
     }
 
     [Fact]
-    public void ScriptsType_Constructor_WithAdditionalScripts_Passes()
+    public void ScriptsType_Constructor_InvalidAdditionalScriptName_ThrowsSchemaViolationException()
     {
-        // Arrange.
+        // Arrange & Act & Assert.
         Dictionary<string, List<string>> additionalScripts = new()
         {
-            ["additional_script"] = ["echo additional"]
+            ["invalid.script.name"] = [string.Empty]
         };
 
-        // Act.
-        var scripts = new PackageManifest.ScriptsType
-        {
-            AdditionalScripts = additionalScripts
-        };
-
-        // Assert.
-        Assert.Single(scripts.AdditionalScripts);
-        Assert.Equal(["echo additional"], scripts.AdditionalScripts["additional_script"]);
-    }
-
-    [Fact]
-    public void ScriptsType_Constructor_InvalidAdditionalScriptName_Throws()
-    {
-        // Arrange.
-        Dictionary<string, List<string>> additionalScripts = new()
-        {
-            ["invalid.script"] = ["echo invalid"]
-        };
-
-        // Act.
         SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.ScriptsType { AdditionalScripts = additionalScripts });
+            () => new PackageManifest.ScriptsType()
+            {
+                PreInstall = [],
+                Install = [],
+                PostInstall = [],
+                PrePack = [],
+                PostPack = [],
+                PreUninstall = [],
+                Uninstall = [],
+                PostUninstall = [],
+                AdditionalScripts = additionalScripts,
+            });
+
+        Assert.Equal("variants[].assets[].scripts.'invalid.script.name'", exception.Key);
+    }
+
+    [Fact]
+    public void Variant_Constructor_ValidValues_ReturnsCorrectInstance()
+    {
+        // Arrange & Act.
+        List<string> preserveFiles = ["path/to/preserve/file"];
+        List<string> removeFiles = ["path/to/remove/file"];
+        PackageManifest.ScriptsType scripts = new()
+        {
+            PreInstall = [],
+            Install = [],
+            PostInstall = [],
+            PrePack = [],
+            PostPack = [],
+            PreUninstall = [],
+            Uninstall = [],
+            PostUninstall = [],
+            AdditionalScripts = [],
+        };
+
+        PackageManifest.Variant variant = new()
+        {
+            Label = string.Empty,
+            Platform = string.Empty,
+            Dependencies = [],
+            Assets = [],
+            PreserveFiles = preserveFiles,
+            RemoveFiles = removeFiles,
+            Scripts = scripts
+        };
+
+        PackageManifest.Variant newVariant = variant with { };
 
         // Assert.
-        Assert.Equal("invalid.script", exception.Key);
-        Assert.Equal("Script name 'invalid.script' is invalid.", exception.Message);
+        Assert.Empty(newVariant.Label);
+        Assert.Empty(newVariant.Platform);
+        Assert.Empty(newVariant.Dependencies);
+        Assert.Empty(newVariant.Assets);
+        Assert.Equal(preserveFiles, newVariant.PreserveFiles);
+        Assert.Equal(removeFiles, newVariant.RemoveFiles);
+        Assert.Equal(scripts, newVariant.Scripts);
+    }
+
+    [Fact]
+    public void Variant_Constructor_InvalidPreserveFiles_ThrowsSchemaViolationException()
+    {
+        // Arrange & Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => new PackageManifest.Variant
+            {
+                Label = string.Empty,
+                Platform = string.Empty,
+                Dependencies = [],
+                Assets = [],
+                PreserveFiles = ["/invalid/file"],
+                RemoveFiles = ["path/to/remove/file"],
+                Scripts = new()
+                {
+                    PreInstall = [],
+                    Install = [],
+                    PostInstall = [],
+                    PrePack = [],
+                    PostPack = [],
+                    PreUninstall = [],
+                    Uninstall = [],
+                    PostUninstall = [],
+                    AdditionalScripts = [],
+                }
+            });
+
+        Assert.Equal("variants[].preserve_files[]", exception.Key);
+    }
+
+    [Fact]
+    public void Variant_Constructor_InvalidRemoveFiles_ThrowsSchemaViolationException()
+    {
+        // Arrange & Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => new PackageManifest.Variant
+            {
+                Label = string.Empty,
+                Platform = string.Empty,
+                Dependencies = [],
+                Assets = [],
+                PreserveFiles = ["path/to/preserve/file"],
+                RemoveFiles = ["/invalid/file"],
+                Scripts = new()
+                {
+                    PreInstall = [],
+                    Install = [],
+                    PostInstall = [],
+                    PrePack = [],
+                    PostPack = [],
+                    PreUninstall = [],
+                    Uninstall = [],
+                    PostUninstall = [],
+                    AdditionalScripts = [],
+                }
+            });
+
+        Assert.Equal("variants[].remove_file[]", exception.Key);
     }
 
     [Theory]
-    [InlineData("""
-        {
-            "invalid.script.name": [""]
-        }
-        """)]
-    [InlineData("""
-        {
-            "script_name": "not array"
-        }
-        """)]
-    [InlineData("""
-        {
-            "script_name": [[]]
-        }
-        """)]
-    public void ScriptsType_Deserialize_InvalidAdditionalProperties_Ignores(string json)
+    [InlineData("label", "platform", "label", "platform", true)]
+    [InlineData("*", "platform", "label", "platform", true)]
+    [InlineData("", "platform", "label", "platform", false)]
+    [InlineData("another_label", "platform", "label", "platform", false)]
+    [InlineData("label", "*", "label", "platform", true)]
+    [InlineData("label", "", "label", "platform", false)]
+    [InlineData("label", "another_platform", "label", "platform", false)]
+    public void Variant_Match_VariousValues_ReturnsCorrectAnswer(
+        string label,
+        string platform,
+        string targetLabel,
+        string targetPlatform,
+        bool expectedAnswer)
     {
         // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes(json);
+        PackageManifest.Variant variant = new()
+        {
+            Label = label,
+            Platform = platform,
+            Dependencies = [],
+            Assets = [],
+            PreserveFiles = ["path/to/preserve/file"],
+            RemoveFiles = ["path/to/remove/file"],
+            Scripts = new()
+            {
+                PreInstall = [],
+                Install = [],
+                PostInstall = [],
+                PrePack = [],
+                PostPack = [],
+                PreUninstall = [],
+                Uninstall = [],
+                PostUninstall = [],
+                AdditionalScripts = [],
+            }
+        };
 
         // Act.
-        PackageManifest.ScriptsType? scripts = JsonSerializer.Deserialize<PackageManifest.ScriptsType>(bytes);
+        bool answer = variant.Match(targetLabel, targetPlatform);
 
         // Assert.
-        Assert.NotNull(scripts);
-        Assert.Null(scripts.PreInstall);
-        Assert.Null(scripts.Install);
-        Assert.Null(scripts.PostInstall);
-        Assert.Null(scripts.PrePack);
-        Assert.Null(scripts.PostPack);
-        Assert.Null(scripts.PreUninstall);
-        Assert.Null(scripts.Uninstall);
-        Assert.Null(scripts.PostUninstall);
-        Assert.Empty(scripts.AdditionalScripts);
+        Assert.Equal(expectedAnswer, answer);
     }
 
-    private static readonly (string, string)[] s_testDependencies = [("example.com/pkg", "1.0.x")];
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData(0)] // Use index to reference TestDependencies
-    public void VariantType_Constructor_ValidValues_Passes(int? dependencyIndex)
+    [Fact]
+    public void Constructor_ValidValues_ReturnsCorrectInstance()
     {
         // Arrange & Act.
-        Dictionary<string, string>? dependencies = dependencyIndex.HasValue ?
-            s_testDependencies.Skip(dependencyIndex.Value).Take(1).ToDictionary(x => x.Item1, x => x.Item2) :
-            null;
-
-        var variant = new PackageManifest.VariantType
+        string toothPath = "example.com/pkg";
+        SemVersion version = new(0);
+        PackageManifest.InfoType info = new()
         {
-            VariantLabelRaw = "variant",
-            Platform = "platform",
-            Dependencies = dependencies,
-            Assets = [],
-            Scripts = new()
+            Name = string.Empty,
+            Description = string.Empty,
+            Tags = [],
+            AvatarUrl = new(),
         };
 
-        // Assert. 
-        Assert.Equal("variant", variant.VariantLabel);
-        Assert.Equal("variant", variant.VariantLabelRaw);
-        Assert.Equal("platform", variant.Platform);
-        Assert.Equal(dependencies, variant.Dependencies);
-        Assert.NotNull(variant.Assets);
-        Assert.Empty(variant.Assets);
-        Assert.NotNull(variant.Scripts);
-    }
-
-    [Fact]
-    public void VariantType_Constructor_NullVariantLabel_Passes()
-    {
-        // Arrange & Act.
-        var variant = new PackageManifest.VariantType
+        PackageManifest manifest = new()
         {
-            VariantLabelRaw = null,
-            Platform = "platform",
-            Dependencies = null,
-            Assets = [],
-            Scripts = new()
+            ToothPath = toothPath,
+            Version = version,
+            Info = info,
+            Variants = [],
         };
 
+        PackageManifest newManifest = manifest with { };
+
         // Assert.
-        Assert.Equal("", variant.VariantLabel);
-        Assert.Null(variant.VariantLabelRaw);
-        Assert.Equal("platform", variant.Platform);
-        Assert.Null(variant.Dependencies);
-        Assert.NotNull(variant.Assets);
-        Assert.Empty(variant.Assets);
-        Assert.NotNull(variant.Scripts);
+        Assert.Equal(toothPath, newManifest.ToothPath);
+        Assert.Equal(version, newManifest.Version);
+        Assert.Equal(info, newManifest.Info);
+        Assert.Empty(newManifest.Variants);
     }
 
     [Fact]
-    public void VariantType_Constructor_InvalidDependencyKey_Throws()
+    public void Constructor_InvalidToothPath_ThrowsShcemaViolationException()
     {
-        // Arrange & Act.
+        // Arrange & Act & Assert.
         SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.VariantType
+            () => new PackageManifest
             {
-                Dependencies = new Dictionary<string, string> { { "invalid*key", "1.0.x" } }
-            });
-
-        // Assert.
-        Assert.Equal("dependencies", exception.Key);
-        Assert.Equal("Package specifier 'invalid*key' is invalid.", exception.Message);
-    }
-
-    [Fact]
-    public void VariantType_Constructor_InvalidDependencyValue_Throws()
-    {
-        // Arrange & Act.
-        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
-            () => new PackageManifest.VariantType
-            {
-                Dependencies = new Dictionary<string, string> { { "example.com/pkg", "invalid.version.range" } }
-            });
-
-        // Assert.
-        Assert.Equal("dependencies", exception.Key);
-        Assert.Equal("Version range 'invalid.version.range' is invalid.", exception.Message);
-    }
-
-    [Fact]
-    public void FromJsonBytesParsed_NeedsParsing_Passes()
-    {
-        // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("""
-            {
-                "format_version": 3,
-                "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                "tooth": "",
-                "version": "1.0.0",
-                "info": {
-                    "name": "name-{{version}}",
+                ToothPath = "invalid*tooth*path",
+                Version = new(0),
+                Info = new()
+                {
+                    Name = string.Empty,
+                    Description = string.Empty,
+                    Tags = [],
+                    AvatarUrl = new(),
                 },
-            }
-            """);
+                Variants = [],
+            });
+
+        Assert.Equal("tooth", exception.Key);
+    }
+
+    private const string _minimumJson = """
+        {
+            "format_version": 3,
+            "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            "tooth": "example.com/pkg",
+            "version": "0.0.0"
+        }
+        """;
+
+    [Fact]
+    public void FromJsonElement_MinimumJson_ReturnsCorrectInstance()
+    {
+        // Assert.
+        JsonElement jsonElement = JsonDocument.Parse(_minimumJson).RootElement;
 
         // Act.
-        var manifest = PackageManifest.FromJsonBytesParsed(bytes);
+        PackageManifest manifest = PackageManifest.FromJsonElement(jsonElement);
 
         // Assert.
-        Assert.Equal(3, manifest.FormatVersion);
-        Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", manifest.FormatUuid);
-        Assert.Equal("", manifest.ToothPath);
-        Assert.Equal("1.0.0", manifest.VersionText);
-        Assert.Equal(SemVersion.Parse("1.0.0"), manifest.Version);
-        Assert.NotNull(manifest.Info);
-        Assert.Equal("name-1.0.0", manifest.Info.Name);
+        Assert.Equal("example.com/pkg", manifest.ToothPath);
+        Assert.Equal(new(0), manifest.Version);
     }
 
     [Fact]
-    public void FromJsonBytesRaw_MinimumJson_Passes()
+    public void FromJsonElement_InvalidFormatVersion_ThrowsShcemaViolationException()
     {
         // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("""
-            {
-                "format_version": 3,
-                "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                "tooth": "",
-                "version": "1.0.0"
-            }
-            """);
-
-        // Act.
-        var manifest = PackageManifest.FromJsonBytesRaw(bytes);
-
-        // Assert.
-        Assert.Equal(3, manifest.FormatVersion);
-        Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", manifest.FormatUuid);
-        Assert.Equal("", manifest.ToothPath);
-        Assert.Equal("1.0.0", manifest.VersionText);
-        Assert.Equal(SemVersion.Parse("1.0.0"), manifest.Version);
-    }
-
-    [Fact]
-    public void FromJsonBytesRaw_NullJson_Throws()
-    {
-        // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("null");
-
-        // Act.
-        JsonException exception = Assert.Throws<JsonException>(() => PackageManifest.FromJsonBytesRaw(bytes));
-
-        // Assert.
-        Assert.Equal("Package manifest bytes deserialization failed.", exception.Message);
-        Assert.NotNull(exception.InnerException);
-
-    }
-
-    [Fact]
-    public void FromJsonBytesRaw_InvalidFormatVersion_Throws()
-    {
-        // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("""
+        string manifestJson = """
             {
                 "format_version": 0,
                 "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                "tooth": "",
-                "version": "1.0.0"
+                "tooth": "example.com/pkg",
+                "version": "0.0.0"
             }
-            """);
+            """;
 
-        // Act.
-        JsonException exception = Assert.Throws<JsonException>(() => PackageManifest.FromJsonBytesRaw(bytes));
+        JsonElement jsonElement = JsonDocument.Parse(manifestJson).RootElement;
 
-        // Assert.
-        Assert.Equal("Package manifest bytes deserialization failed.", exception.Message);
-        Assert.NotNull(exception.InnerException);
-        Assert.IsType<SchemaViolationException>(exception.InnerException);
-        Assert.Equal("Format version '0' is not equal to 3.", exception.InnerException.Message);
+        // Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => PackageManifest.FromJsonElement(jsonElement));
+
+        Assert.Equal("format_version", exception.Key);
     }
 
     [Fact]
-    public void FromJsonBytesRaw_InvalidFormatUuid_Throws()
+    public void FromJsonElement_InvalidFormatUuid_ThrowsShcemaViolationException()
     {
         // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("""
+        string manifestJson = """
             {
                 "format_version": 3,
-                "format_uuid": "invalid-uuid",
-                "tooth": "",
-                "version": "1.0.0"
+                "format_uuid": "",
+                "tooth": "example.com/pkg",
+                "version": "0.0.0"
             }
-            """);
+            """;
 
-        // Act.
-        JsonException exception = Assert.Throws<JsonException>(() => PackageManifest.FromJsonBytesRaw(bytes));
+        JsonElement jsonElement = JsonDocument.Parse(manifestJson).RootElement;
 
-        // Assert.
-        Assert.Equal("Package manifest bytes deserialization failed.", exception.Message);
-        Assert.NotNull(exception.InnerException);
-        Assert.IsType<SchemaViolationException>(exception.InnerException);
-        Assert.Equal("Format UUID 'invalid-uuid' is not equal to 289f771f-2c9a-4d73-9f3f-8492495a924d.", exception.InnerException.Message);
+        // Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => PackageManifest.FromJsonElement(jsonElement));
+
+        Assert.Equal("format_uuid", exception.Key);
     }
 
     [Fact]
-    public void FromJsonBytesRaw_InvalidVersion_Throws()
+    public void FromJsonElement_InvalidAdditionalScriptFormat_ThrowsShcemaViolationException()
     {
         // Arrange.
-        byte[] bytes = Encoding.UTF8.GetBytes("""
+        string manifestJson = """
             {
                 "format_version": 3,
                 "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                "tooth": "",
-                "version": "0.0.0.0"
-            }
-            """);
-
-        // Act.
-        JsonException exception = Assert.Throws<JsonException>(() => PackageManifest.FromJsonBytesRaw(bytes));
-
-        // Assert.
-        Assert.Equal("Package manifest bytes deserialization failed.", exception.Message);
-        Assert.NotNull(exception.InnerException);
-        Assert.IsType<SchemaViolationException>(exception.InnerException);
-        Assert.Equal("Version '0.0.0.0' is invalid.", exception.InnerException.Message);
-    }
-
-    [Fact]
-    public void GetSpecifiedVariant_NullVariants_ReturnsNull()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0"
-        };
-        string variantLabel = "";
-        string platform = "platform";
-
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
-
-        // Assert.
-        Assert.Null(variant);
-    }
-
-    [Fact]
-    public void GetSpecifiedVariant_EmptyVariants_ReturnsNull()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants = []
-        };
-        string variantLabel = "";
-        string platform = "platform";
-
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
-
-        // Assert.
-        Assert.Null(variant);
-    }
-
-    [Theory]
-    [InlineData("", "platform", null, "platform")]
-    [InlineData("", "platform", "", "platform")]
-    [InlineData("variant", "platform", "variant", "platform")]
-    public void GetSpecifiedVariant_SingleVariant_ReturnsVariant(
-        string variantLabel, string platform, string? manifestVariantLabel, string manifestPlatform)
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-                new PackageManifest.VariantType
-                {
-                    VariantLabelRaw = manifestVariantLabel,
-                    Platform = manifestPlatform,
-                }
-            ]
-        };
-
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
-
-        // Assert.
-        Assert.NotNull(variant);
-        Assert.Equal(variantLabel, variant.VariantLabelRaw);
-        Assert.Equal(variantLabel, variant.VariantLabel);
-        Assert.Equal(platform, variant.Platform);
-        Assert.NotNull(variant.Dependencies);
-        Assert.Empty(variant.Dependencies);
-        Assert.NotNull(variant.Assets);
-        Assert.Empty(variant.Assets);
-        Assert.NotNull(variant.Scripts);
-        Assert.Null(variant.Scripts.PreInstall);
-        Assert.Null(variant.Scripts.Install);
-        Assert.Null(variant.Scripts.PostInstall);
-        Assert.Null(variant.Scripts.PrePack);
-        Assert.Null(variant.Scripts.PostPack);
-        Assert.Null(variant.Scripts.PreUninstall);
-        Assert.Null(variant.Scripts.Uninstall);
-        Assert.Null(variant.Scripts.PostUninstall);
-        Assert.Equal([], variant.Scripts.AdditionalScripts);
-    }
-
-    [Fact]
-    public void GetSpecifiedVariant_SingleFullVariant_ReturnsVariant()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-                new PackageManifest.VariantType
-                {
-                    Platform = "platform",
-                    Dependencies = {},
-                    Assets = [],
-                    Scripts = new()
-                }
-            ]
-        };
-
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
-
-        // Assert.
-        Assert.NotNull(variant);
-        Assert.Equal("", variant.VariantLabelRaw);
-        Assert.Equal("", variant.VariantLabel);
-        Assert.Equal("platform", variant.Platform);
-        Assert.NotNull(variant.Dependencies);
-        Assert.Empty(variant.Dependencies);
-        Assert.NotNull(variant.Assets);
-        Assert.Empty(variant.Assets);
-        Assert.NotNull(variant.Scripts);
-        Assert.Null(variant.Scripts.PreInstall);
-        Assert.Null(variant.Scripts.Install);
-        Assert.Null(variant.Scripts.PostInstall);
-        Assert.Null(variant.Scripts.PrePack);
-        Assert.Null(variant.Scripts.PostPack);
-        Assert.Null(variant.Scripts.PreUninstall);
-        Assert.Null(variant.Scripts.Uninstall);
-        Assert.Null(variant.Scripts.PostUninstall);
-        Assert.Equal([], variant.Scripts.AdditionalScripts);
-    }
-
-    [Fact]
-    public void GetSpecifiedVariant_SingleVariantWithScripts_ReturnsVariant()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-                new PackageManifest.VariantType
-                {
-                    Platform = "platform",
-                    Scripts = new()
+                "tooth": "example.com/pkg",
+                "version": "0.0.0",
+                "variants": [
                     {
-                        PreInstall = [],
-                        Install = [],
-                        PostInstall = [],
-                        PrePack = [],
-                        PostPack = [],
-                        PreUninstall = [],
-                        Uninstall = [],
-                        PostUninstall = [],
+                        "scripts": {
+                            "custom": "invalid"
+                        }
+                    }
+                ]
+            }
+            """;
+
+        JsonElement jsonElement = JsonDocument.Parse(manifestJson).RootElement;
+
+        // Act & Assert.
+        SchemaViolationException exception = Assert.Throws<SchemaViolationException>(
+            () => PackageManifest.FromJsonElement(jsonElement));
+
+        Assert.Equal("variants[].assets[].scripts.'custom'", exception.Key);
+    }
+
+    [Fact]
+    public async Task FromStream_ValidStream_ReturnsCorrectInstance()
+    {
+        // Assert.
+        using MemoryStream stream = new(Encoding.UTF8.GetBytes(_minimumJson));
+
+        // Act.
+        PackageManifest manifest = await PackageManifest.FromStream(stream);
+
+        // Assert.
+        Assert.Equal("example.com/pkg", manifest.ToothPath);
+        Assert.Equal(new(0), manifest.Version);
+    }
+
+    [Fact]
+    public void GetVariant_VariantMatched_ReturnsCorrectVariant()
+    {
+        // Assert.
+        PackageManifest.Variant variant = new()
+        {
+            Label = "label",
+            Platform = "platform",
+            Dependencies = new()
+            {
+                [
+                    new()
+                    {
+                        ToothPath = "exmaple.com/pkg",
+                        VariantLabel = string.Empty
+                    }
+                ] = SemVersionRange.Parse("1.0.0")
+            },
+            Assets = [],
+            PreserveFiles = ["path/to/preserve/file"],
+            RemoveFiles = ["path/to/remove/file"],
+            Scripts = new()
+            {
+                PreInstall = [],
+                Install = [],
+                PostInstall = [],
+                PrePack = [],
+                PostPack = [],
+                PreUninstall = [],
+                Uninstall = [],
+                PostUninstall = [],
+                AdditionalScripts = new()
+                {
+                    ["script"] = [string.Empty]
+                },
+            }
+        };
+
+        PackageManifest packageManifest = new()
+        {
+            ToothPath = "example.com/pkg",
+            Version = new(0),
+            Info = new()
+            {
+                Name = string.Empty,
+                Description = string.Empty,
+                Tags = [],
+                AvatarUrl = new(),
+            },
+            Variants = [
+                variant
+            ],
+        };
+
+        // Act.
+        PackageManifest.Variant? variantGot = packageManifest.GetVariant("label", "platform");
+
+        // Assert.
+        Assert.NotNull(variantGot);
+        Assert.Equal(variant.Label, variantGot.Label);
+        Assert.Equal(variant.Platform, variantGot.Platform);
+        Assert.Equal(variant.Dependencies, variantGot.Dependencies);
+        Assert.Equal(variant.Assets, variantGot.Assets);
+        Assert.Equal(variant.PreserveFiles, variantGot.PreserveFiles);
+        Assert.Equal(variant.RemoveFiles, variantGot.RemoveFiles);
+        Assert.Equal(variant.Scripts.PreInstall, variantGot.Scripts.PreInstall);
+        Assert.Equal(variant.Scripts.Install, variantGot.Scripts.Install);
+        Assert.Equal(variant.Scripts.PostInstall, variantGot.Scripts.PostInstall);
+        Assert.Equal(variant.Scripts.PrePack, variantGot.Scripts.PrePack);
+        Assert.Equal(variant.Scripts.PostPack, variantGot.Scripts.PostPack);
+        Assert.Equal(variant.Scripts.PreUninstall, variantGot.Scripts.PreUninstall);
+        Assert.Equal(variant.Scripts.Uninstall, variantGot.Scripts.Uninstall);
+        Assert.Equal(variant.Scripts.PostUninstall, variantGot.Scripts.PostUninstall);
+        Assert.Equal(variant.Scripts.AdditionalScripts, variantGot.Scripts.AdditionalScripts);
+    }
+
+    [Fact]
+    public void GetVariant_NoVariantMatched_ReturnsNull()
+    {
+        // Assert.
+        PackageManifest packageManifest = new()
+        {
+            ToothPath = "example.com/pkg",
+            Version = new(0),
+            Info = new()
+            {
+                Name = string.Empty,
+                Description = string.Empty,
+                Tags = [],
+                AvatarUrl = new(),
+            },
+            Variants = [],
+        };
+
+        // Act.
+        PackageManifest.Variant? variantGot = packageManifest.GetVariant("label", "platform");
+
+        // Assert.
+        Assert.Null(variantGot);
+    }
+
+    [Fact]
+    public void GetVariant_NoVariantFullyMatched_ReturnsNull()
+    {
+        // Assert.
+        PackageManifest.Variant variant = new()
+        {
+            Label = "*",
+            Platform = "*",
+            Dependencies = [],
+            Assets = [],
+            PreserveFiles = ["path/to/preserve/file"],
+            RemoveFiles = ["path/to/remove/file"],
+            Scripts = new()
+            {
+                PreInstall = [],
+                Install = [],
+                PostInstall = [],
+                PrePack = [],
+                PostPack = [],
+                PreUninstall = [],
+                Uninstall = [],
+                PostUninstall = [],
+                AdditionalScripts = [],
+            }
+        };
+
+        PackageManifest packageManifest = new()
+        {
+            ToothPath = "example.com/pkg",
+            Version = new(0),
+            Info = new()
+            {
+                Name = string.Empty,
+                Description = string.Empty,
+                Tags = [],
+                AvatarUrl = new(),
+            },
+            Variants = [
+                variant
+            ],
+        };
+
+        // Act.
+        PackageManifest.Variant? variantGot = packageManifest.GetVariant("label", "platform");
+
+        // Assert.
+        Assert.Null(variantGot);
+    }
+
+    private readonly PackageManifest _outputManifest = new()
+    {
+        ToothPath = "example.com/pkg",
+        Version = new(0),
+        Info = new()
+        {
+            Name = string.Empty,
+            Description = string.Empty,
+            Tags = [],
+            AvatarUrl = new(),
+        },
+        Variants = [
+            new()
+            {
+                Label = string.Empty,
+                Platform = string.Empty,
+                Dependencies = new()
+                {
+                    [
+                        new()
+                        {
+                            ToothPath = "example.com/pkg",
+                            VariantLabel = string.Empty
+                        }
+                    ] = SemVersionRange.Parse("*")
+                },
+                Assets = [
+                    new()
+                    {
+                        Type = PackageManifest.Asset.TypeEnum.Self,
+                        Urls = [
+                            new()
+                        ],
+                        Placements = [
+                            new()
+                            {
+                                Type = PackageManifest.Placement.TypeEnum.File,
+                                Src = string.Empty,
+                                Dest = "path/to/file"
+                            }
+                        ]
+                    }
+                ],
+                PreserveFiles = [],
+                RemoveFiles = [],
+                Scripts = new()
+                {
+                    PreInstall = [],
+                    Install = [],
+                    PostInstall = [],
+                    PrePack = [],
+                    PostPack = [],
+                    PreUninstall = [],
+                    Uninstall = [],
+                    PostUninstall = [],
+                    AdditionalScripts = new()
+                    {
+                        [ "script" ] = [ string.Empty ]
+                    }
+                }
+            }
+        ],
+    };
+
+    private const string _outputJson = """
+        {
+            "format_version": 3,
+            "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
+            "tooth": "example.com/pkg",
+            "version": "0.0.0",
+            "info": {
+                "name": "",
+                "description": "",
+                "tags": [],
+                "avatar_url": ""
+            },
+            "variants": [
+                {
+                    "label": "",
+                    "platform": "",
+                    "dependencies": {
+                        "example.com/pkg": "*"
+                    },
+                    "assets": [
+                        {
+                            "type": "self",
+                            "urls": [
+                                ""
+                            ],
+                            "placements": [
+                                {
+                                    "type": "file",
+                                    "src": "",
+                                    "dest": "path/to/file"
+                                }
+                            ]
+                        }
+                    ],
+                    "preserve_files": [],
+                    "remove_files": [],
+                    "scripts": {
+                        "pre_install": [],
+                        "install": [],
+                        "post_install": [],
+                        "pre_pack": [],
+                        "post_pack": [],
+                        "pre_uninstall": [],
+                        "uninstall": [],
+                        "post_uninstall": [],
+                        "script": [
+                            ""
+                        ]
                     }
                 }
             ]
-        };
+        }
+        """;
 
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
-
-        // Assert.
-        Assert.NotNull(variant);
-        Assert.Equal("", variant.VariantLabelRaw);
-        Assert.Equal("", variant.VariantLabel);
-        Assert.Equal("platform", variant.Platform);
-        Assert.NotNull(variant.Dependencies);
-        Assert.Empty(variant.Dependencies);
-        Assert.NotNull(variant.Assets);
-        Assert.Empty(variant.Assets);
-        Assert.NotNull(variant.Scripts);
-        Assert.Equal([], variant.Scripts.PreInstall);
-        Assert.Equal([], variant.Scripts.Install);
-        Assert.Equal([], variant.Scripts.PostInstall);
-        Assert.Equal([], variant.Scripts.PrePack);
-        Assert.Equal([], variant.Scripts.PostPack);
-        Assert.Equal([], variant.Scripts.PreUninstall);
-        Assert.Equal([], variant.Scripts.Uninstall);
-        Assert.Equal([], variant.Scripts.PostUninstall);
-        Assert.NotNull(variant.Scripts.AdditionalScripts);
-        Assert.Empty(variant.Scripts.AdditionalScripts);
-    }
-
-    [Theory]
-    [InlineData("variant1", "platform", "variant*", "platform")]
-    [InlineData("", "platform", null, null)]
-    [InlineData("", "platform", null, "platform*")]
-    public void GetSpecifiedVariant_WildcardOnlySingleVariant_ReturnsNull(
-        string variantLabel, string platform, string? manifestVariantLabel, string? manifestPlatform)
+    [Fact]
+    public void ToJsonElement_ReturnsCorrectJsonElement()
     {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-                new PackageManifest.VariantType
-                {
-                    VariantLabelRaw = manifestVariantLabel,
-                    Platform = manifestPlatform,
-                }
-            ]
-        };
-
         // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
+        JsonElement jsonElement = _outputManifest.ToJsonElement();
 
         // Assert.
-        Assert.Null(variant);
-    }
-
-    [Theory]
-    [InlineData("variant", "platform", null, "platform")]
-    [InlineData("variant", "platform", "mismatch*", "platform")]
-    [InlineData("", "platform", null, "mismatch*")]
-    public void GetSpecifiedVariant_MismatchedSingleVariant_ReturnsNull(
-            string variantLabel, string platform, string? manifestVariantLabel, string? manifestPlatform)
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-                new PackageManifest.VariantType
-                {
-                    VariantLabelRaw = manifestVariantLabel,
-                    Platform = manifestPlatform,
-                }
-            ]
-        };
-
-        // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant(variantLabel, platform);
-
-        // Assert.
-        Assert.Null(variant);
+        Assert.Equal(_outputJson.ReplaceLineEndings(), jsonElement.ToString());
     }
 
     [Fact]
-    public void GetSpecifiedVariant_MultipleVariants_ReturnsMergedVariant()
+    public async Task ToStream_ReturnsCorrectStream()
     {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants =
-            [
-            new()
-            {
-                Platform = "platform",
-                Dependencies = new Dictionary<string, string>
-                {
-                { "github.com/futrime/tooth", "1.0.0" }
-                },
-                Assets =
-                [
-                new()
-                {
-                    Type = PackageManifest.AssetType.TypeEnum.Self,
-                    Urls = ["https://example.com/1"]
-                }
-                ],
-                Scripts = new PackageManifest.ScriptsType
-                {
-                PreInstall = ["echo pre-install"],
-                Install = ["echo install"],
-                PostInstall = ["echo post-install"],
-                PrePack = ["echo pre-pack"],
-                PostPack = ["echo post-pack"],
-                PreUninstall = ["echo pre-uninstall"],
-                Uninstall = ["echo uninstall"],
-                PostUninstall = ["echo post-uninstall"],
-                AdditionalScripts = new Dictionary<string, List<string>>
-                {
-                    { "same_script", new List<string> { "echo same" } },
-                    { "custom_script1", new List<string> { "echo custom1" } }
-                }
-                }
-            },
-            new()
-            {
-                Platform = "platform",
-                Dependencies = new Dictionary<string, string>
-                {
-                { "github.com/futrime/tooth2", "2.0.0" }
-                },
-                Assets =
-                [
-                new()
-                {
-                    Type = PackageManifest.AssetType.TypeEnum.Self,
-                    Urls = ["https://example.com/2"]
-                }
-                ],
-                Scripts = new PackageManifest.ScriptsType
-                {
-                PreInstall = ["echo pre-install-2"],
-                Install = ["echo install-2"],
-                PostInstall = ["echo post-install-2"],
-                PrePack = ["echo pre-pack-2"],
-                PostPack = ["echo post-pack-2"],
-                PreUninstall = ["echo pre-uninstall-2"],
-                Uninstall = ["echo uninstall-2"],
-                PostUninstall = ["echo post-uninstall-2"],
-                AdditionalScripts = new Dictionary<string, List<string>>
-                {
-                    { "same_script", new List<string> { "echo same2" } },
-                    { "custom_script2", new List<string> { "echo custom2" } }
-                }
-                }
-            }
-            ]
-        };
+        // Assert.
+        MemoryStream stream = new();
 
         // Act.
-        PackageManifest.VariantType? variant = manifest.GetSpecifiedVariant("", "platform");
+        await _outputManifest.ToStream(stream);
 
         // Assert.
-        Assert.NotNull(variant);
-        Assert.Equal("", variant.VariantLabelRaw);
-        Assert.Equal("", variant.VariantLabel);
-        Assert.Equal("platform", variant.Platform);
-        Assert.NotNull(variant.Dependencies);
-        Assert.Equal(2, variant.Dependencies.Count);
-        Assert.Equal("1.0.0", variant.Dependencies["github.com/futrime/tooth"]);
-        Assert.Equal("2.0.0", variant.Dependencies["github.com/futrime/tooth2"]);
-        Assert.NotNull(variant.Assets);
-        Assert.Equal(2, variant.Assets.Count);
-        Assert.Equal(PackageManifest.AssetType.TypeEnum.Self, variant.Assets[0].Type);
-        Assert.Equal(["https://example.com/1"], variant.Assets[0].Urls);
-        Assert.Equal(PackageManifest.AssetType.TypeEnum.Self, variant.Assets[1].Type);
-        Assert.Equal(["https://example.com/2"], variant.Assets[1].Urls);
-        Assert.NotNull(variant.Scripts);
-        Assert.Equal(["echo pre-install-2"], variant.Scripts.PreInstall);
-        Assert.Equal(["echo install-2"], variant.Scripts.Install);
-        Assert.Equal(["echo post-install-2"], variant.Scripts.PostInstall);
-        Assert.Equal(["echo pre-pack-2"], variant.Scripts.PrePack);
-        Assert.Equal(["echo post-pack-2"], variant.Scripts.PostPack);
-        Assert.Equal(["echo pre-uninstall-2"], variant.Scripts.PreUninstall);
-        Assert.Equal(["echo uninstall-2"], variant.Scripts.Uninstall);
-        Assert.Equal(["echo post-uninstall-2"], variant.Scripts.PostUninstall);
-        Assert.NotNull(variant.Scripts.AdditionalScripts);
-        Assert.Equal(3, variant.Scripts.AdditionalScripts.Count);
-        Assert.Equal(["echo same2"], variant.Scripts.AdditionalScripts["same_script"]);
-        Assert.Equal(["echo custom1"], variant.Scripts.AdditionalScripts["custom_script1"]);
-        Assert.Equal(["echo custom2"], variant.Scripts.AdditionalScripts["custom_script2"]);
-    }
-
-    [Fact]
-    public void ToBytes_MinimumJson_Passes()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0"
-        };
-
-        // Act.
-        byte[] bytes = manifest.ToJsonBytes();
-
-        // Assert.
-        Assert.Equal("""
-            {
-                "format_version": 3,
-                "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
-                "tooth": "",
-                "version": "1.0.0"
-            }
-            """.ReplaceLineEndings(), Encoding.UTF8.GetString(bytes).ReplaceLineEndings());
-    }
-
-    [Fact]
-    public void WithTemplateParsed_CommonInput_Passes()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants = [
-                new(){
-                    Assets = [
-                        new(){
-                            Type = PackageManifest.AssetType.TypeEnum.Zip,
-                            Urls = ["https://example.com/{{version}}.zip"]
-                        }
-                    ]
-                }
-            ]
-        };
-
-        // Act.
-        PackageManifest result = manifest.WithTemplateParsed();
-
-        // Assert.
-        Assert.Equal(3, result.FormatVersion);
-        Assert.Equal("289f771f-2c9a-4d73-9f3f-8492495a924d", result.FormatUuid);
-        Assert.Equal("", result.ToothPath);
-        Assert.Equal("1.0.0", result.VersionText);
-        Assert.NotNull(result.Variants);
-        Assert.Single(result.Variants);
-        Assert.NotNull(result.Variants[0].Assets);
-        Assert.Single(result.Variants[0].Assets!);
-        Assert.Equal(new[] { "https://example.com/1.0.0.zip" }, result.Variants[0].Assets![0].Urls);
-    }
-
-    [Fact]
-    public void WithTemplateParsed_InvalidTemplate_Throws()
-    {
-        // Arrange.
-        var manifest = new PackageManifest
-        {
-            FormatVersion = 3,
-            FormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d",
-            ToothPath = "",
-            VersionText = "1.0.0",
-            Variants = [
-                new(){
-                    Assets = [
-                        new(){
-                            Type = PackageManifest.AssetType.TypeEnum.Zip,
-                            Urls = ["https://example.com/{{{invalid}}.zip"]
-                        }
-                    ]
-                }
-            ]
-        };
-
-        // Act.
-        FormatException exception = Assert.Throws<FormatException>(() => manifest.WithTemplateParsed());
-
-        // Assert.
-        Assert.Equal(
-            "Failed to parse template: <input>(12,56) : error : Unexpected token `}` Expecting a colon : after identifier `invalid` for object initializer member name<input>(12,56) : error : Invalid token found `}`. Expecting <EOL>/end of line.",
-            exception.Message);
+        Assert.Equal(_outputJson.ReplaceLineEndings(), Encoding.UTF8.GetString(stream.ToArray()));
     }
 }

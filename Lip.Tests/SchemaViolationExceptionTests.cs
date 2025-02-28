@@ -1,4 +1,4 @@
-﻿namespace Lip.Tests;
+namespace Lip.Tests;
 
 public class SchemaViolationExceptionTests
 {

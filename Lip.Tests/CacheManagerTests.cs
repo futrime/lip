@@ -1,11 +1,13 @@
-﻿using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Text;
 using Flurl;
 using Lip.Context;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Semver;
-using SharpCompress.Archives.Zip;
+using SharpCompress.Common;
+using SharpCompress.Writers;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Text;
 
 namespace Lip.Tests;
 
@@ -29,7 +31,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         await cacheManager.Clean();
@@ -49,7 +51,7 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
         await cacheManager.Clean();
@@ -59,7 +61,7 @@ public class CacheManagerTests
     }
 
     [Fact]
-    public async Task GetDownloadedFile_ValidUrl_ReturnsStream()
+    public async Task GetFileFromUrl_ValidUrl_Returns()
     {
         // Arrange.
         var fileSystem = new MockFileSystem();
@@ -76,20 +78,20 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url = Url.Parse("https://example.com/test.file");
 
         // Act.
-        await using Stream stream = await cacheManager.GetDownloadedFile(url);
+        IFileInfo file = await cacheManager.GetFileFromUrl(url);
 
         // Assert.
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
+        Assert.Equal("test", new StreamReader(file.OpenRead()).ReadToEnd());
+        downloader.Verify(d => d.DownloadFile(url, Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")), Times.Once);
     }
 
     [Fact]
-    public async Task GetDownloadedFIle_WithGitHubProxy_ReturnsStream()
+    public async Task GetFileFromUrl_WithGitHubProxy_Returns()
     {
         // Arrange.
         var fileSystem = new MockFileSystem();
@@ -112,20 +114,26 @@ public class CacheManagerTests
         CacheManager cacheManager = new(
             context.Object,
             pathManager,
-            Url.Parse("https://example.com/github-proxy"));
+            [Url.Parse("https://example.com/github-proxy")],
+            []);
 
         Url url = Url.Parse("https://github.com/user/repo/test.file");
 
         // Act.
-        await using Stream stream = await cacheManager.GetDownloadedFile(url);
+        IFileInfo file = await cacheManager.GetFileFromUrl(url);
 
         // Assert.
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
+        Assert.Equal("test", new StreamReader(file.OpenRead()).ReadToEnd());
+        downloader.Verify(d => d.DownloadFile(
+            Url.Parse("https://example.com/github-proxy/user/repo/test.file"),
+            Path.Join(
+                s_cacheDir,
+                "downloaded_files",
+                "https%3A%2F%2Fexample.com%2Fgithub-proxy%2Fuser%2Frepo%2Ftest.file")), Times.Once);
     }
 
     [Fact]
-    public async Task GetDownloadedFile_FileExists_ReturnsStream()
+    public async Task GetFileFromUrl_FileExists_Returns()
     {
         // Arrange.
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -138,42 +146,173 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         Url url = Url.Parse("https://example.com/test.file");
 
         // Act.
-        await using Stream stream = await cacheManager.GetDownloadedFile(url);
+        IFileInfo file = await cacheManager.GetFileFromUrl(url);
 
         // Assert.
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
+        Assert.Equal("test", new StreamReader(file.OpenRead()).ReadToEnd());
+        context.Verify(c => c.Downloader.DownloadFile(It.IsAny<Url>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task GetDownloadedFile_PathIsDirectory_ThrowsInvalidOperationException()
+    public async Task GetFileFromUrls_MultipleUrls_Returns()
     {
         // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file"), new MockDirectoryData() }
-        });
+        var fileSystem = new MockFileSystem();
+
+        var downloader = new Mock<IDownloader>();
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")))
+            .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test 1")));
+
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://backup.example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")))
+            .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test 2")));
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.Downloader).Returns(downloader.Object);
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
+
+        Url url1 = Url.Parse("https://example.com/test.file");
+        Url url2 = Url.Parse("https://backup.example.com/test.file");
+
+        // Act.
+        IFileInfo file = await cacheManager.GetFileFromUrls([url1, url2]);
+
+        // Assert.
+        Assert.Equal("test 1", new StreamReader(file.OpenRead()).ReadToEnd());
+        downloader.Verify(d => d.DownloadFile(url1, Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")), Times.Once);
+        downloader.Verify(d => d.DownloadFile(url2, Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetFileFromUrls_FirstUrlFailed_Returns()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
+
+        var downloader = new Mock<IDownloader>();
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")))
+            .Throws(new InvalidOperationException());
+
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://backup.example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")))
+            .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test 2")));
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.Downloader).Returns(downloader.Object);
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(new Mock<ILogger>().Object);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
+
+        Url url1 = Url.Parse("https://example.com/test.file");
+        Url url2 = Url.Parse("https://backup.example.com/test.file");
+
+        // Act.
+        IFileInfo file = await cacheManager.GetFileFromUrls([url1, url2]);
+
+        // Assert.
+        Assert.Equal("test 2", new StreamReader(file.OpenRead()).ReadToEnd());
+        downloader.Verify(d => d.DownloadFile(url1, Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")), Times.Once);
+        downloader.Verify(d => d.DownloadFile(url2, Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetFileFromUrls_AllUrlsFailed_Throws()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
+
+        var downloader = new Mock<IDownloader>();
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")))
+            .Throws(new InvalidOperationException());
+
+        downloader.Setup(d => d.DownloadFile(
+            Url.Parse("https://backup.example.com/test.file"),
+            Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")))
+            .Throws(new InvalidOperationException());
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.Downloader).Returns(downloader.Object);
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(new Mock<ILogger>().Object);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
+
+        Url url1 = Url.Parse("https://example.com/test.file");
+        Url url2 = Url.Parse("https://backup.example.com/test.file");
+
+        // Act and assert.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => cacheManager.GetFileFromUrls([url1, url2]));
+    }
+
+    [Fact]
+    public async Task GetPackageFileSource_NoAvailableRemoteSource_Throws()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
 
         var context = new Mock<IContext>();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
-        Url url = Url.Parse("https://example.com/test.file");
+        var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetDownloadedFile(url));
+        // Act and assert.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => cacheManager.GetPackageFileSource(packageSpecifier));
     }
 
     [Fact]
-    public async Task GetGitRepoDir_ValidPackageSpecifier_ReturnsDirectoryInfo()
+    public async Task GetPackageFileSource_GitRepoCached_Returns()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "file"), new MockFileData("content") }
+        });
+
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
+
+        var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
+
+        // Act.
+        IFileSource fileSource = await cacheManager.GetPackageFileSource(packageSpecifier);
+
+        // Assert.
+        Assert.Equal("content", new StreamReader(await fileSource.GetFileStream("file") ?? Stream.Null).ReadToEnd());
+    }
+
+    [Fact]
+    public async Task GetPackageFileSource_GitRepoNotCached_Returns()
     {
         // Arrange.
         var fileSystem = new MockFileSystem();
@@ -182,384 +321,61 @@ public class CacheManagerTests
         git.Setup(g => g.Clone(
             "https://example.com/repo",
             Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"),
-            "v1.0.0",
-            1))
-            .Callback<string, string, string?, int?>((url, path, branch, depth) =>
+            It.IsAny<string?>(),
+            It.IsAny<int?>()))
+            .Callback<string, string, string?, int?>((url, path, _, _)
+                => fileSystem.AddFile(Path.Join(path, "file"), new MockFileData("content")));
+
+        var context = new Mock<IContext>();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(git.Object);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
+
+        var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
+
+        // Act.
+        IFileSource fileSource = await cacheManager.GetPackageFileSource(packageSpecifier);
+
+        // Assert.
+        Assert.Equal("content", new StreamReader(await fileSource.GetFileStream("file") ?? Stream.Null).ReadToEnd());
+    }
+
+    [Fact]
+    public async Task GetPackageFileSource_GoModuleCached_Returns()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem();
+
+        CreateGoModuleArchive(
+            fileSystem,
+            Path.Join(
+                s_cacheDir,
+                "downloaded_files",
+                "https%3A%2F%2Fexample.com%2Fgo-proxy%2Fexample.com%2Frepo%2F%40v%2Fv1.0.0.zip"),
+            "example.com/repo",
+            new SemVersion(1, 0, 0),
+            new Dictionary<string, string>
             {
-                fileSystem.AddDirectory(path);
+                { "file", "content" }
             });
 
         var context = new Mock<IContext>();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-        context.SetupGet(c => c.Git).Returns(git.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], [Url.Parse("https://example.com/go-proxy")]);
 
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
+        var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
 
         // Act.
-        IDirectoryInfo directoryInfo = await cacheManager.GetGitRepoDir(packageSpecifier);
+        IFileSource fileSource = await cacheManager.GetPackageFileSource(packageSpecifier);
 
         // Assert.
-        Assert.NotNull(directoryInfo);
-        Assert.True(fileSystem.Directory.Exists(directoryInfo.FullName));
-    }
-
-    [Fact]
-    public async Task GetGitRepoDir_DirectoryExists_ReturnsDirectoryInfo()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), new MockDirectoryData() }
-        });
-
-        var git = new Mock<IGit>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-        context.SetupGet(c => c.Git).Returns(git.Object);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act.
-        IDirectoryInfo directoryInfo = await cacheManager.GetGitRepoDir(packageSpecifier);
-
-        // Assert.
-        Assert.NotNull(directoryInfo);
-        Assert.True(fileSystem.Directory.Exists(directoryInfo.FullName));
-    }
-
-    [Fact]
-    public async Task GetGitRepoDir_GitClientNotAvailable_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetGitRepoDir(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetGitRepoDir_PathIsFile_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), new MockFileData("test") }
-        });
-
-        var git = new Mock<IGit>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-        context.SetupGet(c => c.Git).Returns(git.Object);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetGitRepoDir(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_FileExists_ReturnsStream()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockFileData("test") }
-        });
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
-
-        // Act.
-        await using Stream stream = await cacheManager.GetPackageManifestFile(packageSpecifier);
-
-        // Assert.
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_PathIsDirectory_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json"), new MockDirectoryData() }
-        });
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_NoRemoteSource_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_WithGit_ReturnsStream()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "tooth.json"), new("test") }
-        });
-
-        var git = new Mock<IGit>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-        context.SetupGet(c => c.Git).Returns(git.Object);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act.
-        await using Stream stream = await cacheManager.GetPackageManifestFile(packageSpecifier);
-
-        // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json")));
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_GitRepoNotContainsManifestFile_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), new MockDirectoryData() }
-        });
-
-        var git = new Mock<IGit>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-        context.SetupGet(c => c.Git).Returns(git.Object);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager);
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0")
-        };
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_WithGoModuleProxy_ReturnsStream()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-        {
-                Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Fgo-mod-proxy%2Fexample.com%2Frepo%2F%40v%2Fv1.0.0.zip"),
-                new MockFileData(CreateSampleGoModuleProxyArchive("example.com/repo", SemVersion.Parse("1.0.0"), isEmpty: false))
-        }
-        });
-
-        var downloader = new Mock<IDownloader>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(
-            context.Object,
-            pathManager,
-            goModuleProxy: Url.Parse("https://example.com/go-mod-proxy"));
-
-        PackageSpecifier packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
-
-        // Act.
-        await using Stream stream = await cacheManager.GetPackageManifestFile(packageSpecifier);
-
-        // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%401.0.0.json")));
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_GoModuleIncompatibleVersion_ReturnsStream()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-        {
-                Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Fgo-mod-proxy%2Fexample.com%2Frepo%2F%40v%2Fv2.0.0%2Bincompatible.zip"),
-                new MockFileData(CreateSampleGoModuleProxyArchive("example.com/repo", SemVersion.Parse("2.0.0"), isEmpty: false))
-        }
-        });
-
-        var downloader = new Mock<IDownloader>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(
-            context.Object,
-            pathManager,
-            goModuleProxy: Url.Parse("https://example.com/go-mod-proxy"));
-
-        PackageSpecifier packageSpecifier = PackageSpecifier.Parse("example.com/repo@2.0.0");
-
-        // Act.
-        await using Stream stream = await cacheManager.GetPackageManifestFile(packageSpecifier);
-
-        // Assert.
-        Assert.True(fileSystem.File.Exists(Path.Join(s_cacheDir, "package_manifests", "example.com%2Frepo%402.0.0.json")));
-        Assert.NotNull(stream);
-        Assert.Equal("test", new StreamReader(stream).ReadToEnd());
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_GoModuleArchiveNotContainsManifestFile_ThrowsInvalidOperationException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-        {
-                Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Fgo-mod-proxy%2Fexample.com%2Frepo%2F%40v%2Fv1.0.0.zip"),
-                new MockFileData(CreateSampleGoModuleProxyArchive("example.com/repo", SemVersion.Parse("1.0.0"), isEmpty: true))
-        }
-        });
-
-        var downloader = new Mock<IDownloader>();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(
-            context.Object,
-            pathManager,
-            goModuleProxy: Url.Parse("https://example.com/go-mod-proxy"));
-
-        PackageSpecifier packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
-
-        // Act & assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
-    }
-
-    [Fact]
-    public async Task GetPackageManifestFile_GoModuleVersionWithBuildMetadata_ThrowsArgumentException()
-    {
-        // Arrange.
-        var fileSystem = new MockFileSystem();
-
-        var context = new Mock<IContext>();
-        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
-
-        PathManager pathManager = new(fileSystem, s_cacheDir);
-
-        CacheManager cacheManager = new(context.Object, pathManager, goModuleProxy: Url.Parse("https://example.com/go-mod-proxy"));
-
-        PackageSpecifier packageSpecifier = new()
-        {
-            ToothPath = "example.com/repo",
-            VariantLabel = "",
-            Version = SemVersion.Parse("1.0.0+build")
-        };
-
-        // Act & assert.
-        ArgumentException ex = await Assert.ThrowsAsync<ArgumentException>(async () => await cacheManager.GetPackageManifestFile(packageSpecifier));
-        Assert.Equal("version", ex.ParamName);
+        Assert.Equal("content", new StreamReader((await fileSource.GetFileStream("file"))!).ReadToEnd());
     }
 
     [Fact]
@@ -573,15 +389,14 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
-        CacheManager.ListResult listResult = await cacheManager.List();
+        ICacheManager.ICacheSummary listResult = await cacheManager.List();
 
         // Assert.
         Assert.Empty(listResult.DownloadedFiles);
         Assert.Empty(listResult.GitRepos);
-        Assert.Empty(listResult.PackageManifestFiles);
     }
 
     [Fact]
@@ -598,17 +413,16 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
-        CacheManager.ListResult listResult = await cacheManager.List();
+        ICacheManager.ICacheSummary listResult = await cacheManager.List();
 
         // Assert.
         Assert.Single(listResult.DownloadedFiles);
         Assert.Equal("https://example.com/test.file", listResult.DownloadedFiles.Keys.Single());
         Assert.Equal("test", new StreamReader(listResult.DownloadedFiles.Values.Single().OpenRead()).ReadToEnd());
         Assert.Empty(listResult.GitRepos);
-        Assert.Empty(listResult.PackageManifestFiles);
     }
 
     [Fact]
@@ -625,10 +439,10 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
-        CacheManager.ListResult listResult = await cacheManager.List();
+        ICacheManager.ICacheSummary listResult = await cacheManager.List();
 
         // Assert.
         Assert.Empty(listResult.DownloadedFiles);
@@ -636,7 +450,6 @@ public class CacheManagerTests
         Assert.Equal("https://example.com/repo", listResult.GitRepos.Keys.Single().Url);
         Assert.Equal("v1.0.0", listResult.GitRepos.Keys.Single().Tag);
         Assert.Equal(Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0"), listResult.GitRepos.Values.Single().FullName);
-        Assert.Empty(listResult.PackageManifestFiles);
     }
 
     [Fact]
@@ -653,32 +466,35 @@ public class CacheManagerTests
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
-        CacheManager cacheManager = new(context.Object, pathManager);
+        CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         // Act.
-        CacheManager.ListResult listResult = await cacheManager.List();
+        ICacheManager.ICacheSummary listResult = await cacheManager.List();
 
         // Assert.
         Assert.Empty(listResult.DownloadedFiles);
         Assert.Empty(listResult.GitRepos);
-        Assert.Single(listResult.PackageManifestFiles);
-        Assert.Equal("example.com/repo@1.0.0", listResult.PackageManifestFiles.Keys.Single().SpecifierWithoutVariant);
-        Assert.Equal("test", new StreamReader(listResult.PackageManifestFiles.Values.Single().OpenRead()).ReadToEnd());
     }
 
-    private static byte[] CreateSampleGoModuleProxyArchive(string goModulePath, SemVersion version, bool isEmpty)
+    private static void CreateGoModuleArchive(
+        MockFileSystem fileSystem,
+        string archiveFilePath,
+        string goModulePath,
+        SemVersion version,
+        Dictionary<string, string> entries)
     {
-        using MemoryStream contentStream = new(Encoding.UTF8.GetBytes("test"));
+        fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(archiveFilePath)!);
+        using FileSystemStream fileStream = fileSystem.File.Create(archiveFilePath);
 
-        ZipArchive archive = ZipArchive.Create();
-        if (!isEmpty)
+        using IWriter writer = WriterFactory.Open(fileStream, ArchiveType.Zip, new(CompressionType.Deflate));
+
+        foreach (KeyValuePair<string, string> entry in entries)
         {
-            archive.AddEntry($"{goModulePath}@v{version}{(version.Major >= 2 ? "+incompatible" : "")}/tooth.json", contentStream);
+            using Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(entry.Value));
+
+            string archiveEntryKey = $"{goModulePath}@v{version}{(version.Major >= 2 ? "+incompatible" : "")}/{entry.Key}";
+
+            writer.Write(archiveEntryKey, stream);
         }
-
-        using MemoryStream stream = new();
-        archive.SaveTo(stream);
-
-        return stream.ToArray();
     }
 }

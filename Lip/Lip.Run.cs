@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace Lip;
 
@@ -6,22 +6,15 @@ public partial class Lip
 {
     public record RunArgs
     {
-        public string VariantLabel { get; init; } = "";
+        public string VariantLabel { get; init; } = string.Empty;
     }
 
     public async Task<int> Run(string scriptName, RunArgs args)
     {
-        string currentPackageManifestPath = _pathManager.CurrentPackageManifestPath;
+        PackageManifest? packageManifest = await _packageManager.GetCurrentPackageManifest()
+            ?? throw new InvalidOperationException("No package manifest found.");
 
-        if (!await _context.FileSystem.File.ExistsAsync(currentPackageManifestPath))
-        {
-            throw new FileNotFoundException($"Package manifest not found at {currentPackageManifestPath}");
-        }
-
-        byte[] packageManifestBytes = await _context.FileSystem.File.ReadAllBytesAsync(currentPackageManifestPath);
-
-        PackageManifest packageManifest = PackageManifest.FromJsonBytesParsed(packageManifestBytes);
-        PackageManifest.VariantType? variant = packageManifest.GetSpecifiedVariant(
+        PackageManifest.Variant? variant = packageManifest.GetVariant(
             args.VariantLabel,
             RuntimeInformation.RuntimeIdentifier)
             ?? throw new InvalidOperationException($"Variant '{args.VariantLabel}' not found in package manifest");

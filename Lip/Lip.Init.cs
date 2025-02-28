@@ -1,5 +1,7 @@
-﻿using System.Text;
 using Microsoft.Extensions.Logging;
+using Semver;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Lip;
 
@@ -27,16 +29,38 @@ public partial class Lip
         {
             manifest = new()
             {
-                FormatVersion = PackageManifest.DefaultFormatVersion,
-                FormatUuid = PackageManifest.DefaultFormatUuid,
                 ToothPath = args.InitTooth ?? DefaultTooth,
-                VersionText = args.InitVersion ?? DefaultVersion,
+                Version = SemVersion.Parse(args.InitVersion ?? DefaultVersion),
                 Info = new()
                 {
-                    Name = args.InitName,
-                    Description = args.InitDescription,
+                    Name = args.InitName ?? "",
+                    Description = args.InitDescription ?? "",
+                    Tags = [],
                     AvatarUrl = args.InitAvatarUrl
-                }
+                },
+                Variants = [
+                    new PackageManifest.Variant
+                    {
+                        Label = "",
+                        Platform = RuntimeInformation.RuntimeIdentifier,
+                        Dependencies = [],
+                        Assets = [],
+                        PreserveFiles = [],
+                        RemoveFiles = [],
+                        Scripts = new PackageManifest.ScriptsType
+                        {
+                            PreInstall = [],
+                            Install = [],
+                            PostInstall  = [],
+                            PrePack  = [],
+                            PostPack  = [],
+                            PreUninstall  = [],
+                            Uninstall  = [],
+                            PostUninstall  = [],
+                            AdditionalScripts  = [],
+                        }
+                    }
+                ]
             };
         }
         else
@@ -49,20 +73,43 @@ public partial class Lip
 
             manifest = new()
             {
-                FormatVersion = PackageManifest.DefaultFormatVersion,
-                FormatUuid = PackageManifest.DefaultFormatUuid,
                 ToothPath = tooth,
-                VersionText = version,
+                Version = SemVersion.Parse(version),
                 Info = new()
                 {
-                    Name = name,
-                    Description = description,
+                    Name = name ?? "",
+                    Description = description ?? "",
+                    Tags = [],
                     AvatarUrl = avatarUrl
-                }
+                },
+                Variants = [
+                    new PackageManifest.Variant
+                    {
+                        Label = "",
+                        Platform = RuntimeInformation.RuntimeIdentifier,
+                        Dependencies = [],
+                        Assets = [],
+                        PreserveFiles = [],
+                        RemoveFiles = [],
+                        Scripts = new PackageManifest.ScriptsType
+                        {
+                            PreInstall = [],
+                            Install = [],
+                            PostInstall  = [],
+                            PrePack  = [],
+                            PostPack  = [],
+                            PreUninstall  = [],
+                            Uninstall  = [],
+                            PostUninstall  = [],
+                            AdditionalScripts  = [],
+                        }
+                    }
+                ]
             };
 
-            string jsonString = Encoding.UTF8.GetString(manifest.ToJsonBytes());
-            if (!await _context.UserInteraction.Confirm("Do you want to create the following package manifest file?\n{jsonString}", jsonString))
+            if (!await _context.UserInteraction.Confirm(
+                "Do you want to create the following package manifest file?\n{jsonString}",
+                manifest.ToJsonElement().ToString()))
             {
                 throw new OperationCanceledException("Operation canceled by the user.");
             }
@@ -72,7 +119,7 @@ public partial class Lip
         string manifestPath = _pathManager.CurrentPackageManifestPath;
 
         // Check if the manifest file already exists.
-        if (await _context.FileSystem.File.ExistsAsync(manifestPath))
+        if (_context.FileSystem.File.Exists(manifestPath))
         {
             if (!args.Force)
             {
@@ -82,6 +129,6 @@ public partial class Lip
             _context.Logger.LogWarning("The file '{ManifestPath}' already exists. Overwriting it.", manifestPath);
         }
 
-        await _context.FileSystem.File.WriteAllBytesAsync(manifestPath, manifest.ToJsonBytes());
+        await _packageManager.SaveCurrentPackageManifest(manifest);
     }
 }

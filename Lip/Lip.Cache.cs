@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace Lip;
 
@@ -11,15 +11,14 @@ public partial class Lip
     {
         public required List<string> DownloadedFiles { get; init; }
         public required List<string> GitRepos { get; init; }
-        public required List<string> PackageManifestFiles { get; init; }
     }
 
     public async Task CacheAdd(string packageSpecifierText, CacheAddArgs _)
     {
         var packageSpecifier = PackageSpecifier.Parse(packageSpecifierText);
 
-        using Stream packageManifestFileStream = await _cacheManager.GetPackageManifestFile(packageSpecifier);
-        PackageManifest packageManifest = PackageManifest.FromJsonBytesParsed(await packageManifestFileStream.ReadAsync());
+        PackageManifest packageManifest = await _packageManager.GetPackageManifestFromCache(packageSpecifier)
+            ?? throw new InvalidOperationException($"Cannot get package manifest from package '{packageSpecifier}'.");
 
         if (packageManifest.ToothPath != packageSpecifier.ToothPath)
         {
@@ -31,20 +30,16 @@ public partial class Lip
             throw new InvalidOperationException($"Version in package manifest '{packageManifest.Version}' does not match package specifier '{packageSpecifier.Version}'.");
         }
 
-        PackageManifest.VariantType? variant = packageManifest.GetSpecifiedVariant(
+        PackageManifest.Variant? variant = packageManifest.GetVariant(
             packageSpecifier.VariantLabel, RuntimeInformation.RuntimeIdentifier);
 
-        foreach (PackageManifest.AssetType asset in variant?.Assets ?? [])
+        foreach (PackageManifest.Asset asset in variant?.Assets ?? [])
         {
-            if (asset.Type == PackageManifest.AssetType.TypeEnum.Self)
-            {
-                await _cacheManager.GetGitRepoDir(packageSpecifier);
-            }
-            else
+            if (asset.Type != PackageManifest.Asset.TypeEnum.Self)
             {
                 foreach (string url in asset.Urls ?? [])
                 {
-                    await _cacheManager.GetDownloadedFile(url);
+                    await _cacheManager.GetFileFromUrl(url);
                 }
             }
         }
@@ -57,12 +52,11 @@ public partial class Lip
 
     public async Task<CacheListResult> CacheList(CacheListArgs _)
     {
-        CacheManager.ListResult listResult = await _cacheManager.List();
+        ICacheManager.ICacheSummary cacheSummary = await _cacheManager.List();
         return new CacheListResult
         {
-            DownloadedFiles = [.. listResult.DownloadedFiles.Keys],
-            GitRepos = [.. listResult.GitRepos.Keys.Select(repo => $"{repo.Url} {repo.Tag}")],
-            PackageManifestFiles = [.. listResult.PackageManifestFiles.Keys.Select(package => package.SpecifierWithoutVariant)],
+            DownloadedFiles = [.. cacheSummary.DownloadedFiles.Keys],
+            GitRepos = [.. cacheSummary.GitRepos.Keys.Select(repo => $"{repo.Url} {repo.Tag}")],
         };
     }
 }

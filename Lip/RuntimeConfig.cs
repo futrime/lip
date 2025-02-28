@@ -1,4 +1,3 @@
-﻿using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,20 +24,34 @@ public record RuntimeConfig
     [JsonPropertyName("color")]
     public bool Color { get; init; } = true;
 
-    [JsonPropertyName("github_proxy")]
-    public string GitHubProxy { get; init; } = "";
+    [JsonIgnore]
+    public List<string> GitHubProxies
+    {
+        get => [.. GitHubProxiesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+        init => GitHubProxiesText = string.Join(',', value);
+    }
 
-    [JsonPropertyName("go_module_proxy")]
-    public string GoModuleProxy { get; init; } = "https://goproxy.io";
+    [JsonPropertyName("github_proxies")]
+    public string GitHubProxiesText { get; init; } = "";
+
+    [JsonIgnore]
+    public List<string> GoModuleProxies
+    {
+        get => [.. GoModuleProxiesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+        init => GoModuleProxiesText = string.Join(',', value);
+    }
+
+    [JsonPropertyName("go_module_proxies")]
+    public string GoModuleProxiesText { get; init; } = "https://proxy.golang.org";
 
     [JsonPropertyName("https_proxy")]
-    public string HttpsProxy { get; init; } = "";
+    public string HttpsProxy { get; init; } = string.Empty;
 
     [JsonPropertyName("noproxy")]
-    public string NoProxy { get; init; } = "";
+    public string NoProxy { get; init; } = string.Empty;
 
     [JsonPropertyName("proxy")]
-    public string Proxy { get; init; } = "";
+    public string Proxy { get; init; } = string.Empty;
 
     public static RuntimeConfig FromJsonBytes(byte[] bytes)
     {
@@ -55,7 +68,7 @@ public record RuntimeConfig
         }
     }
 
-    public byte[] ToBytes()
+    public byte[] ToJsonBytes()
     {
         return JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
     }

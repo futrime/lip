@@ -1,13 +1,23 @@
-﻿using System.IO.Abstractions.TestingHelpers;
 using Lip.Context;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Lip.Tests;
 
 public class LipInitTests
 {
     private static readonly string s_workspacePath = OperatingSystem.IsWindows() ? Path.Join("C:", "path", "to", "workspace") : Path.Join("/", "path", "to", "workspace");
+
+    [Fact]
+    public void InitArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.InitArgs args = new();
+
+        // Act.
+        args = args with { };
+    }
 
     [Fact]
     public async Task Init_Interactive_Passes()
@@ -38,7 +48,7 @@ public class LipInitTests
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act.
         await lip.Init(new());
@@ -74,7 +84,7 @@ public class LipInitTests
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -110,7 +120,7 @@ public class LipInitTests
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -160,7 +170,7 @@ public class LipInitTests
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -193,7 +203,7 @@ public class LipInitTests
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         Lip.InitArgs args = new()
         {
@@ -227,7 +237,7 @@ public class LipInitTests
         context.SetupGet(c => c.Logger).Returns(new Mock<ILogger>().Object);
         context.SetupGet(c => c.UserInteraction).Returns(userInteraction.Object);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         Lip.InitArgs args = new()
         {

@@ -3,12 +3,12 @@
 ## Usage
 
 ```shell
-lip update [<package-spec>...]
+lip update <package>...
 ```
 
 ## Description
 
-Attempt to update the specified packages to the specified versions. If no package specs are provided, lip will update all packages to the latest versions.
+Update packages and their dependencies from various sources. Equivalent to `lip install --update <package...>`.
 
 ## Options
 
@@ -18,7 +18,8 @@ Attempt to update the specified packages to the specified versions. If no packag
 
 - `-f, --force`
 
-  Force the update of the specified packages. This may break the dependency graph and cause all future installations and updates without `--force` to fail.
+  Force the installation of the package. When a package is already installed but its version is
+  higher than the specified version, lip will still reinstall the package.
 
 - `--ignore-scripts`
 
@@ -26,9 +27,4 @@ Attempt to update the specified packages to the specified versions. If no packag
 
 - `--no-dependencies`
 
-  Do not update dependencies.
-
-- `--save`
-
-  Save the updated packages to `tooth.json`.
-
+  Bypass dependency resolution and only install the specified packages.

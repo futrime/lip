@@ -1,7 +1,7 @@
-﻿using System.IO.Abstractions.TestingHelpers;
-using System.Runtime.InteropServices;
 using Lip.Context;
 using Moq;
+using System.IO.Abstractions.TestingHelpers;
+using System.Runtime.InteropServices;
 
 namespace Lip.Tests;
 
@@ -10,6 +10,16 @@ public class LipRunTests
     private static readonly string s_workDir = OperatingSystem.IsWindows()
         ? Path.Join("C:", "path", "to", "work")
         : Path.Join("/", "path", "to", "work");
+
+    [Fact]
+    public void RunArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.RunArgs runArgs = new();
+
+        // Act.
+        runArgs = runArgs with { };
+    }
 
     [Fact]
     public async Task Run_ValidScript_Passes()
@@ -47,7 +57,7 @@ public class LipRunTests
         context.SetupGet(c => c.CommandRunner).Returns(commandRunner.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act.
         int code = await lip.Run("test", new()
@@ -68,10 +78,10 @@ public class LipRunTests
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act & Assert.
-        await Assert.ThrowsAsync<FileNotFoundException>(() => lip.Run("test", new()));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => lip.Run("test", new()));
     }
 
     [Fact]
@@ -106,7 +116,7 @@ public class LipRunTests
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act & Assert.
         await Assert.ThrowsAsync<InvalidOperationException>(() => lip.Run("test", new()
@@ -146,7 +156,7 @@ public class LipRunTests
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act & Assert.
         await Assert.ThrowsAsync<InvalidOperationException>(() => lip.Run("unknown_script", new()));
@@ -187,7 +197,7 @@ public class LipRunTests
         context.SetupGet(c => c.CommandRunner).Returns(commandRunner.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(new(), context.Object);
+        Lip lip = Lip.Create(new(), context.Object);
 
         // Act.
         int code = await lip.Run("test", new());

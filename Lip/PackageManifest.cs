@@ -1,10 +1,11 @@
-﻿using System.Text;
+using DotNet.Globbing;
+using Flurl;
+using Scriban;
+using Semver;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DotNet.Globbing;
-using Scriban;
-using Scriban.Parsing;
-using Semver;
 
 namespace Lip;
 
@@ -13,7 +14,429 @@ namespace Lip;
 /// </summary>
 public record PackageManifest
 {
-    public record AssetType
+    public record Asset
+    {
+        public enum TypeEnum
+        {
+            Self,
+            Tar,
+            Tgz,
+            Uncompressed,
+            Zip,
+        }
+
+        public required TypeEnum Type { get; init; }
+
+        public required List<Url> Urls { get; init; }
+
+        public required List<Placement> Placements { get; init; }
+    }
+
+    public record InfoType
+    {
+        public required string Name { get; init; }
+
+        public required string Description { get; init; }
+
+        public required List<string> Tags
+        {
+            get => _tags;
+            init => _tags = value.ConvertAll(tag => StringValidator.CheckTag(tag)
+                ? tag
+                : throw new SchemaViolationException("info.tags[]", $"Tag '{tag}' is invalid."));
+        }
+        private readonly List<string> _tags = [];
+
+        public required Url AvatarUrl { get; init; }
+    }
+
+    public record Placement
+    {
+        public enum TypeEnum
+        {
+            File,
+            Dir,
+        }
+
+        public required TypeEnum Type { get; init; }
+
+        public required string Src { get; init; }
+
+        public required string Dest
+        {
+            get => _dest;
+            init => _dest = StringValidator.CheckPlaceDestPath(value)
+                ? value
+                : throw new SchemaViolationException(
+                    "variants[].assets[].placements[].dest",
+                    $"Path '{value}' is unsafe to place.");
+        }
+        private readonly string _dest = string.Empty;
+    }
+
+    public record ScriptsType
+    {
+        public required List<string> PreInstall { get; init; }
+
+        public required List<string> Install { get; init; }
+
+        public required List<string> PostInstall { get; init; }
+
+        public required List<string> PrePack { get; init; }
+
+        public required List<string> PostPack { get; init; }
+
+        public required List<string> PreUninstall { get; init; }
+
+        public required List<string> Uninstall { get; init; }
+
+        public required List<string> PostUninstall { get; init; }
+
+        public required Dictionary<string, List<string>> AdditionalScripts
+        {
+            get => _additionalScripts;
+            init => _additionalScripts = value.ToDictionary(
+                kvp => StringValidator.CheckScriptName(kvp.Key)
+                    ? kvp.Key
+                    : throw new SchemaViolationException(
+                        $"variants[].assets[].scripts.'{kvp.Key}'",
+                        $"Invalid script name '{kvp.Key}'"
+                    ),
+                kvp => kvp.Value
+            );
+        }
+        private readonly Dictionary<string, List<string>> _additionalScripts = [];
+    }
+
+    public record Variant
+    {
+        // We do not validate label because it may be a glob.
+        public required string Label { get; init; }
+
+        public required string Platform { get; init; }
+
+        public required Dictionary<PackageIdentifier, SemVersionRange> Dependencies { get; init; }
+
+        public required List<Asset> Assets { get; init; }
+
+        public required List<string> PreserveFiles
+        {
+            get => _preserveFiles;
+            init => _preserveFiles = value.ConvertAll(
+                preserveFile => StringValidator.CheckPlaceDestPath(preserveFile)
+                    ? preserveFile
+                    : throw new SchemaViolationException(
+                        "variants[].preserve_files[]",
+                        $"Invalid preserve file path '{preserveFile}'"
+                    )
+            );
+        }
+        private readonly List<string> _preserveFiles = [];
+
+        public required List<string> RemoveFiles
+        {
+            get => _removeFiles;
+            init => _removeFiles = value.ConvertAll(
+                removeFile => StringValidator.CheckPlaceDestPath(removeFile)
+                    ? removeFile
+                    : throw new SchemaViolationException(
+                        "variants[].remove_file[]",
+                        $"Invalid remove file path '{removeFile}'"
+                    )
+            );
+        }
+        private readonly List<string> _removeFiles = [];
+
+        public required ScriptsType Scripts { get; init; }
+
+        public bool Match(string targetLabel, string targetPlatform)
+        {
+            // Check if the variant label matches the specified label.
+            if (Label != targetLabel)
+            {
+                if (Label == string.Empty)
+                {
+                    return false;
+                }
+
+                if (!Glob.Parse(Label).IsMatch(targetLabel))
+                {
+                    return false;
+                }
+            }
+
+            // Check if the platform matches the specified platform.
+            if (Platform != targetPlatform)
+            {
+                if (Platform == string.Empty)
+                {
+                    return false;
+                }
+
+                if (!Glob.Parse(Platform).IsMatch(targetPlatform))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public const int DefaultFormatVersion = 3;
+    public const string DefaultFormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d";
+
+    private static readonly JsonDocumentOptions _jsonDocumentOptions = new()
+    {
+        AllowTrailingCommas = true,
+        CommentHandling = JsonCommentHandling.Skip,
+    };
+
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        AllowTrailingCommas = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        IndentSize = 4,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        WriteIndented = true,
+    };
+
+    private static readonly JsonWriterOptions _jsonWriterOptions = new()
+    {
+        Indented = true,
+        IndentSize = 4,
+    };
+
+    public required string ToothPath
+    {
+        get => _toothPath;
+        init => _toothPath = StringValidator.CheckToothPath(value)
+            ? value
+            : throw new SchemaViolationException(
+                "tooth",
+                $"Invalid tooth path '{value}'"
+            );
+    }
+    private readonly string _toothPath = string.Empty;
+
+    public required SemVersion Version { get; init; }
+
+    public required InfoType Info { get; init; }
+
+    public required List<Variant> Variants { get; init; }
+
+    [ExcludeFromCodeCoverage]
+    public static PackageManifest FromJsonElement(JsonElement jsonElement)
+    {
+        RawPackageManifest rawPackageManifest = RawPackageManifest.FromJsonElement(jsonElement);
+
+        RawPackageManifest rawPackageManifestRendered = rawPackageManifest.WithTemplateRendered();
+
+        // Validate format version and UUID.
+
+        if (rawPackageManifestRendered.FormatVersion != DefaultFormatVersion)
+        {
+            throw new SchemaViolationException(
+                "format_version",
+                $"Expected format version {DefaultFormatVersion}, but got {rawPackageManifestRendered.FormatVersion}.");
+        }
+
+        if (rawPackageManifestRendered.FormatUuid != DefaultFormatUuid)
+        {
+            throw new SchemaViolationException(
+                "format_uuid",
+                $"Expected format UUID '{DefaultFormatUuid}', but got '{rawPackageManifestRendered.FormatUuid}'.");
+        }
+
+        PackageManifest packageManifest = new()
+        {
+            ToothPath = rawPackageManifestRendered.Tooth,
+            Version = SemVersion.Parse(rawPackageManifest.Version),
+            Info = new InfoType
+            {
+                Name = rawPackageManifest.Info?.Name ?? "",
+                Description = rawPackageManifest.Info?.Description ?? "",
+                Tags = rawPackageManifest.Info?.Tags ?? [],
+                AvatarUrl = Url.Parse(rawPackageManifest.Info?.AvatarUrl ?? "")
+            },
+            Variants = rawPackageManifest.Variants?.ConvertAll(variant => new Variant
+            {
+                Label = variant.Label ?? "",
+                Platform = variant.Platform ?? RuntimeInformation.RuntimeIdentifier,
+                Dependencies = variant.Dependencies?.ToDictionary(
+                    kvp => PackageIdentifier.Parse(kvp.Key),
+                    kvp => SemVersionRange.ParseNpm(kvp.Value)
+                ) ?? [],
+                Assets = variant.Assets?.ConvertAll(asset => new Asset
+                {
+                    Type = (Asset.TypeEnum)asset.Type,
+                    Urls = asset.Urls?.ConvertAll(url => Url.Parse(url)) ?? [],
+                    Placements = asset.Placements?.ConvertAll(placement => new Placement
+                    {
+                        Type = (Placement.TypeEnum)placement.Type,
+                        Src = placement.Src,
+                        Dest = placement.Dest
+                    }) ?? [],
+                }) ?? [],
+                PreserveFiles = variant.PreserveFiles ?? [],
+                RemoveFiles = variant.RemoveFiles ?? [],
+                Scripts = new ScriptsType
+                {
+                    PreInstall = variant.Scripts?.PreInstall ?? [],
+                    Install = variant.Scripts?.Install ?? [],
+                    PostInstall = variant.Scripts?.PostInstall ?? [],
+                    PrePack = variant.Scripts?.PrePack ?? [],
+                    PostPack = variant.Scripts?.PostPack ?? [],
+                    PreUninstall = variant.Scripts?.PreUninstall ?? [],
+                    Uninstall = variant.Scripts?.Uninstall ?? [],
+                    PostUninstall = variant.Scripts?.PostUninstall ?? [],
+                    AdditionalScripts = variant.Scripts?.AdditionalProperties?.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => (kvp.Value.ValueKind == JsonValueKind.Array
+                                && kvp.Value.EnumerateArray()
+                                    .All(elem => elem.ValueKind == JsonValueKind.String))
+                            ? kvp.Value.Deserialize<List<string>>()!
+                            : throw new SchemaViolationException(
+                                $"variants[].assets[].scripts.'{kvp.Key}'",
+                                $"Invalid script list"
+                            )
+                    ) ?? []
+                }
+            }) ?? []
+        };
+
+        return packageManifest;
+    }
+
+    public static async Task<PackageManifest> FromStream(Stream stream)
+    {
+        JsonElement jsonElement = (await JsonDocument.ParseAsync(
+            stream,
+            _jsonDocumentOptions)).RootElement;
+
+        return FromJsonElement(jsonElement);
+    }
+
+    /// <summary>
+    /// Gets the specified variant.
+    /// </summary>
+    /// <param name="targetLabel">The label of the variant to specify.</param>
+    /// <param name="targetPlatform">The runtime identifier of the variant to specify.</param>
+    /// <returns></returns>
+    public Variant? GetVariant(string targetLabel, string targetPlatform)
+    {
+        // Find the variant that matches the specified label and platform.
+        List<Variant> matchedVariants = [.. Variants.Where(variant => variant.Match(targetLabel, targetPlatform))];
+
+        // There must be at least one variant fully matched.
+        if (!matchedVariants.Any(
+            variant => variant.Label == targetLabel
+                       && variant.Platform == targetPlatform))
+        {
+            return null;
+        }
+
+        // Merge all matched variants into a single variant.
+        Variant mergedVariant = new()
+        {
+            Label = targetLabel,
+            Platform = targetPlatform,
+            Dependencies = matchedVariants
+                .SelectMany(variant => variant.Dependencies)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+            Assets = [.. matchedVariants.SelectMany(variant => variant.Assets)],
+            PreserveFiles = [.. matchedVariants.SelectMany(variant => variant.PreserveFiles)],
+            RemoveFiles = [.. matchedVariants.SelectMany(Variant => Variant.RemoveFiles)],
+            Scripts = new ScriptsType
+            {
+                PreInstall = matchedVariants.Last().Scripts.PreInstall,
+                Install = matchedVariants.Last().Scripts.Install,
+                PostInstall = matchedVariants.Last().Scripts.PostInstall,
+                PrePack = matchedVariants.Last().Scripts.PrePack,
+                PostPack = matchedVariants.Last().Scripts.PostPack,
+                PreUninstall = matchedVariants.Last().Scripts.PreUninstall,
+                Uninstall = matchedVariants.Last().Scripts.Uninstall,
+                PostUninstall = matchedVariants.Last().Scripts.PostUninstall,
+                AdditionalScripts = matchedVariants
+                    .SelectMany(variant => variant.Scripts.AdditionalScripts)
+                    .GroupBy(kvp => kvp.Key)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value)
+            }
+        };
+
+        return mergedVariant;
+    }
+
+    public JsonElement ToJsonElement()
+    {
+        RawPackageManifest rawPackageManifest = new()
+        {
+            FormatVersion = DefaultFormatVersion,
+            FormatUuid = DefaultFormatUuid,
+            Tooth = ToothPath,
+            Version = Version.ToString(),
+            Info = new()
+            {
+                Name = Info.Name,
+                Description = Info.Description,
+                Tags = Info.Tags,
+                AvatarUrl = Info.AvatarUrl
+            },
+            Variants = Variants.ConvertAll(variant => new RawPackageManifest.Variant
+            {
+                Label = variant.Label,
+                Platform = variant.Platform,
+                Dependencies = variant.Dependencies.ToDictionary(
+                    kvp => kvp.Key.ToString(),
+                    kvp => kvp.Value.ToString()),
+                Assets = variant.Assets.ConvertAll(asset => new RawPackageManifest.Asset
+                {
+                    Type = (RawPackageManifest.Asset.TypeEnum)asset.Type,
+                    Urls = asset.Urls.ConvertAll(url => url.ToString()),
+                    Placements = asset.Placements.ConvertAll(placement
+                        => new RawPackageManifest.Placement
+                        {
+                            Type = (RawPackageManifest.Placement.TypeEnum)placement.Type,
+                            Src = placement.Src,
+                            Dest = placement.Dest,
+                        })
+                }),
+                PreserveFiles = variant.PreserveFiles,
+                RemoveFiles = variant.RemoveFiles,
+                Scripts = new RawPackageManifest.ScriptsType
+                {
+                    PreInstall = variant.Scripts.PreInstall,
+                    Install = variant.Scripts.Install,
+                    PostInstall = variant.Scripts.PostInstall,
+                    PrePack = variant.Scripts.PrePack,
+                    PostPack = variant.Scripts.PostPack,
+                    PreUninstall = variant.Scripts.PreUninstall,
+                    Uninstall = variant.Scripts.Uninstall,
+                    PostUninstall = variant.Scripts.PostUninstall,
+                    AdditionalProperties = variant.Scripts.AdditionalScripts.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => JsonSerializer.SerializeToElement(kvp.Value, _jsonSerializerOptions)
+                    )
+                }
+            })
+        };
+
+        return rawPackageManifest.ToJsonElement();
+    }
+
+    public async Task ToStream(Stream stream)
+    {
+        JsonElement jsonElement = ToJsonElement();
+        await using Utf8JsonWriter jsonWriter = new(stream, _jsonWriterOptions);
+
+        jsonElement.WriteTo(jsonWriter);
+    }
+}
+
+[ExcludeFromCodeCoverage]
+file record RawPackageManifest
+{
+    public record Asset
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum TypeEnum
@@ -34,68 +457,13 @@ public record PackageManifest
         public required TypeEnum Type { get; init; }
 
         [JsonPropertyName("urls")]
-        public List<string>? Urls
-        {
-            get => _urls;
-            init
-            {
-                value?.ForEach(url =>
-                {
-                    if (!StringValidator.CheckUrl(url))
-                    {
-                        throw new SchemaViolationException("urls", $"URL '{url}' is invalid.");
-                    }
-                });
+        public List<string>? Urls { get; init; }
 
-                _urls = value;
-            }
-        }
-
-        [JsonPropertyName("place")]
-        public List<PlaceType>? Place { get; init; }
-
-        [JsonPropertyName("preserve")]
-        public List<string>? Preserve
-        {
-            get => _preserve;
-            init
-            {
-                value?.ForEach(preserve =>
-                {
-                    if (!StringValidator.CheckSafePlacePath(preserve))
-                    {
-                        throw new SchemaViolationException("preserve", $"Path '{preserve}' is unsafe to preserve.");
-                    }
-                });
-
-                _preserve = value;
-            }
-        }
-
-        [JsonPropertyName("remove")]
-        public List<string>? Remove
-        {
-            get => _remove;
-            init
-            {
-                value?.ForEach(remove =>
-                {
-                    if (!StringValidator.CheckSafePlacePath(remove))
-                    {
-                        throw new SchemaViolationException("remove", $"Path '{remove}' is unsafe to remove.");
-                    }
-                });
-
-                _remove = value;
-            }
-        }
-
-        private List<string>? _urls;
-        private List<string>? _preserve;
-        private List<string>? _remove;
+        [JsonPropertyName("placements")]
+        public List<Placement>? Placements { get; init; }
     }
 
-    public partial record InfoType
+    public record InfoType
     {
         [JsonPropertyName("name")]
         public string? Name { get; init; }
@@ -104,49 +472,13 @@ public record PackageManifest
         public string? Description { get; init; }
 
         [JsonPropertyName("tags")]
-        public List<string>? Tags
-        {
-            get => _tags;
-            init
-            {
-                value?.ForEach(tag =>
-                {
-                    if (!StringValidator.CheckTag(tag))
-                    {
-                        throw new SchemaViolationException("tags", $"Tag '{tag}' is invalid.");
-                    }
-                });
-
-                _tags = value;
-            }
-        }
+        public List<string>? Tags { get; init; }
 
         [JsonPropertyName("avatar_url")]
-        public string? AvatarUrl
-        {
-            get => _avatarUrl;
-            init
-            {
-                if (value is null)
-                {
-                    _avatarUrl = null;
-                    return;
-                }
-
-                if (!StringValidator.CheckUrl(value))
-                {
-                    throw new SchemaViolationException("avatar_url", $"Avatar URL '{value}' is invalid.");
-                }
-
-                _avatarUrl = value;
-            }
-        }
-
-        private List<string>? _tags;
-        private string? _avatarUrl;
+        public string? AvatarUrl { get; init; }
     }
 
-    public record PlaceType
+    public record Placement
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum TypeEnum
@@ -164,24 +496,10 @@ public record PackageManifest
         public required string Src { get; init; }
 
         [JsonPropertyName("dest")]
-        public required string Dest
-        {
-            get => _dest;
-            init
-            {
-                if (!StringValidator.CheckSafePlacePath(value))
-                {
-                    throw new SchemaViolationException("dest", $"Path '{value}' is unsafe to place.");
-                }
-
-                _dest = value;
-            }
-        }
-
-        private string _dest = "";
+        public required string Dest { get; init; }
     }
 
-    public partial record ScriptsType
+    public record ScriptsType
     {
         [JsonPropertyName("pre_install")]
         public List<string>? PreInstall { get; init; }
@@ -209,121 +527,51 @@ public record PackageManifest
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? AdditionalProperties { get; init; }
-
-        [JsonIgnore]
-        public Dictionary<string, List<string>> AdditionalScripts
-        {
-            get
-            {
-                var additionalScripts = new Dictionary<string, List<string>>();
-                foreach (KeyValuePair<string, JsonElement> kvp in AdditionalProperties ?? [])
-                {
-                    string key = kvp.Key;
-                    JsonElement value = kvp.Value;
-
-                    // Ignore all properties that don't match the script name and value pattern.
-
-                    if (!StringValidator.CheckScriptName(key))
-                    {
-                        continue;
-                    }
-
-                    if (value.ValueKind != JsonValueKind.Array)
-                    {
-                        continue;
-                    }
-
-                    bool allStrings = true;
-                    foreach (JsonElement element in value.EnumerateArray())
-                    {
-                        if (element.ValueKind != JsonValueKind.String)
-                        {
-                            allStrings = false;
-                            break;
-                        }
-                    }
-                    if (!allStrings)
-                    {
-                        continue;
-                    }
-
-                    // The value will always be an array of strings, since we've checked that above.
-                    List<string> scripts = value.Deserialize<List<string>>()!;
-
-                    additionalScripts[kvp.Key] = scripts;
-                }
-                return additionalScripts;
-            }
-            init
-            {
-                AdditionalProperties ??= [];
-
-                foreach (KeyValuePair<string, List<string>> kvp in value)
-                {
-                    if (!StringValidator.CheckScriptName(kvp.Key))
-                    {
-                        throw new SchemaViolationException(kvp.Key, $"Script name '{kvp.Key}' is invalid.");
-                    }
-
-                    AdditionalProperties[kvp.Key] = JsonSerializer.SerializeToElement(kvp.Value);
-                }
-            }
-        }
     }
 
-    public record VariantType
+    public record Variant
     {
-        [JsonIgnore]
-        public string VariantLabel => VariantLabelRaw ?? "";
-
         [JsonPropertyName("label")]
-        public string? VariantLabelRaw { get; init; }
+        public string? Label { get; init; }
 
         [JsonPropertyName("platform")]
         public string? Platform { get; init; }
 
         [JsonPropertyName("dependencies")]
-        public Dictionary<string, string>? Dependencies
-        {
-            get => _dependencies;
-            set
-            {
-                if (value is null)
-                {
-                    _dependencies = null;
-                    return;
-                }
-
-                foreach (KeyValuePair<string, string> kvp in value)
-                {
-                    if (!StringValidator.CheckPackageSpecifierWithoutVersion(kvp.Key))
-                    {
-                        throw new SchemaViolationException("dependencies", $"Package specifier '{kvp.Key}' is invalid.");
-                    }
-
-                    if (!StringValidator.CheckVersionRange(kvp.Value))
-                    {
-                        throw new SchemaViolationException("dependencies", $"Version range '{kvp.Value}' is invalid.");
-                    }
-                }
-
-                _dependencies = value;
-            }
-        }
+        public Dictionary<string, string>? Dependencies { get; init; }
 
         [JsonPropertyName("assets")]
-        public List<AssetType>? Assets { get; init; }
+        public List<Asset>? Assets { get; init; }
+
+        [JsonPropertyName("preserve_files")]
+        public List<string>? PreserveFiles { get; init; }
+
+        [JsonPropertyName("remove_files")]
+        public List<string>? RemoveFiles { get; init; }
 
         [JsonPropertyName("scripts")]
         public ScriptsType? Scripts { get; init; }
-
-        private Dictionary<string, string>? _dependencies;
     }
 
-    public const int DefaultFormatVersion = 3;
-    public const string DefaultFormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d";
+    [JsonPropertyName("format_version")]
+    public required int FormatVersion { get; init; }
 
-    private static readonly JsonSerializerOptions s_jsonSerializerOptions = new()
+    [JsonPropertyName("format_uuid")]
+    public required string FormatUuid { get; init; }
+
+    [JsonPropertyName("tooth")]
+    public required string Tooth { get; init; }
+
+    [JsonPropertyName("version")]
+    public required string Version { get; init; }
+
+    [JsonPropertyName("info")]
+    public InfoType? Info { get; init; }
+
+    [JsonPropertyName("variants")]
+    public List<Variant>? Variants { get; init; }
+
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         AllowTrailingCommas = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -332,221 +580,31 @@ public record PackageManifest
         WriteIndented = true,
     };
 
-    [JsonPropertyName("format_version")]
-    public required int FormatVersion
+    public static RawPackageManifest FromJsonElement(JsonElement jsonElement)
     {
-        get => DefaultFormatVersion;
-        init => _ = value == DefaultFormatVersion ? 0
-            : throw new SchemaViolationException("format_version", $"Format version '{value}' is not equal to {DefaultFormatVersion}.");
+        return JsonSerializer.Deserialize<RawPackageManifest>(
+            jsonElement,
+            _jsonSerializerOptions)
+            ?? throw new SchemaViolationException("", "JSON bytes deserialized to null.");
     }
 
-    [JsonPropertyName("format_uuid")]
-    public required string FormatUuid
+    public JsonElement ToJsonElement()
     {
-        get => DefaultFormatUuid;
-        init => _ = value == DefaultFormatUuid ? 0
-            : throw new SchemaViolationException("format_uuid", $"Format UUID '{value}' is not equal to {DefaultFormatUuid}.");
+        return JsonSerializer.SerializeToElement(this, _jsonSerializerOptions);
     }
 
-    [JsonPropertyName("tooth")]
-    public required string ToothPath { get; init; }
-
-    [JsonIgnore]
-    public SemVersion Version => SemVersion.Parse(VersionText);
-
-    [JsonPropertyName("version")]
-    public required string VersionText
+    public RawPackageManifest WithTemplateRendered()
     {
-        get
-        {
-            return _version;
-        }
-        init
-        {
-            if (!StringValidator.CheckVersion(value))
-            {
-                throw new SchemaViolationException("version", $"Version '{value}' is invalid.");
-            }
+        string jsonText = JsonSerializer.Serialize(this);
 
-            _version = value;
-        }
-    }
+        Template template = Template.Parse(jsonText);
 
-    [JsonPropertyName("info")]
-    public InfoType? Info { get; init; }
+        JsonElement jsonElement = ToJsonElement();
 
-    [JsonPropertyName("variants")]
-    public List<VariantType>? Variants { get; init; }
+        string jsonTextRendered = template.Render(jsonElement);
 
-    private string _version = "0.0.0"; // The default value does never get used.
+        JsonElement jsonElementRendered = JsonDocument.Parse(jsonTextRendered).RootElement;
 
-    public static PackageManifest FromJsonBytesParsed(byte[] bytes)
-    {
-        return FromJsonBytesRaw(bytes).WithTemplateParsed();
-    }
-
-    /// <summary>
-    /// Deserializes a package manifest from the specified byte array.
-    /// </summary>
-    /// <param name="bytes">The byte array to deserialize.</param>
-    /// <returns>The deserialized package manifest.</returns>
-    public static PackageManifest FromJsonBytesRaw(byte[] bytes)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<PackageManifest>(bytes, s_jsonSerializerOptions)
-                ?? throw new JsonException("JSON bytes deserialized to null.");
-        }
-        catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
-        {
-            throw new JsonException("Package manifest bytes deserialization failed.", ex);
-        }
-    }
-
-    /// <summary>
-    /// Gets the specified variant.
-    /// </summary>
-    /// <param name="variantLabel">The label of the variant to specify.</param>
-    /// <param name="platform">The runtime identifier of the variant to specify.</param>
-    /// <returns></returns>
-    public VariantType? GetSpecifiedVariant(string variantLabel, string platform)
-    {
-        // Find the variant that matches the specified label and platform.
-        List<VariantType> matchedVariants = Variants?
-            .Where(variant =>
-            {
-                // Check if the variant label matches the specified label.
-                bool isVariantLabelMatched = false;
-
-                if (variant.VariantLabel == variantLabel)
-                {
-                    isVariantLabelMatched = true;
-                }
-                else if (variant.VariantLabel.Length > 0)
-                {
-                    var labelGlob = Glob.Parse(variant.VariantLabel);
-
-                    if (labelGlob.IsMatch(variantLabel))
-                    {
-                        isVariantLabelMatched = true;
-                    }
-                }
-
-                if (!isVariantLabelMatched)
-                {
-                    return false;
-                }
-
-                // Check if the platform matches the specified platform.
-                bool isPlatformMatched = false;
-
-                if (variant.Platform == platform)
-                {
-                    isPlatformMatched = true;
-                }
-                else if (variant.Platform?.Length > 0 || variant.Platform is null)
-                {
-                    var platformGlob = Glob.Parse(variant.Platform ?? "*");
-
-                    if (platformGlob.IsMatch(platform))
-                    {
-                        isPlatformMatched = true;
-                    }
-                }
-
-                if (!isPlatformMatched)
-                {
-                    return false;
-                }
-
-                return true;
-            })
-            .ToList() ?? [];
-
-        // However, there must exist at least one variant that matches the specified label and platform without any wildcards.
-        if (!matchedVariants.Any(
-            variant => variant.VariantLabel == variantLabel))
-        {
-            return null;
-        }
-
-        if (!matchedVariants.Any(variant => variant.Platform == platform))
-        {
-            return null;
-        }
-
-        // Merge all matched variants into a single variant.
-        VariantType mergedVariant = new()
-        {
-            VariantLabelRaw = variantLabel,
-            Platform = platform,
-            Dependencies = matchedVariants
-                .SelectMany(variant => variant.Dependencies ?? [])
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-            Assets = matchedVariants
-                .SelectMany(variant => variant.Assets ?? [])
-                .ToList(),
-            Scripts = new ScriptsType
-            {
-                PreInstall = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PreInstall is not null)?.Scripts!.PreInstall,
-                Install = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.Install is not null)?.Scripts!.Install,
-                PostInstall = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PostInstall is not null)?.Scripts!.PostInstall,
-                PrePack = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PrePack is not null)?.Scripts!.PrePack,
-                PostPack = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PostPack is not null)?.Scripts!.PostPack,
-                PreUninstall = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PreUninstall is not null)?.Scripts!.PreUninstall,
-                Uninstall = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.Uninstall is not null)?.Scripts!.Uninstall,
-                PostUninstall = matchedVariants
-                    .LastOrDefault(variant => variant.Scripts?.PostUninstall is not null)?.Scripts!.PostUninstall,
-                AdditionalProperties = matchedVariants
-                    .SelectMany(variant => variant.Scripts?.AdditionalProperties ?? [])
-                    .GroupBy(kvp => kvp.Key)
-                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value)
-            }
-        };
-
-        return mergedVariant;
-    }
-
-    /// <summary>
-    /// Serializes the package manifest to a byte array.
-    /// </summary>
-    /// <returns>The serialized package manifest.</returns>
-    public byte[] ToJsonBytes()
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
-        return bytes;
-    }
-
-    /// <summary>
-    /// Parses the template and renders the package manifest.
-    /// </summary>
-    /// <returns>The rendered package manifest.</returns>
-    public PackageManifest WithTemplateParsed()
-    {
-        string templateText = Encoding.UTF8.GetString(ToJsonBytes());
-        Template template = Template.Parse(templateText);
-
-        if (template.HasErrors)
-        {
-            StringBuilder sb = new();
-            foreach (LogMessage message in template.Messages)
-            {
-                sb.Append(message.ToString());
-            }
-            throw new FormatException($"Failed to parse template: {sb}");
-        }
-
-        JsonElement jsonElement = JsonSerializer.SerializeToElement(this);
-
-        string renderedText = template.Render(jsonElement);
-
-        return FromJsonBytesRaw(Encoding.UTF8.GetBytes(renderedText));
+        return FromJsonElement(jsonElementRendered);
     }
 }

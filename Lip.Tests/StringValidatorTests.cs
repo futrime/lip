@@ -1,4 +1,4 @@
-﻿namespace Lip.Tests;
+namespace Lip.Tests;
 
 public class StringValidatorTests
 {
@@ -7,20 +7,20 @@ public class StringValidatorTests
     [InlineData("path")]
     public void CheckSafePlacePath_SafePath_ReturnsTrue(string path)
     {
-        Assert.True(StringValidator.CheckSafePlacePath(path));
+        Assert.True(StringValidator.CheckPlaceDestPath(path));
     }
 
     [Fact]
     public void CheckSafePlacePath_PathWithDoubleDots_ReturnsFalse()
     {
-        Assert.False(StringValidator.CheckSafePlacePath("folder/../escape"));
+        Assert.False(StringValidator.CheckPlaceDestPath("folder/../escape"));
     }
 
     [Fact]
     public void CheckSafePlacePath_PathWithRoot_ReturnsFalse()
     {
         string path = OperatingSystem.IsWindows() ? "C:\\root" : "/root";
-        Assert.False(StringValidator.CheckSafePlacePath(path));
+        Assert.False(StringValidator.CheckPlaceDestPath(path));
     }
 
     [Theory]
@@ -46,7 +46,7 @@ public class StringValidatorTests
     [InlineData("example.com/pkg#variant")]
     public void CheckPackageSpecifierWithoutVersion_ValidSpecifier_ReturnsTrue(string specifier)
     {
-        Assert.True(StringValidator.CheckPackageSpecifierWithoutVersion(specifier));
+        Assert.True(StringValidator.CheckPackageIdentifier(specifier));
     }
 
     [Theory]
@@ -56,7 +56,7 @@ public class StringValidatorTests
     [InlineData("example.com/pkg#invalid#variant")]
     public void CheckPackageSpecifierWithoutVersion_InvalidSpecifier_ReturnsFalse(string specifier)
     {
-        Assert.False(StringValidator.CheckPackageSpecifierWithoutVersion(specifier));
+        Assert.False(StringValidator.CheckPackageIdentifier(specifier));
     }
 
     [Theory]
@@ -121,22 +121,6 @@ public class StringValidatorTests
     }
 
     [Theory]
-    [InlineData("http://example.com")]
-    [InlineData("https://example.com/path")]
-    public void CheckUrl_ValidUrl_ReturnsTrue(string url)
-    {
-        Assert.True(StringValidator.CheckUrl(url));
-    }
-
-    [Theory]
-    [InlineData("not-a-url")]
-    [InlineData("http:invalid")]
-    public void CheckUrl_InvalidUrl_ReturnsFalse(string url)
-    {
-        Assert.False(StringValidator.CheckUrl(url));
-    }
-
-    [Theory]
     [InlineData("variant")]
     [InlineData("variant_name")]
     public void CheckVariantLabel_ValidLabel_ReturnsTrue(string label)
@@ -150,38 +134,5 @@ public class StringValidatorTests
     public void CheckVariantLabel_InvalidLabel_ReturnsFalse(string label)
     {
         Assert.False(StringValidator.CheckVariantLabel(label));
-    }
-
-    [Theory]
-    [InlineData("1.0.0")]
-    [InlineData("1.0.0-alpha")]
-    public void CheckVersion_CommonInput_ReturnsTrue(string version)
-    {
-        Assert.True(StringValidator.CheckVersion(version));
-    }
-
-    [Theory]
-    [InlineData("1.0.0.0")]
-    [InlineData("1.0.0-alpha!")]
-    public void CheckVersion_InvalidInput_ReturnsFalse(string version)
-    {
-        Assert.False(StringValidator.CheckVersion(version));
-    }
-
-    [Theory]
-    [InlineData("^1.0.0")]
-    [InlineData("~2.0.0")]
-    [InlineData(">=1.0.0 <2.0.0")]
-    public void CheckVersionRange_ValidRange_ReturnsTrue(string range)
-    {
-        Assert.True(StringValidator.CheckVersionRange(range));
-    }
-
-    [Theory]
-    [InlineData("invalid")]
-    [InlineData("1.0.xx")]
-    public void CheckVersionRange_InvalidRange_ReturnsFalse(string range)
-    {
-        Assert.False(StringValidator.CheckVersionRange(range));
     }
 }

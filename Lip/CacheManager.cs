@@ -1,87 +1,187 @@
-﻿using System.IO.Abstractions;
 using Flurl;
 using Lip.Context;
+using Microsoft.Extensions.Logging;
 using Semver;
-using SharpCompress.Archives;
+using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
 
 namespace Lip;
 
+public interface ICacheManager
+{
+    public interface ICacheSummary
+    {
+        Dictionary<Url, IFileInfo> DownloadedFiles { get; init; }
+        Dictionary<IPathManager.IGitRepoInfo, IDirectoryInfo> GitRepos { get; init; }
+    }
+
+    Task Clean();
+    Task<IFileInfo> GetFileFromUrl(Url url);
+    Task<IFileInfo> GetFileFromUrls(List<Url> originalUrls);
+    Task<IFileSource> GetPackageFileSource(PackageSpecifier packageSpecifier);
+    Task<ICacheSummary> List();
+}
+
 public class CacheManager(
     IContext context,
-    PathManager pathManager,
-    Url? githubProxy = null,
-    Url? goModuleProxy = null)
+    IPathManager pathManager,
+    List<Url> gitHubProxies,
+    List<Url> goModuleProxies) : ICacheManager
 {
-    public record ListResult
+    [ExcludeFromCodeCoverage]
+    private record CacheSummary : ICacheManager.ICacheSummary
     {
         public required Dictionary<Url, IFileInfo> DownloadedFiles { get; init; }
-        public required Dictionary<PathManager.GitRepoInfo, IDirectoryInfo> GitRepos { get; init; }
-        public required Dictionary<PackageSpecifier, IFileInfo> PackageManifestFiles { get; init; }
+        public required Dictionary<IPathManager.IGitRepoInfo, IDirectoryInfo> GitRepos { get; init; }
     }
 
     private readonly IContext _context = context;
-    private readonly Url? _githubProxy = githubProxy;
-    private readonly Url? _goModuleProxy = goModuleProxy;
-    private readonly PathManager _pathManager = pathManager;
+    private readonly List<Url> _githubProxies = gitHubProxies;
+    private readonly List<Url> _goModuleProxies = goModuleProxies;
+    private readonly IPathManager _pathManager = pathManager;
 
     public async Task Clean()
     {
-        if (await _context.FileSystem.Directory.ExistsAsync(_pathManager.BaseCacheDir))
+        await Task.Delay(0); // Suppress warning.
+
+        string baseCacheDir = _pathManager.BaseCacheDir;
+
+        if (_context.FileSystem.Directory.Exists(baseCacheDir))
         {
-            await _context.FileSystem.Directory.DeleteAsync(_pathManager.BaseCacheDir, recursive: true);
+            _context.FileSystem.Directory.Delete(baseCacheDir, recursive: true);
         }
     }
 
-    public async Task<Stream> GetDownloadedFile(Url url)
+    public async Task<IFileInfo> GetFileFromUrl(Url url) => await GetFileFromUrls([url]);
+
+    public async Task<IFileInfo> GetFileFromUrls(List<Url> originalUrls)
     {
-        if (url.Host == "github.com" && _githubProxy is not null)
+        // Apply GitHub proxy to GitHub URLs.
+        List<Url> actualUrls = [.. originalUrls.SelectMany(url =>
         {
-            url = _githubProxy.AppendPathSegment(url.Path).SetQueryParams(url.QueryParams);
-        }
+            // For typical URLs, just return the URL.
+            if (url.Host == "github.com" && _githubProxies.Count != 0)
+            {
+                return _githubProxies.Select(proxy => proxy.AppendPathSegment(url.Path).SetQueryParams(url.QueryParams));
+            }
 
-        string filePath = _pathManager.GetDownloadedFileCachePath(url);
+            return [url];
+        })];
 
-        if (await _context.FileSystem.Directory.ExistsAsync(filePath))
-        {
-            throw new InvalidOperationException($"Attempt to get downloaded file at '{filePath}' where is a directory.");
-        }
-
-        if (!await _context.FileSystem.File.ExistsAsync(filePath))
-        {
-            await _context.FileSystem.CreateParentDirectoryAsync(filePath);
-
-            await _context.Downloader.DownloadFile(url, filePath);
-        }
-
-        return await _context.FileSystem.File.OpenReadAsync(filePath);
+        return await GetFileDirectlyFromUrls(actualUrls);
     }
 
-    public async Task<IDirectoryInfo> GetGitRepoDir(PackageSpecifier packageSpecifier)
+    public async Task<IFileSource> GetPackageFileSource(PackageSpecifier packageSpecifier)
     {
-        if (_context.Git is null)
+        // First, try to get the package from the Go module proxy.
+
+        if (_goModuleProxies.Count != 0)
         {
-            throw new InvalidOperationException("Git client is not available.");
+            IFileInfo goModuleArchive = await GetGoModuleArchive(packageSpecifier);
+
+            return new GoModuleArchiveFileSource(
+                _context.FileSystem,
+                goModuleArchive.FullName,
+                packageSpecifier.ToothPath,
+                packageSpecifier.Version);
         }
 
+        // Next, try to get the package from the Git repository.
+
+        if (_context.Git is not null)
+        {
+            IDirectoryInfo repoDir = await GetGitRepoDir(packageSpecifier);
+
+            return new DirectoryFileSource(_context.FileSystem, repoDir.FullName);
+        }
+
+        throw new InvalidOperationException("No remote source is available.");
+    }
+
+    public async Task<ICacheManager.ICacheSummary> List()
+    {
+        await Task.Delay(0); // Suppress warning.
+
+        List<IFileInfo> downloadedFiles = [];
+
+        string baseDownloadedFileCacheDir = _pathManager.BaseDownloadedFileCacheDir;
+
+        if (_context.FileSystem.Directory.Exists(baseDownloadedFileCacheDir))
+        {
+            foreach (IFileInfo fileInfo in _context.FileSystem.DirectoryInfo.New(baseDownloadedFileCacheDir).EnumerateFiles())
+            {
+                downloadedFiles.Add(fileInfo);
+            }
+        }
+
+        List<IDirectoryInfo> gitRepos = [];
+
+        string baseGitRepoCacheDir = _pathManager.BaseGitRepoCacheDir;
+
+        if (_context.FileSystem.Directory.Exists(baseGitRepoCacheDir))
+        {
+            foreach (IDirectoryInfo dirInfo in _context.FileSystem.DirectoryInfo.New(baseGitRepoCacheDir).EnumerateDirectories())
+            {
+                foreach (IDirectoryInfo subdirInfo in dirInfo.EnumerateDirectories())
+                {
+                    gitRepos.Add(subdirInfo);
+                }
+            }
+        }
+
+        return new CacheSummary
+        {
+            DownloadedFiles = downloadedFiles.ToDictionary(file => _pathManager.ParseDownloadedFileCachePath(file.FullName)),
+            GitRepos = gitRepos.ToDictionary(dir => _pathManager.ParseGitRepoDirCachePath(dir.FullName)),
+        };
+    }
+
+    private async Task<IFileInfo> GetFileDirectlyFromUrls(List<Url> actualUrls)
+    {
+        foreach (Url url in actualUrls)
+        {
+            string filePath = _pathManager.GetDownloadedFileCachePath(url);
+
+            if (_context.FileSystem.File.Exists(filePath))
+            {
+                return _context.FileSystem.FileInfo.New(filePath);
+            }
+        }
+
+        foreach (Url url in actualUrls)
+        {
+            string filePath = _pathManager.GetDownloadedFileCachePath(url);
+
+            _context.FileSystem.CreateParentDirectory(filePath);
+
+            try
+            {
+                await _context.Downloader.DownloadFile(url, filePath);
+
+                return _context.FileSystem.FileInfo.New(filePath);
+            }
+            catch (Exception ex)
+            {
+                _context.Logger.LogWarning(ex, "Failed to download {Url}. Attempting next URL.", url);
+            }
+        }
+
+        throw new InvalidOperationException("All download attempts failed.");
+    }
+
+    private async Task<IDirectoryInfo> GetGitRepoDir(PackageSpecifier packageSpecifier)
+    {
         string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
         string tag = $"v{packageSpecifier.Version}";
 
-        string repoDirPath = _pathManager.GetGitRepoDirCachePath(new()
-        {
-            Url = repoUrl,
-            Tag = tag
-        });
+        string repoDirPath = _pathManager.GetGitRepoDirCachePath(repoUrl, tag);
 
-        if (await _context.FileSystem.File.ExistsAsync(repoDirPath))
+        if (!_context.FileSystem.Directory.Exists(repoDirPath))
         {
-            throw new InvalidOperationException($"Attempt to get Git repo directory at '{repoDirPath}' where is a file.");
-        }
+            _context.FileSystem.CreateParentDirectory(repoDirPath);
 
-        if (!await _context.FileSystem.Directory.ExistsAsync(repoDirPath))
-        {
-            await _context.FileSystem.CreateParentDirectoryAsync(repoDirPath);
-
-            await _context.Git.Clone(
+            // Here we assume that git availability is checked before calling this method.
+            await _context.Git!.Clone(
                 repoUrl,
                 repoDirPath,
                 branch: tag,
@@ -91,147 +191,19 @@ public class CacheManager(
         return _context.FileSystem.DirectoryInfo.New(repoDirPath);
     }
 
-    public async Task<Stream> GetPackageManifestFile(PackageSpecifier packageSpecifier)
+    private async Task<IFileInfo> GetGoModuleArchive(PackageSpecifier packageSpecifier)
     {
-        string filePath = _pathManager.GetPackageManifestCachePath(packageSpecifier.SpecifierWithoutVariant);
-
-        if (await _context.FileSystem.Directory.ExistsAsync(filePath))
-        {
-            throw new InvalidOperationException($"Attempt to get package manifest file at '{filePath}' where is a directory.");
-        }
-
-        // If already cached, return the file stream.
-        if (await _context.FileSystem.File.ExistsAsync(filePath))
-        {
-            return await _context.FileSystem.File.OpenReadAsync(filePath);
-        }
-
-        // Otherwise, fetch the file from the source.
-        if (_context.Git is not null)
-        {
-            return await GetPackageManifestFileFromGitRepo(packageSpecifier);
-        }
-        else if (_goModuleProxy is not null)
-        {
-            return await GetPackageManifestFileFromGoModuleProxy(packageSpecifier);
-        }
-        else
-        {
-            throw new InvalidOperationException("No remote source is available.");
-        }
-    }
-
-    public async Task<ListResult> List()
-    {
-        List<IFileInfo> downloadedFiles = [];
-        if (await _context.FileSystem.Directory.ExistsAsync(_pathManager.BaseDownloadedFileCacheDir))
-        {
-            foreach (IFileInfo fileInfo in await _context.FileSystem.DirectoryInfo.New(_pathManager.BaseDownloadedFileCacheDir).EnumerateFilesAsync())
-            {
-                downloadedFiles.Add(fileInfo);
-            }
-        }
-
-        List<IDirectoryInfo> gitRepos = [];
-        if (await _context.FileSystem.Directory.ExistsAsync(_pathManager.BaseGitRepoCacheDir))
-        {
-            foreach (IDirectoryInfo dirInfo in await _context.FileSystem.DirectoryInfo.New(_pathManager.BaseGitRepoCacheDir).EnumerateDirectoriesAsync())
-            {
-                foreach (IDirectoryInfo subdirInfo in await dirInfo.EnumerateDirectoriesAsync())
-                {
-                    gitRepos.Add(subdirInfo);
-                }
-            }
-        }
-
-        List<IFileInfo> packageManifestFiles = [];
-        if (await _context.FileSystem.Directory.ExistsAsync(_pathManager.BasePackageManifestCacheDir))
-        {
-            foreach (IFileInfo fileInfo in await _context.FileSystem.DirectoryInfo.New(_pathManager.BasePackageManifestCacheDir).EnumerateFilesAsync())
-            {
-                packageManifestFiles.Add(fileInfo);
-            }
-        }
-
-        return new ListResult()
-        {
-            DownloadedFiles = downloadedFiles.ToDictionary(file => _pathManager.ParseDownloadedFileCachePath(file.FullName)),
-            GitRepos = gitRepos.ToDictionary(dir => _pathManager.ParseGitRepoDirCachePath(dir.FullName)),
-            PackageManifestFiles = packageManifestFiles.ToDictionary(file => PackageSpecifier.Parse(_pathManager.ParsePackageManifestCachePath(file.FullName)))
-        };
-    }
-
-    private async Task<Stream> GetPackageManifestFileFromGitRepo(PackageSpecifier packageSpecifier)
-    {
-        // Before calling this method, we assume that:
-        // 1. The git client is not null.
-        // 2. The package manifest cache path does not exist.
-
-        IDirectoryInfo repoDir = await GetGitRepoDir(packageSpecifier);
-        string srcPath = _pathManager.GetPackageManifestPath(repoDir.FullName);
-
-        if (!await _context.FileSystem.File.ExistsAsync(srcPath))
-        {
-            throw new InvalidOperationException($"Package manifest file not found for package '{packageSpecifier}' at '{srcPath}'.");
-        }
-
-        string destPath = _pathManager.GetPackageManifestCachePath(packageSpecifier.SpecifierWithoutVariant);
-
-        await _context.FileSystem.CreateParentDirectoryAsync(destPath);
-
-        await _context.FileSystem.File.CopyAsync(srcPath, destPath);
-
-        return await _context.FileSystem.File.OpenReadAsync(destPath);
-    }
-
-    private async Task<Stream> GetPackageManifestFileFromGoModuleProxy(PackageSpecifier packageSpecifier)
-    {
-        // Before calling this method, we assume that:
-        // 1. The Go module proxy is not null.
-        // 2. The package manifest cache path does not exist.
-
         SemVersion version = packageSpecifier.Version;
 
-        // Build the archive download URL.
-        string archiveFileNameInUrl = GetGoModuleFileNameFromVersion(version);
-        string escapedGoModulePath = GoModule.EscapePath(packageSpecifier.ToothPath);
-        Url archiveFileUrl = _goModuleProxy!.Clone().AppendPathSegments(escapedGoModulePath, "@v", archiveFileNameInUrl);
+        List<Url> archiveFileUrls = _goModuleProxies.ConvertAll(proxy =>
+            proxy.Clone()
+                .AppendPathSegments(
+                    GoModule.EscapePath(packageSpecifier.ToothPath),
+                    "@v",
+                    GoModule.EscapeVersion(GoModule.CanonicalVersion(version.ToString())) + ".zip"
+                )
+        );
 
-        // Download and open the archive.
-        using Stream archiveStream = await GetDownloadedFile(archiveFileUrl);
-
-        IArchive archive = ArchiveFactory.Open(archiveStream);
-
-        string archivePackageManifestPath = $"{packageSpecifier.ToothPath}@v{version}{(version.Major >= 2 ? "+incompatible" : "")}/{_pathManager.PackageManifestFileName}";
-
-        IArchiveEntry? entry = archive.Entries.FirstOrDefault(
-            entry => entry.Key == archivePackageManifestPath
-        ) ?? throw new InvalidOperationException($"Package manifest file not found for package '{packageSpecifier}' at {archivePackageManifestPath}.");
-
-        using Stream manifestStream = entry.OpenEntryStream();
-
-        // Save the package manifest file to the cache.
-        string manifestFilePath = _pathManager.GetPackageManifestCachePath(packageSpecifier.SpecifierWithoutVariant);
-
-        await _context.FileSystem.CreateParentDirectoryAsync(manifestFilePath);
-
-        using (Stream fileStream = await _context.FileSystem.File.CreateAsync(manifestFilePath))
-        {
-            await manifestStream.CopyToAsync(fileStream);
-        }
-
-        return await _context.FileSystem.File.OpenReadAsync(manifestFilePath);
-    }
-
-    private static string GetGoModuleFileNameFromVersion(SemVersion version)
-    {
-        // Reference: https://go.dev/ref/mod#glos-canonical-version
-        if (version.Metadata.Length > 0)
-        {
-            throw new ArgumentException("Go module proxy does not accept version with build metadata.", nameof(version));
-        }
-
-        // Reference: https://go.dev/ref/mod#non-module-compat
-        return $"v{version}{(version.Major >= 2 ? "+incompatible" : "")}.zip";
+        return await GetFileFromUrls(archiveFileUrls);
     }
 }

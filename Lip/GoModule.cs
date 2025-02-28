@@ -1,4 +1,4 @@
-﻿namespace Lip;
+namespace Lip;
 
 public static class GoModule
 {
@@ -8,6 +8,29 @@ public static class GoModule
         "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
         "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
     ];
+
+    public static string CanonicalVersion(string v)
+    {
+        // We do not adopt the original implementation of golang.org/x/mod but
+        // instead reimplement it in C#.
+
+        if (!v.StartsWith('v'))
+        {
+            v = "v" + v;
+        }
+
+        if (v.Contains('+'))
+        {
+            v = v[..v.IndexOf('+')];
+        }
+
+        if (!v.StartsWith("v0.") && !v.StartsWith("v1."))
+        {
+            v += "+incompatible";
+        }
+
+        return v;
+    }
 
     public static bool CheckPath(string path)
     {
@@ -57,6 +80,16 @@ public static class GoModule
         }
 
         return EscapeString(path);
+    }
+
+    public static string EscapeVersion(string v)
+    {
+        if (!CheckElem(v) || v.Contains('!'))
+        {
+            throw new ArgumentException($"{v} is not a valid Go module version.", nameof(v));
+        }
+
+        return EscapeString(v);
     }
 
     private static bool CheckElem(string elem)

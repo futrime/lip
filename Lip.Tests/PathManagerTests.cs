@@ -1,5 +1,5 @@
-﻿using System.IO.Abstractions.TestingHelpers;
 using Flurl;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Lip.Tests;
 
@@ -94,31 +94,6 @@ public class PathManagerTests
 
         // Assert.
         Assert.Equal(Path.Join(s_cacheDir, "git_repos"), baseGitRepoCacheDir);
-    }
-
-    [Fact]
-    public void GetBabsePackageManifestCacheDir_WithoutBaseCacheDir_Throws()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem);
-
-        // Act & assert.
-        Assert.Throws<InvalidOperationException>(() => pathManager.BasePackageManifestCacheDir);
-    }
-
-    [Fact]
-    public void GetBasePackageManifestCacheDir_WithBaseCacheDir_ReturnsCorrectPath()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
-
-        // Act.
-        string basePackageCacheDir = pathManager.BasePackageManifestCacheDir;
-
-        // Assert.
-        Assert.Equal(Path.Join(s_cacheDir, "package_manifests"), basePackageCacheDir);
     }
 
     [Fact]
@@ -253,39 +228,12 @@ public class PathManagerTests
         PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
 
         // Act.
-        string repoCacheDir = pathManager.GetGitRepoDirCachePath(new()
-        {
-            Url = repoUrl,
-            Tag = tag,
-        });
+        string repoCacheDir = pathManager.GetGitRepoDirCachePath(repoUrl, tag);
 
         // Assert.
         Assert.Equal(
             Path.Join(s_cacheDir, "git_repos", expectedRepoDir, expectedTagDir),
             repoCacheDir);
-    }
-
-    [Theory]
-    [InlineData("https://example.com/asset?v=1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1.json")]
-    [InlineData("/path/to/asset", "%2Fpath%2Fto%2Fasset.json")]
-    [InlineData("", ".json")]
-    [InlineData(" ", "%20.json")]
-    [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29.json")]
-    [InlineData("../path/test", "..%2Fpath%2Ftest.json")]
-    [InlineData("\\special\\chars", "%5Cspecial%5Cchars.json")]
-    public void GetPackageManifestCachePath_ArbitraryPackageName_ReturnsEscapedPath(string packageName, string expectedFileName)
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
-
-        // Act.
-        string packageCacheDir = pathManager.GetPackageManifestCachePath(packageName);
-
-        // Assert.
-        Assert.Equal(
-            Path.Join(s_cacheDir, "package_manifests", expectedFileName),
-            packageCacheDir);
     }
 
     [Fact]
@@ -300,6 +248,147 @@ public class PathManagerTests
 
         // Assert.
         Assert.Equal(Path.Join(s_workingDir, "tooth.json"), manifestPath);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("file")]
+    [InlineData("dir/file")]
+    public void GetPlacementRelativePath_FilePathMatched_ReturnsEmptyString(string filePath)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.File,
+            Src = filePath,
+            Dest = "dest"
+        };
+
+        // Act.
+        string? relativePath = pathManager.GetPlacementRelativePath(placement, filePath);
+
+        // Assert.
+        Assert.Equal(string.Empty, relativePath);
+    }
+
+    [Theory]
+    [InlineData("file", "*")]
+    [InlineData("dir/file", "dir/*")]
+    [InlineData("dir/file", "*/file")]
+    [InlineData("dir/subdir/file", "dir/**")]
+    public void GetPlacementRelativePath_GlobFilePathMatched_ReturnsFileName(string filePath, string glob)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.File,
+            Src = glob,
+            Dest = "dest"
+        };
+
+        // Act.
+        string? relativePath = pathManager.GetPlacementRelativePath(placement, filePath);
+
+        // Assert.
+        Assert.Equal(Path.GetFileName(filePath), relativePath);
+    }
+
+    [Theory]
+    [InlineData("", "file")]
+    [InlineData("file", "")]
+    [InlineData("file", "file2")]
+    [InlineData("file", "dir/*")]
+    [InlineData("dir/subdir/file", "dir/*")]
+    public void GetPlacementRelativePath_FilePathMismatched_ReturnsNull(string filePath, string src)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.File,
+            Src = src,
+            Dest = "dest"
+        };
+
+        // Act.
+        string? relativePath = pathManager.GetPlacementRelativePath(placement, filePath);
+
+        // Assert.
+        Assert.Null(relativePath);
+    }
+
+    [Theory]
+    [InlineData("file", "", "file")]
+    [InlineData("dir/file", "dir", "file")]
+    [InlineData("dir/file", "dir/", "file")]
+    public void GetPlacementRelativePath_DirPathMatched_ReturnsRelativePath(string filePath, string dirPath, string relativePath)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.Dir,
+            Src = dirPath,
+            Dest = "dest"
+        };
+
+        // Act.
+        string? result = pathManager.GetPlacementRelativePath(placement, filePath);
+
+        // Assert.
+        Assert.Equal(relativePath, result);
+    }
+
+    [Theory]
+    [InlineData("file", "dir")]
+    [InlineData("dir/file", "dir2")]
+    [InlineData("dir/file", "dir/file")]
+    public void GetPlacementRelativePath_DirPathMismatched_ReturnsNull(string filePath, string dirPath)
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = PackageManifest.Placement.TypeEnum.Dir,
+            Src = dirPath,
+            Dest = "dest"
+        };
+
+        // Act.
+        string? result = pathManager.GetPlacementRelativePath(placement, filePath);
+
+        // Assert.
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetPlacementRelativePath_InvalidPlacementType_Throws()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+        PathManager pathManager = new(fileSystem);
+
+        PackageManifest.Placement placement = new()
+        {
+            Type = (PackageManifest.Placement.TypeEnum)int.MaxValue,
+            Src = "src",
+            Dest = "dest"
+        };
+
+        // Act & assert.
+        Assert.Throws<NotImplementedException>(() => pathManager.GetPlacementRelativePath(placement, "file"));
     }
 
     [Theory]
@@ -351,7 +440,7 @@ public class PathManagerTests
         string gitRepoDirCachePath = Path.Join(s_cacheDir, "git_repos", repoDir, tagDir);
 
         // Act.
-        PathManager.GitRepoInfo repoInfo = pathManager.ParseGitRepoDirCachePath(gitRepoDirCachePath);
+        IPathManager.IGitRepoInfo repoInfo = pathManager.ParseGitRepoDirCachePath(gitRepoDirCachePath);
 
         // Assert.
         Assert.Equal(expectedUrl, repoInfo.Url);
@@ -368,39 +457,5 @@ public class PathManagerTests
 
         // Act & assert.
         Assert.Throws<InvalidOperationException>(() => pathManager.ParseGitRepoDirCachePath(gitRepoDirCachePath));
-    }
-
-    [Theory]
-    [InlineData("https://example.com/asset?v=1", "https%3A%2F%2Fexample.com%2Fasset%3Fv%3D1.json")]
-    [InlineData("/path/to/asset", "%2Fpath%2Fto%2Fasset.json")]
-    [InlineData("", ".json")]
-    [InlineData(" ", "%20.json")]
-    [InlineData("!@#$%^&*()", "%21%40%23%24%25%5E%26%2A%28%29.json")]
-    [InlineData("../path/test", "..%2Fpath%2Ftest.json")]
-    [InlineData("\\special\\chars", "%5Cspecial%5Cchars.json")]
-    public void ParsePackageManifestCachePath_ArbitraryPath_ReturnsDecodedPackageName(string expectedPackageName, string relativePath)
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
-        string packageManifestCachePath = Path.Join(s_cacheDir, "package_manifests", relativePath);
-
-        // Act.
-        string packageName = pathManager.ParsePackageManifestCachePath(packageManifestCachePath);
-
-        // Assert.
-        Assert.Equal(expectedPackageName, packageName);
-    }
-
-    [Fact]
-    public void ParsePackageManifestCachePath_InvalidPath_Throws()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-        PathManager pathManager = new(fileSystem, baseCacheDir: s_cacheDir);
-        string packageManifestCachePath = Path.Join(s_cacheDir, "invalid", "path");
-
-        // Act & assert.
-        Assert.Throws<InvalidOperationException>(() => pathManager.ParsePackageManifestCachePath(packageManifestCachePath));
     }
 }

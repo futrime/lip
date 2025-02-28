@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         project:
-          - Lip.CLI
+          - Lip
           - Lip.Context
         include:
           - runtime: linux-arm64
@@ -49,6 +49,7 @@ jobs:
           --runtime ${{ matrix.runtime }}
 
   build-app:
+    needs: build-lib
     strategy:
       fail-fast: false
       matrix:

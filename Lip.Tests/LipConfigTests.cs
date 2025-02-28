@@ -1,6 +1,6 @@
-﻿using System.IO.Abstractions.TestingHelpers;
 using Lip.Context;
 using Moq;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Lip.Tests;
 
@@ -8,6 +8,46 @@ public class LipConfigTests
 {
     private static readonly string s_runtimeConfigPath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
+
+    [Fact]
+    public void ConfigDeleteArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.ConfigDeleteArgs args = new();
+
+        // Act.
+        args = args with { };
+    }
+
+    [Fact]
+    public void ConfigGetArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.ConfigGetArgs args = new();
+
+        // Act.
+        args = args with { };
+    }
+
+    [Fact]
+    public void ConfigListArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.ConfigListArgs args = new();
+
+        // Act.
+        args = args with { };
+    }
+
+    [Fact]
+    public void ConfigSetArgs_Constructor_TrivialValues_Passes()
+    {
+        // Arrange.
+        Lip.ConfigSetArgs args = new();
+
+        // Act.
+        args = args with { };
+    }
 
     [Fact]
     public async Task ConfigDelete_SingleItem_ResetsToDefault()
@@ -21,13 +61,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act.
         await lip.ConfigDelete(["color"], new Lip.ConfigDeleteArgs());
@@ -39,13 +79,13 @@ public class LipConfigTests
         {
             "cache": "/custom/cache",
             "color": true,
-            "github_proxy": "",
-            "go_module_proxy": "https://goproxy.io",
+            "github_proxies": "",
+            "go_module_proxies": "https://proxy.golang.org",
             "https_proxy": "",
             "noproxy": "",
             "proxy": ""
         }
-        """, fileSystem.File.ReadAllText(s_runtimeConfigPath));
+        """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
 
     [Fact]
@@ -56,21 +96,21 @@ public class LipConfigTests
         {
             Cache = "/custom/cache",
             Color = false,
-            GoModuleProxy = "https://custom-proxy.io",
+            GoModuleProxies = ["https://custom-proxy.io"],
         };
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act.
-        await lip.ConfigDelete(["color", "go_module_proxy"], new Lip.ConfigDeleteArgs());
+        await lip.ConfigDelete(["color", "go_module_proxies"], new Lip.ConfigDeleteArgs());
 
         // Assert.
         Assert.True(fileSystem.File.Exists(s_runtimeConfigPath));
@@ -79,13 +119,13 @@ public class LipConfigTests
         {
             "cache": "/custom/cache",
             "color": true,
-            "github_proxy": "",
-            "go_module_proxy": "https://goproxy.io",
+            "github_proxies": "",
+            "go_module_proxies": "https://proxy.golang.org",
             "https_proxy": "",
             "noproxy": "",
             "proxy": ""
         }
-        """, fileSystem.File.ReadAllText(s_runtimeConfigPath));
+        """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
 
     [Fact]
@@ -96,7 +136,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -112,7 +152,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -128,7 +168,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException argumentException = await Assert.ThrowsAsync<ArgumentException>(
@@ -144,13 +184,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(["cache"], new Lip.ConfigGetArgs());
@@ -172,13 +212,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigGet(
@@ -199,7 +239,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -215,7 +255,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -231,7 +271,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act & Assert.
         ArgumentException exception = Assert.Throws<ArgumentException>(
@@ -247,8 +287,8 @@ public class LipConfigTests
         {
             Cache = "/custom/cache",
             Color = false,
-            GitHubProxy = "https://github-proxy.com",
-            GoModuleProxy = "https://custom-proxy.io",
+            GitHubProxies = ["https://github-proxy.com"],
+            GoModuleProxies = ["https://custom-proxy.io"],
             HttpsProxy = "https://https-proxy.com",
             NoProxy = "localhost",
             Proxy = "http://custom-proxy.com"
@@ -256,7 +296,7 @@ public class LipConfigTests
 
         Mock<IContext> context = new();
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         // Act.
         Dictionary<string, string> result = lip.ConfigList(new Lip.ConfigListArgs());
@@ -265,8 +305,8 @@ public class LipConfigTests
         Assert.Equal(7, result.Count);
         Assert.Equal("/custom/cache", result["cache"]);
         Assert.Equal("False", result["color"]);
-        Assert.Equal("https://github-proxy.com", result["github_proxy"]);
-        Assert.Equal("https://custom-proxy.io", result["go_module_proxy"]);
+        Assert.Equal("https://github-proxy.com", result["github_proxies"]);
+        Assert.Equal("https://custom-proxy.io", result["go_module_proxies"]);
         Assert.Equal("https://https-proxy.com", result["https_proxy"]);
         Assert.Equal("localhost", result["noproxy"]);
         Assert.Equal("http://custom-proxy.com", result["proxy"]);
@@ -280,13 +320,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -303,13 +343,13 @@ public class LipConfigTests
         {
             "cache": "/path/to/cache",
             "color": true,
-            "github_proxy": "",
-            "go_module_proxy": "https://goproxy.io",
+            "github_proxies": "",
+            "go_module_proxies": "https://proxy.golang.org",
             "https_proxy": "",
             "noproxy": "",
             "proxy": ""
         }
-        """, fileSystem.File.ReadAllText(s_runtimeConfigPath));
+        """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
 
     [Fact]
@@ -320,20 +360,20 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
             { "cache", "/path/to/cache" },
             { "color", "false" },
-            { "github_proxy", "https://github.com" },
-            { "go_module_proxy", "https://goproxy.io" },
+            { "github_proxies", "https://github.com" },
+            { "go_module_proxies", "https://proxy.golang.org" },
             { "https_proxy", "https://proxy.com" },
             { "noproxy", "localhost" },
             { "proxy", "http://proxy.com" },
@@ -349,13 +389,13 @@ public class LipConfigTests
         {
             "cache": "/path/to/cache",
             "color": false,
-            "github_proxy": "https://github.com",
-            "go_module_proxy": "https://goproxy.io",
+            "github_proxies": "https://github.com",
+            "go_module_proxies": "https://proxy.golang.org",
             "https_proxy": "https://proxy.com",
             "noproxy": "localhost",
             "proxy": "http://proxy.com"
         }
-        """, fileSystem.File.ReadAllText(s_runtimeConfigPath));
+        """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
 
     [Fact]
@@ -366,13 +406,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = [];
 
@@ -391,13 +431,13 @@ public class LipConfigTests
 
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {
@@ -420,13 +460,13 @@ public class LipConfigTests
         RuntimeConfig initialRuntimeConfig = new();
         MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
         {
-            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToBytes()) },
+            { s_runtimeConfigPath, new MockFileData(initialRuntimeConfig.ToJsonBytes()) },
         });
 
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
 
-        Lip lip = new(initialRuntimeConfig, context.Object);
+        Lip lip = Lip.Create(initialRuntimeConfig, context.Object);
 
         Dictionary<string, string> keyValuePairs = new()
         {

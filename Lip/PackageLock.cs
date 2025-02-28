@@ -1,52 +1,125 @@
-﻿using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Semver;
 
 namespace Lip;
 
 public record PackageLock
 {
-    public record LockType
+    public record Package
     {
-        [JsonPropertyName("tooth")]
-        public string ToothPath
+        public required List<string> Files { get; init; }
+
+        public required bool Locked { get; init; }
+
+        public required PackageManifest Manifest { get; init; }
+
+        public PackageSpecifier Specifier => new()
         {
-            get => _tooth;
-            init => _tooth = StringValidator.CheckToothPath(value)
-                ? value
-                : throw new SchemaViolationException("tooth", $"Invalid tooth path '{value}'.");
-        }
+            ToothPath = Manifest.ToothPath,
+            VariantLabel = VariantLabel,
+            Version = Manifest.Version,
+        };
 
-        [JsonPropertyName("variant")]
-        public string VariantLabel
+        public required string VariantLabel
         {
-            get => _variant;
-            init => _variant = StringValidator.CheckVariantLabel(value)
+            get => _variantLabel;
+            init => _variantLabel = StringValidator.CheckVariantLabel(value)
                 ? value
-                : throw new SchemaViolationException("variant", $"Invalid variant label '{value}'.");
+                : throw new SchemaViolationException(
+                    "packages[].variant",
+                    $"Invalid variant label '{value}'."
+                );
         }
-
-        [JsonIgnore]
-        public SemVersion Version => SemVersion.Parse(VersionText);
-
-        [JsonPropertyName("version")]
-        public string VersionText
-        {
-            get => _version;
-            init => _version = StringValidator.CheckVersion(value)
-                ? value
-                : throw new SchemaViolationException("version", $"Invalid version '{value}'.");
-        }
-
-        private string _tooth = "";
-        private string _variant = "";
-        private string _version = "";
+        private readonly string _variantLabel = string.Empty;
     }
 
     public const int DefaultFormatVersion = 3;
     public const string DefaultFormatUuid = "289f771f-2c9a-4d73-9f3f-8492495a924d";
 
-    private static readonly JsonSerializerOptions s_jsonSerializerOptions = new()
+    public required List<Package> Locks { get; init; }
+
+    public static async Task<PackageLock> FromStream(Stream stream)
+    {
+        RawPackageLock rawPackageLock = await RawPackageLock.FromStream(stream);
+
+        // Validate format version and UUID.
+
+        if (rawPackageLock.FormatVersion != DefaultFormatVersion)
+        {
+            throw new SchemaViolationException(
+                "format_version",
+                $"Expected format version {DefaultFormatVersion}, but got {rawPackageLock.FormatVersion}.");
+        }
+
+        if (rawPackageLock.FormatUuid != DefaultFormatUuid)
+        {
+            throw new SchemaViolationException(
+                "format_uuid",
+                $"Expected format UUID '{DefaultFormatUuid}', but got '{rawPackageLock.FormatUuid}'.");
+        }
+
+        return new PackageLock
+        {
+            Locks = rawPackageLock.Packages
+                .ConvertAll(rawPackage => new Package
+                {
+                    Files = rawPackage.Files,
+                    Locked = rawPackage.Locked,
+                    Manifest = PackageManifest.FromJsonElement(rawPackage.Manifest),
+                    VariantLabel = rawPackage.Variant,
+                }),
+        };
+    }
+
+    public async Task ToStream(Stream stream)
+    {
+        RawPackageLock rawPackageLock = new()
+        {
+            FormatVersion = DefaultFormatVersion,
+            FormatUuid = DefaultFormatUuid,
+            Packages = Locks
+                .ConvertAll(package => new RawPackageLock.Package
+                {
+                    Files = package.Files,
+                    Locked = package.Locked,
+                    Manifest = package.Manifest.ToJsonElement(),
+                    Variant = package.VariantLabel,
+                }),
+        };
+
+        await rawPackageLock.ToStream(stream);
+    }
+}
+
+[ExcludeFromCodeCoverage]
+file record RawPackageLock
+{
+    public record Package
+    {
+        [JsonPropertyName("files")]
+        public required List<string> Files { get; init; }
+
+        [JsonPropertyName("locked")]
+        public required bool Locked { get; init; }
+
+        [JsonPropertyName("manifest")]
+        public required JsonElement Manifest { get; init; }
+
+        [JsonPropertyName("variant")]
+        public required string Variant { get; init; }
+    }
+
+    [JsonPropertyName("format_version")]
+    public required int FormatVersion { get; init; }
+
+    [JsonPropertyName("format_uuid")]
+    public required string FormatUuid { get; init; }
+
+    [JsonPropertyName("packages")]
+    public required List<Package> Packages { get; init; }
+
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         AllowTrailingCommas = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -55,43 +128,16 @@ public record PackageLock
         WriteIndented = true,
     };
 
-    [JsonPropertyName("format_version")]
-    public required int FormatVersion
+    public static async Task<RawPackageLock> FromStream(Stream stream)
     {
-        get => DefaultFormatVersion;
-        init => _ = value == DefaultFormatVersion ? 0
-            : throw new SchemaViolationException("format_version", $"Format version '{value}' is not equal to {DefaultFormatVersion}.");
+        return await JsonSerializer.DeserializeAsync<RawPackageLock>(
+            stream,
+            _jsonSerializerOptions)
+            ?? throw new SchemaViolationException("", "JSON bytes deserialized to null.");
     }
 
-    [JsonPropertyName("format_uuid")]
-    public required string FormatUuid
+    public async Task ToStream(Stream stream)
     {
-        get => DefaultFormatUuid;
-        init => _ = value == DefaultFormatUuid ? 0
-            : throw new SchemaViolationException("format_uuid", $"Format UUID '{value}' is not equal to {DefaultFormatUuid}.");
-    }
-
-    [JsonPropertyName("packages")]
-    public required List<PackageManifest> Packages { get; init; }
-
-    [JsonPropertyName("locks")]
-    public required List<LockType> Locks { get; init; }
-
-    public static PackageLock FromJsonBytes(byte[] bytes)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<PackageLock>(bytes, s_jsonSerializerOptions)
-                ?? throw new JsonException("JSON bytes deserialized to null.");
-        }
-        catch (Exception ex) when (ex is JsonException || ex is SchemaViolationException)
-        {
-            throw new JsonException("Package lock bytes deserialization failed.", ex);
-        }
-    }
-
-    public byte[] ToJsonBytes()
-    {
-        return JsonSerializer.SerializeToUtf8Bytes(this, s_jsonSerializerOptions);
+        await JsonSerializer.SerializeAsync(stream, this, _jsonSerializerOptions);
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.IO.Abstractions;
 using Microsoft.Extensions.Logging;
+using System.IO.Abstractions;
 
 namespace Lip.Context;
 

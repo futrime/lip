@@ -6,7 +6,7 @@ For the complete JSON schema specification, see [tooth.v3.schema.json](../../sch
 
 In the documentation below, fields are marked as either (required) or (optional). Note that if a parent field is optional but contains required child fields, those child fields become mandatory only if the parent field is included. For example, while `variants` is optional, if you include it, each variant must specify a `platform`.
 
-Scriban expressions allow you to dynamically reference other fields within any string value, making package maintenance easier. For example, use `{{tooth}}` to reference the package's tooth path or `{{version}}` to access the package's version number. This dynamic referencing helps keep your package configurations DRY (Don't Repeat Yourself) and more maintainable.
+Scriban expressions allow you to dynamically reference other fields within any string value, making package maintenance easier. For example, use `{{tooth}}` to reference the package's tooth path or `{{version}}` to access the package's version number. This dynamic referencing helps keep your package configurations DRY (Don't Repeat Yourself) and more maintainable. However, some package manifest manipulation commands (e.g. commands with `--save` option) may not support Scriban expressions.
 
 ## Fields
 
@@ -103,7 +103,7 @@ For platform variant to be recognized, there must be at least one non-globbed pl
   - Two separate variants with exact platforms
   - One variant with exact platform and another with `linux-*`
 
-If omitted or empty, the variant is considered platform-agnostic, i.e.. glob pattern `*`.
+If omitted or empty, the variant is considered platform-agnostic, i.e. always current platform.
 
 ### variants[].dependencies (optional)
 
@@ -141,11 +141,11 @@ The asset type:
 
 Download URLs for the asset, tried in order. For `self` type assets, this should be empty.
 
-### variants[].assets[].place (optional)
+### variants[].assets[].placements (optional)
 
-Rules for placing files in the workspace.
+Rules for placing files in the workspace. Accepts an array of placement rules.
 
-### variants[].assets[].place[].type (required)
+### variants[].assets[].placements[].type (required)
 
 Placement type:
 
@@ -154,7 +154,7 @@ Placement type:
 
 Note: `uncompressed` assets only support `file` type placement.
 
-### variants[].assets[].place[].src (required)
+### variants[].assets[].placements[].src (required)
 
 Source path specification:
 
@@ -162,34 +162,34 @@ Source path specification:
 - For `file` type: File path or glob pattern (matched directories are ignored, files are flattened)
 - For `dir` type: Directory path (preserves structure)
 
-### variants[].assets[].place[].dest (required)
+### variants[].assets[].placements[].dest (required)
 
 Destination path:
 
 - For file placement: Target file path
 - For directory/glob placement: Target directory path
 
-### variants[].assets[].preserve (optional)
+### variants[].preserve_files (optional)
 
-Paths or glob patterns for files to keep during uninstallation. Cannot overlap with `remove` patterns.
+Array of paths or glob patterns for files to keep during uninstallation.
 
-### variants[].assets[].remove (optional)
+### variants[].remove_files (optional)
 
-Paths or glob patterns for files to remove during uninstallation. Cannot overlap with `preserve` patterns.
+Array of paths or glob patterns for files to remove during uninstallation. This will override `preserve_files` settings.
 
 ### variants[].scripts (optional)
 
-Commands to execute in the workspace. Define as key-value pairs where keys are script names and values are commands. If more than matched variants define the same script, only the last one is used.
+Commands to execute in the workspace. Define as key-value pairs where keys are script names and values are arrays of commands to execute in order. If more than matched variants define the same script, only the last one is used.
 
-Built-in script hooks:
+Built-in script hooks (all values are string arrays):
 
 - `pre_install`: Before installation
 - `install`: After file placement
 - `post_install`: After installation
-- `pre_pack`: Before packaging
-- `post_pack`: After packaging
+- `pre_pack`: Before packaging (only applies to default variant)
+- `post_pack`: After packaging (only applies to default variant)
 - `pre_uninstall`: Before uninstallation
 - `uninstall`: After file removal
 - `post_uninstall`: After uninstallation
 
-Custom scripts can be run using `lip run <script>`. Custom script names should match`^[a-z0-9]+(_[a-z0-9]+)*$`.
+Custom scripts can be run using `lip run <script>`. Custom script names should match `^[a-z0-9]+(_[a-z0-9]+)*$` and also expect arrays of commands as values.

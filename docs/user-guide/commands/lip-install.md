@@ -54,9 +54,7 @@ Examples:
 
 - `-f, --force`
 
-  Force the installation of the package. When a dependency is already installed but its version is not compatible with the specified version, lip will uninstall the existing dependency and install the new version.
-
-  This may break the dependency graph and cause all future installations and updates without `--force` to fail.
+  Force the installation of the package. When a package is already installed but its version is different from the specified version, lip will reinstall the package.
 
 - `--ignore-scripts`
 
@@ -64,8 +62,4 @@ Examples:
 
 - `--no-dependencies`
 
-  Do not install dependencies. Also bypass prerequisite checks.
-
-- `--save`
-
-  Save the installed packages to the `tooth.json` file as dependencies.
+  Bypass dependency resolution and only install the specified packages.
