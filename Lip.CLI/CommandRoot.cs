@@ -30,7 +30,7 @@ class CommandRoot : AsyncCommand<CommandRoot.Settings>
 
             SemVersion version = SemVersion.FromVersion(assembly.GetName().Version!);
 
-            AnsiConsole.MarkupLine($"lip {version} from {assembly.Location}".EscapeMarkup());
+            AnsiConsole.MarkupLine($"lip {version} from {AppContext.BaseDirectory}".EscapeMarkup());
 
             return 0;
         }
