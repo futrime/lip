@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed globbed platform when use lip migrate
 - Removed useless platform property when manifest v2 doesn't have platforms property
+- Fixed issue with +incompatible build metadata
 
 ## [0.27.0] - 2025-03-07
 

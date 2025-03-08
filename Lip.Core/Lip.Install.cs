@@ -293,7 +293,7 @@ public partial class Lip
             }
         }
 
-        // Third, assume package text is a package identifier and look for the latest version.
+        // Fourth, assume package text is a package identifier and look for the latest version.
 
         {
             PackageIdentifier packageIdentifier = PackageIdentifier.Parse(userInputPackageText);
