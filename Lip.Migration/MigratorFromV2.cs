@@ -46,10 +46,9 @@ public static class MigratorFromV2
                 .. manifestV2.Platforms?
                        .Select(p => new Manifest.Variant
                        {
-                           // For satisfy one non-globbed variant must exist rule
                            Platform =
                                ConvertGOARCHAndGOOSToPlatform(
-                                   p.GOARCH, p.GOOS).Replace("*", RuntimeInformation.RuntimeIdentifier.Split('-')[1]),
+                                   p.GOARCH, p.GOOS),
                            Dependencies = p.Dependencies ?? manifestV2.Dependencies,
                            Assets = p.AssetUrl is not null
                                ?
@@ -107,7 +106,6 @@ public static class MigratorFromV2
                    [
                        new Manifest.Variant
                        {
-                           Platform = RuntimeInformation.RuntimeIdentifier,
                            Dependencies = manifestV2.Dependencies,
                            Assets = manifestV2.AssetUrl is not null
                                ?
@@ -148,6 +146,14 @@ public static class MigratorFromV2
                    ]
             ]
         };
+
+        // For satisfy one non-globbed variant must exist rule// For satisfy one non-globbed variant must exist rule
+        if (manifest.Variants.Any(variant =>
+                !string.IsNullOrEmpty(variant.Platform) &&
+                manifest.Variants.Any(s => s.Platform is not null && s.Platform.Contains('*'))))
+        {
+            manifest.Variants.Insert(0, new Manifest.Variant { Platform = RuntimeInformation.RuntimeIdentifier });
+        }
 
         return JsonSerializer.SerializeToElement(manifest);
     }

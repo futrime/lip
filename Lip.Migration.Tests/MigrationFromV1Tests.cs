@@ -129,7 +129,7 @@ public class MigrationFromV1Tests
                 "variants": [
                     {
                         "label": null,
-                        "platform": "{{RuntimeInformation.RuntimeIdentifier}}",
+                        "platform": null,
                         "dependencies": {},
                         "assets": [
                             {
