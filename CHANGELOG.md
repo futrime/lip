@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.1] - 2025-03-08
 
+### Changed
+
+- Use goproxy.io as default go_module_proxies
+
 ### Fixed
 
 - Fixed globbed platform when use lip migrate

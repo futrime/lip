@@ -38,7 +38,7 @@ public class LipConfigTests
         {
             "cache": "/custom/cache",
             "github_proxies": "",
-            "go_module_proxies": "https://proxy.golang.org"
+            "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
@@ -74,7 +74,7 @@ public class LipConfigTests
         {
             "cache": "/custom/cache",
             "github_proxies": "",
-            "go_module_proxies": "https://proxy.golang.org"
+            "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
@@ -318,7 +318,7 @@ public class LipConfigTests
         {
             "cache": "/path/to/cache",
             "github_proxies": "",
-            "go_module_proxies": "https://proxy.golang.org"
+            "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
@@ -343,7 +343,7 @@ public class LipConfigTests
         {
             { "cache", "/path/to/cache" },
             { "github_proxies", "https://github.com" },
-            { "go_module_proxies", "https://proxy.golang.org" },
+            { "go_module_proxies", "https://goproxy.io" },
         };
 
         // Act.
@@ -356,7 +356,7 @@ public class LipConfigTests
         {
             "cache": "/path/to/cache",
             "github_proxies": "https://github.com",
-            "go_module_proxies": "https://proxy.golang.org"
+            "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }
@@ -389,7 +389,7 @@ public class LipConfigTests
         {
             "cache": "/path/to/cache",
             "github_proxies": "",
-            "go_module_proxies": "https://proxy.golang.org"
+            "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
     }

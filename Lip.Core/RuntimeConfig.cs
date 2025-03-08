@@ -39,7 +39,7 @@ public record RuntimeConfig
     }
 
     [JsonPropertyName("go_module_proxies")]
-    public string GoModuleProxiesText { get; init; } = "https://proxy.golang.org";
+    public string GoModuleProxiesText { get; init; } = "https://goproxy.io";
 
     public static RuntimeConfig FromJsonBytes(byte[] bytes)
     {

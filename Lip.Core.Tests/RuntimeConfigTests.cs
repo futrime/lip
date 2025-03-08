@@ -46,7 +46,7 @@ public class RuntimeConfigTests
             runtimeConfiguration.Cache
         );
         Assert.Equal([], runtimeConfiguration.GitHubProxies);
-        Assert.Equal(["https://proxy.golang.org"], runtimeConfiguration.GoModuleProxies);
+        Assert.Equal(["https://goproxy.io"], runtimeConfiguration.GoModuleProxies);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class RuntimeConfigTests
             {
                 "cache": "{{Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lip", "cache").Replace("\\", "\\\\")}}",
                 "github_proxies": "",
-                "go_module_proxies": "https://proxy.golang.org"
+                "go_module_proxies": "https://goproxy.io"
             }
             """.ReplaceLineEndings(), Encoding.UTF8.GetString(jsonBytes).ReplaceLineEndings());
     }

@@ -23,6 +23,6 @@
 ### go_module_proxies
 
 - 类型: `string`
-- 默认值: `https://proxy.golang.org`
+- 默认值: `https://goproxy.io`
 
 定义Go模块下载的Go模块代理URL（用逗号分隔）。

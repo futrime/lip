@@ -23,6 +23,6 @@ Sets proxy URLs (separated by commas) for GitHub connections. When left empty, l
 ### go_module_proxies
 
 - Type: `string`
-- Default: `https://proxy.golang.org`
+- Default: `https://goproxy.io`
 
 Defines Go module proxy URLs (separated by commas) for Go module downloads.

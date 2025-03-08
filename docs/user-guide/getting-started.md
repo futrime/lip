@@ -23,7 +23,7 @@ If the output seems off, swing by the [Installation](./installation.md) page for
 $ lip install example.com/pkg@1.0.0
 ```
 
-By default, lip grabs packages via [proxy.golang.org](https://proxy.golang.org). If you prefer fetching packages directly using Git, simply clear the proxy list with:
+By default, lip grabs packages via [goproxy.io](https://goproxy.io). If you prefer fetching packages directly using Git, simply clear the proxy list with:
   
 ```bash
 lip config set go_module_proxies=

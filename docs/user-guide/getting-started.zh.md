@@ -24,7 +24,7 @@ $ lip --version
 $ lip install example.com/pkg@1.0.0
 ```
 
-默认情况下，lip 通过 [proxy.golang.org](https://proxy.golang.org) 获取软件包。如果您更喜欢直接使用 Git 获取软件包，只需清除代理列表即可：
+默认情况下，lip 通过 [goproxy.io](https://goproxy.io) 获取软件包。如果您更喜欢直接使用 Git 获取软件包，只需清除代理列表即可：
   
 ```bash
 lip config set go_module_proxies=
