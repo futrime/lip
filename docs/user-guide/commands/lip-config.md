@@ -3,9 +3,9 @@
 ## Usage
 
 ```shell
-lip config set <key>=<value> [<key>=<value> ...]
-lip config get <key> [<key> ...]
-lip config delete <key> [<key> ...]
+lip config set <key=value ...>
+lip config get [key ...]
+lip config delete <key ...>
 lip config list
 ```
 
@@ -13,33 +13,31 @@ lip config list
 
 Manage the lip configuration files.
 
-lip stores configuration files at `%APPDATA%\lip\liprc.json` for Windows and `~/.config/lip/liprc.json` for POSIX-like systems.
-
 ## Sub-commands
 
 ### set
 
 ```shell
-lip config set <key>=<value> [<key>=<value> ...]
+lip config set <key=value ...>
 ```
 
-Set a configuration value. `<key>` is the configuration key, e.g. `cache.dir`. `<value>` is the configuration value, e.g. `~/.cache/lip`.
+Set a configuration value.
 
 ### get
 
 ```shell
-lip config get [<key> [<key> ...]]
+lip config get [key ...]
 ```
 
-Get a configuration value. `<key>` is the configuration key, e.g. `cache.dir`.
+Get a configuration value.
 
 ### delete
 
 ```shell
-lip config delete <key> [<key> ...]
+lip config delete <key ...>
 ```
 
-Delete a configuration value. `<key>` is the configuration key, e.g. `cache.dir`.
+Delete a configuration value.
 
 ### list
 

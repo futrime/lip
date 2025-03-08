@@ -16,10 +16,6 @@ lip is a general package manager.
 
   Show help.
 
-- `--no-color`
-
-  Disable color output.
-
 - `-q, --quiet`
 
   Show only errors.

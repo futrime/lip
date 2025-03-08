@@ -6,7 +6,6 @@ nav:
   - User Guide:
     - user-guide/getting-started.md
     - user-guide/installation.md
-    - user-guide/basic-use.md
     - user-guide/faq.md
     - Commands:
       - user-guide/commands/lip.md

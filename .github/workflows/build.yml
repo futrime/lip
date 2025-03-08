@@ -20,8 +20,17 @@ jobs:
       fail-fast: false
       matrix:
         project:
-          - Lip.CLI
+          - Golang.Org.X.Mod
           - Lip.Context
+          - Lip.Core
+          - Lip.Migration
+        runtime:
+          - linux-arm64
+          - linux-x64
+          - osx-arm64
+          - osx-x64
+          - win-arm64
+          - win-x64
         include:
           - runtime: linux-arm64
             runs-on: ubuntu-22.04
@@ -35,6 +44,8 @@ jobs:
             runs-on: windows-latest
           - runtime: win-x64
             runs-on: windows-latest
+    permissions:
+      contents: read
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +60,7 @@ jobs:
           --runtime ${{ matrix.runtime }}
 
   build-app:
+    needs: build-lib
     strategy:
       fail-fast: false
       matrix:
@@ -74,6 +86,8 @@ jobs:
             runs-on: windows-latest
           - runtime: win-x64
             runs-on: windows-latest
+    permissions:
+      contents: read
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
@@ -82,62 +96,48 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - if: matrix.runtime == 'linux-arm64'
-        run: |
-          sudo dpkg --add-architecture arm64
-          sudo bash -c 'cat > /etc/apt/sources.list.d/arm64.list <<EOF
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-backports main restricted universe multiverse
-          EOF'
-          sudo sed -i -e 's/deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
-          sudo sed -i -e 's/deb mirror/deb [arch=amd64] mirror/g' /etc/apt/sources.list
-          sudo apt update
-          sudo apt install -y clang llvm binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev:arm64
+      # - if: matrix.runtime == 'linux-arm64'
+      #   run: |
+      #     sudo dpkg --add-architecture arm64
+      #     sudo bash -c 'cat > /etc/apt/sources.list.d/arm64.list <<EOF
+      #     deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy main restricted
+      #     deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-updates main restricted
+      #     deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-backports main restricted universe multiverse
+      #     EOF'
+      #     sudo sed -i -e 's/deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
+      #     sudo sed -i -e 's/deb mirror/deb [arch=amd64] mirror/g' /etc/apt/sources.list
+      #     sudo apt update
+      #     sudo apt install -y clang llvm binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev:arm64
 
       - run: >
           dotnet publish ${{ matrix.project }}
           --configuration Release
           --output bin
           --runtime ${{ matrix.runtime }}
-          -p:OptimizationPreference=Size
-          -p:PublishAot=true
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:Version=0.0.0
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.project }}-${{ matrix.runtime }}-${{ github.sha }}
           path: bin/
 
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        project:
-          - Lip.Tests
-        runs-on:
-          - macos-latest
-          - ubuntu-latest
-          - windows-latest
-    runs-on: ${{ matrix.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - run: |
-          dotnet test ${{ matrix.project }}
-
   check-style:
     strategy:
       fail-fast: false
       matrix:
         project:
-          - Lip
-          - Lip.Tests
+          - Golang.Org.X.Mod
+          - Golang.Org.X.Mod.Tests
           - Lip.CLI
           - Lip.Context
+          - Lip.Core
+          - Lip.Core.Tests
+          - Lip.Migration
+          - Lip.Migration.Tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -149,3 +149,29 @@ jobs:
       - run: >
           dotnet format ${{ matrix.project }}
           --verify-no-changes
+
+  test:
+    needs: build-lib
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - Golang.Org.X.Mod.Tests
+          - Lip.Core.Tests
+          - Lip.Migration.Tests
+        runs-on:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - run: |
+          dotnet test ${{ matrix.project }}

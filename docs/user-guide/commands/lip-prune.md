@@ -14,7 +14,7 @@ Remove all unused packages. Dependencies of other packages will be preserved and
 
 - `--dry-run`
 
-  Do not actually remove any packages.
+  Do not actually uninstall any packages.
 
 - `--ignore-scripts`
 

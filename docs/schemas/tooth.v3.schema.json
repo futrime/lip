@@ -11,7 +11,8 @@
             "const": "289f771f-2c9a-4d73-9f3f-8492495a924d"
         },
         "tooth": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9][a-z0-9-]*[a-z0-9](?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)*$"
         },
         "version": {
             "type": "string",
@@ -79,7 +80,7 @@
                                         "type": "string"
                                     }
                                 },
-                                "place": {
+                                "placements": {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
@@ -104,23 +105,23 @@
                                             "dest"
                                         ]
                                     }
-                                },
-                                "preserve": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "remove": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
                                 }
                             },
                             "required": [
                                 "type"
                             ]
+                        }
+                    },
+                    "preserve_files": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "remove_files": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     },
                     "scripts": {

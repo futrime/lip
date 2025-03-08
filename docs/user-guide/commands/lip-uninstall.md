@@ -3,12 +3,18 @@
 ## Usage
 
 ```shell
-lip uninstall <package-spec-without-version> ...
+lip uninstall <package ...>
 ```
 
 ## Description
 
-Uninstall packages.
+Uninstall packages and unused dependencies.
+
+## Arguments
+
+- `package`
+
+  The packages to uninstall.
 
 ## Options
 
@@ -18,8 +24,4 @@ Uninstall packages.
 
 - `--ignore-scripts`
 
-  Do not run any scripts during installation.
-
-- `--save`
-
-  Remove the dependency item of the package in `tooth.json`. Only apply to default variant.
+  Do not run any scripts during uninstallation.

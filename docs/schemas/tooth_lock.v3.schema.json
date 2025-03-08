@@ -13,29 +13,29 @@
         "packages": {
             "type": "array",
             "items": {
-                "$ref": "tooth.v3.schema.json"
-            }
-        },
-        "locks": {
-            "type": "array",
-            "items": {
                 "type": "object",
                 "properties": {
-                    "tooth": {
-                        "type": "string"
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "locked": {
+                        "type": "boolean"
+                    },
+                    "manifest": {
+                        "$ref": "tooth.v3.schema.json"
                     },
                     "variant": {
                         "type": "string"
-                    },
-                    "version": {
-                        "type": "string",
-                        "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
                     }
                 },
                 "required": [
-                    "tooth",
-                    "variant",
-                    "version"
+                    "files",
+                    "locked",
+                    "manifest",
+                    "variant"
                 ]
             }
         }
@@ -43,7 +43,6 @@
     "required": [
         "format_version",
         "format_uuid",
-        "packages",
-        "locks"
+        "packages"
     ]
 }

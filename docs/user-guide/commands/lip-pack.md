@@ -3,12 +3,18 @@
 ## Usage
 
 ```shell
-lip pack <output-path>
+lip pack <path>
 ```
 
 ## Description
 
 Create a archive from the current directory, containing all files to place specified in the `tooth.json` file.
+
+## Arguments
+
+- `path`
+
+  The path to the archive to create.
 
 ## Options
 
@@ -22,6 +28,4 @@ Create a archive from the current directory, containing all files to place speci
 
 - `--archive-format <format>`
 
-  The format of the archive to create.
-
-  Valid formats are `zip`, `tar`, `tgz` and `tar.gz`. Defaults to `zip`.
+  The format of the archive to create. Valid formats are `zip`, `tar`, `tgz` and `tar.gz`. Defaults to `zip`.

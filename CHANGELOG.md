@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2025-03-08
+
+### Changed
+
+- Use goproxy.io as default go_module_proxies
+
+### Fixed
+
+- Fixed globbed platform when use lip migrate
+- Removed useless platform property when manifest v2 doesn't have platforms property
+- Fixed issue with +incompatible build metadata
+
+## [0.27.0] - 2025-03-07
+
+### Added
+
+- Install latest versions when omitting versions
+- `lip migrate` command to migrate tooth.json to the latest schema version
+
+### Changed
+
+- If `files.place` exists both inside and outside `platforms` in manifest v2, the `files.place` in the `platforms` takes
+  precedence.
+
+### Fixed
+
+- Fail to process rooted file paths
+
+## [0.26.2] - 2025-03-07
+
+### Fixed
+
+- Fixed wrong placements type caused by lip manifest v2 when files property is not in platforms property
+
+## [0.26.1] - 2025-03-07
+
+### Fixed
+
+- Do not wait until scripts end
+
+## [0.26.0] - 2025-03-06
+
+### Added
+
+- Show download speed
+- Throw error on download failure
+- Throw error on command failure
+
+### Changed
+
+- Prefer latest dependency
+
+### Fixed
+
+- Ambiguous error messages when no variant matches
+
+## [0.25.1] - 2025-03-05
+
+### Fixed
+
+- Error message for invalid package specifiers not clear enough
+- Scripts not kept in migration
+- `lip install` without arguments not installing current directory
+
+## [0.25.0] - 2025-03-05
+
+### Added
+
+- Multiple variant support
+- Glob pattern support for files
+- Glob pattern support for platform matching
+- Multiple asset support
+- Alternative asset source support
+- Migration support for schema version 1 and 2 to 3
+- Dependency resolution support
+- Package pruning support
+- Git support for asset source
+
+### Changed
+
+- Rewrite everything with C# and .NET 9.0
+- Update schema to version 3
+- Rewrite lip core library as a C# class library
+
 ## [0.24.0] - 2024-10-01
 
 ### Added
@@ -461,6 +545,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#140]: https://github.com/futrime/lip/issues/140
 [#157]: https://github.com/futrime/lip/issues/157
 
+[0.27.1]: https://github.com/futrime/lip/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/futrime/lip/compare/v0.26.2...v0.27.0
+[0.26.2]: https://github.com/futrime/lip/compare/v0.26.1...v0.26.2
+[0.26.1]: https://github.com/futrime/lip/compare/v0.26.0...v0.26.1
+[0.26.0]: https://github.com/futrime/lip/compare/v0.25.1...v0.26.0
+[0.25.1]: https://github.com/futrime/lip/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/futrime/lip/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/futrime/lip/compare/v0.23.2...v0.24.0
 [0.23.2]: https://github.com/futrime/lip/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/futrime/lip/compare/v0.23.0...v0.23.1

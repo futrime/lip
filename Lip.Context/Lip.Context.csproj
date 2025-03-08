@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flurl" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions" Version="21.2.1" />
+    <ProjectReference Include="..\Lip.Core\Lip.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.8.1" />
+    <PackageReference Include="Downloader" Version="3.3.3" />
   </ItemGroup>
 
 </Project>

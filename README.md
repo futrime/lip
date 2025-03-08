@@ -23,7 +23,33 @@ If you have any questions or comments about this disclaimer, please contact the 
 
 ## Install
 
-**lip** is a self-contained executable file, so you don't need to install it. Just download the latest version from <https://github.com/futrime/lip/releases/latest>.
+**lip** is a self-contained executable file, so you may not want to install it. Just download the latest version from <https://github.com/futrime/lip/releases/latest>.
+
+We also provide some scripts to help you install **lip**. You can run the following command to install **lip**:
+
+For Windows (x64), run the following commands:
+  
+```shell
+mkdir -p %LocalAppData%\lip
+curl -L https://github.com/futrime/lip/releases/latest/download/lip-win-x64.zip -o %LocalAppData%\lip\lip.zip
+tar -xf %LocalAppData%\lip\lip.zip -C %LocalAppData%\lip
+del %LocalAppData%\lip\lip.zip
+setx PATH "%PATH%;%LocalAppData%\lip"
+```
+
+For Windows (arm64), simply replace `lip-win-x64.zip` with `lip-win-arm64.zip` in the above commands.
+
+For Linux, run the following command and follow the instructions in the script to complete the installation:
+  
+```shell
+curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_linux.sh | sh
+```
+
+For macOS, run the following command and follow the instructions in the script to complete the installation:
+  
+```shell
+curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_macos.sh | sh
+```
 
 ## Usage
 
@@ -32,6 +58,9 @@ lip <command>
 ```
 
 Check out [the documentation](https://futrime.github.io/lip/) for more information.
+
+> [!NOTE]
+> Looking for **lip** version 0.24.x or earlier? Check out [this link](https://github.com/futrime/lip/tree/v0.24.0).
 
 ## Contributing
 

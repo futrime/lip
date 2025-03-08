@@ -210,6 +210,12 @@
 								"items": {
 									"type": "string"
 								}
+							},
+							"remove": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
 							}
 						}
 					}
