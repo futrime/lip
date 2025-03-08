@@ -42,22 +42,12 @@ public static class Semver
 
     public static string Major(string v)
     {
-        var (pv, ok) = SemverInternal.Parse(v);
-        if (!ok)
-        {
-            return string.Empty;
-        }
-        return pv.Major;
+        throw new NotImplementedException();
     }
 
     public static string MajorMinor(string v)
     {
-        var (pv, ok) = SemverInternal.Parse(v);
-        if (!ok)
-        {
-            return string.Empty;
-        }
-        return pv.Minor;
+        throw new NotImplementedException();
     }
 
     [Obsolete("Deprecated")]
@@ -68,12 +58,7 @@ public static class Semver
 
     public static string Prerelease(string v)
     {
-        var (pv, ok) = SemverInternal.Parse(v);
-        if (!ok)
-        {
-            return string.Empty;
-        }
-        return pv.Prerelease;
+        throw new NotImplementedException();
     }
 
     public static void Sort(string[] list)
