@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Lip.Lip;
+using static Lip.Core.Lip;
 
 namespace Lip.Connection.Network.Packets.LipOperation;
 

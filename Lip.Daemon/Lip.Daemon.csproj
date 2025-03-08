@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Lip\Lip.csproj" />
     <ProjectReference Include="..\Lip.Connection\Lip.Connection.csproj" />
+    <ProjectReference Include="..\Lip.Core\Lip.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

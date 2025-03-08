@@ -1,5 +1,3 @@
-﻿using Lip.Connection;
-using Lip.Connection.Network;
 using Lip.Connection.Network.Packets.CustomOperation;
 using Lip.Connection.Network.Packets.LipOperation;
 using Microsoft.Extensions.Logging;
@@ -10,7 +8,7 @@ internal static class PacketHandlers
 {
     public static readonly ILogger<Connection.Connection> logger;
 
-    private static Lip? s_lip;
+    private static Core.Lip? s_lip;
 
     static PacketHandlers()
     {
@@ -23,7 +21,7 @@ internal static class PacketHandlers
         LipOperationPackets type,
         LipConstructPacket packet)
     {
-        s_lip = new Lip(packet.Config, new ContextImpl());
+        s_lip = Core.Lip.Create(packet.Config, new ContextImpl());
     }
 
     public static void TestPackageInstalledPacketHandler(

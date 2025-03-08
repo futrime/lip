@@ -1,4 +1,4 @@
-﻿using Lip.Connection.Network.Packets.CustomOperation;
+using Lip.Connection.Network.Packets.CustomOperation;
 using Lip.GUI.Pages.Bedrinth;
 using Lip.GUI.Pages.Servers;
 
@@ -53,7 +53,7 @@ public partial class PackageInstallationItemView
         else
         {
             SetStatus(Status.Installed);
-            _version.Text = response.Manifest.VersionText;
+            _version.Text = response.Manifest.Version.ToString();
         }
     }
 

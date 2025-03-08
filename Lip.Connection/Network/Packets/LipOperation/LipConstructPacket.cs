@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using Lip.Core;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Lip.Connection.Network.Packets.LipOperation;

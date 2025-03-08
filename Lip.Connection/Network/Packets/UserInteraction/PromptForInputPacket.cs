@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,6 +11,9 @@ public partial class PromptForInputPacket : IPacket<PromptForInputPacket>
     internal partial class PromptForInputPacketGenerationContext : JsonSerializerContext
     {
     }
+
+    [JsonPropertyName("default_value")]
+    public required string DefaultValue { get; set; }
 
     [JsonPropertyName("format")]
     public required string Format { get; set; }

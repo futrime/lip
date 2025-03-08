@@ -1,5 +1,5 @@
-﻿using Lip.Connection.Network.Packets.UserInteraction;
-using Lip.Context;
+using Lip.Connection.Network.Packets.UserInteraction;
+using Lip.Core;
 
 namespace Lip.Daemon;
 
@@ -17,10 +17,11 @@ internal class UserInteractionImpl(Connection.Connection connection)
         return packet.Value;
     }
 
-    public async Task<string?> PromptForInput(string format, params object[] args)
+    public async Task<string> PromptForInput(string defaultValue, string format, params object[] args)
     {
         await connection.SendPacketAsync(UserInteractionPackets.PromptForInput, new PromptForInputPacket()
         {
+            DefaultValue = defaultValue,
             Format = format,
             Args = from object arg in args select arg.ToString()
         });
