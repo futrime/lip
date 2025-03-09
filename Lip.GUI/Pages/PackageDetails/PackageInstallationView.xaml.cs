@@ -1,4 +1,4 @@
-﻿using Lip.GUI.Pages.Bedrinth;
+using Lip.GUI.Pages.Bedrinth;
 using Lip.GUI.Pages.Servers;
 
 namespace Lip.GUI.Pages.PackageDetails;
@@ -29,7 +29,7 @@ public partial class PackageInstallationView : ContentView
         }
     }
 
-    private List<PackageInstallationItemView> _installationItemViews = [];
+    private readonly List<PackageInstallationItemView> _installationItemViews = [];
 
     private void CreateViews(IReadOnlyDictionary<string, ServerView> views, BedrinthItem item)
     {
@@ -50,6 +50,7 @@ public partial class PackageInstallationView : ContentView
 
     private void ApplyButton_Clicked(object sender, EventArgs e)
     {
-
+        // TODO
+        var changedItems = from view in _installationItemViews where view.CheckBoxChanged select view;
     }
 }

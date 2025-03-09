@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -52,7 +52,7 @@ internal partial record Packet
         byte[] buffer = Encoding.UTF8.GetBytes(json);
 
         byte[] lengthBuffer = BitConverter.GetBytes(buffer.Length);
-        await stream.WriteAsync(lengthBuffer, 0, lengthBuffer.Length);
-        await stream.WriteAsync(buffer, 0, buffer.Length);
+        await stream.WriteAsync(lengthBuffer);
+        await stream.WriteAsync(buffer);
     }
 }

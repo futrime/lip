@@ -1,19 +1,20 @@
 using Lip.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static Lip.Core.Lip;
 
 namespace Lip.Connection.Network.Packets.CustomOperation;
 
 public partial class TestPackageInstalledResponsePacket : IPacket<TestPackageInstalledResponsePacket>
 {
-    //[JsonSourceGenerationOptions(WriteIndented = true)]
-    //[JsonSerializable(typeof(TestPackageInstalledResponsePacket))]
-    //private partial class PackageManifestgenerationContext : JsonSerializerContext
-    //{
-    //}
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(TestPackageInstalledResponsePacket))]
+    private partial class ListResultItemgenerationContext : JsonSerializerContext
+    {
+    }
 
     [JsonPropertyName("manifest")]
-    public required PackageManifest? Manifest { get; set; }
+    public required ListResultItem? Result { get; set; }
 
     public static TestPackageInstalledResponsePacket Deserialize(byte[] data)
     {

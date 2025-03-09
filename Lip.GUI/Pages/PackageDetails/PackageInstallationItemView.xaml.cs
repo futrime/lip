@@ -45,7 +45,7 @@ public partial class PackageInstallationItemView
         var response = await _view.Connection.RequestPacketAsync<CustomOperationPackets, TestPackageInstalledResponsePacket>(
             CustomOperationPackets.TestPackageInstalledResponse);
 
-        if (response.Manifest is null)
+        if (response.Result is null)
         {
             SetStatus(Status.NotInstalled);
             return;
@@ -53,7 +53,7 @@ public partial class PackageInstallationItemView
         else
         {
             SetStatus(Status.Installed);
-            _version.Text = response.Manifest.Version.ToString();
+            _version.Text = response.Result.Specifier.Version.ToString();
         }
     }
 
