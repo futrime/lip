@@ -17,7 +17,10 @@ public interface IPackageManager
     Task<PackageManifest?> GetPackageManifestFromCache(PackageSpecifier packageSpecifier);
     Task<PackageManifest?> GetPackageManifestFromFileSource(IFileSource fileSource);
     Task<List<SemVersion>> GetPackageRemoteVersions(PackageIdentifier packageSpecifier);
-    Task InstallPackage(IFileSource packageFileSource, string variantLabel, bool dryRun, bool ignoreScripts, bool locked);
+
+    Task InstallPackage(IFileSource packageFileSource, string variantLabel, bool dryRun, bool ignoreScripts,
+        bool locked);
+
     Task SaveCurrentPackageManifest(PackageManifest packageManifest);
     Task UninstallPackage(PackageIdentifier packageSpecifierWithoutVersion, bool dryRun, bool ignoreScripts);
 }
@@ -40,10 +43,7 @@ public class PackageManager(
         // If the package lock file does not exist, return an empty package lock.
         if (!_context.FileSystem.File.Exists(packageLockFilePath))
         {
-            return new()
-            {
-                Packages = []
-            };
+            return new() { Packages = [] };
         }
 
         using Stream packageLockFileStream = _context.FileSystem.File.OpenRead(packageLockFilePath);
@@ -122,16 +122,23 @@ public class PackageManager(
                 {
                     string goModuleVersionListText = await goModuleVersionListUrl.GetStringAsync();
 
-                    return [.. goModuleVersionListText
-                        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Where(s => s.StartsWith('v'))
-                        .Select(versionText => versionText.Trim('v'))
-                        .Select(versionText => SemVersion.TryParse(versionText, out SemVersion? version) ? version : null)
-                        .Where(version => version is not null)];
+                    return
+                    [
+                        .. goModuleVersionListText
+                            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                            .Where(s => s.StartsWith('v'))
+                            .Select(versionText =>
+                                SemVersion.TryParse(Golang.Org.X.Mod.Semver.Canonical(versionText).Trim('v'),
+                                    out SemVersion? version)
+                                    ? version
+                                    : null)
+                            .Where(version => version is not null)
+                    ];
                 }
                 catch (Exception ex)
                 {
-                    _context.Logger.LogWarning(ex, "Failed to download {Url}. Attempting next URL.", goModuleVersionListUrl);
+                    _context.Logger.LogWarning(ex, "Failed to download {Url}. Attempting next URL.",
+                        goModuleVersionListUrl);
                 }
             }
 
@@ -145,12 +152,15 @@ public class PackageManager(
         if (_context.Git is not null)
         {
             string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
-            return [.. (await _context.Git.ListRemote(repoUrl, refs: true, tags: true))
+            return
+            [
+                .. (await _context.Git.ListRemote(repoUrl, refs: true, tags: true))
                 .Where(item => item.Ref.StartsWith("refs/tags/v"))
                 .Select(item => item.Ref)
                 .Select(refName => refName.Substring("refs/tags/v".Length))
                 .Where(version => SemVersion.TryParse(version, out _))
-                .Select(version => SemVersion.Parse(version))];
+                .Select(version => SemVersion.Parse(version))
+            ];
         }
 
         // Otherwise, no remote source is available.
@@ -158,9 +168,11 @@ public class PackageManager(
         throw new InvalidOperationException("No remote source is available.");
     }
 
-    public async Task InstallPackage(IFileSource packageFileSource, string variantLabel, bool dryRun, bool ignoreScripts, bool locked)
+    public async Task InstallPackage(IFileSource packageFileSource, string variantLabel, bool dryRun,
+        bool ignoreScripts, bool locked)
     {
-        using Stream packageManifestFileStream = await packageFileSource.GetFileStream(_pathManager.PackageManifestFileName)
+        using Stream packageManifestFileStream =
+            await packageFileSource.GetFileStream(_pathManager.PackageManifestFileName)
             ?? throw new InvalidOperationException("Package manifest not found.");
 
         PackageManifest packageManifest = await PackageManifest.FromStream(packageManifestFileStream);
@@ -181,21 +193,25 @@ public class PackageManager(
 
         if (installedVersion == packageSpecifier.Version)
         {
-            _context.Logger.LogInformation("Package {packageSpecifier} is already installed with version {installedVersion}", packageSpecifier, installedVersion);
+            _context.Logger.LogInformation(
+                "Package {packageSpecifier} is already installed with version {installedVersion}", packageSpecifier,
+                installedVersion);
             return;
         }
 
         if (installedVersion != null)
         {
-            throw new InvalidOperationException($"Package {packageSpecifier} is already installed with version {installedVersion}.");
+            throw new InvalidOperationException(
+                $"Package {packageSpecifier} is already installed with version {installedVersion}.");
         }
 
         // If the package does not contain the variant to install, throw exception.
 
         PackageManifest.Variant packageVariant = packageManifest.GetVariant(
-            variantLabel,
-            RuntimeInformation.RuntimeIdentifier)
-            ?? throw new InvalidOperationException($"The package does not contain variant {variantLabel}.");
+                                                     variantLabel,
+                                                     RuntimeInformation.RuntimeIdentifier)
+                                                 ?? throw new InvalidOperationException(
+                                                     $"The package does not contain variant {variantLabel}.");
 
         // Run pre-install scripts.
 
@@ -311,7 +327,8 @@ public class PackageManager(
         await packageManifest.ToStream(stream);
     }
 
-    public async Task UninstallPackage(PackageIdentifier packageSpecifierWithoutVersion, bool dryRun, bool ignoreScripts)
+    public async Task UninstallPackage(PackageIdentifier packageSpecifierWithoutVersion, bool dryRun,
+        bool ignoreScripts)
     {
         PackageLock.Package? packageToUninstall = await GetPackageFromLock(packageSpecifierWithoutVersion);
 
@@ -383,7 +400,8 @@ public class PackageManager(
 
         IEnumerable<Glob> removeFileGlobs = packageToUninstall.Variant.RemoveFiles.Select(p => Glob.Parse(p));
 
-        foreach (string fullPath in _context.FileSystem.Directory.EnumerateFileSystemEntries(_pathManager.WorkingDir, "*", SearchOption.AllDirectories))
+        foreach (string fullPath in _context.FileSystem.Directory.EnumerateFileSystemEntries(_pathManager.WorkingDir,
+                     "*", SearchOption.AllDirectories))
         {
             string relativePath = _context.FileSystem.Path.GetRelativePath(_pathManager.WorkingDir, fullPath);
 
@@ -405,7 +423,6 @@ public class PackageManager(
 
                 RemoveParentDirectoriesUntilWorkingDir(destPath);
             }
-
         }
 
         // Update package lock.

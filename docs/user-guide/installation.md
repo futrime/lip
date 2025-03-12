@@ -18,7 +18,13 @@ curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_li
 curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_macos.sh | sh
 ```
 
-For Windows, download either `lip-cli-win-x64-en-US.msi` (for English) or `lip-cli-win-x64-zh-CN.msi` (for Chinese) from [this page](https://github.com/futrime/lip/releases/latest). Run the installer and follow the prompts to set up **lip**.
+For Windows, you can install lip by winget:
+
+```shell
+winget install futrime.lip
+```
+
+or download either `lip-cli-win-x64-en-US.msi` (for English) or `lip-cli-win-x64-zh-CN.msi` (for Chinese) from [this page](https://github.com/futrime/lip/releases/latest). Run the installer and follow the prompts to set up **lip**.
 
 ## lip GUI
 

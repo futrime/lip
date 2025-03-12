@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Disabled CET to keep old Windows's compability
+- Fixed an issue where packages with major version >= 2 were uninstalled when installing packages
 
 ## [0.28.1] - 2025-03-10
 

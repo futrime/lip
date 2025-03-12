@@ -17,7 +17,7 @@
     <PackageReference Include="Flurl" Version="4.0.0" />
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
-    <PackageReference Include="Scriban" Version="5.12.1" />
+    <PackageReference Include="Scriban" Version="6.0.0" />
     <PackageReference Include="Semver" Version="3.0.0" />
     <PackageReference Include="SharpCompress" Version="0.38.0" />
     <PackageReference Include="TestableIO.System.IO.Abstractions" Version="21.2.1" />
