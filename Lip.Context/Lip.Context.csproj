@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="CliWrap" Version="3.8.2" />
-    <PackageReference Include="Downloader" Version="3.3.3" />
+    <PackageReference Include="Downloader" Version="3.3.4" />
   </ItemGroup>
 
 </Project>
