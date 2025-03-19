@@ -1,3 +1,4 @@
+using Lip.Connection.Network.Packets.LipOperation;
 using Lip.GUI.Pages.Bedrinth;
 using Lip.GUI.Pages.Servers;
 
@@ -50,7 +51,25 @@ public partial class PackageInstallationView : ContentView
 
     private void ApplyButton_Clicked(object sender, EventArgs e)
     {
-        // TODO
         var changedItems = from view in _installationItemViews where view.CheckBoxChanged select view;
+        foreach (var view in changedItems)
+        {
+            if (view.CheckBoxValue)
+            {
+                view.ServerView.Connection!.EnqueuePacketToSend<LipOperationPackets, LipInstallPacket>(LipOperationPackets.Install, new()
+                {
+                    Args = new() { DryRun = false, Force = true, IgnoreScripts = false, NoDependencies = false, Update = true },
+                    Packages = [view.BedrinthItem.Identifier]
+                });
+            }
+            else
+            {
+                view.ServerView.Connection!.EnqueuePacketToSend<LipOperationPackets, LipUninstallPacket>(LipOperationPackets.Uninstall, new()
+                {
+                    Args = new() { DryRun = false, IgnoreScripts = false },
+                    Packages = [view.BedrinthItem.Identifier]
+                });
+            }
+        }
     }
 }

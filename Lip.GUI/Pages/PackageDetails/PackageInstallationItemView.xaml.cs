@@ -115,4 +115,8 @@ public partial class PackageInstallationItemView
     public bool CheckBoxChanged { get; private set; }
 
     public bool CheckBoxValue => _checkbox.IsChecked;
+
+    public ServerView ServerView => _view;
+
+    public BedrinthItem BedrinthItem => _item;
 }
