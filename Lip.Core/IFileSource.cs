@@ -9,7 +9,7 @@ public interface IFileSource
     /// Retrieves all entries from the file source.
     /// </summary>
     /// <returns>All files in the file source.</returns>
-    Task<List<IFileSourceEntry>> GetAllEntries();
+    IAsyncEnumerable<IFileSourceEntry> GetAllEntries();
 
     /// <summary>
     /// Retrieves an entry from the file source by its key.
@@ -22,7 +22,7 @@ public interface IFileSource
 /// <summary>
 /// Represents an entry within a file source.
 /// </summary>
-public interface IFileSourceEntry
+public interface IFileSourceEntry : IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Gets the unique identifier of this entry.
@@ -41,13 +41,21 @@ public static class IFileSourceExtensions
 {
     public static async Task<Stream?> GetFileStream(this IFileSource fileSource, string key)
     {
-        IFileSourceEntry? entry = await fileSource.GetEntry(key);
+        using IFileSourceEntry? entry = await fileSource.GetEntry(key);
 
         if (entry == null)
         {
             return null;
         }
 
-        return await entry.OpenRead();
+        using Stream entryStream = await entry.OpenRead();
+
+        MemoryStream stream = new();
+
+        await entryStream.CopyToAsync(stream);
+
+        stream.Position = 0;
+
+        return stream;
     }
 }

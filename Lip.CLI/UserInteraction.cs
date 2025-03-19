@@ -78,7 +78,7 @@ class UserInteraction : IUserInteraction
 
     public async Task UpdateProgress(string id, float progress, string format, params object[] args)
     {
-        await Task.Delay(0); // Suppress warning.
+        await Task.CompletedTask; // Suppress warning.
 
         _progressUpdates[id] = new(progress * 100, string.Format(format, args).EscapeMarkup());
     }

@@ -29,13 +29,13 @@ public class CacheManager(
     List<Url> goModuleProxies) : ICacheManager
 {
     private readonly IContext _context = context;
-    private readonly List<Url> _githubProxies = gitHubProxies;
+    private readonly List<Url> _gitHubProxies = gitHubProxies;
     private readonly List<Url> _goModuleProxies = goModuleProxies;
     private readonly IPathManager _pathManager = pathManager;
 
     public async Task Clean()
     {
-        await Task.Delay(0); // Suppress warning.
+        await Task.CompletedTask; // Suppress warning.
 
         string baseCacheDir = _pathManager.BaseCacheDir;
 
@@ -50,20 +50,23 @@ public class CacheManager(
     public async Task<IFileInfo> GetFileFromUrls(List<Url> originalUrls)
     {
         // Apply GitHub proxy to GitHub URLs.
-        List<Url> actualUrls = [.. originalUrls.SelectMany(url =>
-        {
-            // For typical URLs, just return the URL.
-            if (url.Host == "github.com" && _githubProxies.Count != 0)
+        List<Url> actualUrls =
+        [
+            .. originalUrls.SelectMany(url =>
             {
-                return _githubProxies.Select(proxy => proxy
-                    .Clone()
-                    .AppendPathSegment(url.Path)
-                    .SetQueryParams(url.QueryParams)
-                );
-            }
+                // For typical URLs, just return the URL.
+                if (url.Host == "github.com" && _gitHubProxies.Count != 0)
+                {
+                    return _gitHubProxies.Select(proxy => proxy
+                        .Clone()
+                        .AppendPathSegment(url.Path)
+                        .SetQueryParams(url.QueryParams)
+                    );
+                }
 
-            return [url];
-        })];
+                return [url];
+            })
+        ];
 
         return await GetFileDirectlyFromUrls(actualUrls);
     }
@@ -71,33 +74,49 @@ public class CacheManager(
     public async Task<IFileSource> GetPackageFileSource(PackageSpecifier packageSpecifier)
     {
         // First, try to get the package from the Go module proxy.
-
         if (_goModuleProxies.Count != 0)
         {
-            IFileInfo goModuleArchive = await GetGoModuleArchive(packageSpecifier);
+            _context.Logger.LogDebug("Attempting to get file source of package {Specifier} from Go module proxy.", packageSpecifier);
 
-            return new GoModuleArchiveFileSource(
-                _context.FileSystem,
-                goModuleArchive.FullName,
-                packageSpecifier.ToothPath,
-                packageSpecifier.Version);
+            try
+            {
+                IFileInfo goModuleArchive = await GetGoModuleArchive(packageSpecifier);
+                return new GoModuleArchiveFileSource(
+                    _context.FileSystem,
+                    goModuleArchive.FullName,
+                    packageSpecifier.ToothPath,
+                    packageSpecifier.Version);
+            }
+            catch (Exception ex)
+            {
+                _context.Logger.LogWarning("Failed to get Go module archive for package {ToothPath} version {Version}.", packageSpecifier.ToothPath, packageSpecifier.Version);
+                _context.Logger.LogDebug(ex, "");
+            }
         }
 
         // Next, try to get the package from the Git repository.
-
         if (_context.Git is not null)
         {
-            IDirectoryInfo repoDir = await GetGitRepoDir(packageSpecifier);
+            _context.Logger.LogDebug("Attempting to get file source of package {Specifier} from Git repository.", packageSpecifier);
 
-            return new DirectoryFileSource(_context.FileSystem, repoDir.FullName);
+            try
+            {
+                IDirectoryInfo repoDir = await GetGitRepoDir(packageSpecifier);
+                return new DirectoryFileSource(_context.FileSystem, repoDir.FullName);
+            }
+            catch (Exception ex)
+            {
+                _context.Logger.LogWarning("Failed to get Git repo for package {ToothPath} version {Version}.", packageSpecifier.ToothPath, packageSpecifier.Version);
+                _context.Logger.LogDebug(ex, "");
+            }
         }
 
-        throw new InvalidOperationException("No remote source is available.");
+        throw new InvalidOperationException("Failed to get package file source from any source.");
     }
 
     public async Task<ICacheManager.ICacheSummary> List()
     {
-        await Task.Delay(0); // Suppress warning.
+        await Task.CompletedTask; // Suppress warning.
 
         List<IFileInfo> downloadedFiles = [];
 
@@ -105,7 +124,8 @@ public class CacheManager(
 
         if (_context.FileSystem.Directory.Exists(baseDownloadedFileCacheDir))
         {
-            foreach (IFileInfo fileInfo in _context.FileSystem.DirectoryInfo.New(baseDownloadedFileCacheDir).EnumerateFiles())
+            foreach (IFileInfo fileInfo in _context.FileSystem.DirectoryInfo.New(baseDownloadedFileCacheDir)
+                         .EnumerateFiles())
             {
                 downloadedFiles.Add(fileInfo);
             }
@@ -117,7 +137,8 @@ public class CacheManager(
 
         if (_context.FileSystem.Directory.Exists(baseGitRepoCacheDir))
         {
-            foreach (IDirectoryInfo dirInfo in _context.FileSystem.DirectoryInfo.New(baseGitRepoCacheDir).EnumerateDirectories())
+            foreach (IDirectoryInfo dirInfo in _context.FileSystem.DirectoryInfo.New(baseGitRepoCacheDir)
+                         .EnumerateDirectories())
             {
                 foreach (IDirectoryInfo subdirInfo in dirInfo.EnumerateDirectories())
                 {
@@ -127,7 +148,8 @@ public class CacheManager(
         }
 
         return new CacheSummary(
-            DownloadedFiles: downloadedFiles.ToDictionary(file => _pathManager.ParseDownloadedFileCachePath(file.FullName)),
+            DownloadedFiles: downloadedFiles.ToDictionary(file =>
+                _pathManager.ParseDownloadedFileCachePath(file.FullName)),
             GitRepos: gitRepos.ToDictionary(dir => _pathManager.ParseGitRepoDirCachePath(dir.FullName))
         );
     }
@@ -148,6 +170,8 @@ public class CacheManager(
         {
             string filePath = _pathManager.GetDownloadedFileCachePath(url);
 
+            _context.Logger.LogDebug("Downloading {Url} to {FilePath}.", url, filePath);
+
             _context.FileSystem.CreateParentDirectory(filePath);
 
             try
@@ -158,7 +182,8 @@ public class CacheManager(
             }
             catch (Exception ex)
             {
-                _context.Logger.LogWarning(ex, "Failed to download {Url}. Attempting next URL.", url);
+                _context.Logger.LogWarning("Failed to download {Url}. Attempting next URL.", url);
+                _context.Logger.LogDebug(ex, "");
             }
         }
 
@@ -167,29 +192,71 @@ public class CacheManager(
 
     private async Task<IDirectoryInfo> GetGitRepoDir(PackageSpecifier packageSpecifier)
     {
-        string repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
-        string tag = $"v{packageSpecifier.Version}";
+        Url repoUrl = Url.Parse($"https://{packageSpecifier.ToothPath}");
 
-        string repoDirPath = _pathManager.GetGitRepoDirCachePath(repoUrl, tag);
+        // Apply GitHub proxy to GitHub URLs.
+        IEnumerable<Url> actualUrls = (repoUrl.Host == "github.com" && _gitHubProxies.Count != 0)
+            ? _gitHubProxies.Select(proxy => proxy
+                .Clone()
+                .AppendPathSegment(repoUrl.Path)
+                .SetQueryParams(repoUrl.QueryParams)
+            )
+            : [repoUrl];
 
-        if (!_context.FileSystem.Directory.Exists(repoDirPath))
+        return await GetGitRepoDirDirectlyFromUrls(actualUrls, $"v{packageSpecifier.Version}");
+    }
+
+    private async Task<IDirectoryInfo> GetGitRepoDirDirectlyFromUrls(IEnumerable<Url> actualUrls, string tag)
+    {
+        foreach (Url url in actualUrls)
         {
-            _context.FileSystem.CreateParentDirectory(repoDirPath);
+            string repoDirPath = _pathManager.GetGitRepoDirCachePath(url, tag);
 
-            // Here we assume that git availability is checked before calling this method.
-            await _context.Git!.Clone(
-                repoUrl,
-                repoDirPath,
-                branch: tag,
-                depth: 1);
+            if (_context.FileSystem.Directory.Exists(repoDirPath))
+            {
+                return _context.FileSystem.DirectoryInfo.New(repoDirPath);
+            }
         }
 
-        return _context.FileSystem.DirectoryInfo.New(repoDirPath);
+        foreach (Url url in actualUrls)
+        {
+            string repoDirPath = _pathManager.GetGitRepoDirCachePath(url, tag);
+
+            _context.Logger.LogDebug("Cloning {Url} to {RepoDirPath}.", url, repoDirPath);
+
+            _context.FileSystem.CreateParentDirectory(repoDirPath);
+
+            try
+            {
+                // Here we assume that git availability is checked before calling this method.
+                await _context.Git!.Clone(
+                    url,
+                    repoDirPath,
+                    branch: tag,
+                    depth: 1
+                );
+                return _context.FileSystem.DirectoryInfo.New(repoDirPath);
+            }
+            catch (Exception ex)
+            {
+                _context.Logger.LogWarning("Failed to clone {Url}. Attempting next URL.", url);
+                _context.Logger.LogDebug(ex, "");
+            }
+        }
+
+        throw new InvalidOperationException("All clone attempts failed.");
     }
 
     private async Task<IFileInfo> GetGoModuleArchive(PackageSpecifier packageSpecifier)
     {
         SemVersion version = packageSpecifier.Version;
+
+        // When major >= 2 and there's no go.mod, GoProxy will add +incompatible in version
+        // Reference: https://stackoverflow.com/questions/57355929/what-does-incompatible-in-go-mod-mean-will-it-cause-harm
+        if (version.Major >= 2)
+        {
+            version = version.WithMetadata("incompatible");
+        }
 
         List<Url> archiveFileUrls = _goModuleProxies.ConvertAll(proxy =>
             proxy

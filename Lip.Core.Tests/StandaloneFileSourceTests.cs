@@ -18,11 +18,11 @@ public class StandaloneFileSourceTests
         var source = new StandaloneFileSource(fileSystem, filePath);
 
         // Act
-        List<IFileSourceEntry> entries = await source.GetAllEntries();
+        IAsyncEnumerable<IFileSourceEntry> entries = source.GetAllEntries();
 
         // Assert
-        Assert.Single(entries);
-        Assert.Equal("Test content", new StreamReader(await entries[0].OpenRead()).ReadToEnd());
+        IFileSourceEntry entry = Assert.Single(entries);
+        Assert.Equal("Test content", new StreamReader(await entry.OpenRead()).ReadToEnd());
     }
 
     [Fact]

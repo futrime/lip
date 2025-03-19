@@ -60,7 +60,12 @@ public partial class Lip
             .Where(a => a.Type == PackageManifest.Asset.TypeEnum.Self)
             .SelectMany(a => a.Placements)];
 
-        List<IFileSourceEntry> fileEntriesToPlace = [.. (await fileSource.GetAllEntries())
+        var allEntries = new List<IFileSourceEntry>();
+        await foreach (var entry in fileSource.GetAllEntries())
+        {
+            allEntries.Add(entry);
+        }
+        List<IFileSourceEntry> fileEntriesToPlace = [.. allEntries
             .Where(entry => filePlacements.Any(placement => _pathManager.GetPlacementRelativePath(
                 placement,
                 entry.Key) is not null) || entry.Key == _pathManager.PackageManifestFileName)];
@@ -91,6 +96,11 @@ public partial class Lip
 
                 writer.Write(entry.Key, await entry.OpenRead());
             }
+        }
+
+        foreach (var entry in allEntries)
+        {
+            await entry.DisposeAsync();
         }
 
         // Run post-pack scripts.

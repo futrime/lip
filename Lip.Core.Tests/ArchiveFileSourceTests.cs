@@ -17,7 +17,7 @@ public class ArchiveFileSourceTests
     [InlineData(ArchiveType.Tar, CompressionType.None)]
     [InlineData(ArchiveType.Tar, CompressionType.GZip)]
     [InlineData(ArchiveType.Tar, CompressionType.LZip)]
-    public async Task GetAllFiles_ReturnsFiles(ArchiveType archiveType, CompressionType compressionType)
+    public void GetAllFiles_ReturnsFiles(ArchiveType archiveType, CompressionType compressionType)
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -35,11 +35,11 @@ public class ArchiveFileSourceTests
         ArchiveFileSource fileSource = new(fileSystem, "archive");
 
         // Act.
-        List<IFileSourceEntry> files = await fileSource.GetAllEntries();
+        IAsyncEnumerable<IFileSourceEntry> files = fileSource.GetAllEntries();
 
         // Assert.
         Assert.Collection(
-            files,
+            files.ToBlockingEnumerable(),
             async file =>
             {
                 Assert.Equal("path/to/entry1", file.Key);
@@ -133,11 +133,7 @@ public class ArchiveFileSourceTests
     public void Entry_Key_ReturnsKey()
     {
         // Arrange.
-        MockFileSystem fileSystem = new();
-
-        CreateTestFiles(fileSystem, ArchiveType.Tar, CompressionType.None, new() { { "path/to/entry", "test content" } });
-
-        ArchiveFileSourceEntry fileSourceEntry = new(fileSystem, "archive", "path/to/entry");
+        ArchiveFileSourceEntry fileSourceEntry = new("path/to/entry", new MemoryStream());
 
         // Act.
         string key = fileSourceEntry.Key;
@@ -146,43 +142,17 @@ public class ArchiveFileSourceTests
         Assert.Equal("path/to/entry", key);
     }
 
-    [Theory]
-    [InlineData(ArchiveType.Zip, CompressionType.None)]
-    [InlineData(ArchiveType.Zip, CompressionType.Deflate)]
-    [InlineData(ArchiveType.Zip, CompressionType.BZip2)]
-    [InlineData(ArchiveType.Zip, CompressionType.LZMA)]
-    [InlineData(ArchiveType.Zip, CompressionType.PPMd)]
-    [InlineData(ArchiveType.Tar, CompressionType.None)]
-    [InlineData(ArchiveType.Tar, CompressionType.GZip)]
-    [InlineData(ArchiveType.Tar, CompressionType.LZip)]
-    public async Task Entry_OpenRead_ReturnsStream(ArchiveType archiveType, CompressionType compressionType)
+    [Fact]
+    public async Task Entry_OpenRead_ReturnsStream()
     {
         // Arrange.
-        MockFileSystem fileSystem = new();
-
-        CreateTestFiles(fileSystem, archiveType, compressionType, new() { { "path/to/entry", "test content" } });
-
-        ArchiveFileSourceEntry fileSourceEntry = new(fileSystem, "archive", "path/to/entry");
+        ArchiveFileSourceEntry fileSourceEntry = new("path/to/entry", new MemoryStream(Encoding.UTF8.GetBytes("test content")));
 
         // Act.
         Stream stream = await fileSourceEntry.OpenRead();
 
         // Assert.
         Assert.Equal("test content", new StreamReader(stream).ReadToEnd());
-    }
-
-    [Fact]
-    public async Task Entry_OpenRead_KeyNotFound_Throws()
-    {
-        // Arrange.
-        MockFileSystem fileSystem = new();
-
-        CreateTestFiles(fileSystem, ArchiveType.Tar, CompressionType.None, new() { { "path/to/entry", "test content" } });
-
-        ArchiveFileSourceEntry fileSourceEntry = new(fileSystem, "archive", "path/to/entry1");
-
-        // Act and assert.
-        await Assert.ThrowsAsync<InvalidOperationException>(fileSourceEntry.OpenRead);
     }
 
     private static void CreateTestFiles(

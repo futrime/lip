@@ -71,9 +71,12 @@ public class CacheManagerTests
             Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fexample.com%2Ftest.file")))
             .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test")));
 
+        var logger = new Mock<ILogger>();
+
         var context = new Mock<IContext>();
         context.SetupGet(c => c.Downloader).Returns(downloader.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
@@ -104,9 +107,12 @@ public class CacheManagerTests
                 "https%3A%2F%2Fexample.com%2Fgithub-proxy%2Fuser%2Frepo%2Ftest.file")))
             .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test")));
 
+        var logger = new Mock<ILogger>();
+
         var context = new Mock<IContext>();
         context.SetupGet(c => c.Downloader).Returns(downloader.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
@@ -174,9 +180,12 @@ public class CacheManagerTests
             Path.Join(s_cacheDir, "downloaded_files", "https%3A%2F%2Fbackup.example.com%2Ftest.file")))
             .Callback<Url, string>((url, path) => fileSystem.AddFile(path, new MockFileData("test 2")));
 
+        var logger = new Mock<ILogger>();
+
         var context = new Mock<IContext>();
         context.SetupGet(c => c.Downloader).Returns(downloader.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
@@ -293,15 +302,47 @@ public class CacheManagerTests
             { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Frepo", "v1.0.0", "file"), new MockFileData("content") }
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
         CacheManager cacheManager = new(context.Object, pathManager, [], []);
 
         var packageSpecifier = PackageSpecifier.Parse("example.com/repo@1.0.0");
+
+        // Act.
+        IFileSource fileSource = await cacheManager.GetPackageFileSource(packageSpecifier);
+
+        // Assert.
+        Assert.Equal("content", new StreamReader(await fileSource.GetFileStream("file") ?? Stream.Null).ReadToEnd());
+    }
+
+    [Fact]
+    public async Task GetPackageFileSource_WithGitHubProxy_Returns()
+    {
+        // Arrange.
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { Path.Join(s_cacheDir, "git_repos", "https%3A%2F%2Fexample.com%2Fgithub-proxy%2Frepo", "v1.0.0", "file"), new MockFileData("content") }
+        });
+
+        Mock<ILogger> logger = new();
+
+        Mock<IContext> context = new();
+        context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
+
+        PathManager pathManager = new(fileSystem, s_cacheDir);
+
+        CacheManager cacheManager = new(context.Object, pathManager, [Url.Parse("https://example.com/github-proxy")], []);
+
+        var packageSpecifier = PackageSpecifier.Parse("github.com/repo@1.0.0");
 
         // Act.
         IFileSource fileSource = await cacheManager.GetPackageFileSource(packageSpecifier);
@@ -325,9 +366,12 @@ public class CacheManagerTests
             .Callback<string, string, string?, int?>((url, path, _, _)
                 => fileSystem.AddFile(Path.Join(path, "file"), new MockFileData("content")));
 
+        var logger = new Mock<ILogger>();
+
         var context = new Mock<IContext>();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(git.Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 
@@ -361,8 +405,11 @@ public class CacheManagerTests
                 { "file", "content" }
             });
 
+        Mock<ILogger> logger = new();
+
         var context = new Mock<IContext>();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         PathManager pathManager = new(fileSystem, s_cacheDir);
 

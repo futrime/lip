@@ -24,8 +24,8 @@ public partial class Lip(
 
         PathManager pathManager = new(context.FileSystem, runtimeConfig.Cache, context.WorkingDir);
         CacheManager cacheManager = new(context, pathManager, gitHubProxies, goModuleProxies);
-        PackageManager packageManager = new(context, cacheManager, pathManager, goModuleProxies);
-        DependencySolver dependencySolver = new(packageManager);
+        PackageManager packageManager = new(context, cacheManager, pathManager, gitHubProxies, goModuleProxies);
+        DependencySolver dependencySolver = new(context, packageManager);
 
         return new Lip(runtimeConfig, context, cacheManager, dependencySolver, packageManager, pathManager);
     }

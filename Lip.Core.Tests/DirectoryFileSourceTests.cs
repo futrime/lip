@@ -20,16 +20,17 @@ public class DirectoryFileSourceTests
         var source = new DirectoryFileSource(fileSystem, rootDirPath);
 
         // Act
-        List<IFileSourceEntry> entries = await source.GetAllEntries();
+        IAsyncEnumerable<IFileSourceEntry> entries = source.GetAllEntries();
+        var entriesList = entries.ToBlockingEnumerable().ToList();
 
         // Assert
-        Assert.Equal(3, entries.Count);
-        Assert.Equal("file1", entries[0].Key);
-        Assert.Equal("file2", entries[1].Key);
-        Assert.Equal("dir/file3", entries[2].Key);
-        Assert.Equal("Test content 1", new StreamReader(await entries[0].OpenRead()).ReadToEnd());
-        Assert.Equal("Test content 2", new StreamReader(await entries[1].OpenRead()).ReadToEnd());
-        Assert.Equal("Test content 3", new StreamReader(await entries[2].OpenRead()).ReadToEnd());
+        Assert.Equal(3, entriesList.Count);
+        Assert.Equal("file1", entriesList[0].Key);
+        Assert.Equal("file2", entriesList[1].Key);
+        Assert.Equal("dir/file3", entriesList[2].Key);
+        Assert.Equal("Test content 1", new StreamReader(await entriesList[0].OpenRead()).ReadToEnd());
+        Assert.Equal("Test content 2", new StreamReader(await entriesList[1].OpenRead()).ReadToEnd());
+        Assert.Equal("Test content 3", new StreamReader(await entriesList[2].OpenRead()).ReadToEnd());
     }
 
     [Fact]

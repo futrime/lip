@@ -51,10 +51,12 @@ public class DependencySolverTests
             ]
         };
 
+        Mock<IContext> contextMock = new();
+
         Mock<IPackageManager> packageManagerMock = new();
         packageManagerMock.Setup(m => m.GetCurrentPackageLock()).ReturnsAsync(packageLock);
 
-        DependencySolver dependencySolver = new(packageManagerMock.Object);
+        DependencySolver dependencySolver = new(contextMock.Object, packageManagerMock.Object);
 
         List<PackageIdentifier> expectedUnnecessaryPackages = [
             new()

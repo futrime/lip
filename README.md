@@ -23,33 +23,27 @@ If you have any questions or comments about this disclaimer, please contact the 
 
 ## Install
 
-**lip** is a self-contained executable file, so you may not want to install it. Just download the latest version from <https://github.com/futrime/lip/releases/latest>.
+**lip** is a standalone executable, so installation isn’t always necessary. Simply download the latest version from [here](https://github.com/futrime/lip/releases/latest). However, we do offer scripts and installers for those who prefer a more conventional setup.
 
-We also provide some scripts to help you install **lip**. You can run the following command to install **lip**:
+For Linux and macOS, we provide installation scripts. Just run the appropriate command below and follow the on-screen instructions:
 
-For Windows (x64), run the following commands:
-  
 ```shell
-mkdir -p %LocalAppData%\lip
-curl -L https://github.com/futrime/lip/releases/latest/download/lip-win-x64.zip -o %LocalAppData%\lip\lip.zip
-tar -xf %LocalAppData%\lip\lip.zip -C %LocalAppData%\lip
-del %LocalAppData%\lip\lip.zip
-setx PATH "%PATH%;%LocalAppData%\lip"
-```
-
-For Windows (arm64), simply replace `lip-win-x64.zip` with `lip-win-arm64.zip` in the above commands.
-
-For Linux, run the following command and follow the instructions in the script to complete the installation:
-  
-```shell
+# For Linux
 curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_linux.sh | sh
 ```
 
-For macOS, run the following command and follow the instructions in the script to complete the installation:
-  
 ```shell
+# For macOS
 curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_macos.sh | sh
 ```
+
+For Windows, you can install lip by winget:
+
+```shell
+winget install futrime.lip
+```
+
+or download either `lip-cli-win-x64-en-US.msi` (for English) or `lip-cli-win-x64-zh-CN.msi` (for Chinese) from [this page](https://github.com/futrime/lip/releases/latest). Run the installer and follow the prompts to set up **lip**.
 
 ## Usage
 

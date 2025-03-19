@@ -1,0 +1,14 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Fragment>
+        <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
+            <Component>
+                <!--Because wixproj not work with dotnet publish command, but use dotnet build can't generate single file. -->
+                <!--So, I have to hard-code binary path instead of add Lip.CLI to dependencies.-->
+                <File Source="..\bin\lip.exe"/>
+                <Environment Id='UpdatePath' Name='PATH' Action='set' Permanent='no' System='yes' Part='last'
+                             Value='[INSTALLFOLDER]'/>
+            </Component>
+            <Files Include="..\bin\**"><Exclude Files="..\bin\lip.exe" /></Files>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

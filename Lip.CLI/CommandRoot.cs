@@ -35,7 +35,7 @@ class CommandRoot : AsyncCommand<CommandRoot.Settings>
 
         logger.LogCritical("No command specified. Use 'lip --help' for more information.");
 
-        return -1;
+        return 0;
     }
 
     public static async Task<(Core.Lip lip, ILogger logger, UserInteraction userInteraction)> Prepare(

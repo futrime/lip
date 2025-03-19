@@ -15,15 +15,15 @@ public class StandaloneFileSource(IFileSystem fileSystem, string filePath) : IFi
     private readonly string _filePath = filePath;
     private readonly IFileSystem _fileSystem = fileSystem;
 
-    public async Task<List<IFileSourceEntry>> GetAllEntries()
+    public async IAsyncEnumerable<IFileSourceEntry> GetAllEntries()
     {
-        await Task.Delay(0); // To avoid warning.
-        return [new StandaloneFileSourceEntry(_fileSystem, _filePath)];
+        await Task.CompletedTask; // To avoid warning.
+        yield return new StandaloneFileSourceEntry(_fileSystem, _filePath);
     }
 
     public async Task<IFileSourceEntry?> GetEntry(string key)
     {
-        await Task.Delay(0); // To avoid warning.
+        await Task.CompletedTask; // To avoid warning.
         return (key == string.Empty)
             ? new StandaloneFileSourceEntry(_fileSystem, _filePath)
             : null;
@@ -37,9 +37,23 @@ public class StandaloneFileSourceEntry(IFileSystem fileSystem, string filePath) 
 
     public string Key => string.Empty;
 
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Task.CompletedTask; // Suppress warning.
+
+        GC.SuppressFinalize(this);
+
+        Dispose();
+    }
+
     public async Task<Stream> OpenRead()
     {
-        await Task.Delay(0); // To avoid warning.
+        await Task.CompletedTask; // To avoid warning.
 
         return _fileSystem.File.OpenRead(_filePath);
     }

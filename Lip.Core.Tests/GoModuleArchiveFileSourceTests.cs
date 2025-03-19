@@ -10,7 +10,7 @@ namespace Lip.Core.Tests;
 public class GoModuleArchiveFileSourceTests
 {
     [Fact]
-    public async Task GetAllEntries_ReturnsEntries()
+    public void GetAllEntries_ReturnsEntries()
     {
         // Arrange.
         MockFileSystem fileSystem = new();
@@ -28,11 +28,11 @@ public class GoModuleArchiveFileSourceTests
         GoModuleArchiveFileSource fileSource = new(fileSystem, "archive", "example.com/pkg", SemVersion.Parse("1.0.0"));
 
         // Act.
-        List<IFileSourceEntry> files = await fileSource.GetAllEntries();
+        IAsyncEnumerable<IFileSourceEntry> files = fileSource.GetAllEntries();
 
         // Assert.
         Assert.Collection(
-            files,
+            files.ToBlockingEnumerable(),
             async file =>
             {
                 Assert.Equal("path/to/entry1", file.Key);
@@ -101,11 +101,7 @@ public class GoModuleArchiveFileSourceTests
     public void Entry_Key_ReturnsKey()
     {
         // Arrange.
-        MockFileSystem fileSystem = new();
-
-        CreateTestFiles(fileSystem, ArchiveType.Tar, CompressionType.None, new() { { "key", "test content" } });
-
-        GoModuleArchiveFileSourceEntry fileSourceEntry = new(fileSystem, "archive", "key", "path/to/entry");
+        GoModuleArchiveFileSourceEntry fileSourceEntry = new("key", "path/to/entry", new MemoryStream());
 
         // Act.
         string key = fileSourceEntry.Key;

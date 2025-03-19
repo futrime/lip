@@ -1,4 +1,5 @@
 using Flurl;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.InteropServices;
@@ -119,10 +120,13 @@ public class LipCacheTests
                 fileSystem.AddFile(Path.Join(dest, "tooth.json"), new MockFileData(packageManifestData));
             });
 
+        var logger = new Mock<ILogger>();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.Downloader).Returns(downloader.Object);
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(git.Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -166,9 +170,12 @@ public class LipCacheTests
                 fileSystem.AddFile(Path.Join(dest, "tooth.json"), new MockFileData(packageManifestData));
             });
 
+        var logger = new Mock<ILogger>();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(git.Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -206,9 +213,12 @@ public class LipCacheTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -243,9 +253,12 @@ public class LipCacheTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 

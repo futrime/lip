@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.1] - 2025-03-19
+
+### Added
+
+- Installer will open browser to download .NET when it is not installed
+
+## [0.30.0] - 2025-03-18
+
+### Added
+
+- Not self-contained builds
+
+### Changed
+
+- Installer now installs not self-contained builds
+
+## [0.29.0] - 2025-03-17
+
+### Added
+
+- Try Git cloning on Go module proxy failure
+
+### Fixed
+
+- Fixed cache manager not cloning repos from all GitHub proxies
+- Fixed not applying GitHub proxies when listing remote versions with Git
+- Fixed abnormal installation
+
+## [0.28.3] - 2025-03-15
+
+### Changed
+
+- Replaced List with IAsyncEnumerable in IFileSource.GetAllEntries
+- Save content in memory for entries
+- Suppress no await warning with Task.CompletedTask
+
+### Fixed
+
+- Fixed GitHub clone not via GitHub proxies
+- Fixed missing +incompatible in CacheManager
+- Fixed directory not delete when uninstall [#218]
+
+## [0.28.2] - 2025-03-12
+
+### Fixed
+
+- Disabled CET to keep old Windows's compability
+- Fixed an issue where packages with major version >= 2 were uninstalled when installing packages
+
+## [0.28.1] - 2025-03-10
+
+### Changed
+
+- Return 0 when no command specified
+
+## [0.28.0] - 2025-03-09
+
+### Added
+
+- Windows installer for lip CLI
+
+## [0.27.2] - 2025-03-09
+
+### Added
+
+- Add installer for Windows
+
 ## [0.27.1] - 2025-03-08
 
 ### Changed
@@ -544,7 +611,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#134]: https://github.com/futrime/lip/issues/134
 [#140]: https://github.com/futrime/lip/issues/140
 [#157]: https://github.com/futrime/lip/issues/157
+[#218]: https://github.com/futrime/lip/issues/218
 
+[0.30.1]: https://github.com/futrime/lip/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/futrime/lip/compare/v0.29.0...v0.30.0
+[0.29.0]: https://github.com/futrime/lip/compare/v0.28.3...v0.29.0
+[0.28.3]: https://github.com/futrime/lip/compare/v0.28.2...v0.28.3
+[0.28.2]: https://github.com/futrime/lip/compare/v0.28.1...v0.28.2
+[0.28.1]: https://github.com/futrime/lip/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/futrime/lip/compare/v0.27.2...v0.28.0
+[0.27.2]: https://github.com/futrime/lip/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/futrime/lip/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/futrime/lip/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/futrime/lip/compare/v0.26.1...v0.26.2

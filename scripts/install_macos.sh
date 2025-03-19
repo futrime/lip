@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 # Generate the platform suffix based on the architecture.
 ARCH=$(arch)
 if [ "$ARCH" = "arm64" ]; then
@@ -16,7 +18,7 @@ if [ -z "$GITHUB_MIRROR" ]; then
   GITHUB_MIRROR="https://github.com"
 fi
 GITHUB_MIRROR=$(echo "$GITHUB_MIRROR" | sed 's:/*$::')
-DOWNLOAD_URL="$GITHUB_MIRROR/futrime/lip/releases/latest/download/lip-osx-$PLATFORM_SUFFIX.zip"
+DOWNLOAD_URL="$GITHUB_MIRROR/futrime/lip/releases/latest/download/lip-cli-osx-$PLATFORM_SUFFIX.zip"
 
 # Download the release.
 TEMP_DIR=$(mktemp -d)
@@ -24,7 +26,7 @@ echo "Downloading $DOWNLOAD_URL"
 curl -fLS $DOWNLOAD_URL | tar -x -C $TEMP_DIR
 
 # Install the binary.
-INSTALL_DIR_FROM_HOME="Library/Application Support/lip"
+INSTALL_DIR_FROM_HOME=".local/bin"
 INSTALL_DIR="$HOME/$INSTALL_DIR_FROM_HOME"
 echo "Installing to $INSTALL_DIR"
 if [ ! -d "$INSTALL_DIR" ]; then

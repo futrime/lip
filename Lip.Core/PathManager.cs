@@ -24,7 +24,7 @@ public interface IPathManager
     string WorkingDir { get; }
 
     string GetDownloadedFileCachePath(Url url);
-    string GetGitRepoDirCachePath(string url, string tag);
+    string GetGitRepoDirCachePath(Url url, string tag);
     string GetPackageManifestPath(string baseDir);
     string? GetPlacementRelativePath(PackageManifest.Placement placement, string fileSourceEntryKey);
     Url ParseDownloadedFileCachePath(string downloadedFileCachePath);
@@ -64,7 +64,7 @@ public class PathManager(IFileSystem fileSystem, string? baseCacheDir = null, st
         return _fileSystem.Path.Join(BaseDownloadedFileCacheDir, downloadedFileName);
     }
 
-    public string GetGitRepoDirCachePath(string url, string tag)
+    public string GetGitRepoDirCachePath(Url url, string tag)
     {
         string repoDirName = Url.Encode(url);
         string tagDirName = Url.Encode(tag);

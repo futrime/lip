@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.InteropServices;
@@ -91,9 +92,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -125,9 +129,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -156,9 +163,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -187,9 +197,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -215,9 +228,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -243,9 +259,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 
@@ -271,9 +290,12 @@ public class LipViewTests
         },
         });
 
+        Mock<ILogger> logger = new();
+
         Mock<IContext> context = new();
         context.SetupGet(c => c.FileSystem).Returns(fileSystem);
         context.SetupGet(c => c.Git).Returns(new Mock<IGit>().Object);
+        context.SetupGet(c => c.Logger).Returns(logger.Object);
 
         Lip lip = Lip.Create(runtimeConfig, context.Object);
 

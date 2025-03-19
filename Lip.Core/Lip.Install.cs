@@ -47,171 +47,281 @@ public partial class Lip
 
     public async Task Install(List<string>? userInputPackageTexts, InstallArgs args)
     {
-        // If no packages are specified, add the current directory as a package specifier.
-        userInputPackageTexts ??= ["."];
+        // Here we regulate the abbreviations of glossary terms used in this method:
+        // - UIP: User input packages
+        // - IP: Installed packages
+        // - LP: Installed and locked packages
+        // - DP: Direct and indirect dependencies of UIP and LP, along with UIP and LP themselves
+        // - TUP: Packages to uninstall, IP x (-DP + UIP)
+        // - TIP: Packages to install, UIP + (DP - IP)
+        // - TLP: Packages to lock, UIP + LP
 
-        // Parse user input package texts for packages and check conflicts.
+        //
+        // Step 1: Get UIP.
+        //
+        // Result variables:
+        // - userInputDetails (UIP)
+        // - userInputSpecifiers (UIP)
 
-        TopoSortedPackageList<PackageInstallDetail> packageInstallDetails = [];
-        List<PackageSpecifier> packageSpecifiersToInstallSpecified = [];
+        #region UIP
 
-        foreach (string packageText in userInputPackageTexts)
+        _context.Logger.LogDebug("Getting user input packages...");
+
+        // Parse package install details from user input.
+        // If no input, install the current directory with the empty variant label.
+        List<PackageInstallDetail> userInputDetails = [];
+        foreach (string userInputPackageText in userInputPackageTexts ?? ["."])
         {
-            PackageInstallDetail installDetail = await GetPackageInstallDetailFromUserInput(packageText);
+            var detail = await GetPackageInstallDetailFromUserInput(userInputPackageText);
+            userInputDetails.Add(detail);
+        }
 
+        IEnumerable<PackageSpecifier> userInputSpecifiers = userInputDetails
+            .Select(detail => detail.Specifier);
+
+        _context.Logger.LogDebug("Packages from user input:");
+        foreach (PackageSpecifier userInputSpecifier in userInputSpecifiers)
+        {
+            _context.Logger.LogDebug("  {specifier}", userInputSpecifier);
+        }
+
+        // Validate user input package install details.
+        foreach (var detail in userInputDetails)
+        {
             PackageLock.Package? installedPackage = await _packageManager.GetPackageFromLock(
-                installDetail.Specifier.Identifier);
+                detail.Specifier.Identifier);
 
-            // If not installed, add to install details.
-            if (installedPackage is null)
+            // If (1) not installed, (2) force, or (3) update is specified and the installed
+            // package is older, it is okay.
+            if (installedPackage is null
+                || args.Force
+                || (args.Update
+                    && installedPackage.Specifier.Version.ComparePrecedenceTo(detail.Manifest.Version) < 0)
+            )
             {
-                packageInstallDetails.Add(installDetail);
-                packageSpecifiersToInstallSpecified.Add(installDetail.Specifier);
-
-                continue;
-            }
-
-            // If force, add to install details.
-            if (args.Force)
-            {
-                packageInstallDetails.Add(installDetail);
-                packageSpecifiersToInstallSpecified.Add(installDetail.Specifier);
-
-                continue;
-            }
-
-            // If installed with the same version, skip.
-            if (installedPackage.Specifier.Version == installDetail.Manifest.Version)
-            {
-                _context.Logger.LogWarning(
-                    "Package '{specifier}' is already installed. Skipping.",
-                    new PackageSpecifier()
-                    {
-                        ToothPath = installDetail.Manifest.ToothPath,
-                        VariantLabel = installDetail.VariantLabel,
-                        Version = installDetail.Manifest.Version
-                    }
-                );
-
-                continue;
-            }
-
-            // If installed with a previous version and Update is specified, add to install details.
-            if (args.Update && installedPackage.Specifier.Version.ComparePrecedenceTo(
-                installDetail.Manifest.Version) < 0)
-            {
-                packageInstallDetails.Add(installDetail);
-                packageSpecifiersToInstallSpecified.Add(installDetail.Specifier);
-
                 continue;
             }
 
             // Otherwise, there is a conflict.
-
-            PackageSpecifier specifier = new()
-            {
-                ToothPath = installDetail.Manifest.ToothPath,
-                VariantLabel = installDetail.VariantLabel,
-                Version = installDetail.Manifest.Version
-            };
-
             throw new InvalidOperationException(
-                $"Package '{specifier}' is already installed with a different version '{installedPackage.Specifier.Version}.");
+                $"Package '{detail.Specifier}' from input is already installed with version '{installedPackage.Specifier.Version}'.");
         }
 
-        // Solve dependencies.
+        #endregion
+
+        //
+        // Step 2: Get IP.
+        //
+        // Result variables:
+        // - installedSpecifiers (IP)
+
+        #region IP
+
+        _context.Logger.LogDebug("Getting installed packages...");
 
         PackageLock packageLock = await _packageManager.GetCurrentPackageLock();
 
-        List<PackageSpecifier> primaryPackageSpecifiers = [
-            .. packageInstallDetails
-                .Select(detail => detail.Specifier),
-            .. packageLock.Packages
-                .Where(@lock => @lock.Locked)
-                .Select(@lock => @lock.Specifier)
-                .Where(specifier => !packageInstallDetails.Any(detail => detail.Specifier.Identifier == specifier.Identifier))
-        ];
+        IEnumerable<PackageSpecifier> installedSpecifiers = packageLock.Packages
+            .Select(@lock => @lock.Specifier);
 
-        List<PackageSpecifier> packageSpecifiersToInstall = (args.NoDependencies
-            ? primaryPackageSpecifiers
+        _context.Logger.LogDebug("Installed packages:");
+        foreach (PackageSpecifier installedSpecifier in installedSpecifiers)
+        {
+            _context.Logger.LogDebug("  {specifier}", installedSpecifier);
+        }
+
+        #endregion
+
+        //
+        // Step 3: Get LP.
+        //
+        // Result variables:
+        // - lockedSpecifiers (LP)
+
+        #region LP
+
+        _context.Logger.LogDebug("Getting locked packages...");
+
+        IEnumerable<PackageSpecifier> lockedSpecifiers = packageLock.Packages
+            .Where(@lock => @lock.Locked)
+            .Select(@lock => @lock.Specifier);
+
+        _context.Logger.LogDebug("Locked packages:");
+        foreach (PackageSpecifier lockedSpecifier in lockedSpecifiers)
+        {
+            _context.Logger.LogDebug("  {specifier}", lockedSpecifier);
+        }
+
+        #endregion
+
+        //
+        // Step 4: Get DP.
+        //
+        // Result variables:
+        // - dependentSpecifiers (DP)
+
+        #region DP
+
+        _context.Logger.LogDebug("Getting dependent packages...");
+
+        IEnumerable<PackageSpecifier> dependentSpecifiers = args.NoDependencies
+            // If NoDependencies is specified, assume DP = UIP + IP.
+            ? [
+                ..userInputSpecifiers,
+                ..installedSpecifiers
+                    // User input packages take precedence over other packages.
+                    .Where(installedSpecifier => !userInputSpecifiers
+                        .Any(userInputSpecifier => userInputSpecifier.Identifier == installedSpecifier.Identifier)
+                    ),
+            ]
             : await _dependencySolver.ResolveDependencies(
-                primaryPackageSpecifiers,
-                installedPackageSpecifiers: [.. packageLock.Packages.Select(@lock => @lock.Specifier)],
+                primaryPackageSpecifiers: [
+                    ..userInputDetails.Select(detail => detail.Specifier),
+                    ..lockedSpecifiers
+                        // User input packages take precedence over other packages.
+                        .Where(lockedSpecifier => !userInputSpecifiers
+                            .Any(userInputSpecifier => userInputSpecifier.Identifier == lockedSpecifier.Identifier)
+                        ),
+                ],
+                installedPackageSpecifiers: installedSpecifiers,
                 knownPackages: [
-                    .. packageLock.Packages,
-                    .. packageInstallDetails.Select(detail => new PackageLock.Package()
+                    ..packageLock.Packages,
+                    ..userInputDetails.Select(detail => new PackageLock.Package()
                     {
                         Files = [],
-                        Locked = false,
+                        Locked = true,
                         Manifest = detail.Manifest,
                         VariantLabel = detail.VariantLabel,
-                    })
-                ]))
-                ?? throw new InvalidOperationException("Cannot resolve dependencies.");
+                    }),
+                ]
+            ) ?? throw new InvalidOperationException("Cannot resolve dependencies.");
 
-        // Prepare package install details and uninstall details.
-
-        TopoSortedPackageList<PackageUninstallDetail> packageUninstallDetails = [];
-
-        foreach (PackageSpecifier packageSpecifierToInstall in packageSpecifiersToInstall)
+        _context.Logger.LogDebug("Dependent packages:");
+        foreach (PackageSpecifier dependentSpecifier in dependentSpecifiers)
         {
-            // If installed with the same version, skip.
+            _context.Logger.LogDebug("  {specifier}", dependentSpecifier);
+        }
 
-            PackageLock.Package? installedPackage = await _packageManager.GetPackageFromLock(
-                packageSpecifierToInstall.Identifier);
+        #endregion
 
-            if (installedPackage?.Specifier.Version == packageSpecifierToInstall.Version)
+        //
+        // Step 5: Get TUP = IP x (-DP + UIP).
+        //
+        // Result variables:
+        // - uninstallDetails (TUP)
+
+        #region TUP
+
+        _context.Logger.LogDebug("Getting packages to uninstall...");
+
+        TopoSortedPackageList<PackageUninstallDetail> uninstallDetails = [];
+        foreach (var installedSpecifier in installedSpecifiers)
+        {
+            PackageLock.Package installedPackage = (await _packageManager.GetPackageFromLock(installedSpecifier.Identifier))!;
+
+            if (!dependentSpecifiers.Any(dependentSpecifier => dependentSpecifier.Identifier == installedSpecifier.Identifier)
+                || userInputSpecifiers.Any(userInputSpecifier => userInputSpecifier.Identifier == installedSpecifier.Identifier))
             {
-                _context.Logger.LogInformation(
-                    "Dependency package '{specifier}' is already installed. Skipping.",
-                    packageSpecifierToInstall
-                );
-                continue;
-            }
-
-            // If installed with different version, add to uninstall details.
-
-            if (installedPackage is not null
-                && installedPackage.Specifier.Version != packageSpecifierToInstall.Version)
-            {
-                packageUninstallDetails.Add(new PackageUninstallDetail
+                uninstallDetails.Add(new PackageUninstallDetail()
                 {
                     Package = installedPackage
                 });
             }
-
-            // Add to install details.
-
-            if (!packageInstallDetails.Any(detail => detail.Specifier == packageSpecifierToInstall))
-            {
-                IFileSource fileSource = await _cacheManager.GetPackageFileSource(packageSpecifierToInstall);
-
-                PackageManifest packageManifest = await _packageManager.GetPackageManifestFromFileSource(fileSource)
-                    ?? throw new InvalidOperationException($"Cannot get package manifest from package '{packageSpecifierToInstall}'.");
-
-                packageInstallDetails.Add(new PackageInstallDetail
-                {
-                    FileSource = fileSource,
-                    Manifest = packageManifest,
-                    VariantLabel = packageSpecifierToInstall.VariantLabel
-                });
-            }
         }
 
-        // Uninstall packages in topological order.
+        _context.Logger.LogDebug("Packages to uninstall:");
+        foreach (PackageUninstallDetail uninstallDetail in uninstallDetails)
+        {
+            _context.Logger.LogDebug("  {specifier}", uninstallDetail.Package.Specifier);
+        }
 
-        foreach (PackageUninstallDetail packageUninstallDetail in packageUninstallDetails)
+        #endregion
+
+        //
+        // Step 6: Get TIP = UIP + (DP - IP).
+        //
+        // Result variables:
+        // - installDetails (TIP)
+
+        #region TIP
+
+        _context.Logger.LogDebug("Getting packages to install...");
+
+        TopoSortedPackageList<PackageInstallDetail> installDetails = [];
+
+        installDetails.AddRange(userInputDetails);
+
+        foreach (PackageSpecifier dependentSpecifier in dependentSpecifiers)
+        {
+            if (installedSpecifiers.Any(installedSpecifier => installedSpecifier.Identifier == dependentSpecifier.Identifier)
+                || userInputDetails.Any(userInputDetail => userInputDetail.Specifier.Identifier == dependentSpecifier.Identifier))
+            {
+                continue;
+            }
+
+            IFileSource fileSource = await _cacheManager.GetPackageFileSource(dependentSpecifier);
+
+            PackageManifest manifest = await _packageManager.GetPackageManifestFromFileSource(fileSource)
+                ?? throw new InvalidOperationException($"Cannot get package manifest from package '{dependentSpecifier}'.");
+
+            installDetails.Add(new PackageInstallDetail
+            {
+                FileSource = fileSource,
+                Manifest = manifest,
+                VariantLabel = dependentSpecifier.VariantLabel,
+            });
+        }
+
+        _context.Logger.LogDebug("Packages to install:");
+        foreach (PackageInstallDetail installDetail in installDetails)
+        {
+            _context.Logger.LogDebug("  {specifier}", installDetail.Specifier);
+        }
+
+        #endregion
+
+        //
+        // Step 7: Get TLP = UIP + LP.
+        //
+        // Result variables:
+        // - specifiersToLock (TLP)
+
+        #region TLP
+
+        _context.Logger.LogDebug("Getting packages to lock...");
+
+        IEnumerable<PackageSpecifier> specifiersToLock = [
+            ..userInputSpecifiers,
+            ..lockedSpecifiers
+                // User input packages take precedence over other packages.
+                .Where(lockedSpecifier => !userInputSpecifiers
+                    .Any(userInputSpecifier => userInputSpecifier.Identifier == lockedSpecifier.Identifier)
+                ),
+        ];
+
+        _context.Logger.LogDebug("Packages to lock:");
+        foreach (PackageSpecifier specifierToLock in specifiersToLock)
+        {
+            _context.Logger.LogDebug("  {specifier}", specifierToLock);
+        }
+
+        #endregion
+
+        //
+        // Step 8: Perform the installation.
+        //
+
+        // Uninstall packages in topological order.
+        foreach (PackageUninstallDetail uninstallDetail in uninstallDetails)
         {
             await _packageManager.UninstallPackage(
-                packageUninstallDetail.Specifier.Identifier,
+                uninstallDetail.Package.Specifier.Identifier,
                 args.DryRun,
                 args.IgnoreScripts);
         }
 
         // Install packages in reverse topological order.
-
-        foreach (PackageInstallDetail packageInstallDetail
-            in packageInstallDetails.AsEnumerable().Reverse())
+        foreach (PackageInstallDetail packageInstallDetail in installDetails.AsEnumerable().Reverse())
         {
             // Lock the package if it is a primary package specifier.
             await _packageManager.InstallPackage(
@@ -219,7 +329,7 @@ public partial class Lip
                 packageInstallDetail.VariantLabel,
                 args.DryRun,
                 args.IgnoreScripts,
-                locked: primaryPackageSpecifiers.Contains(packageInstallDetail.Specifier));
+                locked: specifiersToLock.Contains(packageInstallDetail.Specifier));
         }
     }
 
