@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.PackageDetails.TagView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
+    x:DataType="local:TagView"
+    HeightRequest="24"
+    HorizontalOptions="Start"
+    VerticalOptions="Start">
+
+    <Border
+        x:Name="_border"
+        HorizontalOptions="Start"
+        StrokeShape="RoundRectangle 10,10,10,10"
+        VerticalOptions="Start">
+
+        <Grid Margin="8,0,8,0">
+
+            <Button
+                x:Name="_button"
+                BackgroundColor="Transparent"
+                BorderColor="Transparent"
+                BorderWidth="0"
+                Clicked="Button_Clicked" />
+
+            <Label
+                x:Name="_text"
+                FontSize="14"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                VerticalOptions="Center"
+                VerticalTextAlignment="Center" />
+
+        </Grid>
+    </Border>
+
+</ContentView>

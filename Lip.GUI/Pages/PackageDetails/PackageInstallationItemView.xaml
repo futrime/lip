@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.PackageDetails.PackageInstallationItemView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
+    x:DataType="local:PackageInstallationItemView"
+    HeightRequest="32"
+    Loaded="ContentView_Loaded">
+
+    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="5">
+
+        <HorizontalStackLayout
+            Grid.Column="0"
+            HorizontalOptions="Start"
+            Spacing="3">
+
+            <Label
+                x:Name="_name"
+                FontSize="13"
+                VerticalTextAlignment="Center" />
+
+            <ActivityIndicator
+                x:Name="_activityIndicator"
+                HeightRequest="10"
+                IsRunning="True"
+                WidthRequest="10" />
+
+        </HorizontalStackLayout>
+
+        <Label
+            x:Name="_version"
+            Grid.Column="1"
+            FontSize="12"
+            HorizontalOptions="Start"
+            VerticalTextAlignment="Center" />
+
+        <CheckBox
+            x:Name="_checkbox"
+            Grid.Column="2"
+            CheckedChanged="Checkbox_CheckedChanged"
+            HorizontalOptions="Center"
+            IsEnabled="False" />
+
+    </Grid>
+
+</ContentView>

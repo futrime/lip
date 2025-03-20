@@ -35,7 +35,4 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
-/.venv/
-/site/
 /*.sln
-.vs/

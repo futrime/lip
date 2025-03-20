@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Lip.GUI.Pages.PackageDetails.PackageInstallationView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Lip.GUI.Pages.PackageDetails"
+    x:Name="_view"
+    x:DataType="local:PackageInstallationView"
+    BindingContext="{x:Reference _view}">
+
+    <Border
+        Padding="5"
+        BackgroundColor="{DynamicResource LayerOnBackgroundColorDefault}"
+        HorizontalOptions="Start">
+
+        <VerticalStackLayout HorizontalOptions="Start" Spacing="5">
+            <Border
+                Grid.Column="0"
+                Padding="5"
+                StrokeShape="Rectangle"
+                StrokeThickness="0.5">
+
+                <ScrollView MaximumHeightRequest="200">
+
+                    <VerticalStackLayout
+                        x:Name="_itemsLayout"
+                        HorizontalOptions="Start"
+                        WidthRequest="300">
+
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="5">
+
+                            <Label
+                                Grid.Column="0"
+                                HorizontalOptions="Start"
+                                Text="Name"
+                                VerticalTextAlignment="Center" />
+
+                            <Label
+                                Grid.Column="1"
+                                HorizontalOptions="Start"
+                                Text="Version"
+                                VerticalTextAlignment="Center" />
+
+                            <Label
+                                Grid.Column="2"
+                                HorizontalOptions="Center"
+                                Text="Status"
+                                VerticalTextAlignment="Center" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+
+                </ScrollView>
+
+            </Border>
+
+            <HorizontalStackLayout HorizontalOptions="End" Spacing="5">
+
+                <Border
+                    Grid.Column="0"
+                    HeightRequest="30"
+                    StrokeShape="Rectangle"
+                    StrokeThickness="0.5">
+
+                    <Picker x:Name="_picker" VerticalOptions="Center" />
+
+                </Border>
+
+                <Border
+                    Grid.Column="1"
+                    HeightRequest="30"
+                    StrokeShape="Rectangle"
+                    StrokeThickness="0.5">
+
+                    <Button
+                        x:Name="_button"
+                        BorderColor="Transparent"
+                        Clicked="ApplyButton_Clicked"
+                        CornerRadius="0"
+                        IsEnabled="False"
+                        MinimumHeightRequest="25"
+                        Text="Apply"
+                        VerticalOptions="Center" />
+                </Border>
+
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+
+    </Border>
+
+</ContentView>
