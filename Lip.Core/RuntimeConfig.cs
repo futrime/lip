@@ -29,7 +29,7 @@ public record RuntimeConfig
     }
 
     [JsonPropertyName("github_proxies")]
-    public string GitHubProxiesText { get; init; } = "";
+    public string GitHubProxiesText { get; init; } = "https://github.com,https://github.levimc.org";
 
     [JsonIgnore]
     public List<string> GoModuleProxies

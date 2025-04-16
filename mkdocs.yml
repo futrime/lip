@@ -22,7 +22,6 @@ nav:
       - user-guide/commands/lip-view.md
     - Files:
       - user-guide/files/tooth-json.md
-  - Get Packages: https://bedrinth.com
 
 theme:
   name: material
@@ -89,5 +88,4 @@ plugins:
             User Guide: 用户指南
             Commands: 命令
             Files: 文件
-            Get Packages: 获取软件包
   - search

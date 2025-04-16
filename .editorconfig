@@ -6,13 +6,14 @@ root = true
 
 #### Core EditorConfig Options ####
 
-indent_style = space
+# Indentation and spacing
 indent_size = 4
+indent_style = space
 tab_width = 4
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
+
+# New line preferences
+end_of_line = crlf
+insert_final_newline = false
 
 #### .NET Coding Conventions ####
 

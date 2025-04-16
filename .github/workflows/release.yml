@@ -64,7 +64,7 @@ jobs:
       #     sudo apt install -y clang llvm binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev:arm64
 
       - id: get-version
-        uses: frabert/replace-string-action@v2
+        uses: frabert/replace-string-action@9c9aeb483eab07adb9d0be75b5212cc0bcef0d4b # v2
         with:
           pattern: "^v"
           string: ${{ github.event.release.tag_name }}
@@ -90,11 +90,23 @@ jobs:
       contents: read
     strategy:
       matrix:
+        runtime:
+          - arm64
+          - x64
+        self-contained:
+          - true
+          - false
         include:
           - runtime: arm64
             runs-on: windows-latest
           - runtime: x64
             runs-on: windows-latest
+          - self-contained: true
+            sc-flag: -self-contained
+            ds-flag: -p:DefineConstants="DisableDotNetCheck"
+          - self-contained: false
+            sc-flag: ''
+            ds-flag: ''
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
@@ -104,38 +116,35 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - id: get-version
-        uses: frabert/replace-string-action@v2
+        uses: frabert/replace-string-action@9c9aeb483eab07adb9d0be75b5212cc0bcef0d4b # v2
         with:
           pattern: "^v"
           string: ${{ github.event.release.tag_name }}
           replace-with: ""
 
       # Prevent versions like 1.1.1-rc.1
-      - name: Modify version of installer
-        run: |
+      - run: |
           $inputString = "${{ steps.get-version.outputs.replaced }}"
           if ($inputString -match "^(.*?)-") { $result = $matches[1] } else { $result = $inputString }
           (Get-Content Package.wxs) -replace '0\.0\.0\.0', "$result.0" | Set-Content Package.wxs
         shell: pwsh
         working-directory: Lip.Installer
 
-      - name: Download cli artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-Lip.CLI-win-${{ matrix.runtime }}-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-Lip.CLI-win-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: bin/
 
-      - name: Build installer
-        run: >
+      - run: >
           dotnet build Lip.Installer
           --configuration Release
           --output bin-installer
-          --p:Platform=${{ matrix.runtime }}
+          -p:Platform=${{ matrix.runtime }}
+          ${{ matrix.ds-flag }}
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-Lip.Installer-win-${{ matrix.runtime }}-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-Lip.Installer-win-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: bin-installer/
 
   update-release-notes:
@@ -146,9 +155,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v2
+        uses: ffurrer2/extract-release-notes@9989ccec43d726ef05aa1cd7b2854fb96b6df6ab # v2
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         with:
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
@@ -188,7 +197,7 @@ jobs:
           tar -czvf ../${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.tar.gz *
         working-directory: artifact
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         with:
           files: |
             ${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.tar.gz
@@ -231,7 +240,7 @@ jobs:
           zip -r ../${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.zip *
         working-directory: artifact
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         with:
           files: |
             ${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.zip
@@ -249,18 +258,21 @@ jobs:
         runtime:
           - win-arm64
           - win-x64
+        sc-flag:
+          - ''
+          - -self-contained
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-Lip.Installer-${{ matrix.runtime }}-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-Lip.Installer-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: artifact-installer/
 
       - run: |
-          mv artifact-installer/${{ matrix.lang }}/Lip.Installer.msi artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}-${{ matrix.lang }}.msi
+          mv artifact-installer/${{ matrix.lang }}/Lip.Installer.msi artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ matrix.lang }}.msi
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
         with:
           files: |
-            artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}-${{ matrix.lang }}.msi
+            artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ matrix.lang }}.msi

@@ -24,7 +24,7 @@ curl -fsSL https://raw.githubusercontent.com/futrime/lip/HEAD/scripts/install_ma
 winget install futrime.lip
 ```
 
-或者从 [此页面](https://github.com/futrime/lip/releases/latest) 下载 `lip-cli-win-x64-en-US.msi`（英文版）或 `lip-cli-win-x64-zh-CN.msi`（中文版）。运行安装程序，并按照提示完成 **lip** 的设置。
+或者从 [Releases页面](https://github.com/futrime/lip/releases/latest) 下载 [`lip-cli-win-x64-en-US.msi`](https://github.com/futrime/lip/releases/latest/download/lip-cli-win-x64-en-US.msi)（英文版安装程序）或 [`lip-cli-win-x64-zh-CN.msi`](https://github.com/futrime/lip/releases/latest/download/lip-cli-win-x64-zh-CN.msi)（中文版安装程序）。运行安装程序，并按照提示完成 **lip** 的设置。
 
 ## lip GUI
 

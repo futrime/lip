@@ -37,7 +37,7 @@ public class LipConfigTests
         Assert.Equal($$"""
         {
             "cache": "/custom/cache",
-            "github_proxies": "",
+            "github_proxies": "https://github.com,https://github.levimc.org",
             "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
@@ -73,7 +73,7 @@ public class LipConfigTests
         Assert.Equal($$"""
         {
             "cache": "/custom/cache",
-            "github_proxies": "",
+            "github_proxies": "https://github.com,https://github.levimc.org",
             "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
@@ -106,7 +106,7 @@ public class LipConfigTests
         Assert.Equal($$"""
         {
             "cache": "/custom/cache",
-            "github_proxies": "",
+            "github_proxies": "https://github.com,https://github.levimc.org",
             "go_module_proxies": "https://custom-proxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
@@ -211,7 +211,7 @@ public class LipConfigTests
         // Assert.
         Assert.Equal(2, result.Count);
         Assert.Equal("/custom/cache", result["cache"]);
-        Assert.Equal("", result["github_proxies"]);
+        Assert.Equal("https://github.com,https://github.levimc.org", result["github_proxies"]);
     }
 
     [Fact]
@@ -317,7 +317,7 @@ public class LipConfigTests
         Assert.Equal($$"""
         {
             "cache": "/path/to/cache",
-            "github_proxies": "",
+            "github_proxies": "https://github.com,https://github.levimc.org",
             "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
@@ -388,7 +388,7 @@ public class LipConfigTests
         Assert.Equal($$"""
         {
             "cache": "/path/to/cache",
-            "github_proxies": "",
+            "github_proxies": "https://github.com,https://github.levimc.org",
             "go_module_proxies": "https://goproxy.io"
         }
         """.ReplaceLineEndings(), fileSystem.File.ReadAllText(s_runtimeConfigPath));
