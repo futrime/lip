@@ -157,7 +157,7 @@ jobs:
       - id: extract-release-notes
         uses: ffurrer2/extract-release-notes@9989ccec43d726ef05aa1cd7b2854fb96b6df6ab # v2
 
-      - uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
+      - uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         with:
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
@@ -197,7 +197,7 @@ jobs:
           tar -czvf ../${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.tar.gz *
         working-directory: artifact
 
-      - uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
+      - uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         with:
           files: |
             ${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.tar.gz
@@ -240,7 +240,7 @@ jobs:
           zip -r ../${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.zip *
         working-directory: artifact
 
-      - uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
+      - uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         with:
           files: |
             ${{ github.event.repository.name }}-${{ matrix.sub-name }}-${{ matrix.runtime }}${{ matrix.sc-flag }}.zip
@@ -272,7 +272,7 @@ jobs:
       - run: |
           mv artifact-installer/${{ matrix.lang }}/Lip.Installer.msi artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ matrix.lang }}.msi
 
-      - uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
+      - uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         with:
           files: |
             artifact-installer/${{ github.event.repository.name }}-cli-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ matrix.lang }}.msi
