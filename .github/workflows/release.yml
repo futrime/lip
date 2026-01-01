@@ -130,7 +130,7 @@ jobs:
         shell: pwsh
         working-directory: Lip.Installer
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.event.repository.name }}-Lip.CLI-win-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: bin/
@@ -185,7 +185,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.project }}-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: artifact/
@@ -228,7 +228,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.event.repository.name }}-${{ matrix.project }}-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: artifact/
@@ -264,7 +264,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ github.event.repository.name }}-Lip.Installer-${{ matrix.runtime }}${{ matrix.sc-flag }}-${{ github.sha }}
           path: artifact-installer/
