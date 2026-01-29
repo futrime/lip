@@ -48,7 +48,7 @@ public class DependencySolver(IContext context, IPackageManager packageManager) 
 
         HashSet<PackageIdentifier> primaryIdentifiers = [.. primaryPackageRequirements.Select(x => x.Identifier)];
         var result = await Backtrack(candidates, selected, knownPackages, primaryIdentifiers);
-        
+
         return result != null
             ? [.. result.Select(static kv => PackageSpecifier.FromIdentifier(kv.Key, kv.Value))]
             : throw new InvalidOperationException("Cannot find a valid state to satisfy all dependencies.");

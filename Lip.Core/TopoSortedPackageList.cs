@@ -68,7 +68,7 @@ public class TopoSortedPackageList<T> : List<T> where T : TopoSortedPackageList<
 
         // Snapshot current items
         var items = new List<T>(this);
-        
+
         // Create a lookup for quick access to items in the list
         // First, validate that there are no duplicate package identifiers to avoid an opaque ToDictionary crash.
         var duplicateGroups = items
@@ -81,7 +81,7 @@ public class TopoSortedPackageList<T> : List<T> where T : TopoSortedPackageList<
             throw new InvalidOperationException(
                 $"TopoSortedPackageList contains multiple items with the same PackageIdentifier: {duplicateIds}.");
         }
-        
+
         var itemMap = items.ToDictionary(i => i.Specifier.Identifier);
 
         var visited = new HashSet<PackageIdentifier>();
