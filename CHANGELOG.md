@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Upgraded to .NET 10.0
-- Prefer newest available package version in dependency solver
+- Prefer oldest available package version for primary packages and newest for dependencies in dependency solver
 
 ### Fixed
 
@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed `lip prune` command
+- Removed `--update` and `--force` flags from `lip install`
+- Removed `--force` flag from `lip update`
 
 ## [0.32.0] - 2025-09-18
 

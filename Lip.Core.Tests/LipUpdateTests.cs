@@ -20,13 +20,14 @@ public class LipUpdateTests
     private readonly MockFileSystem _fileSystem = new();
     private readonly Mock<ILogger> _loggerMock = new();
 
+    private readonly string _workingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\app" : "/app";
     private readonly Lip _lip;
 
     public LipUpdateTests()
     {
         _contextMock.Setup(c => c.FileSystem).Returns(_fileSystem);
         _contextMock.Setup(c => c.Logger).Returns(_loggerMock.Object);
-        _pathManagerMock.Setup(p => p.WorkingDir).Returns("/app");
+        _pathManagerMock.Setup(p => p.WorkingDir).Returns(_workingDir);
 
         _lip = new Lip(
             _runtimeConfig,

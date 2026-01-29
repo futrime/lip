@@ -24,9 +24,10 @@ public class LipInstallTests
 
     public LipInstallTests()
     {
+        var workingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\app" : "/app";
         _contextMock.Setup(c => c.FileSystem).Returns(_fileSystem);
         _contextMock.Setup(c => c.Logger).Returns(_loggerMock.Object);
-        _pathManagerMock.Setup(p => p.WorkingDir).Returns("/app");
+        _pathManagerMock.Setup(p => p.WorkingDir).Returns(workingDir);
 
         _lip = new Lip(
             _runtimeConfig,
@@ -116,8 +117,11 @@ public class LipInstallTests
         _packageManagerMock.Setup(pm => pm.GetPackageManifestFromFileSource(It.IsAny<IFileSource>()))
             .ReturnsAsync(CreateManifest("new-pkg", "2.0.0"));
 
+        _dependencySolverMock.Setup(ds => ds.ResolveDependencies(It.IsAny<IEnumerable<(PackageIdentifier, SemVersionRange)>>(), It.IsAny<IEnumerable<PackageLock.Package>>()))
+            .ReturnsAsync(new List<PackageSpecifier>());
+
         // Act
-        try { await _lip.Install(userInput, args); } catch { }
+        await _lip.Install(userInput, args);
 
         // Assert
         _dependencySolverMock.Verify(ds => ds.ResolveDependencies(
@@ -155,8 +159,11 @@ public class LipInstallTests
         _packageManagerMock.Setup(pm => pm.GetPackageManifestFromFileSource(It.IsAny<IFileSource>()))
             .ReturnsAsync(CreateManifest("new-pkg", "2.0.0"));
 
+        _dependencySolverMock.Setup(ds => ds.ResolveDependencies(It.IsAny<IEnumerable<(PackageIdentifier, SemVersionRange)>>(), It.IsAny<IEnumerable<PackageLock.Package>>()))
+            .ReturnsAsync(new List<PackageSpecifier>());
+
         // Act
-        try { await _lip.Install(userInput, args); } catch { }
+        await _lip.Install(userInput, args);
 
         // Assert
         _dependencySolverMock.Verify(ds => ds.ResolveDependencies(
@@ -198,22 +205,11 @@ public class LipInstallTests
         _packageManagerMock.Setup(pm => pm.GetPackageManifestFromFileSource(It.IsAny<IFileSource>()))
             .ReturnsAsync(CreateManifest("existing-pkg", "1.0.0"));
 
+        _dependencySolverMock.Setup(ds => ds.ResolveDependencies(It.IsAny<IEnumerable<(PackageIdentifier, SemVersionRange)>>(), It.IsAny<IEnumerable<PackageLock.Package>>()))
+            .ReturnsAsync(new List<PackageSpecifier>());
+
         // Act & Assert
-        try
-        {
-            await _lip.Install(userInput, args);
-        }
-        catch (InvalidOperationException ex)
-        {
-            if (ex.Message.Contains("already installed"))
-            {
-                Assert.Fail("Should not throw InvalidOperationException for existing package.");
-            }
-        }
-        catch
-        {
-            // Ignore other exceptions
-        }
+        await _lip.Install(userInput, args);
     }
 
     [Fact]

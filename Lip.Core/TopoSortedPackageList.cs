@@ -68,7 +68,20 @@ public class TopoSortedPackageList<T> : List<T> where T : TopoSortedPackageList<
 
         // Snapshot current items
         var items = new List<T>(this);
+        
         // Create a lookup for quick access to items in the list
+        // First, validate that there are no duplicate package identifiers to avoid an opaque ToDictionary crash.
+        var duplicateGroups = items
+            .GroupBy(i => i.Specifier.Identifier)
+            .Where(g => g.Skip(1).Any())
+            .ToList();
+        if (duplicateGroups.Count > 0)
+        {
+            var duplicateIds = string.Join(", ", duplicateGroups.Select(g => g.Key.ToString()));
+            throw new InvalidOperationException(
+                $"TopoSortedPackageList contains multiple items with the same PackageIdentifier: {duplicateIds}.");
+        }
+        
         var itemMap = items.ToDictionary(i => i.Specifier.Identifier);
 
         var visited = new HashSet<PackageIdentifier>();
@@ -93,12 +106,10 @@ public class TopoSortedPackageList<T> : List<T> where T : TopoSortedPackageList<
             // Visit dependencies first
             foreach (var dep in item.Dependencies)
             {
-                if (itemMap.TryGetValue(dep.Key, out var depItem))
+                if (itemMap.TryGetValue(dep.Key, out var depItem) &&
+                    dep.Value.Contains(depItem.Specifier.Version))
                 {
-                    if (dep.Value.Contains(depItem.Specifier.Version))
-                    {
-                        Visit(depItem);
-                    }
+                    Visit(depItem);
                 }
             }
 
