@@ -20,14 +20,14 @@ public class LipInstallTests
     private readonly MockFileSystem _fileSystem = new();
     private readonly Mock<ILogger> _loggerMock = new();
 
+    private readonly string _workingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\app" : "/app";
     private readonly Lip _lip;
 
     public LipInstallTests()
     {
-        var workingDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"C:\app" : "/app";
         _contextMock.Setup(c => c.FileSystem).Returns(_fileSystem);
         _contextMock.Setup(c => c.Logger).Returns(_loggerMock.Object);
-        _pathManagerMock.Setup(p => p.WorkingDir).Returns(workingDir);
+        _pathManagerMock.Setup(p => p.WorkingDir).Returns(_workingDir);
 
         _lip = new Lip(
             _runtimeConfig,
@@ -332,8 +332,8 @@ public class LipInstallTests
              .ReturnsAsync(new PackageLock { Packages = [] });
 
         // Mock FileSystem for directory check
-        // The path will be combined with WorkingDir (/app)
-        _fileSystem.AddDirectory("/app/local-pkg");
+        // The path will be combined with WorkingDir
+        _fileSystem.AddDirectory(Path.Combine(_workingDir, "local-pkg"));
 
         // Mock Manifest for local directory
         // GetPackageManifestFromFileSource should be called with DirectoryFileSource
@@ -519,7 +519,7 @@ public class LipInstallTests
             0x00, 0x00, 0x00, 0x00, // Uncompressed size
             0x00, 0x00, 0x00, 0x00  // Filename length / Extra field length
         };
-        _fileSystem.AddFile("/app/package.zip", new MockFileData(zipBytes));
+        _fileSystem.AddFile(Path.Combine(_workingDir, "package.zip"), new MockFileData(zipBytes));
 
         // Mock Manifest
         _packageManagerMock.Setup(pm => pm.GetPackageManifestFromFileSource(It.IsAny<ArchiveFileSource>()))

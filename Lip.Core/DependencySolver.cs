@@ -47,20 +47,11 @@ public class DependencySolver(IContext context, IPackageManager packageManager) 
         Dictionary<PackageIdentifier, SemVersion> selected = [];
 
         HashSet<PackageIdentifier> primaryIdentifiers = [.. primaryPackageRequirements.Select(x => x.Identifier)];
+        var result = await Backtrack(candidates, selected, knownPackages, primaryIdentifiers);
         
-        try
-        {
-            var result = await Backtrack(candidates, selected, knownPackages, primaryIdentifiers);
-            
-            return result != null
-                ? [.. result.Select(static kv => PackageSpecifier.FromIdentifier(kv.Key, kv.Value))]
-                : throw new InvalidOperationException("Cannot find a valid state to satisfy all dependencies.");
-        }
-        catch (InvalidOperationException ex) when (ex.InnerException != null)
-        {
-            // Re-throw with the more specific error from Backtrack
-            throw;
-        }
+        return result != null
+            ? [.. result.Select(static kv => PackageSpecifier.FromIdentifier(kv.Key, kv.Value))]
+            : throw new InvalidOperationException("Cannot find a valid state to satisfy all dependencies.");
     }
 
     private async Task<Dictionary<PackageIdentifier, SemVersion>?> Backtrack(
