@@ -72,6 +72,7 @@ public class TopoSortedPackageList<T> : List<T> where T : TopoSortedPackageList<
         // Create a lookup for quick access to items in the list
         // First, validate that there are no duplicate package identifiers to avoid an opaque ToDictionary crash.
         var duplicateGroups = items
+            .Where(i => i.Specifier != null)
             .GroupBy(i => i.Specifier.Identifier)
             .Where(g => g.Skip(1).Any())
             .ToList();

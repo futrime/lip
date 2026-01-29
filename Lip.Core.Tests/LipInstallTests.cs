@@ -108,6 +108,8 @@ public class LipInstallTests
 
         _packageManagerMock.Setup(pm => pm.GetCurrentPackageLock())
             .ReturnsAsync(new PackageLock { Packages = [lockedPackage] });
+        _packageManagerMock.Setup(pm => pm.GetPackageFromLock(It.Is<PackageIdentifier>(id => id.ToString() == "github.com/test/locked-pkg")))
+            .ReturnsAsync(lockedPackage);
 
         _packageManagerMock.Setup(pm => pm.GetPackageRemoteVersions(It.Is<PackageIdentifier>(id => id.ToString() == "github.com/test/new-pkg")))
             .ReturnsAsync(new List<SemVersion> { SemVersion.Parse("2.0.0") });
@@ -150,6 +152,8 @@ public class LipInstallTests
 
         _packageManagerMock.Setup(pm => pm.GetCurrentPackageLock())
             .ReturnsAsync(new PackageLock { Packages = [lockedPackage] });
+        _packageManagerMock.Setup(pm => pm.GetPackageFromLock(It.Is<PackageIdentifier>(id => id.ToString() == "github.com/test/locked-pkg")))
+            .ReturnsAsync(lockedPackage);
 
         _packageManagerMock.Setup(pm => pm.GetPackageRemoteVersions(It.Is<PackageIdentifier>(id => id.ToString() == "github.com/test/new-pkg")))
             .ReturnsAsync(new List<SemVersion> { SemVersion.Parse("2.0.0") });
