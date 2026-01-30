@@ -1,3 +1,4 @@
+using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using System.Text.Json;
 
@@ -5,6 +6,9 @@ namespace Lip.Core.Tests;
 
 public class RuntimeConfigTests
 {
+    private static readonly string s_runtimeConfigPath = Path.Join(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "lip", "liprc.json");
+
     [Fact]
     public void GitHubProxies_InitAndGet_Passes()
     {
@@ -100,5 +104,45 @@ public class RuntimeConfigTests
                 "go_module_proxies": "https://goproxy.io"
             }
             """.ReplaceLineEndings(), Encoding.UTF8.GetString(jsonBytes).ReplaceLineEndings());
+    }
+
+    [Fact]
+    public async Task LoadAsync_FileExists_ReturnsConfig()
+    {
+        // Arrange.
+        RuntimeConfig expectedConfig = new()
+        {
+            Cache = "/custom/cache",
+            GitHubProxies = ["https://example.com"],
+            GoModuleProxies = ["https://example-proxy.io"],
+        };
+        MockFileSystem fileSystem = new(new Dictionary<string, MockFileData>
+        {
+            { s_runtimeConfigPath, new MockFileData(expectedConfig.ToJsonBytes()) },
+        });
+
+        // Act.
+        RuntimeConfig runtimeConfig = await RuntimeConfig.LoadAsync(fileSystem);
+
+        // Assert.
+        Assert.Equal(expectedConfig.Cache, runtimeConfig.Cache);
+        Assert.Equal(expectedConfig.GitHubProxies, runtimeConfig.GitHubProxies);
+        Assert.Equal(expectedConfig.GoModuleProxies, runtimeConfig.GoModuleProxies);
+    }
+
+    [Fact]
+    public async Task LoadAsync_FileMissing_ReturnsDefault()
+    {
+        // Arrange.
+        MockFileSystem fileSystem = new();
+
+        // Act.
+        RuntimeConfig runtimeConfig = await RuntimeConfig.LoadAsync(fileSystem);
+
+        // Assert.
+        RuntimeConfig defaultConfig = new();
+        Assert.Equal(defaultConfig.Cache, runtimeConfig.Cache);
+        Assert.Equal(defaultConfig.GitHubProxies, runtimeConfig.GitHubProxies);
+        Assert.Equal(defaultConfig.GoModuleProxies, runtimeConfig.GoModuleProxies);
     }
 }

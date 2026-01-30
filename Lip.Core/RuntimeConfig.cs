@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -54,6 +55,21 @@ public record RuntimeConfig
         {
             throw new JsonException("Runtime config bytes deserialization failed.", ex);
         }
+    }
+
+    public static async Task<RuntimeConfig> LoadAsync(IFileSystem fileSystem)
+    {
+        PathManager pathManager = new(fileSystem);
+        string path = pathManager.RuntimeConfigPath;
+
+        if (!fileSystem.File.Exists(path))
+        {
+            return new RuntimeConfig();
+        }
+
+        byte[] json = await fileSystem.File.ReadAllBytesAsync(path);
+
+        return FromJsonBytes(json);
     }
 
     public byte[] ToJsonBytes()
