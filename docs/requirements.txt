@@ -19,12 +19,12 @@ paginate==0.5.7
 pathspec==0.12.1
 platformdirs==4.3.6
 Pygments==2.18.0
-pymdown-extensions==10.13
+pymdown-extensions==10.16.1
 python-dateutil==2.9.0.post0
 PyYAML==6.0.2
 pyyaml_env_tag==0.1
 regex==2024.11.6
 requests==2.32.4
 six==1.17.0
-urllib3==2.6.0
+urllib3==2.6.3
 watchdog==6.0.0
