@@ -155,7 +155,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@9989ccec43d726ef05aa1cd7b2854fb96b6df6ab # v2
+        uses: ffurrer2/extract-release-notes@202313ec7461b6b9e401996714484690ab1ae105 # v2
 
       - uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         with:
