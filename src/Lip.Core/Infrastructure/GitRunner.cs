@@ -1,4 +1,5 @@
 using CliWrap;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Lip.Core.Infrastructure;
@@ -19,17 +20,27 @@ public interface IGitRunner
 
 public class GitRunner : IGitRunner
 {
+    private static IReadOnlyDictionary<string, string?> BuildNonInteractiveGitEnv()
+    {
+        Dictionary<string, string?> env = new()
+        {
+            ["GIT_TERMINAL_PROMPT"] = "0",
+            ["GIT_ASKPASS"] = "",
+            ["SSH_ASKPASS"] = "",
+        };
+
+        return env;
+    }
+
     public async Task Clone(
         string repo,
         string? dir = null,
         string? branch = null,
         int? depth = null)
     {
-        using Stream stdInStream = Console.OpenStandardInput();
-        using Stream stdOutStream = Console.OpenStandardOutput();
-        using Stream stdErrStream = Console.OpenStandardError();
+        StringBuilder stderr = new();
 
-        await Cli.Wrap("git")
+        CommandResult result = await Cli.Wrap("git")
             .WithArguments(
             [
                 "clone",
@@ -39,10 +50,22 @@ public class GitRunner : IGitRunner
                 repo,
                 .. (dir is not null) ? new[] { dir } : []
             ])
-            .WithStandardInputPipe(PipeSource.FromStream(stdInStream))
-            .WithStandardOutputPipe(PipeTarget.ToStream(stdOutStream))
-            .WithStandardErrorPipe(PipeTarget.ToStream(stdErrStream))
-            .ExecuteAsync();
+            .WithEnvironmentVariables(BuildNonInteractiveGitEnv())
+            .WithValidation(CommandResultValidation.None)
+            .WithStandardInputPipe(PipeSource.Null)
+            .WithStandardOutputPipe(PipeTarget.Null)
+            .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stderr))
+            .ExecuteAsync()
+            .ConfigureAwait(false);
+
+        if (!result.IsSuccess)
+        {
+            string stderrText = stderr.ToString().Trim();
+            throw new InvalidOperationException(
+                string.IsNullOrEmpty(stderrText)
+                    ? $"git clone failed with exit code {result.ExitCode}"
+                    : $"git clone failed with exit code {result.ExitCode}: {stderrText}");
+        }
     }
 
     public async Task<IEnumerable<(string Sha, string Ref)>> LsRemote(
@@ -50,23 +73,34 @@ public class GitRunner : IGitRunner
         bool refs = false,
         bool tags = false)
     {
-        using Stream stdInStream = Console.OpenStandardInput();
-        using MemoryStream outStream = new();
-        using Stream stdErrStream = Console.OpenStandardError();
+        StringBuilder stdout = new();
+        StringBuilder stderr = new();
 
-        await Cli.Wrap("git")
+        CommandResult result = await Cli.Wrap("git")
             .WithArguments([
                 "ls-remote",
                 .. refs ? new List<string> { "--refs" } : [],
                 .. tags ? new List<string> { "--tags" } : [],
                 repository
             ])
-            .WithStandardInputPipe(PipeSource.FromStream(stdInStream))
-            .WithStandardOutputPipe(PipeTarget.ToStream(outStream))
-            .WithStandardErrorPipe(PipeTarget.ToStream(stdErrStream))
-            .ExecuteAsync();
+            .WithEnvironmentVariables(BuildNonInteractiveGitEnv())
+            .WithValidation(CommandResultValidation.None)
+            .WithStandardInputPipe(PipeSource.Null)
+            .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdout))
+            .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stderr))
+            .ExecuteAsync()
+            .ConfigureAwait(false);
 
-        string outputString = Encoding.UTF8.GetString(outStream.ToArray());
+        if (!result.IsSuccess)
+        {
+            string stderrText = stderr.ToString().Trim();
+            throw new InvalidOperationException(
+                string.IsNullOrEmpty(stderrText)
+                    ? $"git ls-remote failed with exit code {result.ExitCode}"
+                    : $"git ls-remote failed with exit code {result.ExitCode}: {stderrText}");
+        }
+
+        string outputString = stdout.ToString();
 
         return outputString
             .Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
