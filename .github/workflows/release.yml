@@ -76,7 +76,7 @@ jobs:
       - id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v3
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
@@ -114,7 +114,7 @@ jobs:
         run: |
           zip -r9 "../lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}.zip" *
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}.{zip,tar.xz}
@@ -155,7 +155,7 @@ jobs:
             /DAppVersion=${{ needs.get-version.outputs.version }}
             /DBuildArch=${{ matrix.build-arch }}
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             .tmp/inno/lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}-setup.exe
