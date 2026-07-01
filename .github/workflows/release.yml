@@ -9,7 +9,7 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.VERSION }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - id: get-version
         shell: bash
@@ -37,7 +37,7 @@ jobs:
           - runtime: win-x64
             runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -71,7 +71,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v3
@@ -98,7 +98,7 @@ jobs:
           - win-arm64
           - win-x64
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -137,7 +137,7 @@ jobs:
             runs-on: windows-latest
             build-arch: x64compatible
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -169,7 +169,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
@@ -232,7 +232,7 @@ jobs:
       - get-version
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
   
       - run: gh repo sync lip-winget-bot/winget-pkgs -b master
         env:
