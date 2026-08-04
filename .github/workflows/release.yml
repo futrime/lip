@@ -9,7 +9,7 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.VERSION }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - id: get-version
         shell: bash
@@ -37,7 +37,7 @@ jobs:
           - runtime: win-x64
             runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -71,12 +71,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v3
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
@@ -98,7 +98,7 @@ jobs:
           - win-arm64
           - win-x64
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -114,7 +114,7 @@ jobs:
         run: |
           zip -r9 "../lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}.zip" *
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}.{zip,tar.xz}
@@ -137,7 +137,7 @@ jobs:
             runs-on: windows-latest
             build-arch: x64compatible
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -148,14 +148,14 @@ jobs:
         run: |
           mkdir -p .tmp/inno
 
-      - uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+      - uses: Minionguyjpro/Inno-Setup-Action@v1.2.8
         with:
           path: inno/lip.iss
           options: |
             /DAppVersion=${{ needs.get-version.outputs.version }}
             /DBuildArch=${{ matrix.build-arch }}
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             .tmp/inno/lip-${{ needs.get-version.outputs.version }}-${{ matrix.runtime }}-setup.exe
@@ -169,7 +169,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
@@ -232,7 +232,7 @@ jobs:
       - get-version
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
   
       - run: gh repo sync lip-winget-bot/winget-pkgs -b master
         env:
