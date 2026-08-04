@@ -42,7 +42,7 @@ public class DirectorySourceTests {
     // Act
     using Stream stream = await provider.OpenRead("file.txt");
     using StreamReader reader = new(stream);
-    string content = await reader.ReadToEndAsync();
+    string content = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
 
     // Assert
     Assert.Equal("test content", content);

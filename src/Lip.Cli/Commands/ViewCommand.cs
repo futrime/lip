@@ -15,7 +15,7 @@ public class ViewCommand(ILipClient lipClient) : AsyncCommand<ViewCommand.Settin
     public required string Package { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     string json = await _lipClient.View(settings.Package);
 
     JsonText jsonText = new(json);

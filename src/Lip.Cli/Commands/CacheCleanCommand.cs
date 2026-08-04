@@ -11,7 +11,7 @@ public class CacheCleanCommand(ILipClient lipClient, IUserInteraction userIntera
   public class Settings : CommandSettings {
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.CacheClean();
     await _userInteraction.PrintSuccess("Cache cleaned successfully.");
     return 0;

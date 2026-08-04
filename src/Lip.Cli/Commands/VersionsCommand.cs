@@ -24,7 +24,7 @@ public class VersionsCommand(ILipClient lipClient) : AsyncCommand<VersionsComman
     public bool Json { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     IEnumerable<string> versions = await _lipClient.Versions(settings.Package);
 
     if (settings.Json) {

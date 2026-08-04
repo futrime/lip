@@ -19,7 +19,7 @@ public class ListCommand(ILipClient lipClient) : AsyncCommand<ListCommand.Settin
     public bool Json { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     (IEnumerable<string> ExplicitInstalled, IEnumerable<string> ImplicitInstalled) packages = await _lipClient.List();
 
     if (settings.Json) {

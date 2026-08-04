@@ -32,14 +32,17 @@ public class LipClientTests {
     }
   }
 
-  public static TheoryData<List<string>> Install_OnWinX64_DoesNotThrowData =>
-  [
-    ["github.com/LiteLDev/MoreDimensions@0.13.0"],
-    ["github.com/LiteLDev/LegacyScriptEngine@0.17.13"],
-    ["github.com/LiteLDev/LeviLamina@1.9.9"],
-    ["github.com/LiteLDev/LeviLamina@1.9.9", "github.com/LiteLDev/LegacyScriptEngine@0.17.13"],
-    ["github.com/LiteLDev/LegacyScriptEngine@0.17.13", "github.com/LiteLDev/MoreDimensions@0.13.0"],
-  ];
+  public static TheoryData<List<string>> Install_OnWinX64_DoesNotThrowData {
+    get {
+      TheoryData<List<string>> data = new();
+      data.Add(new List<string> { "github.com/LiteLDev/MoreDimensions@0.13.0" });
+      data.Add(new List<string> { "github.com/LiteLDev/LegacyScriptEngine@0.17.13" });
+      data.Add(new List<string> { "github.com/LiteLDev/LeviLamina@1.9.9" });
+      data.Add(new List<string> { "github.com/LiteLDev/LeviLamina@1.9.9", "github.com/LiteLDev/LegacyScriptEngine@0.17.13" });
+      data.Add(new List<string> { "github.com/LiteLDev/LegacyScriptEngine@0.17.13", "github.com/LiteLDev/MoreDimensions@0.13.0" });
+      return data;
+    }
+  }
 
   [WinX64Theory]
   [MemberData(nameof(Install_OnWinX64_DoesNotThrowData))]

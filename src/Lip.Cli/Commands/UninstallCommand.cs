@@ -27,7 +27,7 @@ public class UninstallCommand(ILipClient lipClient, IUserInteraction userInterac
     public bool NoDependencies { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.Uninstall(settings.Packages, settings.DryRun, settings.IgnoreScripts, settings.NoDependencies);
     await _userInteraction.PrintSuccess("Packages uninstalled successfully.");
     return 0;

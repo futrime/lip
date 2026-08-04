@@ -8,7 +8,7 @@ public class RunCommand : AsyncCommand<RunCommand.Settings> {
   public class Settings : CommandSettings {
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     using JsonRpc rpc = new(
         Console.OpenStandardOutput(),
         Console.OpenStandardInput());

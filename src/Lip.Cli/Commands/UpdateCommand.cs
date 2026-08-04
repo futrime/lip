@@ -23,7 +23,7 @@ public class UpdateCommand(ILipClient lipClient, IUserInteraction userInteractio
     public bool IgnoreScripts { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.Update(settings.Packages, settings.DryRun, settings.IgnoreScripts);
     await _userInteraction.PrintSuccess("Packages updated successfully.");
     return 0;

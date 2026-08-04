@@ -15,7 +15,7 @@ public class ConfigDeleteCommand(ILipClient lipClient, IUserInteraction userInte
     public required string Key { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.ConfigDelete(settings.Key);
     await _userInteraction.PrintSuccess($"Config key '{settings.Key}' deleted.");
     return 0;

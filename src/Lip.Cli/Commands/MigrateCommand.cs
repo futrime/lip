@@ -19,7 +19,7 @@ public class MigrateCommand(ILipClient lipClient, IUserInteraction userInteracti
     public required string Output { get; init; }
   }
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.Migrate(settings.File, settings.Output);
     await _userInteraction.PrintSuccess("Migration completed successfully.");
     return 0;
