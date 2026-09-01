@@ -148,7 +148,7 @@ jobs:
         run: |
           mkdir -p .tmp/inno
 
-      - uses: Minionguyjpro/Inno-Setup-Action@v1.2.8
+      - uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: inno/lip.iss
           options: |
