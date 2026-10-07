@@ -290,7 +290,53 @@ public class PackageInstallerTests {
     await _installer.UninstallPackage(pkgId, false, false);
 
     // Assert
+    // The pattern does not match the relative path `plugins/file.txt`, so this relies on
+    // the file-name fallback.
     Assert.True(_mockFileSystem.File.Exists(filePath)); // Should exist
+  }
+
+  [Fact]
+  public async Task UninstallPackage_PreserveFiles_MatchesRelativePath() {
+    // Arrange
+    PackageId pkgId = new("github.com/test/pkg", "");
+    PackageSpec pkgSpec = new(pkgId, new SemVersion(1, 0, 0));
+
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackages(IWorkspaceService.PackageScope.All))
+        .ReturnsAsync([pkgSpec]);
+
+    PackageManifest manifest = new() {
+      Path = "github.com/test/pkg",
+      Version = new SemVersion(1, 0, 0),
+      Variants = [
+            new() {
+                    PreserveFiles = [DotNet.Globbing.Glob.Parse("config/*.json")]
+                }
+        ]
+    };
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageManifest(pkgSpec))
+        .ReturnsAsync(manifest);
+
+    string preservedFile = Path.Combine("config", "lip.json");
+    string removedFile = Path.Combine("config", "notes.txt");
+    string otherRemovedFile = Path.Combine("plugins", "file.txt");
+    _mockFileSystem.AddFile(preservedFile, new MockFileData("{}"));
+    _mockFileSystem.AddFile(removedFile, new MockFileData("notes"));
+    _mockFileSystem.AddFile(otherRemovedFile, new MockFileData("content"));
+
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageFiles(pkgSpec))
+        .ReturnsAsync([
+            _mockFileSystem.FileInfo.New(preservedFile),
+            _mockFileSystem.FileInfo.New(removedFile),
+            _mockFileSystem.FileInfo.New(otherRemovedFile)
+        ]);
+
+    // Act
+    await _installer.UninstallPackage(pkgId, false, false);
+
+    // Assert
+    Assert.True(_mockFileSystem.File.Exists(preservedFile));
+    Assert.False(_mockFileSystem.File.Exists(removedFile));
+    Assert.False(_mockFileSystem.File.Exists(otherRemovedFile));
   }
 
   [Fact]
@@ -381,5 +427,116 @@ public class PackageInstallerTests {
 
     // Assert
     Assert.False(_mockFileSystem.File.Exists(extraFile));
+  }
+
+  [Fact]
+  public async Task UninstallPackage_RemoveFiles_MatchesRelativePathOnly() {
+    // Arrange
+    PackageId pkgId = new("github.com/test/pkg", "");
+    PackageSpec pkgSpec = new(pkgId, new SemVersion(1, 0, 0));
+
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackages(IWorkspaceService.PackageScope.All))
+        .ReturnsAsync([pkgSpec]);
+
+    PackageManifest manifest = new() {
+      Path = "github.com/test/pkg",
+      Version = new SemVersion(1, 0, 0),
+      Variants = [
+            new() {
+                    RemoveFiles = [DotNet.Globbing.Glob.Parse("extra.log")]
+                }
+        ]
+    };
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageManifest(pkgSpec))
+        .ReturnsAsync(manifest);
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageFiles(pkgSpec))
+        .ReturnsAsync([]);
+
+    string matchingFile = "extra.log";
+    string nonMatchingFile = Path.Combine("sub", "extra.log");
+    _mockFileSystem.AddFile(matchingFile, new MockFileData("log"));
+    _mockFileSystem.AddFile(nonMatchingFile, new MockFileData("log"));
+
+    // Act
+    await _installer.UninstallPackage(pkgId, false, false);
+
+    // Assert
+    Assert.False(_mockFileSystem.File.Exists(matchingFile));
+    Assert.True(_mockFileSystem.File.Exists(nonMatchingFile));
+  }
+
+  [Fact]
+  public async Task UninstallPackage_RemoveFiles_MatchesGlobstarAcrossDirectories() {
+    // Arrange
+    PackageId pkgId = new("github.com/test/pkg", "");
+    PackageSpec pkgSpec = new(pkgId, new SemVersion(1, 0, 0));
+
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackages(IWorkspaceService.PackageScope.All))
+        .ReturnsAsync([pkgSpec]);
+
+    PackageManifest manifest = new() {
+      Path = "github.com/test/pkg",
+      Version = new SemVersion(1, 0, 0),
+      Variants = [
+            new() {
+                    RemoveFiles = [DotNet.Globbing.Glob.Parse("**/*.log")]
+                }
+        ]
+    };
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageManifest(pkgSpec))
+        .ReturnsAsync(manifest);
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageFiles(pkgSpec))
+        .ReturnsAsync([]);
+
+    string rootFile = "extra.log";
+    string nestedFile = Path.Combine("sub", "extra.log");
+    string untouchedFile = Path.Combine("sub", "extra.txt");
+    _mockFileSystem.AddFile(rootFile, new MockFileData("log"));
+    _mockFileSystem.AddFile(nestedFile, new MockFileData("log"));
+    _mockFileSystem.AddFile(untouchedFile, new MockFileData("txt"));
+
+    // Act
+    await _installer.UninstallPackage(pkgId, false, false);
+
+    // Assert
+    Assert.False(_mockFileSystem.File.Exists(rootFile));
+    Assert.False(_mockFileSystem.File.Exists(nestedFile));
+    Assert.True(_mockFileSystem.File.Exists(untouchedFile));
+  }
+
+  [Fact]
+  public async Task UninstallPackage_RemoveFiles_MatchesDirectoryRelativePathOnly() {
+    // Arrange
+    PackageId pkgId = new("github.com/test/pkg", "");
+    PackageSpec pkgSpec = new(pkgId, new SemVersion(1, 0, 0));
+
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackages(IWorkspaceService.PackageScope.All))
+        .ReturnsAsync([pkgSpec]);
+
+    PackageManifest manifest = new() {
+      Path = "github.com/test/pkg",
+      Version = new SemVersion(1, 0, 0),
+      Variants = [
+            new() {
+                    RemoveFiles = [DotNet.Globbing.Glob.Parse("temp/")]
+                }
+        ]
+    };
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageManifest(pkgSpec))
+        .ReturnsAsync(manifest);
+    _mockWorkspaceService.Setup(w => w.GetInstalledPackageFiles(pkgSpec))
+        .ReturnsAsync([]);
+
+    string removedFile = Path.Combine("temp", "file.txt");
+    string keptFile = Path.Combine("sub", "temp", "file.txt");
+    _mockFileSystem.AddFile(removedFile, new MockFileData("temp"));
+    _mockFileSystem.AddFile(keptFile, new MockFileData("temp"));
+
+    // Act
+    await _installer.UninstallPackage(pkgId, false, false);
+
+    // Assert
+    Assert.False(_mockFileSystem.Directory.Exists("temp"));
+    Assert.True(_mockFileSystem.File.Exists(keptFile));
   }
 }
