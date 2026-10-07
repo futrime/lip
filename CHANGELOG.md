@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.9] - 2026-10-08
+
+### Changed
+
+- Adjusted remove_files and preserve_files's behavior [#347]
+
 ## [0.34.8] - 2026-08-04
 
 ### Changed
@@ -815,7 +821,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#157]: https://github.com/futrime/lip/issues/157
 [#218]: https://github.com/futrime/lip/issues/218
 [#282]: https://github.com/futrime/lip/issues/282
+[#347]: https://github.com/futrime/lip/issues/347
 
+[0.34.9]: https://github.com/futrime/lip/compare/v0.34.8...v0.34.9
 [0.34.8]: https://github.com/futrime/lip/compare/v0.34.7...v0.34.8
 [0.34.7]: https://github.com/futrime/lip/compare/v0.34.6...v0.34.7
 [0.34.6]: https://github.com/futrime/lip/compare/v0.34.5...v0.34.6
