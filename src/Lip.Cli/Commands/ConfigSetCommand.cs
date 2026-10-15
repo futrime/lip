@@ -19,7 +19,7 @@ public class ConfigSetCommand(ILipClient lipClient, IUserInteraction userInterac
     public required string Value { get; init; }
   }
 
-  protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
+  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken) {
     await _lipClient.ConfigSet(settings.Key, settings.Value);
     await _userInteraction.PrintSuccess($"Config key '{settings.Key}' set to '{settings.Value}'.");
     return 0;
