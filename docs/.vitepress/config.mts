@@ -1,6 +1,9 @@
 import { defineConfig } from 'vitepress'
 
+const base = '/lip/'
+
 export default defineConfig({
+  base,
   title: "lip",
   description: "A general package installer",
   head: [
@@ -10,7 +13,7 @@ export default defineConfig({
       `(() => {
         if (typeof window === 'undefined') return;
         const path = window.location.pathname;
-        if (path !== '/' && path !== '/index.html') return;
+        if (path !== '${base}' && path !== '${base}index.html') return;
         
         const langs = navigator.languages && navigator.languages.length > 0
           ? navigator.languages
@@ -18,7 +21,7 @@ export default defineConfig({
         
         const isZh = langs.some((lang) => /^zh(?:-|$)/i.test(lang));
         if (isZh) {
-          window.location.replace('/zh/');
+          window.location.replace('${base}zh/');
         }
        })();`
     ]

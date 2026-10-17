@@ -4,7 +4,7 @@ A general package installer
 
 ## Usage
 
-Check out [the documentation](https://lip.levimc.org/) for more information.
+Check out [the documentation](https://docs.levimc.org/lip/) for more information.
 
 ## Contributing
 
