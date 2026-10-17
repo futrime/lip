@@ -4,7 +4,7 @@ import { href, site } from '../data';
 import { KitLink } from './KitLink';
 import { Sidebar } from './Sidebar';
 import { useFocusTrap } from './focus';
-import { PixelIcon } from '../../../components/PixelIcon';
+import { PixelIcon, BrandIcon, type BrandIconName } from '../../../components/PixelIcon';
 import type { UiStrings } from '../../../components/i18n';
 
 export function MobileDrawer({
@@ -82,6 +82,15 @@ export function MobileDrawer({
             })}
           </ul>
         </nav>
+        {site.social.length ? (
+          <div className="kit-drawer-social">
+            {site.social.map((s) => (
+              <a key={s.link} className="mc-icon-btn" href={s.link} target="_blank" rel="noopener" aria-label={s.label ?? s.icon} title={s.label ?? s.icon}>
+                <BrandIcon name={(s.icon as BrandIconName) ?? 'github'} size={18} />
+              </a>
+            ))}
+          </div>
+        ) : null}
         {sidebar ? (
           <div className="kit-drawer-sidebar">
             <Sidebar data={sidebar} path={path} label={t.sidebarNav} onNavigate={onClose} />

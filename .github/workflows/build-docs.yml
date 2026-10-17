@@ -21,7 +21,7 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          version: 10
+          package_json_file: docs/package.json # pnpm version from "packageManager"
 
       - uses: actions/setup-node@v7
         with:

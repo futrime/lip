@@ -34,7 +34,7 @@ export function DocLayout({ route, page, t }: { route: RouteMeta; page: PageData
   return (
     <div className="kit-doc-layout" data-sidebar={sidebar ? '' : undefined} data-toc={tocColumn ? '' : undefined}>
       {sidebar ? (
-        <aside className="kit-doc-sidebar">
+        <aside className="kit-doc-sidebar" aria-label={t.sidebarNav}>
           <div className="kit-doc-sidebar-inner">
             <Sidebar data={sidebar} path={route.path} label={t.sidebarNav} />
           </div>
@@ -48,7 +48,7 @@ export function DocLayout({ route, page, t }: { route: RouteMeta; page: PageData
         <DocFooter route={route} t={t} />
       </main>
       {tocColumn ? (
-        <aside className="kit-doc-toc" aria-hidden={showToc ? undefined : true}>
+        <aside className="kit-doc-toc" aria-label={t.onThisPage} aria-hidden={showToc ? undefined : true}>
           <div className="kit-doc-toc-inner">{showToc ? <Toc toc={page.toc} title={t.onThisPage} /> : null}</div>
         </aside>
       ) : null}

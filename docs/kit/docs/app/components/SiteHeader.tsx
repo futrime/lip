@@ -99,7 +99,7 @@ export function SiteHeader({ route, locale, lang, t, localeOptions, onLocaleSele
           </ul>
         </nav>
         <div className="kit-site-actions">
-          <button type="button" className="kit-search-trigger" data-kit-search-trigger="" onClick={onOpenSearch} aria-label={t.search} aria-keyshortcuts="Control+K Meta+K /">
+          <button type="button" className="kit-search-trigger" data-kit-search-trigger="" onClick={onOpenSearch} aria-keyshortcuts="Control+K Meta+K /">
             <PixelIcon name="search" />
             <span className="kit-search-trigger-label">{t.search}</span>
             <span className="kit-search-trigger-keys" aria-hidden="true">

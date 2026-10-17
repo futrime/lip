@@ -6,6 +6,8 @@ export default defineDocsConfig({
   base: '/lip/',
   title: 'lip',
   description: 'A general package installer',
+  // lip has no logo of its own: the header shows the kit's grass block, and the tab icon matches it.
+  favicon: 'favicon.svg',
   project: 'lip',
   contentDir: '.',
   repo: 'https://github.com/LiteLDev/lip',
@@ -25,6 +27,8 @@ export default defineDocsConfig({
   cleanUrls: false,
   slug: 'vitepress',
   markdown: { compat: 'commonmark' },
+  // VitePress default (the old config set no outline): "On this page" lists h2 headings only.
+  outline: 2,
   nav: {
     root: [
       { text: 'Intro', link: '/intro/quick_start' },
@@ -183,5 +187,5 @@ export default defineDocsConfig({
       ],
     },
   },
-  social: [{ icon: 'github', link: 'https://github.com/LiteLDev/lip' }],
+  social: [{ icon: 'github', link: 'https://github.com/LiteLDev/lip', label: 'GitHub' }],
 });

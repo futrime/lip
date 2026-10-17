@@ -136,6 +136,10 @@
     font-weight: 650;
     color: var(--color-ink);
   }
+  /* bold link text keeps the link colour */
+  .kit-prose a strong {
+    color: inherit;
+  }
   .kit-prose em {
     font-style: italic;
   }
